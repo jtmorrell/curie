@@ -1,0 +1,318 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>1. Getting Started &#8212; Curie 0.0.1 documentation</title>
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="2. Spectroscopy" href="spectroscopy.html" />
+    <link rel="prev" title="User’s Guide" href="index.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="spectroscopy.html" title="2. Spectroscopy"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="User’s Guide"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Curie 0.0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">User’s Guide</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="getting-started">
+<span id="id1"></span><h1>1. Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="installation">
+<h2>1.1. Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>If you haven’t already installed Curie, visit the <a class="reference internal" href="../quickinstall.html#quickinstall"><span class="std std-ref">Installation</span></a> Guide.</p>
+</div>
+<div class="section" id="spectroscopy">
+<h2>1.2. Spectroscopy<a class="headerlink" href="#spectroscopy" title="Permalink to this headline">¶</a></h2>
+<p>Curie provides two classes for spectroscopic analysis, the <cite>Spectrum</cite> class and the <cite>Calibration</cite> class. They can be imported with:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">curie</span> <span class="kn">import</span> <span class="n">Spectrum</span><span class="p">,</span> <span class="n">Calibration</span>
+</pre></div>
+</div>
+<p>The following example, using the spectrum located on the Curie <a class="reference external" href="https://github.com/jtmorrell/curie/blob/master/examples/eu_calib_7cm.Spe">github</a>, demonstrates how to perform various tasks using these classes:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">curie</span> <span class="kn">import</span> <span class="n">Spectrum</span><span class="p">,</span> <span class="n">Calibration</span>
+<span class="c1">### Load and plot the spectrum</span>
+<span class="n">sp</span> <span class="o">=</span> <span class="n">Spectrum</span><span class="p">(</span><span class="s1">&#39;eu_calib_7cm.Spe&#39;</span><span class="p">)</span>
+<span class="n">sp</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+
+<span class="c1">### Fit Europium Spectrum</span>
+<span class="n">sp</span><span class="o">.</span><span class="n">meta</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;istp&#39;</span><span class="p">:[</span><span class="s1">&#39;152EU&#39;</span><span class="p">]}</span>
+<span class="n">sp</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+
+<span class="c1">### Perform efficiency calibration</span>
+<span class="n">sp</span><span class="o">.</span><span class="n">meta</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;A0&#39;</span><span class="p">:</span><span class="mf">3.7E4</span><span class="p">,</span> <span class="s1">&#39;ref_date&#39;</span><span class="p">:</span><span class="s1">&#39;01/01/2009 12:00:00&#39;</span><span class="p">}</span>
+<span class="n">sp</span><span class="o">.</span><span class="n">auto_calibrate</span><span class="p">()</span>
+
+<span class="c1">### Save and load calibration</span>
+<span class="n">sp</span><span class="o">.</span><span class="n">cb</span><span class="o">.</span><span class="n">saveas</span><span class="p">(</span><span class="s1">&#39;eu_calib.json&#39;</span><span class="p">)</span>
+<span class="n">sp</span><span class="o">.</span><span class="n">cb</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;eu_calib.json&#39;</span><span class="p">)</span>
+
+<span class="c1">### Or...assign new calibration this way</span>
+<span class="n">cb</span> <span class="o">=</span> <span class="n">Calibration</span><span class="p">(</span><span class="s1">&#39;eu_calib.json&#39;</span><span class="p">)</span>
+<span class="n">sp</span><span class="o">.</span><span class="n">cb</span> <span class="o">=</span> <span class="n">cb</span>
+<span class="n">sp</span><span class="o">.</span><span class="n">cb</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+
+<span class="c1">### Save peak information</span>
+<span class="n">sp</span><span class="o">.</span><span class="n">saveas</span><span class="p">(</span><span class="s1">&#39;test.db&#39;</span><span class="p">,</span> <span class="s1">&#39;test.csv&#39;</span><span class="p">)</span>
+
+<span class="c1">### Print out peaks</span>
+<span class="n">sp</span><span class="o">.</span><span class="n">summarize</span><span class="p">()</span>
+
+<span class="c1">### Save as .Chn format</span>
+<span class="n">sp</span><span class="o">.</span><span class="n">saveas</span><span class="p">(</span><span class="s1">&#39;eu_calib_7cm.Chn&#39;</span><span class="p">)</span>
+
+<span class="c1">### Load with database</span>
+<span class="n">sp</span> <span class="o">=</span> <span class="n">Spectrum</span><span class="p">(</span><span class="s1">&#39;eu_calib_7cm.Chn&#39;</span><span class="p">,</span> <span class="s1">&#39;test.db&#39;</span><span class="p">)</span>
+<span class="n">sp</span><span class="o">.</span><span class="n">meta</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;istp&#39;</span><span class="p">:[</span><span class="s1">&#39;152EU&#39;</span><span class="p">],</span> <span class="s1">&#39;A0&#39;</span><span class="p">:</span><span class="mf">3.7E4</span><span class="p">,</span> <span class="s1">&#39;ref_date&#39;</span><span class="p">:</span><span class="s1">&#39;01/01/2009 12:00:00&#39;</span><span class="p">}</span>
+
+<span class="c1">### Plot ADC channels instead of energy</span>
+<span class="n">sp</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xcalib</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<span class="c1">### Pick out a few peaks for manual calibration</span>
+<span class="n">cb_data</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">664.5</span><span class="p">,</span> <span class="mf">121.8</span><span class="p">],</span>
+                        <span class="p">[</span><span class="mf">1338.5</span><span class="p">,</span> <span class="mf">244.7</span><span class="p">],</span>
+                        <span class="p">[</span><span class="mf">1882.5</span><span class="p">,</span> <span class="mf">344.3</span><span class="p">],</span>
+                        <span class="p">[</span><span class="mi">2428</span><span class="p">,</span> <span class="mi">444</span><span class="p">],</span>
+                        <span class="p">[</span><span class="mi">7698</span><span class="p">,</span> <span class="mi">1408</span><span class="p">]]</span>
+
+<span class="n">sp</span><span class="o">.</span><span class="n">auto_calibrate</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">cb_data</span><span class="p">)</span>
+
+<span class="c1">### Efficiency calibration using the Calibration class</span>
+<span class="n">cb</span> <span class="o">=</span> <span class="n">Calibration</span><span class="p">()</span>
+<span class="n">cb</span><span class="o">.</span><span class="n">calibrate</span><span class="p">([</span><span class="n">sp</span><span class="p">])</span>
+<span class="n">cb</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+
+<span class="c1">### Custom peaks</span>
+<span class="n">sp</span><span class="o">.</span><span class="n">fit_config</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;p0&#39;</span><span class="p">:[{</span><span class="s1">&#39;E&#39;</span><span class="p">:</span><span class="mf">1460.82</span><span class="p">,</span> <span class="s1">&#39;I&#39;</span><span class="p">:</span><span class="mf">0.1066</span><span class="p">,</span> <span class="s1">&#39;dI&#39;</span><span class="p">:</span><span class="mf">0.0017</span><span class="p">,</span> <span class="s1">&#39;istp&#39;</span><span class="p">:</span><span class="s1">&#39;40K&#39;</span><span class="p">}]}</span>
+<span class="n">sp</span><span class="o">.</span><span class="n">summarize</span><span class="p">()</span>
+<span class="n">sp</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+
+<span class="c1">### More detailed fits</span>
+<span class="n">sp</span><span class="o">.</span><span class="n">fit_config</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;xrays&#39;</span><span class="p">:</span><span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;E_min&#39;</span><span class="p">:</span><span class="mf">20.0</span><span class="p">,</span> <span class="s1">&#39;bg_fit&#39;</span><span class="p">:</span><span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;quad_bg&#39;</span><span class="p">:</span><span class="kc">True</span><span class="p">}</span>
+<span class="c1">### Save and show the plot</span>
+<span class="n">sp</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">saveas</span><span class="o">=</span><span class="s1">&#39;europium.png&#39;</span><span class="p">)</span>
+
+<span class="c1">### MVME listfile conversion utility</span>
+<span class="kn">from</span> <span class="nn">curie</span> <span class="kn">import</span> <span class="n">MVME</span>
+
+<span class="n">fl</span> <span class="o">=</span> <span class="n">MVME</span><span class="p">(</span><span class="s1">&#39;mvmelst_007.zip&#39;</span><span class="p">)</span>
+<span class="c1">### Split into 3 equal time bins</span>
+<span class="n">fl</span><span class="o">.</span><span class="n">meta</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;time_bins&#39;</span><span class="p">:</span><span class="mi">3</span><span class="p">}</span>
+<span class="c1">### Save in directory &#39;mvmelst_007&#39;</span>
+<span class="n">fl</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+<span class="c1">### Save in custom directory</span>
+<span class="n">fl</span><span class="o">.</span><span class="n">save_to_dir</span><span class="p">(</span><span class="s1">&#39;mvme_test&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="stopping-power-calculations">
+<h2>1.3. Stopping Power Calculations<a class="headerlink" href="#stopping-power-calculations" title="Permalink to this headline">¶</a></h2>
+<p>Curie uses the Anderson &amp; Ziegler formalism for calculating charged-particle stopping powers in matter.  The <cite>Ziegler</cite> class allows one to calculate these stopping powers for a stack of foils:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">### Set up a stack with different input options.</span>
+<span class="n">zg</span> <span class="o">=</span> <span class="n">Ziegler</span><span class="p">(</span><span class="n">stack</span><span class="o">=</span><span class="p">[{</span><span class="s1">&#39;compound&#39;</span><span class="p">:</span><span class="s1">&#39;Ni&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">:</span><span class="s1">&#39;Ni01&#39;</span><span class="p">,</span> <span class="s1">&#39;thickness&#39;</span><span class="p">:</span><span class="mf">0.025</span><span class="p">},</span>  <span class="c1"># Thickness only (mm)</span>
+                                        <span class="p">{</span><span class="s1">&#39;compound&#39;</span><span class="p">:</span><span class="s1">&#39;Kapton&#39;</span><span class="p">,</span> <span class="s1">&#39;thickness&#39;</span><span class="p">:</span><span class="mf">0.05</span><span class="p">},</span>                                <span class="c1"># No name - will not be tallied</span>
+                                        <span class="p">{</span><span class="s1">&#39;compound&#39;</span><span class="p">:</span><span class="s1">&#39;Ti&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">:</span><span class="s1">&#39;Ti01&#39;</span><span class="p">,</span> <span class="s1">&#39;thickness&#39;</span><span class="p">:</span><span class="mf">1.025</span><span class="p">},</span>  <span class="c1"># Very thick: should see straggle</span>
+                                        <span class="p">{</span><span class="s1">&#39;compound&#39;</span><span class="p">:{</span><span class="s1">&#39;Inconel&#39;</span><span class="p">:[[</span><span class="mi">26</span><span class="p">,</span><span class="mf">33.0</span><span class="p">],[</span><span class="mi">28</span><span class="p">,</span><span class="mf">55.0</span><span class="p">]]},</span><span class="s1">&#39;ad&#39;</span><span class="p">:</span><span class="mf">1.0</span><span class="p">,</span><span class="s1">&#39;name&#39;</span><span class="p">:</span><span class="s1">&#39;test&#39;</span><span class="p">},</span>
+                                        <span class="p">{</span><span class="s1">&#39;compound&#39;</span><span class="p">:</span><span class="s1">&#39;SrCO3&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">:</span><span class="s1">&#39;SrCO3&#39;</span><span class="p">,</span> <span class="s1">&#39;area&#39;</span><span class="p">:</span><span class="mf">0.785</span><span class="p">,</span> <span class="s1">&#39;mass&#39;</span><span class="p">:</span><span class="mf">4.8E-3</span><span class="p">}],</span>  <span class="c1"># Mass (g) and area (cm^2)</span>
+                                        <span class="n">beam_istp</span><span class="o">=</span><span class="s1">&#39;2H&#39;</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="mf">1E5</span><span class="p">,</span> <span class="n">max_steps</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">E0</span><span class="o">=</span><span class="mf">33.0</span><span class="p">)</span>  <span class="c1">## 33 MeV deuteron beam</span>
+
+<span class="c1">### zg.stack contains all information, both input and calculated</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">zg</span><span class="o">.</span><span class="n">stack</span><span class="p">)</span>
+
+<span class="c1">### Print mean energies on samples</span>
+<span class="n">zg</span><span class="o">.</span><span class="n">summarize</span><span class="p">()</span>
+
+<span class="c1">### Plot only strontium and titanium fluxes</span>
+<span class="n">zg</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="s1">&#39;Sr&#39;</span><span class="p">,</span> <span class="s1">&#39;Ti&#39;</span><span class="p">])</span>
+
+<span class="c1">### Find out if 6mm of Be will stop a deuteron beem</span>
+<span class="n">zg</span> <span class="o">=</span> <span class="n">Ziegler</span><span class="p">(</span><span class="n">stack</span><span class="o">=</span><span class="p">[{</span><span class="s1">&#39;compound&#39;</span><span class="p">:</span><span class="s1">&#39;Be&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">:</span><span class="s1">&#39;Be Breakup&#39;</span><span class="p">,</span><span class="s1">&#39;thickness&#39;</span><span class="p">:</span><span class="mf">6.0</span><span class="p">}])</span>
+<span class="c1">### Set beam options with zg.meta</span>
+<span class="n">zg</span><span class="o">.</span><span class="n">meta</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;istp&#39;</span><span class="p">:</span><span class="s1">&#39;2H&#39;</span><span class="p">,</span> <span class="s1">&#39;E0&#39;</span><span class="p">:</span><span class="mf">33.0</span><span class="p">}</span>
+
+<span class="c1">### Summarize, plot and save</span>
+<span class="n">zg</span><span class="o">.</span><span class="n">summarize</span><span class="p">()</span>
+<span class="n">zg</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+<span class="n">zg</span><span class="o">.</span><span class="n">saveas</span><span class="p">(</span><span class="s1">&#39;breakup.csv&#39;</span><span class="p">,</span> <span class="s1">&#39;breakup.db&#39;</span><span class="p">,</span> <span class="s1">&#39;breakup.png&#39;</span><span class="p">)</span>
+
+<span class="c1">### Import stack design from .csv file</span>
+<span class="n">zg</span> <span class="o">=</span> <span class="n">Ziegler</span><span class="p">(</span><span class="n">stack</span><span class="o">=</span><span class="s1">&#39;test_stack.csv&#39;</span><span class="p">)</span>
+<span class="n">zg</span><span class="o">.</span><span class="n">meta</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;istp&#39;</span><span class="p">:</span><span class="s1">&#39;4HE&#39;</span><span class="p">,</span><span class="s1">&#39;E0&#39;</span><span class="p">:</span><span class="mf">70.0</span><span class="p">,</span> <span class="s1">&#39;min_steps&#39;</span><span class="p">:</span><span class="mi">20</span><span class="p">,</span> <span class="s1">&#39;accuracy&#39;</span><span class="p">:</span><span class="mf">1E-4</span><span class="p">,</span> <span class="s1">&#39;max_steps&#39;</span><span class="p">:</span><span class="mi">100</span><span class="p">}</span>
+<span class="n">zg</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The file <cite>test_stack.csv</cite> used in this example can be found on the <a class="reference external" href="https://github.com/jtmorrell/curie/blob/master/examples/test_stack.csv">curie github</a>.</p>
+</div>
+<div class="section" id="decay-chains">
+<h2>1.4. Decay Chains<a class="headerlink" href="#decay-chains" title="Permalink to this headline">¶</a></h2>
+<p>Curie has the capability of simulating and fitting to any possible decay chain, using the Bateman equations.  The following example demonstrates this for the radium-225 decay chain:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">curie</span> <span class="kn">import</span> <span class="n">DecayChain</span>
+
+<span class="c1">### 225RA decay chain, units of days, 9.0/day production rate, for 0.5 days</span>
+<span class="n">dc</span> <span class="o">=</span> <span class="n">DecayChain</span><span class="p">(</span><span class="s1">&#39;225RA&#39;</span><span class="p">,</span> <span class="s1">&#39;d&#39;</span><span class="p">,</span> <span class="n">R</span><span class="o">=</span><span class="mf">9.0</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">dc</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+
+<span class="c1">### Additional production of 225AC, with production rate of 225RA fluctuating</span>
+<span class="n">dc</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">DecayChain</span><span class="p">(</span><span class="s1">&#39;225RA&#39;</span><span class="p">,</span> <span class="s1">&#39;d&#39;</span><span class="p">,</span> <span class="n">R</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;225RA&#39;</span><span class="p">:</span><span class="mf">2.0</span><span class="p">,</span> <span class="s1">&#39;225AC&#39;</span><span class="p">:</span><span class="mf">1.0</span><span class="p">},</span> <span class="n">time</span><span class="o">=</span><span class="mf">1.5</span><span class="p">))</span>
+<span class="n">dc</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">DecayChain</span><span class="p">(</span><span class="s1">&#39;225RA&#39;</span><span class="p">,</span> <span class="s1">&#39;d&#39;</span><span class="p">,</span> <span class="n">R</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;225RA&#39;</span><span class="p">:</span><span class="mf">5.0</span><span class="p">,</span> <span class="s1">&#39;225AC&#39;</span><span class="p">:</span><span class="mf">1.0</span><span class="p">},</span> <span class="n">time</span><span class="o">=</span><span class="mf">4.5</span><span class="p">))</span>
+
+<span class="c1">### 21 day decay time</span>
+<span class="n">dc</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">DecayChain</span><span class="p">(</span><span class="s1">&#39;225RA&#39;</span><span class="p">,</span> <span class="s1">&#39;d&#39;</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="mi">21</span><span class="p">))</span>
+
+<span class="c1">### Measured counts: [start_time (d), stop_time (d), decays, unc_decays]</span>
+<span class="c1">### Times relative to last appended DecayChain, i.e. EoB time</span>
+<span class="n">dc</span><span class="o">.</span><span class="n">counts</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;225AC&#39;</span><span class="p">:[[</span><span class="mf">5.0</span><span class="p">,</span> <span class="mf">5.1</span><span class="p">,</span> <span class="mf">6E5</span><span class="p">,</span> <span class="mf">2E4</span><span class="p">],</span>
+                                          <span class="p">[</span><span class="mf">6.0</span><span class="p">,</span> <span class="mf">6.1</span><span class="p">,</span> <span class="mf">7E5</span><span class="p">,</span> <span class="mf">3E4</span><span class="p">]],</span>
+                        <span class="s1">&#39;221FR&#39;</span><span class="p">:[</span><span class="mf">5.5</span><span class="p">,</span> <span class="mf">5.6</span><span class="p">,</span> <span class="mf">6E5</span><span class="p">,</span> <span class="mf">2E4</span><span class="p">]}</span>
+
+<span class="c1">### Find the scaled production rate that gives us these counts</span>
+<span class="n">dc</span><span class="o">.</span><span class="n">fit_R</span><span class="p">()</span>
+<span class="c1">### Only plot the 5 most active isotopes in the decay chain</span>
+<span class="n">dc</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">N_plot</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="nuclear-data-libraries">
+<h2>1.5. Nuclear Data Libraries<a class="headerlink" href="#nuclear-data-libraries" title="Permalink to this headline">¶</a></h2>
+<p>Curie contains data from the ENSDF, ENDF, IRDFF, IAEA-charged-particle and TENDL nuclear data libraries.  Information about a specific isotope, for example its half-life, can be retreieved using the <cite>Isotope</cite> class:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">curie</span> <span class="kn">import</span> <span class="n">Isotope</span>
+
+<span class="n">i</span> <span class="o">=</span> <span class="n">Isotope</span><span class="p">(</span><span class="s1">&#39;60CO&#39;</span><span class="p">)</span>
+<span class="c1">### Get LaTeX formatted name</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">TeX</span><span class="p">)</span>
+<span class="c1">### Get isotope mass in amu</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">mass</span><span class="p">)</span>
+<span class="c1">### Get half life in optimum units</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">half_life</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">optimum_units</span><span class="p">(),</span><span class="n">unc</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">i</span><span class="o">.</span><span class="n">optimum_units</span><span class="p">())</span>
+<span class="c1">### Print list of the decay gammas</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">gammas</span><span class="p">()[</span><span class="s1">&#39;E&#39;</span><span class="p">])</span>
+<span class="c1">### Print dose rate of 80 mCi at 30 cm</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">dose_rate</span><span class="p">(</span><span class="n">activity</span><span class="o">=</span><span class="mi">80</span><span class="o">*</span><span class="mf">3.7E7</span><span class="p">,</span> <span class="n">distance</span><span class="o">=</span><span class="mf">30.0</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Nuclear reaction data can be searched for using the <cite>Library</cite> class, and used with the <cite>Reaction</cite> class:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">curie</span> <span class="kn">import</span> <span class="n">Reaction</span><span class="p">,</span> <span class="n">Library</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="c1">### We will plot the same reaction from three different libraries</span>
+<span class="c1">### Passing f,ax to rx.plot allows multiple plots on the same figure</span>
+<span class="n">f</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+<span class="k">for</span> <span class="n">lb</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;irdff&#39;</span><span class="p">,</span><span class="s1">&#39;endf&#39;</span><span class="p">,</span><span class="s1">&#39;tendl&#39;</span><span class="p">]:</span>
+        <span class="n">rx</span> <span class="o">=</span> <span class="n">Reaction</span><span class="p">(</span><span class="s1">&#39;90ZR(n,2n)89ZR&#39;</span><span class="p">,</span> <span class="n">lb</span><span class="p">)</span>
+        <span class="n">f</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">rx</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">f</span><span class="o">=</span><span class="n">f</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;library&#39;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="c1">### Compare (n,2n) and (n,3n) for endf vs tendl</span>
+<span class="n">f</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+<span class="k">for</span> <span class="n">lb</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;endf&#39;</span><span class="p">,</span><span class="s1">&#39;tendl&#39;</span><span class="p">]:</span>
+        <span class="n">rx</span> <span class="o">=</span> <span class="n">Reaction</span><span class="p">(</span><span class="s1">&#39;226RA(n,2n)225RA&#39;</span><span class="p">,</span> <span class="n">lb</span><span class="p">)</span>
+        <span class="n">f</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">rx</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">f</span><span class="o">=</span><span class="n">f</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span> <span class="n">E_lim</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">30</span><span class="p">],</span> <span class="n">logscale</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">rx</span> <span class="o">=</span> <span class="n">Reaction</span><span class="p">(</span><span class="s1">&#39;226RA(n,3n)224RA&#39;</span><span class="p">,</span> <span class="n">lb</span><span class="p">)</span>
+        <span class="n">f</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">rx</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">f</span><span class="o">=</span><span class="n">f</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">E_lim</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">40</span><span class="p">])</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="c1">### Search the TENDL-2015 neutron library for reactions producing 225RA from 226RA</span>
+<span class="n">lb</span> <span class="o">=</span> <span class="n">Library</span><span class="p">(</span><span class="s1">&#39;tendl_n&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">lb</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s1">&#39;226RA&#39;</span><span class="p">,</span><span class="n">product</span><span class="o">=</span><span class="s1">&#39;225RAg&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">1. Getting Started</a><ul>
+<li><a class="reference internal" href="#installation">1.1. Installation</a></li>
+<li><a class="reference internal" href="#spectroscopy">1.2. Spectroscopy</a></li>
+<li><a class="reference internal" href="#stopping-power-calculations">1.3. Stopping Power Calculations</a></li>
+<li><a class="reference internal" href="#decay-chains">1.4. Decay Chains</a></li>
+<li><a class="reference internal" href="#nuclear-data-libraries">1.5. Nuclear Data Libraries</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">User’s Guide</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="spectroscopy.html"
+                        title="next chapter">2. Spectroscopy</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/usersguide/getting_started.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="spectroscopy.html" title="2. Spectroscopy"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="User’s Guide"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Curie 0.0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >User’s Guide</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Jonathan Morrell.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.3.
+    </div>
+  </body>
+</html>

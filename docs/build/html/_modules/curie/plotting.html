@@ -1,0 +1,364 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>curie.plotting &#8212; Curie 0.0.1 documentation</title>
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Curie 0.0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for curie.plotting</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="n">CURRENT_STYLE</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="n">LIGHT</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;#1abc9c #2ecc71 #3498db #9b59b6 #34495e #f1c40f #e67e22 #e74c3c #ecf0f1 #95a5a6</span>
+<span class="s2">#81ecec #55efc4 #74b9ff #a29bfe #636e72 #ffeaa7 #fab1a0 #ff7675 #dfe6e9 #b2bec3</span>
+<span class="s2">#7ed6df #badc58 #686de0 #e056fd #30336b #f6e58d #ffbe76 #ff7979 #dff9fb #95afc0</span>
+<span class="s2">#00a8ff #4cd137 #273c75 #9c88ff #353b48 #fbc531 #e67e22 #e84118 #f5f6fa #7f8fa6</span>
+<span class="s2">#00d2d3 #1dd1a1 #54a0ff #5f27cd #576574 #feca57 #e67e22 #ff6b6b #ecf0f1 #8395a7</span>
+<span class="s2">#70a1ff #7bed9f #70a1ff #5352ed #57606f #eccc68 #ff7f50 #ff6b81 #ffffff #dfe4ea</span>
+<span class="s2">#12CBC4 #C4E538 #0652DD #FDA7DF #833471 #FFC312 #EE5A24 #ED4C67 #ecf0f1 #95a5a6</span>
+<span class="s2">#38ada9 #b8e994 #6a89cc #6a89cc #1e3799 #fad390 #fa983a #f8c291 #ecf0f1 #95a5a6</span>
+<span class="s2">#2bcbba #26de81 #4b7bec #a55eea #778ca3 #fed330 #fd9644 #fc5c65 #ecf0f1 #d1d8e0</span>
+<span class="s2">#9AECDB #55E6C1 #25CCF7 #D6A2E8 #3B3B98 #F8EFBA #FEA47F #FD7272 #ecf0f1 #CAD3C8</span>
+<span class="s2">#63cdda #2ecc71 #778beb #cf6a87 #596275 #f7d794 #f3a683 #e77f67 #ecf0f1 #95a5a6</span>
+<span class="s2">#34ace0 #33d9b2 #706fd3 #40407a #34495e #ffb142 #ff793f #ff5252 #f7f1e3 #d1ccc0</span>
+<span class="s2">#34e7e4 #0be881 #4bcffa #575fcf #485460 #ffdd59 #ffc048 #ff5e57 #ecf0f1 #d2dae2</span>
+<span class="s2">#7efff5 #32ff7e #18dcff #7d5fff #4b4b4b #fffa65 #ffaf40 #ff4d4d #ecf0f1 #95a5a6&quot;&quot;&quot;</span>
+
+<span class="n">DARK</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;#16a085 #27ae60 #2980b9 #8e44ad #2c3e50 #f39c12 #d35400 #c0392b #bdc3c7 #7f8c8d</span>
+<span class="s2">#00cec9 #00b894 #0984e3 #6c5ce7 #2d3436 #fdcb6e #e17055 #d63031 #b2bec3 #636e72</span>
+<span class="s2">#22a6b3 #6ab04c #4834d4 #be2edd #130f40 #f9ca24 #f0932b #eb4d4b #c7ecee #535c68</span>
+<span class="s2">#0097e6 #44bd32 #192a56 #8c7ae6 #2f3640 #e1b12c #d35400 #c23616 #dcdde1 #718093</span>
+<span class="s2">#01a3a4 #10ac84 #2e86de #341f97 #222f3e #ff9f43 #d35400 #ee5253 #bdc3c7 #8395a7</span>
+<span class="s2">#1e90ff #2ed573 #1e90ff #3742fa #2f3542 #ffa502 #ff6348 #ff4757 #f1f2f6 #ced6e0</span>
+<span class="s2">#1289A7 #A3CB38 #1B1464 #D980FA #6F1E51 #F79F1F #EA2027 #B53471 #bdc3c7 #7f8c8d</span>
+<span class="s2">#079992 #78e08f #4a69bd #4a69bd #0c2461 #f6b93b #e58e26 #e55039 #bdc3c7 #7f8c8d</span>
+<span class="s2">#0fb9b1 #20bf6b #3867d6 #8854d0 #4b6584 #f7b731 #fa8231 #eb3b5a #bdc3c7 #a5b1c2</span>
+<span class="s2">#BDC581 #58B19F #1B9CFC #82589F #182C61 #EAB543 #F97F51 #FC427B #bdc3c7 #2C3A47</span>
+<span class="s2">#3dc1d3 #27ae60 #546de5 #c44569 #303952 #f5cd79 #f19066 #e15f41 #bdc3c7 #7f8c8d</span>
+<span class="s2">#227093 #218c74 #474787 #2c2c54 #2c3e50 #cc8e35 #cd6133 #b33939 #aaa69d #84817a</span>
+<span class="s2">#00d8d6 #05c46b #0fbcf9 #3c40c6 #1e272e #ffd32a #ffa801 #ff3f34 #bdc3c7 #808e9b</span>
+<span class="s2">#67e6dc #3ae374 #17c0eb #7158e2 #3d3d3d #fff200 #ff9f1a #ff3838 #bdc3c7 #7f8c8d&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="colormap"><a class="viewcode-back" href="../../api/plotter.html#curie.colormap">[docs]</a><span class="k">def</span> <span class="nf">colormap</span><span class="p">(</span><span class="n">palette</span><span class="o">=</span><span class="s1">&#39;default&#39;</span><span class="p">,</span> <span class="n">shade</span><span class="o">=</span><span class="s1">&#39;dark&#39;</span><span class="p">,</span> <span class="n">aslist</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;Broad spectrum of hex-formatted colors for plotting</span>
+
+<span class="sd">	Function to provide a broad palette of colors for plotting, inspired by the</span>
+<span class="sd">	FlatUI color picker at https://flatuicolors.com/</span>
+
+<span class="sd">	Parameters</span>
+<span class="sd">	----------</span>
+<span class="sd">	palette : str, optional</span>
+<span class="sd">		Choice of color palette. Options are `default`, `american`, `aussie`,</span>
+<span class="sd">		`british`, `canadian`, `chinese`, `french`, `german`, `indian`, `russian`,</span>
+<span class="sd">		`spanish`, `swedish` and `turkish`.</span>
+
+<span class="sd">	shade : str, optional</span>
+<span class="sd">		`light` or `dark` theme.  Default is `dark`.</span>
+
+<span class="sd">	aslist : bool, optional</span>
+<span class="sd">		Specifies whether to return the colormap as a dictionary,</span>
+<span class="sd">		e.g. {&#39;k&#39;:&#39;#000000&#39;, &#39;w&#39;:&#39;#ffffff&#39;} or as a list, e.g. [&#39;#000000&#39;, &#39;#ffffff&#39;].</span>
+<span class="sd">		Default is `False` (returns dictionary)</span>
+
+<span class="sd">	Returns</span>
+<span class="sd">	-------</span>
+<span class="sd">	dict or list</span>
+<span class="sd">		Colormap in list or dictionary format</span>
+
+<span class="sd">	Examples</span>
+<span class="sd">	--------</span>
+<span class="sd">	&gt;&gt;&gt; cm = ci.colormap()</span>
+<span class="sd">	&gt;&gt;&gt; print(cm)</span>
+<span class="sd">	{&#39;b&#39;: &#39;#2980b9&#39;, &#39;g&#39;: &#39;#27ae60&#39;, &#39;k&#39;: &#39;#2c3e50&#39;, &#39;o&#39;: &#39;#d35400&#39;, &#39;aq&#39;: &#39;#16a085&#39;, </span>
+<span class="sd">	&#39;p&#39;: &#39;#8e44ad&#39;, &#39;r&#39;: &#39;#c0392b&#39;, &#39;gy&#39;: &#39;#7f8c8d&#39;, &#39;w&#39;: &#39;#bdc3c7&#39;, &#39;y&#39;: &#39;#f39c12&#39;}</span>
+<span class="sd">	&gt;&gt;&gt; cm_list = ci.colormap(aslist=True)</span>
+<span class="sd">	&gt;&gt;&gt; cm_british_light = ci.colormap(&#39;british&#39;, &#39;light&#39;)</span>
+
+<span class="sd">	&quot;&quot;&quot;</span>
+
+	<span class="n">pmap</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;default&#39;</span><span class="p">,</span><span class="s1">&#39;american&#39;</span><span class="p">,</span><span class="s1">&#39;aussie&#39;</span><span class="p">,</span><span class="s1">&#39;british&#39;</span><span class="p">,</span><span class="s1">&#39;canadian&#39;</span><span class="p">,</span>
+			<span class="s1">&#39;chinese&#39;</span><span class="p">,</span><span class="s1">&#39;dutch&#39;</span><span class="p">,</span><span class="s1">&#39;french&#39;</span><span class="p">,</span><span class="s1">&#39;german&#39;</span><span class="p">,</span><span class="s1">&#39;indian&#39;</span><span class="p">,</span><span class="s1">&#39;russian&#39;</span><span class="p">,</span>
+			<span class="s1">&#39;spanish&#39;</span><span class="p">,</span><span class="s1">&#39;swedish&#39;</span><span class="p">,</span><span class="s1">&#39;turkish&#39;</span><span class="p">]</span>
+	<span class="n">cmap</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;aq&#39;</span><span class="p">,</span><span class="s1">&#39;g&#39;</span><span class="p">,</span><span class="s1">&#39;b&#39;</span><span class="p">,</span><span class="s1">&#39;p&#39;</span><span class="p">,</span><span class="s1">&#39;k&#39;</span><span class="p">,</span><span class="s1">&#39;y&#39;</span><span class="p">,</span><span class="s1">&#39;o&#39;</span><span class="p">,</span><span class="s1">&#39;r&#39;</span><span class="p">,</span><span class="s1">&#39;w&#39;</span><span class="p">,</span><span class="s1">&#39;gy&#39;</span><span class="p">]</span>
+
+	<span class="k">if</span> <span class="n">palette</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">pmap</span><span class="p">:</span>
+		<span class="n">palette</span> <span class="o">=</span> <span class="s1">&#39;default&#39;</span>
+
+	<span class="k">if</span> <span class="n">shade</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">==</span><span class="s1">&#39;light&#39;</span><span class="p">:</span>
+		<span class="n">cl</span> <span class="o">=</span> <span class="n">LIGHT</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)[</span><span class="n">pmap</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">palette</span><span class="o">.</span><span class="n">lower</span><span class="p">())]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+	<span class="k">else</span><span class="p">:</span>
+		<span class="n">cl</span> <span class="o">=</span> <span class="n">DARK</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)[</span><span class="n">pmap</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">palette</span><span class="o">.</span><span class="n">lower</span><span class="p">())]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+
+	<span class="k">if</span> <span class="n">aslist</span><span class="p">:</span>
+		<span class="k">return</span> <span class="n">cl</span>
+
+	<span class="k">return</span> <span class="p">{</span><span class="n">cmap</span><span class="p">[</span><span class="n">n</span><span class="p">]:</span><span class="n">cl</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">cl</span><span class="p">))}</span></div>
+
+<div class="viewcode-block" id="set_style"><a class="viewcode-back" href="../../api/plotter.html#curie.set_style">[docs]</a><span class="k">def</span> <span class="nf">set_style</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s1">&#39;default&#39;</span><span class="p">,</span> <span class="n">palette</span><span class="o">=</span><span class="s1">&#39;default&#39;</span><span class="p">,</span> <span class="n">shade</span><span class="o">=</span><span class="s1">&#39;dark&#39;</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;Preset styles for generating plots</span>
+
+<span class="sd">	Adjusts default font sizes, colors and spacing for plots, with presets based </span>
+<span class="sd">	on the intended application (i.e. `poster`, `paper`, etc.)</span>
+
+<span class="sd">	Parameters</span>
+<span class="sd">	----------</span>
+<span class="sd">	style : str, optional</span>
+<span class="sd">		Preset style based on intended application of the plot. Options are </span>
+<span class="sd">		`paper`, `poster`, `presentation`, and the default: `default`.</span>
+
+<span class="sd">	palette : str, optional</span>
+<span class="sd">		Sets colormap palette for plots, see `colormap` for detailed options.</span>
+
+<span class="sd">	shade : str, optional</span>
+<span class="sd">		Sets colormap shade for plots, see `colormap` for detailed options</span>
+
+<span class="sd">	Examples</span>
+<span class="sd">	--------</span>
+
+<span class="sd">	&gt;&gt;&gt; ci.set_style(&#39;paper&#39;)</span>
+<span class="sd">	&gt;&gt;&gt; ci.set_style(&#39;poster&#39;, shade=&#39;dark&#39;)</span>
+<span class="sd">	&gt;&gt;&gt; ci.set_style(&#39;presentation&#39;, palette=&#39;aussie&#39;)</span>
+
+<span class="sd">	&quot;&quot;&quot;</span>
+
+	<span class="kn">from</span> <span class="nn">cycler</span> <span class="kn">import</span> <span class="n">cycler</span>
+
+	<span class="n">cm</span> <span class="o">=</span> <span class="n">colormap</span><span class="p">(</span><span class="n">palette</span><span class="o">=</span><span class="n">palette</span><span class="p">,</span> <span class="n">shade</span><span class="o">=</span><span class="n">shade</span><span class="p">)</span>
+	<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;axes.prop_cycle&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cycler</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="p">[</span><span class="n">cm</span><span class="p">[</span><span class="s1">&#39;k&#39;</span><span class="p">],</span><span class="n">cm</span><span class="p">[</span><span class="s1">&#39;r&#39;</span><span class="p">],</span><span class="n">cm</span><span class="p">[</span><span class="s1">&#39;b&#39;</span><span class="p">],</span><span class="n">cm</span><span class="p">[</span><span class="s1">&#39;gy&#39;</span><span class="p">],</span><span class="n">cm</span><span class="p">[</span><span class="s1">&#39;g&#39;</span><span class="p">],</span><span class="n">cm</span><span class="p">[</span><span class="s1">&#39;p&#39;</span><span class="p">],</span><span class="n">cm</span><span class="p">[</span><span class="s1">&#39;o&#39;</span><span class="p">],</span><span class="n">cm</span><span class="p">[</span><span class="s1">&#39;aq&#39;</span><span class="p">],</span><span class="n">cm</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]])</span>
+
+	<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;font.family&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;sans-serif&#39;</span>
+	<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;figure.autolayout&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;True&#39;</span>
+	<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;xtick.minor.visible&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;True&#39;</span>
+	<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;ytick.minor.visible&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;True&#39;</span>
+
+	<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;xtick.major.size&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;5&#39;</span>
+	<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;xtick.minor.size&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;3.5&#39;</span>
+	<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;ytick.major.size&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;5&#39;</span>
+	<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;ytick.minor.size&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;3.5&#39;</span>
+
+	<span class="k">global</span> <span class="n">CURRENT_STYLE</span>
+	<span class="n">CURRENT_STYLE</span> <span class="o">=</span> <span class="p">[</span><span class="n">style</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="n">palette</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="n">shade</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span>
+
+	
+	<span class="k">if</span> <span class="n">style</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">==</span><span class="s1">&#39;paper&#39;</span><span class="p">:</span>
+		<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;font.size&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;14&#39;</span>
+		<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;axes.labelsize&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;16&#39;</span>
+		<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;legend.fontsize&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;12&#39;</span>
+
+		<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;axes.titlepad&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;10&#39;</span>
+		<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;xtick.major.pad&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;6&#39;</span>
+		<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;ytick.major.pad&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;6&#39;</span>
+		
+		<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;xtick.major.width&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;1.25&#39;</span>
+		<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;xtick.minor.width&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;1.05&#39;</span>
+		<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;ytick.major.width&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;1.25&#39;</span>
+		<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;ytick.minor.width&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;1.05&#39;</span>
+
+		<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;axes.linewidth&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;1.05&#39;</span>
+		
+		<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;lines.markersize&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;4.0&#39;</span>
+		<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;lines.linewidth&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;2.2&#39;</span>
+
+		<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;errorbar.capsize&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;4.5&#39;</span>
+		<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;lines.markeredgewidth&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;1.2&#39;</span>
+
+	<span class="k">elif</span> <span class="n">style</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">==</span><span class="s1">&#39;poster&#39;</span><span class="p">:</span>
+		<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;font.size&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;16&#39;</span>
+		<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;axes.labelsize&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;18&#39;</span>
+		<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;legend.fontsize&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;14&#39;</span>
+
+		<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;axes.titlepad&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;12&#39;</span>
+		<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;xtick.major.pad&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;8&#39;</span>
+		<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;ytick.major.pad&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;8&#39;</span>
+
+		<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;xtick.major.width&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;1.5&#39;</span>
+		<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;xtick.minor.width&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;1.2&#39;</span>
+		<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;ytick.major.width&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;1.5&#39;</span>
+		<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;ytick.minor.width&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;1.2&#39;</span>
+
+		<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;axes.linewidth&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;1.4&#39;</span>
+		
+		<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;lines.markersize&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;4.5&#39;</span>
+		<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;lines.linewidth&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;2.8&#39;</span>
+
+		<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;errorbar.capsize&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;5.0&#39;</span>
+		<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;lines.markeredgewidth&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;1.4&#39;</span>
+
+	<span class="k">elif</span> <span class="n">style</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">==</span><span class="s1">&#39;presentation&#39;</span><span class="p">:</span>
+		<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;font.size&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;15&#39;</span>
+		<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;axes.labelsize&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;17&#39;</span>
+		<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;legend.fontsize&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;12&#39;</span>
+
+		<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;axes.titlepad&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;10&#39;</span>
+		<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;xtick.major.pad&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;7&#39;</span>
+		<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;ytick.major.pad&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;7&#39;</span>
+
+		<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;xtick.major.width&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;1.25&#39;</span>
+		<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;xtick.minor.width&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;1.05&#39;</span>
+		<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;ytick.major.width&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;1.25&#39;</span>
+		<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;ytick.minor.width&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;1.05&#39;</span>
+
+		<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;axes.linewidth&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;1.15&#39;</span>
+		
+		<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;lines.markersize&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;4.0&#39;</span>
+		<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;lines.linewidth&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;2.4&#39;</span>
+
+		<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;errorbar.capsize&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;5.0&#39;</span>
+		<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;lines.markeredgewidth&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;1.4&#39;</span>
+
+	<span class="k">else</span><span class="p">:</span> <span class="c1">### default</span>
+		<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;font.size&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;14&#39;</span>
+		<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;axes.labelsize&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;15&#39;</span>
+		<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;legend.fontsize&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;11&#39;</span>
+
+		<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;axes.titlepad&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;8&#39;</span>
+		<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;xtick.major.pad&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;5&#39;</span>
+		<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;ytick.major.pad&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;5&#39;</span>
+
+		<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;xtick.major.width&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;1.25&#39;</span>
+		<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;xtick.minor.width&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;1.05&#39;</span>
+		<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;ytick.major.width&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;1.25&#39;</span>
+		<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;ytick.minor.width&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;1.05&#39;</span>
+
+		<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;axes.linewidth&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;1.05&#39;</span>
+		
+		<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;lines.markersize&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;3.5&#39;</span>
+		<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;lines.linewidth&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;2.0&#39;</span>
+
+		<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;errorbar.capsize&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;4.2&#39;</span>
+		<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;lines.markeredgewidth&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;1.15&#39;</span></div>
+
+
+
+<span class="k">def</span> <span class="nf">_init_plot</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+	<span class="n">f</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+	<span class="k">if</span> <span class="s1">&#39;f&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="ow">and</span> <span class="s1">&#39;ax&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+		<span class="n">f</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;f&#39;</span><span class="p">],</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;ax&#39;</span><span class="p">]</span>
+	
+	<span class="n">N</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;_N_plots&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;_N_plots&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="k">else</span> <span class="mi">1</span>
+
+	<span class="k">if</span> <span class="n">f</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+		<span class="k">if</span> <span class="s1">&#39;figsize&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+			<span class="n">f</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;figsize&#39;</span><span class="p">])</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">f</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
+
+	<span class="k">if</span> <span class="n">CURRENT_STYLE</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+		<span class="n">set_style</span><span class="p">()</span>
+
+	<span class="k">return</span> <span class="n">f</span><span class="p">,</span> <span class="n">ax</span>
+
+
+<span class="k">def</span> <span class="nf">_draw_plot</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+	<span class="n">f</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="p">,</span> <span class="n">axis</span>
+
+	<span class="k">if</span> <span class="s1">&#39;_default_log&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+		<span class="k">if</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;_default_log&#39;</span><span class="p">]:</span>
+			<span class="n">ax</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+
+	<span class="k">if</span> <span class="s1">&#39;scale&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+		<span class="n">s</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;scale&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+		<span class="k">if</span> <span class="n">s</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;log&#39;</span><span class="p">,</span><span class="s1">&#39;logy&#39;</span><span class="p">]:</span>
+			<span class="n">ax</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+		<span class="k">elif</span> <span class="n">s</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;lin&#39;</span><span class="p">,</span><span class="s1">&#39;liny&#39;</span><span class="p">,</span><span class="s1">&#39;linear&#39;</span><span class="p">]:</span>
+			<span class="n">ax</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s1">&#39;linear&#39;</span><span class="p">)</span>
+		<span class="k">elif</span> <span class="n">s</span><span class="o">==</span><span class="s1">&#39;logx&#39;</span><span class="p">:</span>
+			<span class="n">ax</span><span class="o">.</span><span class="n">set_xscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+		<span class="k">elif</span> <span class="n">s</span><span class="o">==</span><span class="s1">&#39;linx&#39;</span><span class="p">:</span>
+			<span class="n">ax</span><span class="o">.</span><span class="n">set_xscale</span><span class="p">(</span><span class="s1">&#39;linear&#39;</span><span class="p">)</span>
+		<span class="k">elif</span> <span class="n">s</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;linlog&#39;</span><span class="p">,</span><span class="s1">&#39;loglog&#39;</span><span class="p">,</span><span class="s1">&#39;loglin&#39;</span><span class="p">,</span><span class="s1">&#39;linlin&#39;</span><span class="p">]:</span>
+			<span class="n">ax</span><span class="o">.</span><span class="n">set_xscale</span><span class="p">(</span><span class="n">s</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;lin&#39;</span><span class="p">,</span><span class="s1">&#39;linear&#39;</span><span class="p">))</span>
+			<span class="n">ax</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">3</span><span class="p">:]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;lin&#39;</span><span class="p">,</span><span class="s1">&#39;linear&#39;</span><span class="p">))</span>
+
+	<span class="n">f</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+
+	<span class="k">if</span> <span class="s1">&#39;saveas&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+		<span class="k">if</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;saveas&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="n">f</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;saveas&#39;</span><span class="p">])</span>
+
+	<span class="k">if</span> <span class="s1">&#39;show&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+		<span class="k">if</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;show&#39;</span><span class="p">]:</span>
+			<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+	<span class="k">else</span><span class="p">:</span>
+		<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+	<span class="k">if</span> <span class="s1">&#39;return_plot&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+		<span class="k">if</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;return_plot&#39;</span><span class="p">]:</span>
+			<span class="k">return</span> <span class="n">f</span><span class="p">,</span> <span class="n">ax</span>
+
+	<span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Curie 0.0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Jonathan Morrell.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.3.
+    </div>
+  </body>
+</html>

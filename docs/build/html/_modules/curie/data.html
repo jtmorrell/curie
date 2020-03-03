@@ -1,0 +1,236 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>curie.data &#8212; Curie 0.0.1 documentation</title>
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Curie 0.0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for curie.data</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sqlite3</span>
+
+<span class="n">GLOB_CONNECTIONS_DICT</span> <span class="o">=</span> <span class="p">{}</span>
+
+<span class="k">def</span> <span class="nf">_data_path</span><span class="p">(</span><span class="n">db</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+	<span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)),</span> <span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="n">db</span><span class="p">))</span>
+
+<div class="viewcode-block" id="download"><a class="viewcode-back" href="../../api/data.html#curie.download">[docs]</a><span class="k">def</span> <span class="nf">download</span><span class="p">(</span><span class="n">db</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;Download nuclear data files as sqlite .db files.</span>
+
+<span class="sd">	This function can be used to either download or update the nuclear data</span>
+<span class="sd">	files required by Curie.  If you wish to update, or if the data files are</span>
+<span class="sd">	corrupted, run `ci.download(overwrite=True)` to overwrite the existing data.</span>
+
+<span class="sd">	Parameters</span>
+<span class="sd">	----------</span>
+<span class="sd">	db : str, optional</span>
+<span class="sd">		Name of database to download, default is &#39;all&#39;.  Options include:</span>
+<span class="sd">		&#39;all&#39;, &#39;decay&#39;, &#39;ziegler&#39;, &#39;endf&#39;, &#39;tendl&#39;, &#39;tendl_n_rp&#39;, &#39;tendl_p_rp&#39;,</span>
+<span class="sd">		&#39;tendl_d_rp&#39;, &#39;IRDFF&#39;, &#39;iaea_monitors&#39;.</span>
+
+<span class="sd">	overwrite : bool, optional</span>
+<span class="sd">		If overwrite is `True`, will save write over existing data.  Default is `False`.</span>
+
+<span class="sd">	Examples</span>
+<span class="sd">	--------</span>
+<span class="sd">	</span>
+<span class="sd">	The most common use case will be to (re)download all the data files</span>
+
+<span class="sd">	&gt;&gt;&gt; ci.download(overwrite=True)</span>
+
+<span class="sd">	To update only the &#39;endf&#39; library</span>
+
+<span class="sd">	&gt;&gt;&gt; ci.download(&#39;endf&#39;, True)</span>
+
+<span class="sd">	Or to download the &#39;decay&#39; library for the first time</span>
+
+<span class="sd">	&gt;&gt;&gt; ci.download(&#39;decay&#39;)</span>
+
+<span class="sd">	&quot;&quot;&quot;</span>
+
+	<span class="n">db</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+	<span class="k">if</span> <span class="n">db</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;all&#39;</span><span class="p">,</span><span class="s1">&#39;*&#39;</span><span class="p">]:</span>
+		<span class="n">d</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;decay&#39;</span><span class="p">,</span> <span class="s1">&#39;ziegler&#39;</span><span class="p">,</span> <span class="s1">&#39;endf&#39;</span><span class="p">,</span> <span class="s1">&#39;tendl&#39;</span><span class="p">,</span> <span class="s1">&#39;tendl_n_rp&#39;</span><span class="p">,</span> <span class="s1">&#39;tendl_p_rp&#39;</span><span class="p">,</span> <span class="s1">&#39;tendl_d_rp&#39;</span><span class="p">,</span> <span class="s1">&#39;IRDFF&#39;</span><span class="p">,</span> <span class="s1">&#39;iaea_monitors&#39;</span><span class="p">]</span>
+	<span class="k">elif</span> <span class="n">db</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;decay&#39;</span><span class="p">]:</span>
+		<span class="n">d</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;decay&#39;</span><span class="p">]</span>
+	<span class="k">elif</span> <span class="n">db</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;ziegler&#39;</span><span class="p">]:</span>
+		<span class="n">d</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ziegler&#39;</span><span class="p">]</span>
+	<span class="k">elif</span> <span class="n">db</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;endf&#39;</span><span class="p">]:</span>
+		<span class="n">d</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;endf&#39;</span><span class="p">]</span>
+	<span class="k">elif</span> <span class="n">db</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;tendl&#39;</span><span class="p">]:</span>
+		<span class="n">d</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;tendl&#39;</span><span class="p">]</span>
+	<span class="k">elif</span> <span class="n">db</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;tendl_n_rp&#39;</span><span class="p">,</span> <span class="s1">&#39;tendl_nrp&#39;</span><span class="p">,</span> <span class="s1">&#39;tendl_n&#39;</span><span class="p">,</span> <span class="s1">&#39;nrp&#39;</span><span class="p">,</span> <span class="s1">&#39;rpn&#39;</span><span class="p">]:</span>
+		<span class="n">d</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;tendl_n_rp&#39;</span><span class="p">]</span>
+	<span class="k">elif</span> <span class="n">db</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;tendl_p_rp&#39;</span><span class="p">,</span> <span class="s1">&#39;tendl_prp&#39;</span><span class="p">,</span> <span class="s1">&#39;tendl_p&#39;</span><span class="p">,</span> <span class="s1">&#39;prp&#39;</span><span class="p">,</span> <span class="s1">&#39;rpp&#39;</span><span class="p">]:</span>
+		<span class="n">d</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;tendl_p_rp&#39;</span><span class="p">]</span>
+	<span class="k">elif</span> <span class="n">db</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;tendl_d_rp&#39;</span><span class="p">,</span> <span class="s1">&#39;tendl_drp&#39;</span><span class="p">,</span> <span class="s1">&#39;tendl_d&#39;</span><span class="p">,</span> <span class="s1">&#39;drp&#39;</span><span class="p">,</span> <span class="s1">&#39;rpd&#39;</span><span class="p">]:</span>
+		<span class="n">d</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;tendl_d_rp&#39;</span><span class="p">]</span>
+	<span class="k">elif</span> <span class="n">db</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;irdff&#39;</span><span class="p">]:</span>
+		<span class="n">d</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;IRDFF&#39;</span><span class="p">]</span>
+	<span class="k">elif</span> <span class="n">db</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;iaea&#39;</span><span class="p">,</span> <span class="s1">&#39;iaea-cpr&#39;</span><span class="p">,</span> <span class="s1">&#39;iaea-monitor&#39;</span><span class="p">,</span> <span class="s1">&#39;cpr&#39;</span><span class="p">,</span> <span class="s1">&#39;iaea_cpr&#39;</span><span class="p">,</span> <span class="s1">&#39;iaea_monitor&#39;</span><span class="p">,</span> <span class="s1">&#39;medical&#39;</span><span class="p">,</span> <span class="s1">&#39;iaea-medical&#39;</span><span class="p">,</span> <span class="s1">&#39;iaea_medical&#39;</span><span class="p">]:</span>
+		<span class="n">d</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;iaea_monitors&#39;</span><span class="p">]</span>
+	<span class="k">else</span><span class="p">:</span>
+		<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;db=</span><span class="si">{}</span><span class="s1"> not recognized.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">db</span><span class="p">))</span>
+		<span class="k">return</span>
+
+	<span class="n">addr</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;decay&#39;</span><span class="p">:</span><span class="s1">&#39;wwd6b1gk2ge5tgt&#39;</span><span class="p">,</span> <span class="s1">&#39;endf&#39;</span><span class="p">:</span><span class="s1">&#39;tkndjqs036piojm&#39;</span><span class="p">,</span> <span class="s1">&#39;tendl&#39;</span><span class="p">:</span><span class="s1">&#39;zkoi6t2jicc9yqs&#39;</span><span class="p">,</span> <span class="s1">&#39;tendl_d_rp&#39;</span><span class="p">:</span><span class="s1">&#39;x2vfjr7uv7ffex5&#39;</span><span class="p">,</span> <span class="s1">&#39;tendl_n_rp&#39;</span><span class="p">:</span><span class="s1">&#39;n0jjc0dv61j9of9&#39;</span><span class="p">,</span>
+				<span class="s1">&#39;tendl_p_rp&#39;</span><span class="p">:</span><span class="s1">&#39;ib2a5lrhiwkcro5&#39;</span><span class="p">,</span> <span class="s1">&#39;ziegler&#39;</span><span class="p">:</span><span class="s1">&#39;kq07684wtp890v5&#39;</span><span class="p">,</span> <span class="s1">&#39;iaea_monitors&#39;</span><span class="p">:</span><span class="s1">&#39;lzn8zs6y8zu3v0s&#39;</span><span class="p">,</span> <span class="s1">&#39;IRDFF&#39;</span><span class="p">:</span><span class="s1">&#39;34sgcvt8n57b0aw&#39;</span><span class="p">}</span>
+	
+	<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">_data_path</span><span class="p">()):</span>
+		<span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">_data_path</span><span class="p">())</span>
+
+	<span class="k">try</span><span class="p">:</span>
+		<span class="kn">import</span> <span class="nn">urllib2</span>
+	<span class="k">except</span><span class="p">:</span>
+		<span class="kn">import</span> <span class="nn">urllib.request</span> <span class="k">as</span> <span class="nn">urllib2</span>
+
+	<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">d</span><span class="p">:</span>
+		<span class="n">fnm</span> <span class="o">=</span> <span class="n">i</span><span class="o">+</span><span class="s1">&#39;.db&#39;</span>
+		<span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">_data_path</span><span class="p">(</span><span class="n">fnm</span><span class="p">)))</span> <span class="ow">or</span> <span class="n">overwrite</span><span class="p">:</span>
+			
+			<span class="k">try</span><span class="p">:</span>
+				<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Downloading </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fnm</span><span class="p">))</span>
+				<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">_data_path</span><span class="p">(</span><span class="n">fnm</span><span class="p">),</span><span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+					<span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">urllib2</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="s1">&#39;https://www.dropbox.com/s/</span><span class="si">{0}</span><span class="s1">/</span><span class="si">{1}</span><span class="s1">?dl=1&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">addr</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">fnm</span><span class="p">))</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+			<span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+					<span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">.db already installed. Run ci.download(&#39;</span><span class="si">{0}</span><span class="s2">&#39;, overwrite=True) to overwrite these files.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">))</span></div>
+
+
+
+<span class="k">def</span> <span class="nf">_get_connection</span><span class="p">(</span><span class="n">db</span><span class="o">=</span><span class="s1">&#39;decay&#39;</span><span class="p">):</span>
+	
+	<span class="k">def</span> <span class="nf">connector</span><span class="p">(</span><span class="n">dbnm</span><span class="p">):</span>
+		<span class="k">try</span><span class="p">:</span>
+			<span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getsize</span><span class="p">(</span><span class="n">dbnm</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+				<span class="k">return</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">dbnm</span><span class="p">)</span>
+			<span class="k">else</span><span class="p">:</span>
+				<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> exists but is of zero size.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dbnm</span><span class="p">))</span>
+		<span class="k">except</span><span class="p">:</span>
+			<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Error connecting to </span><span class="si">{}</span><span class="s1">.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dbnm</span><span class="p">))</span>
+			<span class="k">if</span> <span class="n">_data_path</span><span class="p">()</span> <span class="ow">in</span> <span class="n">dbnm</span><span class="p">:</span>
+				<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Try using ci.download(&quot;all&quot;, overwrite=True) to update nuclear data files.&#39;</span><span class="p">)</span>
+			<span class="k">raise</span>
+
+	<span class="n">db_nm</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.db&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+	<span class="n">db_f</span> <span class="o">=</span> <span class="kc">None</span>
+
+	<span class="k">if</span> <span class="n">db_nm</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;decay&#39;</span><span class="p">]:</span>
+		<span class="n">db_f</span> <span class="o">=</span> <span class="s1">&#39;decay.db&#39;</span>
+
+	<span class="k">elif</span> <span class="n">db_nm</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;ziegler&#39;</span><span class="p">]:</span>
+		<span class="n">db_f</span> <span class="o">=</span> <span class="s1">&#39;ziegler.db&#39;</span>
+
+	<span class="k">elif</span> <span class="n">db_nm</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;endf&#39;</span><span class="p">]:</span>
+		<span class="n">db_f</span> <span class="o">=</span> <span class="s1">&#39;endf.db&#39;</span>
+
+	<span class="k">elif</span> <span class="n">db_nm</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;tendl&#39;</span><span class="p">]:</span>
+		<span class="n">db_f</span> <span class="o">=</span> <span class="s1">&#39;tendl.db&#39;</span>
+
+	<span class="k">elif</span> <span class="n">db_nm</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;tendl_n_rp&#39;</span><span class="p">,</span><span class="s1">&#39;tendl_nrp&#39;</span><span class="p">,</span><span class="s1">&#39;tendl_n&#39;</span><span class="p">,</span><span class="s1">&#39;nrp&#39;</span><span class="p">,</span><span class="s1">&#39;rpn&#39;</span><span class="p">]:</span>
+		<span class="n">db_f</span> <span class="o">=</span> <span class="s1">&#39;tendl_n_rp.db&#39;</span>
+
+	<span class="k">elif</span> <span class="n">db_nm</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;tendl_p_rp&#39;</span><span class="p">,</span><span class="s1">&#39;tendl_prp&#39;</span><span class="p">,</span><span class="s1">&#39;tendl_p&#39;</span><span class="p">,</span><span class="s1">&#39;prp&#39;</span><span class="p">,</span><span class="s1">&#39;rpp&#39;</span><span class="p">]:</span>
+		<span class="n">db_f</span> <span class="o">=</span> <span class="s1">&#39;tendl_p_rp.db&#39;</span>
+
+	<span class="k">elif</span> <span class="n">db_nm</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;tendl_d_rp&#39;</span><span class="p">,</span><span class="s1">&#39;tendl_drp&#39;</span><span class="p">,</span><span class="s1">&#39;tendl_d&#39;</span><span class="p">,</span><span class="s1">&#39;drp&#39;</span><span class="p">,</span><span class="s1">&#39;rpd&#39;</span><span class="p">]:</span>
+		<span class="n">db_f</span> <span class="o">=</span> <span class="s1">&#39;tendl_d_rp.db&#39;</span>
+
+	<span class="k">elif</span> <span class="n">db_nm</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;irdff&#39;</span><span class="p">]:</span>
+		<span class="n">db_f</span> <span class="o">=</span> <span class="s1">&#39;IRDFF.db&#39;</span>
+
+	<span class="k">elif</span> <span class="n">db_nm</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;iaea&#39;</span><span class="p">,</span> <span class="s1">&#39;iaea-cpr&#39;</span><span class="p">,</span> <span class="s1">&#39;iaea-monitor&#39;</span><span class="p">,</span> <span class="s1">&#39;cpr&#39;</span><span class="p">,</span> <span class="s1">&#39;iaea_cpr&#39;</span><span class="p">,</span> <span class="s1">&#39;iaea_monitor&#39;</span><span class="p">,</span> <span class="s1">&#39;medical&#39;</span><span class="p">,</span> <span class="s1">&#39;iaea-medical&#39;</span><span class="p">,</span> <span class="s1">&#39;iaea_medical&#39;</span><span class="p">]:</span>
+		<span class="n">db_f</span> <span class="o">=</span> <span class="s1">&#39;iaea_monitors.db&#39;</span>
+
+
+	<span class="k">global</span> <span class="n">GLOB_CONNECTIONS_DICT</span>
+
+	<span class="k">if</span> <span class="n">db_f</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+		<span class="k">if</span> <span class="n">db_f</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">GLOB_CONNECTIONS_DICT</span><span class="p">:</span>
+			<span class="n">GLOB_CONNECTIONS_DICT</span><span class="p">[</span><span class="n">db_f</span><span class="p">]</span> <span class="o">=</span> <span class="n">connector</span><span class="p">(</span><span class="n">_data_path</span><span class="p">(</span><span class="n">db_f</span><span class="p">))</span>
+		<span class="k">return</span> <span class="n">GLOB_CONNECTIONS_DICT</span><span class="p">[</span><span class="n">db_f</span><span class="p">]</span>
+
+	<span class="k">else</span><span class="p">:</span>
+		<span class="k">if</span> <span class="n">db</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">GLOB_CONNECTIONS_DICT</span><span class="p">:</span>
+			<span class="n">GLOB_CONNECTIONS_DICT</span><span class="p">[</span><span class="n">db</span><span class="p">]</span> <span class="o">=</span> <span class="n">connector</span><span class="p">(</span><span class="n">db</span><span class="p">)</span>
+		<span class="k">return</span> <span class="n">GLOB_CONNECTIONS_DICT</span><span class="p">[</span><span class="n">db</span><span class="p">]</span>
+
+
+
+<span class="k">def</span> <span class="nf">_get_cursor</span><span class="p">(</span><span class="n">db</span><span class="o">=</span><span class="s1">&#39;decay&#39;</span><span class="p">):</span>	
+	<span class="n">conn</span> <span class="o">=</span> <span class="n">_get_connection</span><span class="p">(</span><span class="n">db</span><span class="p">)</span>
+	<span class="k">return</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Curie 0.0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Jonathan Morrell.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.3.
+    </div>
+  </body>
+</html>
