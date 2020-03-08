@@ -4,8 +4,6 @@ from __future__ import print_function
 
 import matplotlib.pyplot as plt
 
-CURRENT_STYLE = None
-
 LIGHT = """#1abc9c #2ecc71 #3498db #9b59b6 #34495e #f1c40f #e67e22 #e74c3c #ecf0f1 #95a5a6
 #81ecec #55efc4 #74b9ff #a29bfe #636e72 #ffeaa7 #fab1a0 #ff7675 #dfe6e9 #b2bec3
 #7ed6df #badc58 #686de0 #e056fd #30336b #f6e58d #ffbe76 #ff7979 #dff9fb #95afc0
@@ -111,7 +109,6 @@ def set_style(style='default', palette='default', shade='dark'):
 
 	Examples
 	--------
-
 	>>> ci.set_style('paper')
 	>>> ci.set_style('poster', shade='dark')
 	>>> ci.set_style('presentation', palette='aussie')
@@ -132,10 +129,6 @@ def set_style(style='default', palette='default', shade='dark'):
 	plt.rcParams['xtick.minor.size']='3.5'
 	plt.rcParams['ytick.major.size']='5'
 	plt.rcParams['ytick.minor.size']='3.5'
-
-	global CURRENT_STYLE
-	CURRENT_STYLE = [style.lower(), palette.lower(), shade.lower()]
-
 	
 	if style.lower()=='paper':
 		plt.rcParams['font.size']='14'
@@ -228,6 +221,13 @@ def set_style(style='default', palette='default', shade='dark'):
 
 
 def _init_plot(**kwargs):
+	if any([i in kwargs for i in ['style', 'palette', 'shade']]):
+		st = kwargs['style'] if 'style' in kwargs else 'default'
+		pa = kwargs['palette'] if 'palette' in kwargs else 'default'
+		sh = kwargs['shade'] if 'shade' in kwargs else 'dark'
+		set_style(style=st, palette=pa, shade=sh)
+
+
 	f, ax = None, None
 	if 'f' in kwargs and 'ax' in kwargs:
 		f, ax = kwargs['f'], kwargs['ax']
@@ -239,9 +239,6 @@ def _init_plot(**kwargs):
 			f, ax = plt.subplots(1, N, figsize=kwargs['figsize'])
 		else:
 			f, ax = plt.subplots(1, N)
-
-	if CURRENT_STYLE is None:
-		set_style()
 
 	return f, ax
 
@@ -273,15 +270,17 @@ def _draw_plot(fig, axis, **kwargs):
 		if kwargs['saveas'] is not None:
 			f.savefig(kwargs['saveas'])
 
+
+	if 'return_plot' in kwargs:
+		if kwargs['return_plot']:
+			return f, ax
+
 	if 'show' in kwargs:
 		if kwargs['show']:
 			plt.show()
 	else:
 		plt.show()
 
-	if 'return_plot' in kwargs:
-		if kwargs['return_plot']:
-			return f, ax
+	
 
 	plt.close()
-

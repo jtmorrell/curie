@@ -42,8 +42,6 @@
 
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 
-<span class="n">CURRENT_STYLE</span> <span class="o">=</span> <span class="kc">None</span>
-
 <span class="n">LIGHT</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;#1abc9c #2ecc71 #3498db #9b59b6 #34495e #f1c40f #e67e22 #e74c3c #ecf0f1 #95a5a6</span>
 <span class="s2">#81ecec #55efc4 #74b9ff #a29bfe #636e72 #ffeaa7 #fab1a0 #ff7675 #dfe6e9 #b2bec3</span>
 <span class="s2">#7ed6df #badc58 #686de0 #e056fd #30336b #f6e58d #ffbe76 #ff7979 #dff9fb #95afc0</span>
@@ -149,7 +147,6 @@
 
 <span class="sd">	Examples</span>
 <span class="sd">	--------</span>
-
 <span class="sd">	&gt;&gt;&gt; ci.set_style(&#39;paper&#39;)</span>
 <span class="sd">	&gt;&gt;&gt; ci.set_style(&#39;poster&#39;, shade=&#39;dark&#39;)</span>
 <span class="sd">	&gt;&gt;&gt; ci.set_style(&#39;presentation&#39;, palette=&#39;aussie&#39;)</span>
@@ -170,10 +167,6 @@
 	<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;xtick.minor.size&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;3.5&#39;</span>
 	<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;ytick.major.size&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;5&#39;</span>
 	<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;ytick.minor.size&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;3.5&#39;</span>
-
-	<span class="k">global</span> <span class="n">CURRENT_STYLE</span>
-	<span class="n">CURRENT_STYLE</span> <span class="o">=</span> <span class="p">[</span><span class="n">style</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="n">palette</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="n">shade</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span>
-
 	
 	<span class="k">if</span> <span class="n">style</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">==</span><span class="s1">&#39;paper&#39;</span><span class="p">:</span>
 		<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;font.size&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;14&#39;</span>
@@ -266,6 +259,13 @@
 
 
 <span class="k">def</span> <span class="nf">_init_plot</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+	<span class="k">if</span> <span class="nb">any</span><span class="p">([</span><span class="n">i</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;style&#39;</span><span class="p">,</span> <span class="s1">&#39;palette&#39;</span><span class="p">,</span> <span class="s1">&#39;shade&#39;</span><span class="p">]]):</span>
+		<span class="n">st</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;style&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;style&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="k">else</span> <span class="s1">&#39;default&#39;</span>
+		<span class="n">pa</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;palette&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;palette&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="k">else</span> <span class="s1">&#39;default&#39;</span>
+		<span class="n">sh</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;shade&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;shade&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="k">else</span> <span class="s1">&#39;dark&#39;</span>
+		<span class="n">set_style</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="n">st</span><span class="p">,</span> <span class="n">palette</span><span class="o">=</span><span class="n">pa</span><span class="p">,</span> <span class="n">shade</span><span class="o">=</span><span class="n">sh</span><span class="p">)</span>
+
+
 	<span class="n">f</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
 	<span class="k">if</span> <span class="s1">&#39;f&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="ow">and</span> <span class="s1">&#39;ax&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
 		<span class="n">f</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;f&#39;</span><span class="p">],</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;ax&#39;</span><span class="p">]</span>
@@ -277,9 +277,6 @@
 			<span class="n">f</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;figsize&#39;</span><span class="p">])</span>
 		<span class="k">else</span><span class="p">:</span>
 			<span class="n">f</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
-
-	<span class="k">if</span> <span class="n">CURRENT_STYLE</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-		<span class="n">set_style</span><span class="p">()</span>
 
 	<span class="k">return</span> <span class="n">f</span><span class="p">,</span> <span class="n">ax</span>
 
@@ -311,18 +308,20 @@
 		<span class="k">if</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;saveas&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
 			<span class="n">f</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;saveas&#39;</span><span class="p">])</span>
 
+
+	<span class="k">if</span> <span class="s1">&#39;return_plot&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+		<span class="k">if</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;return_plot&#39;</span><span class="p">]:</span>
+			<span class="k">return</span> <span class="n">f</span><span class="p">,</span> <span class="n">ax</span>
+
 	<span class="k">if</span> <span class="s1">&#39;show&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
 		<span class="k">if</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;show&#39;</span><span class="p">]:</span>
 			<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 	<span class="k">else</span><span class="p">:</span>
 		<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 
-	<span class="k">if</span> <span class="s1">&#39;return_plot&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
-		<span class="k">if</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;return_plot&#39;</span><span class="p">]:</span>
-			<span class="k">return</span> <span class="n">f</span><span class="p">,</span> <span class="n">ax</span>
+	
 
 	<span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-
 </pre></div>
 
           </div>

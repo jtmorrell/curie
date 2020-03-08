@@ -40,162 +40,544 @@
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
 
+<span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
+<span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="kn">import</span> <span class="n">interp1d</span>
+
 <span class="kn">from</span> <span class="nn">.data</span> <span class="kn">import</span> <span class="n">_get_connection</span>
+<span class="kn">from</span> <span class="nn">.plotting</span> <span class="kn">import</span> <span class="n">_init_plot</span><span class="p">,</span> <span class="n">_draw_plot</span>
+<span class="kn">from</span> <span class="nn">.isotope</span> <span class="kn">import</span> <span class="n">Isotope</span>
+
+<span class="n">ELEMENTS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">,</span><span class="s1">&#39;H&#39;</span><span class="p">,</span><span class="s1">&#39;He&#39;</span><span class="p">,</span><span class="s1">&#39;Li&#39;</span><span class="p">,</span><span class="s1">&#39;Be&#39;</span><span class="p">,</span><span class="s1">&#39;B&#39;</span><span class="p">,</span><span class="s1">&#39;C&#39;</span><span class="p">,</span><span class="s1">&#39;N&#39;</span><span class="p">,</span><span class="s1">&#39;O&#39;</span><span class="p">,</span><span class="s1">&#39;F&#39;</span><span class="p">,</span><span class="s1">&#39;Ne&#39;</span><span class="p">,</span><span class="s1">&#39;Na&#39;</span><span class="p">,</span><span class="s1">&#39;Mg&#39;</span><span class="p">,</span><span class="s1">&#39;Al&#39;</span><span class="p">,</span>
+			<span class="s1">&#39;Si&#39;</span><span class="p">,</span><span class="s1">&#39;P&#39;</span><span class="p">,</span><span class="s1">&#39;S&#39;</span><span class="p">,</span><span class="s1">&#39;Cl&#39;</span><span class="p">,</span><span class="s1">&#39;Ar&#39;</span><span class="p">,</span><span class="s1">&#39;K&#39;</span><span class="p">,</span><span class="s1">&#39;Ca&#39;</span><span class="p">,</span><span class="s1">&#39;Sc&#39;</span><span class="p">,</span><span class="s1">&#39;Ti&#39;</span><span class="p">,</span><span class="s1">&#39;V&#39;</span><span class="p">,</span><span class="s1">&#39;Cr&#39;</span><span class="p">,</span><span class="s1">&#39;Mn&#39;</span><span class="p">,</span><span class="s1">&#39;Fe&#39;</span><span class="p">,</span><span class="s1">&#39;Co&#39;</span><span class="p">,</span>
+			<span class="s1">&#39;Ni&#39;</span><span class="p">,</span><span class="s1">&#39;Cu&#39;</span><span class="p">,</span><span class="s1">&#39;Zn&#39;</span><span class="p">,</span><span class="s1">&#39;Ga&#39;</span><span class="p">,</span><span class="s1">&#39;Ge&#39;</span><span class="p">,</span><span class="s1">&#39;As&#39;</span><span class="p">,</span><span class="s1">&#39;Se&#39;</span><span class="p">,</span><span class="s1">&#39;Br&#39;</span><span class="p">,</span><span class="s1">&#39;Kr&#39;</span><span class="p">,</span><span class="s1">&#39;Rb&#39;</span><span class="p">,</span><span class="s1">&#39;Sr&#39;</span><span class="p">,</span><span class="s1">&#39;Y&#39;</span><span class="p">,</span><span class="s1">&#39;Zr&#39;</span><span class="p">,</span>
+			<span class="s1">&#39;Nb&#39;</span><span class="p">,</span><span class="s1">&#39;Mo&#39;</span><span class="p">,</span><span class="s1">&#39;Tc&#39;</span><span class="p">,</span><span class="s1">&#39;Ru&#39;</span><span class="p">,</span><span class="s1">&#39;Rh&#39;</span><span class="p">,</span><span class="s1">&#39;Pd&#39;</span><span class="p">,</span><span class="s1">&#39;Ag&#39;</span><span class="p">,</span><span class="s1">&#39;Cd&#39;</span><span class="p">,</span><span class="s1">&#39;In&#39;</span><span class="p">,</span><span class="s1">&#39;Sn&#39;</span><span class="p">,</span><span class="s1">&#39;Sb&#39;</span><span class="p">,</span><span class="s1">&#39;Te&#39;</span><span class="p">,</span><span class="s1">&#39;I&#39;</span><span class="p">,</span>
+			<span class="s1">&#39;Xe&#39;</span><span class="p">,</span><span class="s1">&#39;Cs&#39;</span><span class="p">,</span><span class="s1">&#39;Ba&#39;</span><span class="p">,</span><span class="s1">&#39;La&#39;</span><span class="p">,</span><span class="s1">&#39;Ce&#39;</span><span class="p">,</span><span class="s1">&#39;Pr&#39;</span><span class="p">,</span><span class="s1">&#39;Nd&#39;</span><span class="p">,</span><span class="s1">&#39;Pm&#39;</span><span class="p">,</span><span class="s1">&#39;Sm&#39;</span><span class="p">,</span><span class="s1">&#39;Eu&#39;</span><span class="p">,</span><span class="s1">&#39;Gd&#39;</span><span class="p">,</span><span class="s1">&#39;Tb&#39;</span><span class="p">,</span><span class="s1">&#39;Dy&#39;</span><span class="p">,</span>
+			<span class="s1">&#39;Ho&#39;</span><span class="p">,</span><span class="s1">&#39;Er&#39;</span><span class="p">,</span><span class="s1">&#39;Tm&#39;</span><span class="p">,</span><span class="s1">&#39;Yb&#39;</span><span class="p">,</span><span class="s1">&#39;Lu&#39;</span><span class="p">,</span><span class="s1">&#39;Hf&#39;</span><span class="p">,</span><span class="s1">&#39;Ta&#39;</span><span class="p">,</span><span class="s1">&#39;W&#39;</span><span class="p">,</span><span class="s1">&#39;Re&#39;</span><span class="p">,</span><span class="s1">&#39;Os&#39;</span><span class="p">,</span><span class="s1">&#39;Ir&#39;</span><span class="p">,</span><span class="s1">&#39;Pt&#39;</span><span class="p">,</span><span class="s1">&#39;Au&#39;</span><span class="p">,</span>
+			<span class="s1">&#39;Hg&#39;</span><span class="p">,</span><span class="s1">&#39;Tl&#39;</span><span class="p">,</span><span class="s1">&#39;Pb&#39;</span><span class="p">,</span><span class="s1">&#39;Bi&#39;</span><span class="p">,</span><span class="s1">&#39;Po&#39;</span><span class="p">,</span><span class="s1">&#39;At&#39;</span><span class="p">,</span><span class="s1">&#39;Rn&#39;</span><span class="p">,</span><span class="s1">&#39;Fr&#39;</span><span class="p">,</span><span class="s1">&#39;Ra&#39;</span><span class="p">,</span><span class="s1">&#39;Ac&#39;</span><span class="p">,</span><span class="s1">&#39;Th&#39;</span><span class="p">,</span><span class="s1">&#39;Pa&#39;</span><span class="p">,</span><span class="s1">&#39;U&#39;</span><span class="p">,</span>
+			<span class="s1">&#39;Np&#39;</span><span class="p">,</span><span class="s1">&#39;Pu&#39;</span><span class="p">,</span><span class="s1">&#39;Am&#39;</span><span class="p">,</span><span class="s1">&#39;Cm&#39;</span><span class="p">,</span><span class="s1">&#39;Bk&#39;</span><span class="p">,</span><span class="s1">&#39;Cf&#39;</span><span class="p">,</span><span class="s1">&#39;Es&#39;</span><span class="p">,</span><span class="s1">&#39;Fm&#39;</span><span class="p">,</span><span class="s1">&#39;Md&#39;</span><span class="p">,</span><span class="s1">&#39;No&#39;</span><span class="p">,</span><span class="s1">&#39;Lr&#39;</span><span class="p">,</span><span class="s1">&#39;Rf&#39;</span><span class="p">,</span><span class="s1">&#39;Db&#39;</span><span class="p">,</span>
+			<span class="s1">&#39;Sg&#39;</span><span class="p">,</span><span class="s1">&#39;Bh&#39;</span><span class="p">,</span><span class="s1">&#39;Hs&#39;</span><span class="p">,</span><span class="s1">&#39;Mt&#39;</span><span class="p">,</span><span class="s1">&#39;Ds&#39;</span><span class="p">,</span><span class="s1">&#39;Rg&#39;</span><span class="p">,</span><span class="s1">&#39;Cn&#39;</span><span class="p">,</span><span class="s1">&#39;Nh&#39;</span><span class="p">,</span><span class="s1">&#39;Fl&#39;</span><span class="p">,</span><span class="s1">&#39;Mc&#39;</span><span class="p">,</span><span class="s1">&#39;Lv&#39;</span><span class="p">,</span><span class="s1">&#39;Ts&#39;</span><span class="p">]</span>
+
 
 <div class="viewcode-block" id="Element"><a class="viewcode-back" href="../../api/element.html#curie.Element">[docs]</a><span class="k">class</span> <span class="nc">Element</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-	<span class="sd">&quot;&quot;&quot;Element</span>
+	<span class="sd">&quot;&quot;&quot;Elemental data and properties</span>
 
-<span class="sd">	...</span>
+<span class="sd">	The Element class provides useful data about the natural elements,</span>
+<span class="sd">	such as mass, density, and isotopic composition.  Additionally, it contains</span>
+<span class="sd">	functions for determining the interaction of radiation with the natural</span>
+<span class="sd">	elements.  Principally it provides the mass-attenuation of photons, and </span>
+<span class="sd">	the stopping power/ranges of charged particles.</span>
 <span class="sd">	</span>
 <span class="sd">	Parameters</span>
 <span class="sd">	----------</span>
 <span class="sd">	element : str</span>
-<span class="sd">		Description of parameter `x`.</span>
+<span class="sd">		Symbol for the element, e.g. &#39;H&#39;, &#39;In&#39;, &#39;Zn&#39;, &#39;Fe&#39;.  Case insensitive.</span>
+<span class="sd">		Note that &#39;n&#39; (&quot;neutron&quot;) is not considered a valid element in this</span>
+<span class="sd">		context, and will be interpreted as &#39;N&#39; (&quot;nitrogen&quot;).</span>
 
 <span class="sd">	Attributes</span>
 <span class="sd">	----------</span>
+<span class="sd">	name : str</span>
+<span class="sd">		Symbol for the element, in title-case. E.g. if input was &#39;fe&#39;, name </span>
+<span class="sd">		will be &#39;Fe&#39;.</span>
 
-<span class="sd">	name : type</span>
-<span class="sd">		Description of attribute</span>
+<span class="sd">	Z : int</span>
+<span class="sd">		Atomic number of the element.</span>
 
-<span class="sd">	Z : type</span>
-<span class="sd">		Description of attribute</span>
+<span class="sd">	mass : float</span>
+<span class="sd">		Molar mass of the natural element in atomic mass units (amu).</span>
 
-<span class="sd">	mass : type</span>
-<span class="sd">		Description of attribute</span>
+<span class="sd">	isotopes : list</span>
+<span class="sd">		List of isotopes with non-zero natural abundance.</span>
 
-<span class="sd">	isotopes : type</span>
-<span class="sd">		Description of attribute</span>
+<span class="sd">	abundances : pandas.DataFrame</span>
+<span class="sd">		Natural abundances, in percent, for all isotopes found in nature. </span>
+<span class="sd">		Structure is a DataFrame with the columns &#39;isotope&#39;, &#39;abundance&#39;, </span>
+<span class="sd">		and &#39;unc_abundance&#39;.</span>
 
-<span class="sd">	abundances : type</span>
-<span class="sd">		Description of attribute</span>
+<span class="sd">	density : float</span>
+<span class="sd">		Density of the natural element in g/cm^3. The density is used in</span>
+<span class="sd">		calculations of charged particle dEdx and photon attenuation, so</span>
+<span class="sd">		you can assign a new density using `el.density = new_density` if</span>
+<span class="sd">		needed, or using the `density` keyword in either of those functions.</span>
 
-<span class="sd">	density : type</span>
-<span class="sd">		Description of attribute</span>
+<span class="sd">	mass_coeff : pandas.DataFrame</span>
+<span class="sd">		Table of mass-attenuation coefficients as a function of photon</span>
+<span class="sd">		energy, from the NIST XCOM database.  Energies are in keV, and</span>
+<span class="sd">		mass-attenuation coefficients, or mu/rho, are given in cm^2/g.</span>
+<span class="sd">		DataFrame columns are &#39;energy&#39; and &#39;mu&#39;.</span>
 
-<span class="sd">	mass_coeff : type</span>
-<span class="sd">		Description of attribute</span>
-
-<span class="sd">	mass_coeff_en : type</span>
-<span class="sd">		Description of attribute</span>
+<span class="sd">	mass_coeff_en : pandas.DataFrame</span>
+<span class="sd">		Table of mass energy-absorption coefficients as a function of</span>
+<span class="sd">		photon energy, from the NIST XCOM database.  Energies in keV,</span>
+<span class="sd">		and mass energy-absorption coefficients, or mu_en/rho, are in</span>
+<span class="sd">		units of cm^2/g.  DataFrame columns are &#39;energy&#39;, and &#39;mu_en&#39;.</span>
 
 
 <span class="sd">	Examples</span>
 <span class="sd">	--------</span>
+<span class="sd">	&gt;&gt;&gt; el = ci.Element(&#39;Fe&#39;)</span>
+<span class="sd">	&gt;&gt;&gt; print(el.mass)</span>
+<span class="sd">	55.847</span>
+<span class="sd">	&gt;&gt;&gt; print(el.density)</span>
+<span class="sd">	7.866</span>
 
 <span class="sd">	&quot;&quot;&quot;</span>
 
 	<span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">):</span>
-		<span class="k">pass</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">title</span><span class="p">()</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">Z</span> <span class="o">=</span> <span class="n">ELEMENTS</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+		<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s1">&#39;SELECT * FROM weights WHERE Z=</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Z</span><span class="p">),</span> <span class="n">_get_connection</span><span class="p">(</span><span class="s1">&#39;ziegler&#39;</span><span class="p">))</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">mass</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;amu&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">density</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">abundances</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s1">&#39;SELECT isotope, abundance, unc_abundance FROM chart WHERE Z=</span><span class="si">{}</span><span class="s1"> AND abundance&gt;0&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Z</span><span class="p">),</span> <span class="n">_get_connection</span><span class="p">(</span><span class="s1">&#39;decay&#39;</span><span class="p">))</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="o">==</span><span class="s1">&#39;Ta&#39;</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">abundances</span><span class="p">[</span><span class="s1">&#39;isotope&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;180TA&#39;</span><span class="p">,</span><span class="s1">&#39;180TAm1&#39;</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">abundances</span><span class="p">[</span><span class="s1">&#39;isotope&#39;</span><span class="p">])</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">isotopes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">abundances</span><span class="p">[</span><span class="s1">&#39;isotope&#39;</span><span class="p">]))</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">mass_coeff</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s1">&#39;SELECT energy, mu FROM mass_coeff WHERE Z=</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Z</span><span class="p">),</span> <span class="n">_get_connection</span><span class="p">(</span><span class="s1">&#39;ziegler&#39;</span><span class="p">))</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">mass_coeff_en</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s1">&#39;SELECT energy, mu_en FROM mass_coeff WHERE Z=</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Z</span><span class="p">),</span> <span class="n">_get_connection</span><span class="p">(</span><span class="s1">&#39;ziegler&#39;</span><span class="p">))</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_mc_interp</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mc_en_interp</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_A_p</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_A_he</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_I_p</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+
 
 	<span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-		<span class="k">pass</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
 
-<div class="viewcode-block" id="Element.attenuation"><a class="viewcode-back" href="../../api/element.html#curie.Element.attenuation">[docs]</a>	<span class="k">def</span> <span class="nf">attenuation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">ad</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot; Description</span>
+<div class="viewcode-block" id="Element.attenuation"><a class="viewcode-back" href="../../api/element.html#curie.Element.attenuation">[docs]</a>	<span class="k">def</span> <span class="nf">attenuation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Photon attenuation in matter</span>
 
-<span class="sd">		...</span>
+<span class="sd">		Calculate the attenuation factor I(x)/I_0 = e^(-mu*x) for a given</span>
+<span class="sd">		photon energy (in keV) and slab thickness (in cm).</span>
 
 <span class="sd">		Parameters</span>
 <span class="sd">		----------</span>
-<span class="sd">		x : type</span>
-<span class="sd">			Description of x</span>
+<span class="sd">		energy : array_like</span>
+<span class="sd">			Incident photon energy in keV.</span>
+
+<span class="sd">		x : float</span>
+<span class="sd">			Thickness of slab of given element, in cm. </span>
+
+<span class="sd">		density : float, optional</span>
+<span class="sd">			Density of the element in g/cm^3.  Default behavior is to</span>
+<span class="sd">			use `Element.density`.</span>
+
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+<span class="sd">		numpy.ndarray</span>
+<span class="sd">			The slab attenuation factor as an absolute number (i.e. from 0 to 1).</span>
+<span class="sd">			E.g. if the incident intensity is I_0, the transmitted intensity I(x) </span>
+<span class="sd">			is I_0 times the attenuation factor.</span>
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>
+<span class="sd">		&gt;&gt;&gt; el = ci.Element(&#39;Fe&#39;)</span>
+<span class="sd">		&gt;&gt;&gt; print(el.attenuation(511, x=0.3))</span>
+<span class="sd">		0.821621630674751</span>
+<span class="sd">		&gt;&gt;&gt; print(el.attenuation(300, x=0.5, density=8))</span>
+<span class="sd">		0.6442940871813587</span>
 
 <span class="sd">		&quot;&quot;&quot;</span>
 
-		<span class="k">pass</span></div>
+		<span class="n">energy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+		<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+		<span class="k">if</span> <span class="n">density</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="n">density</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">density</span>
+
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mc_interp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">_mc_interp</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mass_coeff</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mass_coeff</span><span class="p">[</span><span class="s1">&#39;mu&#39;</span><span class="p">]),</span> <span class="n">bounds_error</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="s1">&#39;extrapolate&#39;</span><span class="p">)</span>
+		<span class="n">mu</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mc_interp</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">energy</span><span class="p">)))</span>
+
+		<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">mu</span><span class="o">*</span><span class="n">x</span><span class="o">*</span><span class="n">density</span><span class="p">)</span></div>
+
+
+	<span class="k">def</span> <span class="nf">_parse_particle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">particle</span><span class="p">):</span>
+		<span class="c1">### Return Z, mass of incident particle</span>
+		<span class="k">if</span> <span class="n">particle</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="s1">&#39;d&#39;</span><span class="p">,</span> <span class="s1">&#39;t&#39;</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">]:</span>
+			<span class="k">return</span> <span class="p">{</span><span class="s1">&#39;p&#39;</span><span class="p">:(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">1.008</span><span class="p">),</span> <span class="s1">&#39;d&#39;</span><span class="p">:(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">2.014</span><span class="p">),</span> <span class="s1">&#39;t&#39;</span><span class="p">:(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">3.016</span><span class="p">),</span> <span class="s1">&#39;a&#39;</span><span class="p">:(</span><span class="mi">2</span><span class="p">,</span> <span class="mf">4.002</span><span class="p">)}[</span><span class="n">particle</span><span class="p">]</span>
+
+		<span class="k">if</span> <span class="n">particle</span><span class="o">==</span><span class="s1">&#39;P&#39;</span><span class="p">:</span>
+			<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;WARNING: Assumed particle type P (phosphorus). If proton, use particle=&#39;p&#39; (lower case).&quot;</span><span class="p">)</span>
+			<span class="k">return</span> <span class="mi">15</span><span class="p">,</span> <span class="mf">30.974</span>
+
+		<span class="c1">### check if element or isotope</span>
+		<span class="k">if</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s1">&#39;[A-Z]+&#39;</span><span class="p">,</span> <span class="n">particle</span><span class="o">.</span><span class="n">upper</span><span class="p">()))</span><span class="o">.</span><span class="n">title</span><span class="p">()</span><span class="o">==</span><span class="n">particle</span><span class="o">.</span><span class="n">title</span><span class="p">():</span>
+			<span class="n">el</span> <span class="o">=</span> <span class="n">Element</span><span class="p">(</span><span class="n">particle</span><span class="o">.</span><span class="n">title</span><span class="p">())</span>
+			<span class="k">return</span> <span class="n">el</span><span class="o">.</span><span class="n">Z</span><span class="p">,</span> <span class="n">el</span><span class="o">.</span><span class="n">mass</span>
+
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">ip</span> <span class="o">=</span> <span class="n">Isotope</span><span class="p">(</span><span class="n">particle</span><span class="p">)</span>
+			<span class="k">return</span> <span class="n">ip</span><span class="o">.</span><span class="n">Z</span><span class="p">,</span> <span class="n">ip</span><span class="o">.</span><span class="n">mass</span>
+
+	<span class="k">def</span> <span class="nf">_S_nucl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eng</span><span class="p">,</span> <span class="n">z1</span><span class="p">,</span> <span class="n">m1</span><span class="p">):</span>
+		<span class="n">RM</span> <span class="o">=</span> <span class="p">(</span><span class="n">m1</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">mass</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">z1</span><span class="o">**</span><span class="p">(</span><span class="mi">2</span><span class="o">/</span><span class="mf">3.0</span><span class="p">)</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">Z</span><span class="o">**</span><span class="p">(</span><span class="mi">2</span><span class="o">/</span><span class="mf">3.0</span><span class="p">)))</span>
+		<span class="n">ER</span> <span class="o">=</span> <span class="mf">32.53</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">mass</span><span class="o">*</span><span class="mf">1E3</span><span class="o">*</span><span class="n">eng</span><span class="o">/</span><span class="p">(</span><span class="n">z1</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">Z</span><span class="o">*</span><span class="n">RM</span><span class="p">)</span>
+
+		<span class="k">return</span> <span class="p">(</span><span class="mf">0.5</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mf">1.0</span><span class="o">+</span><span class="n">ER</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">ER</span><span class="o">+</span><span class="mf">0.10718</span><span class="o">+</span><span class="n">ER</span><span class="o">**</span><span class="mf">0.37544</span><span class="p">))</span><span class="o">*</span><span class="mf">8.462</span><span class="o">*</span><span class="n">z1</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">Z</span><span class="o">*</span><span class="n">m1</span><span class="o">/</span><span class="n">RM</span>
+
+	<span class="k">def</span> <span class="nf">_S_p</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eng</span><span class="p">,</span> <span class="n">M1</span><span class="o">=</span><span class="mf">1.00727647</span><span class="p">):</span>
+		<span class="n">S</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">eng</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span> <span class="k">if</span> <span class="n">eng</span><span class="o">.</span><span class="n">shape</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
+		<span class="n">E</span> <span class="o">=</span> <span class="mf">1E3</span><span class="o">*</span><span class="n">eng</span><span class="o">/</span><span class="n">M1</span>
+
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_A_p</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">_A_p</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s1">&#39;SELECT * FROM protons WHERE Z=</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Z</span><span class="p">),</span> <span class="n">_get_connection</span><span class="p">(</span><span class="s1">&#39;ziegler&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">:]</span>
+		<span class="n">A</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_A_p</span>
+
+		<span class="n">beta_sq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">E</span><span class="o">&gt;=</span><span class="mf">1E3</span><span class="p">,</span> <span class="mf">1.0</span><span class="o">-</span><span class="mf">1.0</span><span class="o">/</span><span class="p">(</span><span class="mf">1.0</span><span class="o">+</span><span class="n">E</span><span class="o">/</span><span class="mf">931478.0</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">)</span>
+		<span class="n">B0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">E</span><span class="o">&gt;=</span><span class="mf">1E3</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span><span class="o">*</span><span class="n">beta_sq</span><span class="o">/</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">beta_sq</span><span class="p">))</span><span class="o">-</span><span class="n">beta_sq</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+		<span class="n">Y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">E</span><span class="p">[(</span><span class="n">E</span><span class="o">&gt;=</span><span class="mf">1E3</span><span class="p">)</span><span class="o">&amp;</span><span class="p">(</span><span class="n">E</span><span class="o">&lt;=</span><span class="mf">5E4</span><span class="p">)])</span>
+		<span class="n">B0</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">E</span><span class="o">&gt;=</span><span class="mf">1E3</span><span class="p">)</span><span class="o">&amp;</span><span class="p">(</span><span class="n">E</span><span class="o">&lt;=</span><span class="mf">5E4</span><span class="p">),</span> <span class="n">B0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">!=</span><span class="mi">0</span><span class="p">]</span> <span class="o">-=</span> <span class="n">A</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span><span class="o">+</span><span class="n">A</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span><span class="o">*</span><span class="n">Y</span><span class="o">+</span><span class="n">A</span><span class="p">[</span><span class="mi">9</span><span class="p">]</span><span class="o">*</span><span class="n">Y</span><span class="o">**</span><span class="mi">2</span><span class="o">+</span><span class="n">A</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span><span class="o">*</span><span class="n">Y</span><span class="o">**</span><span class="mi">3</span><span class="o">+</span><span class="n">A</span><span class="p">[</span><span class="mi">11</span><span class="p">]</span><span class="o">*</span><span class="n">Y</span><span class="o">**</span><span class="mi">4</span>
+
+		<span class="n">S</span><span class="p">[</span><span class="n">E</span><span class="o">&gt;=</span><span class="mf">1E3</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span><span class="o">/</span><span class="n">beta_sq</span><span class="p">[</span><span class="n">E</span><span class="o">&gt;=</span><span class="mf">1E3</span><span class="p">])</span><span class="o">*</span><span class="n">B0</span><span class="p">[</span><span class="n">E</span><span class="o">&gt;=</span><span class="mf">1E3</span><span class="p">]</span>
+
+		<span class="n">S_low</span> <span class="o">=</span> <span class="n">A</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">E</span><span class="p">[(</span><span class="n">E</span><span class="o">&gt;=</span><span class="mi">10</span><span class="p">)</span><span class="o">&amp;</span><span class="p">(</span><span class="n">E</span><span class="o">&lt;</span><span class="mf">1E3</span><span class="p">)]</span><span class="o">**</span><span class="mf">0.45</span>
+		<span class="n">S_high</span> <span class="o">=</span> <span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">/</span><span class="n">E</span><span class="p">[(</span><span class="n">E</span><span class="o">&gt;=</span><span class="mi">10</span><span class="p">)</span><span class="o">&amp;</span><span class="p">(</span><span class="n">E</span><span class="o">&lt;</span><span class="mf">1E3</span><span class="p">)])</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mf">1.0</span><span class="o">+</span><span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">/</span><span class="n">E</span><span class="p">[(</span><span class="n">E</span><span class="o">&gt;=</span><span class="mi">10</span><span class="p">)</span><span class="o">&amp;</span><span class="p">(</span><span class="n">E</span><span class="o">&lt;</span><span class="mf">1E3</span><span class="p">)])</span><span class="o">+</span><span class="n">A</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">*</span><span class="n">E</span><span class="p">[(</span><span class="n">E</span><span class="o">&gt;=</span><span class="mi">10</span><span class="p">)</span><span class="o">&amp;</span><span class="p">(</span><span class="n">E</span><span class="o">&lt;</span><span class="mf">1E3</span><span class="p">)])</span>
+
+		<span class="n">S</span><span class="p">[(</span><span class="n">E</span><span class="o">&gt;=</span><span class="mi">10</span><span class="p">)</span><span class="o">&amp;</span><span class="p">(</span><span class="n">E</span><span class="o">&lt;</span><span class="mf">1E3</span><span class="p">)]</span> <span class="o">=</span> <span class="n">S_low</span><span class="o">*</span><span class="n">S_high</span><span class="o">/</span><span class="p">(</span><span class="n">S_low</span><span class="o">+</span><span class="n">S_high</span><span class="p">)</span>
+		<span class="n">S</span><span class="p">[(</span><span class="n">E</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span><span class="o">&amp;</span><span class="p">(</span><span class="n">E</span><span class="o">&lt;</span><span class="mi">10</span><span class="p">)]</span> <span class="o">=</span> <span class="n">A</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">E</span><span class="p">[(</span><span class="n">E</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span><span class="o">&amp;</span><span class="p">(</span><span class="n">E</span><span class="o">&lt;</span><span class="mi">10</span><span class="p">)]</span><span class="o">**</span><span class="mf">0.5</span>
+		<span class="k">return</span> <span class="n">S</span>
+
+	<span class="k">def</span> <span class="nf">_S_He</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eng</span><span class="p">,</span> <span class="n">M1</span><span class="o">=</span><span class="mf">4.003</span><span class="p">):</span>
+		<span class="n">S</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">eng</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span> <span class="k">if</span> <span class="n">eng</span><span class="o">.</span><span class="n">shape</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
+		<span class="n">E</span> <span class="o">=</span> <span class="n">eng</span><span class="o">*</span><span class="mf">4.0015</span><span class="o">/</span><span class="n">M1</span>
+		<span class="n">E</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">E</span><span class="o">&gt;=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">E</span><span class="p">,</span> <span class="mf">0.001</span><span class="p">)</span>
+
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_A_he</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">_A_he</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s1">&#39;SELECT * FROM helium WHERE Z=</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Z</span><span class="p">),</span> <span class="n">_get_connection</span><span class="p">(</span><span class="s1">&#39;ziegler&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">:]</span>
+		<span class="n">A</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_A_he</span>
+
+		<span class="n">S_low</span> <span class="o">=</span> <span class="n">A</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="mf">1E3</span><span class="o">*</span><span class="n">E</span><span class="p">[</span><span class="n">E</span><span class="o">&lt;=</span><span class="mi">10</span><span class="p">])</span><span class="o">**</span><span class="n">A</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+		<span class="n">S_high</span> <span class="o">=</span> <span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">/</span><span class="n">E</span><span class="p">[</span><span class="n">E</span><span class="o">&lt;=</span><span class="mi">10</span><span class="p">])</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mf">1.0</span><span class="o">+</span><span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">/</span><span class="n">E</span><span class="p">[</span><span class="n">E</span><span class="o">&lt;=</span><span class="mi">10</span><span class="p">])</span><span class="o">+</span><span class="n">A</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">*</span><span class="n">E</span><span class="p">[</span><span class="n">E</span><span class="o">&lt;=</span><span class="mi">10</span><span class="p">])</span>
+		<span class="n">S</span><span class="p">[</span><span class="n">E</span><span class="o">&lt;=</span><span class="mi">10</span><span class="p">]</span> <span class="o">=</span> <span class="n">S_low</span><span class="o">*</span><span class="n">S_high</span><span class="o">/</span><span class="p">(</span><span class="n">S_low</span><span class="o">+</span><span class="n">S_high</span><span class="p">)</span>
+
+		<span class="n">Y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mf">1.0</span><span class="o">/</span><span class="n">E</span><span class="p">[</span><span class="n">E</span><span class="o">&gt;</span><span class="mi">10</span><span class="p">])</span>
+		<span class="n">S</span><span class="p">[</span><span class="n">E</span><span class="o">&gt;</span><span class="mi">10</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span><span class="o">+</span><span class="n">A</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span><span class="o">*</span><span class="n">Y</span><span class="o">+</span><span class="n">A</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span><span class="o">*</span><span class="n">Y</span><span class="o">**</span><span class="mi">2</span><span class="o">+</span><span class="n">A</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span><span class="o">*</span><span class="n">Y</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span>
+		<span class="k">return</span> <span class="n">S</span>
+
+	<span class="k">def</span> <span class="nf">_S_elec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eng</span><span class="p">,</span> <span class="n">z1</span><span class="p">,</span> <span class="n">M1</span><span class="p">):</span>
+		<span class="n">S</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">eng</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span> <span class="k">if</span> <span class="n">eng</span><span class="o">.</span><span class="n">shape</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
+		<span class="n">E_keV</span> <span class="o">=</span> <span class="mf">1E3</span><span class="o">*</span><span class="n">eng</span>
+
+		<span class="n">S</span><span class="p">[</span><span class="n">E_keV</span><span class="o">/</span><span class="n">M1</span><span class="o">&lt;</span><span class="mi">1000</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_eff_Z_ratio</span><span class="p">(</span><span class="n">E_keV</span><span class="p">[</span><span class="n">E_keV</span><span class="o">/</span><span class="n">M1</span><span class="o">&lt;</span><span class="mi">1000</span><span class="p">],</span> <span class="n">z1</span><span class="p">,</span> <span class="n">M1</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_S_p</span><span class="p">(</span><span class="n">eng</span><span class="p">[</span><span class="n">E_keV</span><span class="o">/</span><span class="n">M1</span><span class="o">&lt;</span><span class="mi">1000</span><span class="p">],</span> <span class="n">M1</span><span class="p">)</span>
+
+		<span class="n">Y</span> <span class="o">=</span> <span class="n">E_keV</span><span class="p">[</span><span class="n">E_keV</span><span class="o">/</span><span class="n">M1</span><span class="o">&gt;=</span><span class="mi">1000</span><span class="p">]</span><span class="o">/</span><span class="n">M1</span>
+		<span class="n">beta_sq</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">-</span><span class="mf">1.0</span><span class="o">/</span><span class="p">(</span><span class="mf">1.0</span><span class="o">+</span><span class="n">Y</span><span class="o">/</span><span class="mf">931478.0</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+		<span class="n">FX</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mf">2E6</span><span class="o">*</span><span class="mf">0.511003</span><span class="o">*</span><span class="n">beta_sq</span><span class="o">/</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">beta_sq</span><span class="p">))</span><span class="o">-</span><span class="n">beta_sq</span>
+
+		<span class="n">ZHY</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">0.2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">Y</span><span class="p">)</span><span class="o">-</span><span class="mf">0.0012</span><span class="o">*</span><span class="n">Y</span><span class="o">-</span><span class="mf">0.00001443</span><span class="o">*</span><span class="n">Y</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+		<span class="n">Z1EFF</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_eff_Z_ratio</span><span class="p">(</span><span class="n">E_keV</span><span class="p">[</span><span class="n">E_keV</span><span class="o">/</span><span class="n">M1</span><span class="o">&gt;=</span><span class="mi">1000</span><span class="p">],</span> <span class="n">z1</span><span class="p">,</span> <span class="n">M1</span><span class="p">)</span><span class="o">*</span><span class="n">ZHY</span>
+
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_I_p</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">_I_p</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s1">&#39;SELECT Ip_solid FROM ionization WHERE Z=</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Z</span><span class="p">),</span> <span class="n">_get_connection</span><span class="p">(</span><span class="s1">&#39;ziegler&#39;</span><span class="p">))[</span><span class="s1">&#39;Ip_solid&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+		<span class="n">S</span><span class="p">[</span><span class="n">E_keV</span><span class="o">/</span><span class="n">M1</span><span class="o">&gt;=</span><span class="mi">1000</span><span class="p">]</span> <span class="o">=</span> <span class="mf">4E-1</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="p">(</span><span class="mf">1.9732857</span><span class="o">/</span><span class="mf">137.03604</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="o">*</span><span class="n">Z1EFF</span><span class="o">**</span><span class="mi">2</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">Z</span><span class="o">*</span><span class="p">(</span><span class="n">FX</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_I_p</span><span class="p">))</span><span class="o">/</span><span class="p">(</span><span class="mf">0.511003</span><span class="o">*</span><span class="n">beta_sq</span><span class="p">)</span>
+		<span class="k">return</span> <span class="n">S</span>
+
+	<span class="k">def</span> <span class="nf">_eff_Z_ratio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">E_keV</span><span class="p">,</span> <span class="n">z1</span><span class="p">,</span> <span class="n">M1</span><span class="p">):</span>
+		<span class="k">if</span> <span class="n">z1</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+			<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">eng</span><span class="p">))</span>
+
+		<span class="k">elif</span> <span class="n">z1</span><span class="o">==</span><span class="mi">2</span><span class="p">:</span>
+			<span class="n">Y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">E_keV</span><span class="o">/</span><span class="n">M1</span><span class="p">)</span>
+			<span class="k">return</span> <span class="n">z1</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">0.7446</span><span class="o">-</span><span class="mf">0.1429</span><span class="o">*</span><span class="n">Y</span><span class="o">-</span><span class="mf">0.01562</span><span class="o">*</span><span class="n">Y</span><span class="o">**</span><span class="mi">2</span><span class="o">+</span><span class="mf">0.00267</span><span class="o">*</span><span class="n">Y</span><span class="o">**</span><span class="mi">3</span><span class="o">-</span><span class="mf">0.000001325</span><span class="o">*</span><span class="n">Y</span><span class="o">**</span><span class="mi">8</span><span class="p">))</span>
+
+		<span class="k">elif</span> <span class="n">z1</span><span class="o">==</span><span class="mi">3</span><span class="p">:</span>
+			<span class="n">Y</span> <span class="o">=</span> <span class="n">E_keV</span><span class="o">/</span><span class="n">M1</span>
+			<span class="k">return</span> <span class="n">z1</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">0.7138</span><span class="o">-</span><span class="mf">0.002797</span><span class="o">*</span><span class="n">Y</span><span class="o">-</span><span class="mf">0.000001348</span><span class="o">*</span><span class="n">Y</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+
+		<span class="n">BB</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.886</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">0.04</span><span class="o">*</span><span class="n">E_keV</span><span class="o">/</span><span class="n">M1</span><span class="p">)</span><span class="o">/</span><span class="n">z1</span><span class="o">**</span><span class="p">(</span><span class="mi">2</span><span class="o">/</span><span class="mf">3.0</span><span class="p">)</span>
+		<span class="k">return</span> <span class="n">z1</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">BB</span><span class="o">-</span><span class="mf">0.0378</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mf">0.5</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">BB</span><span class="p">))</span><span class="o">*</span><span class="p">(</span><span class="mf">1.034</span><span class="o">-</span><span class="mf">0.1777</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">0.08114</span><span class="o">*</span><span class="n">z1</span><span class="p">)))</span>
 		
-<div class="viewcode-block" id="Element.dEdx"><a class="viewcode-back" href="../../api/element.html#curie.Element.dEdx">[docs]</a>	<span class="k">def</span> <span class="nf">dEdx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">particle</span><span class="o">=</span><span class="s1">&#39;p&#39;</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot; Description</span>
+<div class="viewcode-block" id="Element.S"><a class="viewcode-back" href="../../api/element.html#curie.Element.S">[docs]</a>	<span class="k">def</span> <span class="nf">S</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">particle</span><span class="o">=</span><span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Charged particle stopping power in matter</span>
 
-<span class="sd">		...</span>
+<span class="sd">		Calculate the stopping power, S=-dE/dx, for a given ion as a </span>
+<span class="sd">		function of the ion energy in MeV.  Units of S are MeV/cm.  To return</span>
+<span class="sd">		stopping power in units of MeV/(mg/cm^2), use option `density=1E-3`.</span>
 
 <span class="sd">		Parameters</span>
 <span class="sd">		----------</span>
-<span class="sd">		x : type</span>
-<span class="sd">			Description of x</span>
+<span class="sd">		energy : array_like</span>
+<span class="sd">			Incident ion energy in MeV.</span>
+
+<span class="sd">		particle : str, optional</span>
+<span class="sd">			Incident ion.  For light ions, options are &#39;p&#39; (default), &#39;d&#39;, &#39;t&#39;, &#39;a&#39; for proton, </span>
+<span class="sd">			deuteron, triton and alpha, respectively.  Additionally, heavy ions can be</span>
+<span class="sd">			specified either by element or isotope, e.g. &#39;Fe&#39;, &#39;40CA&#39;, &#39;U&#39;, &#39;Bi-209&#39;. For</span>
+<span class="sd">			light ions, the charge state is assumed to be fully stripped. For heavy ions</span>
+<span class="sd">			the charge state is handled by a Bohr/Northcliffe parameterization consistent</span>
+<span class="sd">			with the Anderson-Ziegler formalism.</span>
+
+<span class="sd">		density : float, optional</span>
+<span class="sd">			Density of the element in g/cm^3.  Default behavior is to use</span>
+<span class="sd">			`Element.density`.  To return stopping power in units of MeV/(mg/cm^2), i.e.</span>
+<span class="sd">			the mass-stopping power, use `density=1E-3`.</span>
+
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+<span class="sd">		numpy.ndarray</span>
+<span class="sd">			Stopping power, S=-dE/dx, for a given ion as a function of the </span>
+<span class="sd">			ion energy in MeV.  Units of S are MeV/cm.</span>
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>
 
 <span class="sd">		&quot;&quot;&quot;</span>
 
-		<span class="k">pass</span></div>
+		<span class="n">energy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+		<span class="k">if</span> <span class="n">density</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="n">density</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">density</span>
+
+		<span class="n">Z_p</span><span class="p">,</span> <span class="n">mass_p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_particle</span><span class="p">(</span><span class="n">particle</span><span class="p">)</span>
+
+		<span class="n">S</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_S_nucl</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">Z_p</span><span class="p">,</span> <span class="n">mass_p</span><span class="p">)</span>
+		<span class="k">if</span> <span class="n">Z_p</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+			<span class="n">S</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_S_p</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">mass_p</span><span class="p">)</span>
+		<span class="k">elif</span> <span class="n">Z_p</span><span class="o">==</span><span class="mi">2</span><span class="p">:</span>
+			<span class="n">S</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_S_He</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">mass_p</span><span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">S</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_S_elec</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">Z_p</span><span class="p">,</span> <span class="n">mass_p</span><span class="p">)</span>
+
+		<span class="k">return</span> <span class="p">(</span><span class="n">S</span><span class="o">*</span><span class="mf">0.6022140857</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">mass</span><span class="p">)</span><span class="o">*</span><span class="mf">1E3</span><span class="o">*</span><span class="n">density</span></div>
 		
-<div class="viewcode-block" id="Element.range"><a class="viewcode-back" href="../../api/element.html#curie.Element.range">[docs]</a>	<span class="k">def</span> <span class="nf">range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">particle</span><span class="o">=</span><span class="s1">&#39;p&#39;</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot; Description</span>
+<div class="viewcode-block" id="Element.range"><a class="viewcode-back" href="../../api/element.html#curie.Element.range">[docs]</a>	<span class="k">def</span> <span class="nf">range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">particle</span><span class="o">=</span><span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Charged particle range in matter</span>
 
-<span class="sd">		...</span>
+<span class="sd">		Calculates the charged particle range in the element, in cm.  Incident</span>
+<span class="sd">		energy should be in MeV, and the particle type definition is identical</span>
+<span class="sd">		to `Element.S()`.</span>
 
 <span class="sd">		Parameters</span>
 <span class="sd">		----------</span>
-<span class="sd">		x : type</span>
-<span class="sd">			Description of x</span>
+<span class="sd">		energy : array_like</span>
+<span class="sd">			Incident ion energy in MeV.</span>
+
+<span class="sd">		particle : str, optional</span>
+<span class="sd">			Incident ion.  For light ions, options are &#39;p&#39; (default), &#39;d&#39;, &#39;t&#39;, &#39;a&#39; for proton, </span>
+<span class="sd">			deuteron, triton and alpha, respectively.  Additionally, heavy ions can be</span>
+<span class="sd">			specified either by element or isotope, e.g. &#39;Fe&#39;, &#39;40CA&#39;, &#39;U&#39;, &#39;Bi-209&#39;. For</span>
+<span class="sd">			light ions, the charge state is assumed to be fully stripped. For heavy ions</span>
+<span class="sd">			the charge state is handled by a Bohr/Northcliffe parameterization consistent</span>
+<span class="sd">			with the Anderson-Ziegler formalism.</span>
+
+<span class="sd">		density : float, optional</span>
+<span class="sd">			Density of the element in g/cm^3.  Default behavior is to use</span>
+<span class="sd">			`Element.density`.</span>
+<span class="sd">		</span>
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+<span class="sd">		float</span>
+<span class="sd">			Charged particle range in the element, in cm.</span>
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>
 
 <span class="sd">		&quot;&quot;&quot;</span>
 
-		<span class="k">pass</span></div>
+		<span class="n">energy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+		
+		<span class="n">dE</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span><span class="o">/</span><span class="mf">1E3</span>
+		<span class="c1"># E_grid = np.exp(np.arange(-3.0, np.log(np.max(energy)+dE), dE))</span>
+		<span class="n">E_min</span> <span class="o">=</span> <span class="nb">min</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">energy</span><span class="p">),</span> <span class="mf">1.0</span><span class="p">))</span>
+		<span class="n">E_grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">E_min</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span><span class="o">+</span><span class="n">dE</span><span class="p">,</span> <span class="n">dE</span><span class="p">)</span>
+
+		<span class="n">S</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">S</span><span class="p">(</span><span class="n">E_grid</span><span class="p">,</span> <span class="n">particle</span><span class="o">=</span><span class="n">particle</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="n">density</span><span class="p">)</span>
+		<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">((</span><span class="mf">1.0</span><span class="o">/</span><span class="n">S</span><span class="p">)</span><span class="o">*</span><span class="n">dE</span><span class="p">)</span>
+		<span class="k">return</span> <span class="n">interp1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">E_grid</span><span class="p">),</span> <span class="n">x</span><span class="p">,</span> <span class="n">bounds_error</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="s1">&#39;extrapolate&#39;</span><span class="p">)(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">energy</span><span class="p">))</span></div>
+
 		
 <div class="viewcode-block" id="Element.plot_mass_coeff"><a class="viewcode-back" href="../../api/element.html#curie.Element.plot_mass_coeff">[docs]</a>	<span class="k">def</span> <span class="nf">plot_mass_coeff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot; Description</span>
+		<span class="sd">&quot;&quot;&quot;Plot the mass-attenuation coefficient in the element</span>
 
-<span class="sd">		...</span>
+<span class="sd">		Creates a plot of the mass-attenuation coefficient (in cm^2/g)</span>
+<span class="sd">		as a function of photon energy in keV.</span>
 
 <span class="sd">		Parameters</span>
 <span class="sd">		----------</span>
-<span class="sd">		x : type</span>
-<span class="sd">			Description of x</span>
+<span class="sd">		energy : array_like, optional</span>
+<span class="sd">			Energy grid on which to plot, replacing the default energy grid.</span>
+<span class="sd">			Units are in keV.</span>
+<span class="sd">		</span>
+<span class="sd">		Other Parameters</span>
+<span class="sd">		----------------</span>
+<span class="sd">		**kwargs</span>
+<span class="sd">			Optional keyword arguments for plotting.  See the </span>
+<span class="sd">			plotting section of the curie API for a complete</span>
+<span class="sd">			list of kwargs.</span>
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>
+<span class="sd">		&gt;&gt;&gt; el = ci.Element(&#39;Fe&#39;)</span>
+<span class="sd">		&gt;&gt;&gt; el.plot_mass_coeff()</span>
+<span class="sd">		&gt;&gt;&gt; el.plot_mass_coeff(style=&#39;poster&#39;)</span>
 
 <span class="sd">		&quot;&quot;&quot;</span>
 
-		<span class="k">pass</span></div>
+		<span class="k">if</span> <span class="n">energy</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="n">energy</span><span class="p">,</span> <span class="n">mu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mass_coeff</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">mass_coeff</span><span class="p">[</span><span class="s1">&#39;mu&#39;</span><span class="p">]</span>
+			
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">energy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+
+			<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mc_interp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">_mc_interp</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mass_coeff</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mass_coeff</span><span class="p">[</span><span class="s1">&#39;mu&#39;</span><span class="p">]),</span> <span class="n">bounds_error</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="s1">&#39;extrapolate&#39;</span><span class="p">)</span>
+			<span class="n">mu</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mc_interp</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">energy</span><span class="p">)))</span>
+
+		<span class="n">f</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">_init_plot</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+		<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$\mu/\rho$&#39;</span><span class="o">+</span><span class="s1">&#39; (</span><span class="si">{0}</span><span class="s1">, Z=</span><span class="si">{1}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Z</span><span class="p">))</span>
+		<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Photon Energy (keV)&#39;</span><span class="p">)</span>
+		<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Attenuation Coeff. (cm$^2$/g)&#39;</span><span class="p">)</span>
+		<span class="n">ax</span><span class="o">.</span><span class="n">set_xscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+		<span class="n">ax</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+		<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+		
+		<span class="k">return</span> <span class="n">_draw_plot</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 		
 <div class="viewcode-block" id="Element.plot_mass_coeff_en"><a class="viewcode-back" href="../../api/element.html#curie.Element.plot_mass_coeff_en">[docs]</a>	<span class="k">def</span> <span class="nf">plot_mass_coeff_en</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot; Description</span>
+		<span class="sd">&quot;&quot;&quot;Plot the mass energy-absorption coefficient in the element</span>
 
-<span class="sd">		...</span>
+<span class="sd">		Creates a plot of the mass energy-absorption coefficient (in cm^2/g)</span>
+<span class="sd">		as a function of photon energy in keV.</span>
 
 <span class="sd">		Parameters</span>
 <span class="sd">		----------</span>
-<span class="sd">		x : type</span>
-<span class="sd">			Description of x</span>
+<span class="sd">		energy : array_like, optional</span>
+<span class="sd">			Energy grid on which to plot, replacing the default energy grid.</span>
+<span class="sd">			Units are in keV.</span>
+
+<span class="sd">		Other Parameters</span>
+<span class="sd">		----------------</span>
+<span class="sd">		**kwargs</span>
+<span class="sd">			Optional keyword arguments for plotting.  See the </span>
+<span class="sd">			plotting section of the curie API for a complete</span>
+<span class="sd">			list of kwargs.</span>
+
+<span class="sd">		Examples</span>
+<span class="sd">		--------</span>
+<span class="sd">		&gt;&gt;&gt; el = ci.Element(&#39;Hf&#39;)</span>
+<span class="sd">		</span>
+<span class="sd">		Example plotting the mass-attenuation coefficient together with the mass</span>
+<span class="sd">		energy-absorption coefficient, on the same axes.</span>
+
+<span class="sd">		&gt;&gt;&gt; f,ax = el.plot_mass_coeff(return_plot=True)</span>
+<span class="sd">		&gt;&gt;&gt; el.plot_mass_coeff_en(f=f, ax=ax)</span>
+
+<span class="sd">		&quot;&quot;&quot;</span>
+
+		<span class="k">if</span> <span class="n">energy</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="n">energy</span><span class="p">,</span> <span class="n">mu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mass_coeff_en</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">mass_coeff_en</span><span class="p">[</span><span class="s1">&#39;mu_en&#39;</span><span class="p">]</span>
+			
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">energy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+
+			<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mc_en_interp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">_mc_en_interp</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mass_coeff</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mass_coeff_en</span><span class="p">[</span><span class="s1">&#39;mu_en&#39;</span><span class="p">]),</span> <span class="n">bounds_error</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="s1">&#39;extrapolate&#39;</span><span class="p">)</span>
+			<span class="n">mu</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mc_en_interp</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">energy</span><span class="p">)))</span>
+
+		<span class="n">f</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">_init_plot</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+		<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$\mu_</span><span class="si">{en}</span><span class="s1">/\rho$&#39;</span><span class="o">+</span><span class="s1">&#39; (</span><span class="si">{0}</span><span class="s1">, Z=</span><span class="si">{1}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Z</span><span class="p">))</span>
+		<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Photon Energy (keV)&#39;</span><span class="p">)</span>
+		<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Attenuation Coeff. (cm$^2$/g)&#39;</span><span class="p">)</span>
+		<span class="n">ax</span><span class="o">.</span><span class="n">set_xscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+		<span class="n">ax</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+		<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+		<span class="k">return</span> <span class="n">_draw_plot</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+		
+<div class="viewcode-block" id="Element.plot_S"><a class="viewcode-back" href="../../api/element.html#curie.Element.plot_S">[docs]</a>	<span class="k">def</span> <span class="nf">plot_S</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">particle</span><span class="o">=</span><span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="n">energy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Plot the stopping power in the element</span>
+
+<span class="sd">		Creates a plot of the charged particle stopping power (in MeV/(mg/cm^2))</span>
+<span class="sd">		in the element as a function of the incident ion energy (in MeV).</span>
+
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">		particle : str</span>
+<span class="sd">			Incident ion.  For light ions, options are &#39;p&#39; (default), &#39;d&#39;, &#39;t&#39;, &#39;a&#39; for proton, </span>
+<span class="sd">			deuteron, triton and alpha, respectively.  Additionally, heavy ions can be</span>
+<span class="sd">			specified either by element or isotope, e.g. &#39;Fe&#39;, &#39;40CA&#39;, &#39;U&#39;, &#39;Bi-209&#39;.</span>
+
+<span class="sd">		energy : array_like, optional</span>
+<span class="sd">			Energy grid on which to plot, replacing the default energy grid.</span>
+<span class="sd">			Units are in MeV.</span>
+
+<span class="sd">		Other Parameters</span>
+<span class="sd">		----------------</span>
+<span class="sd">		**kwargs</span>
+<span class="sd">			Optional keyword arguments for plotting.  See the </span>
+<span class="sd">			plotting section of the curie API for a complete</span>
+<span class="sd">			list of kwargs.</span>
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>
 
 <span class="sd">		&quot;&quot;&quot;</span>
 
-		<span class="k">pass</span></div>
-		
-<div class="viewcode-block" id="Element.plot_S"><a class="viewcode-back" href="../../api/element.html#curie.Element.plot_S">[docs]</a>	<span class="k">def</span> <span class="nf">plot_S</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compound</span><span class="p">,</span> <span class="n">energy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot; Description</span>
+		<span class="k">if</span> <span class="n">energy</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="n">energy</span> <span class="o">=</span> <span class="mf">10.0</span><span class="o">**</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">2.8</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">)</span>
 
-<span class="sd">		...</span>
+		<span class="n">f</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">_init_plot</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+		<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">S</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">particle</span><span class="o">=</span><span class="n">particle</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="mf">1E-3</span><span class="p">),</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;S (</span><span class="si">{0}</span><span class="s1">, Z=</span><span class="si">{1}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Z</span><span class="p">))</span>
+
+		<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Incident Energy (MeV)&#39;</span><span class="p">)</span>
+		<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Stopping Power (MeV/(mg/cm$^2$))&#39;</span><span class="p">)</span>
+		<span class="n">ax</span><span class="o">.</span><span class="n">set_xscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+		<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+		<span class="k">return</span> <span class="n">_draw_plot</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+		
+<div class="viewcode-block" id="Element.plot_range"><a class="viewcode-back" href="../../api/element.html#curie.Element.plot_range">[docs]</a>	<span class="k">def</span> <span class="nf">plot_range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">particle</span><span class="o">=</span><span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="n">energy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Plot the charged particle range in the element</span>
+
+<span class="sd">		Creates a plot of the charged particle range (in cm)</span>
+<span class="sd">		in the element as a function of the incident ion energy (in MeV).</span>
 
 <span class="sd">		Parameters</span>
 <span class="sd">		----------</span>
-<span class="sd">		x : type</span>
-<span class="sd">			Description of x</span>
+<span class="sd">		particle : str</span>
+<span class="sd">			Incident ion.  For light ions, options are &#39;p&#39; (default), &#39;d&#39;, &#39;t&#39;, &#39;a&#39; for proton, </span>
+<span class="sd">			deuteron, triton and alpha, respectively.  Additionally, heavy ions can be</span>
+<span class="sd">			specified either by element or isotope, e.g. &#39;Fe&#39;, &#39;40CA&#39;, &#39;U&#39;, &#39;Bi-209&#39;.</span>
+
+<span class="sd">		energy : array_like, optional</span>
+<span class="sd">			Energy grid on which to plot, replacing the default energy grid.</span>
+<span class="sd">			Units are in MeV.</span>
+
+<span class="sd">		density : float, optional</span>
+<span class="sd">			Density of the element in g/cm^3.  Default behavior is to use</span>
+<span class="sd">			`Element.density`.</span>
+
+<span class="sd">		Other Parameters</span>
+<span class="sd">		----------------</span>
+<span class="sd">		**kwargs</span>
+<span class="sd">			Optional keyword arguments for plotting.  See the </span>
+<span class="sd">			plotting section of the curie API for a complete</span>
+<span class="sd">			list of kwargs.</span>
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>
 
 <span class="sd">		&quot;&quot;&quot;</span>
 
-		<span class="k">pass</span></div></div>
-		
+		<span class="k">if</span> <span class="n">energy</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="n">energy</span> <span class="o">=</span> <span class="mf">10.0</span><span class="o">**</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">2.8</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">)</span>
+
+		<span class="n">f</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">_init_plot</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+		<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">particle</span><span class="o">=</span><span class="n">particle</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="n">density</span><span class="p">),</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Range (</span><span class="si">{0}</span><span class="s1">, Z=</span><span class="si">{1}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Z</span><span class="p">))</span>
+
+		<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Incident Energy (MeV)&#39;</span><span class="p">)</span>
+		<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Range (cm)&#39;</span><span class="p">)</span>
+		<span class="n">ax</span><span class="o">.</span><span class="n">set_xscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+		<span class="n">ax</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+		<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+		<span class="k">return</span> <span class="n">_draw_plot</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
 </pre></div>
 
           </div>

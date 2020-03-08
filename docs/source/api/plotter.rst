@@ -19,8 +19,8 @@ The following classes have plotting methods callable with the `cls.plot()` funct
 * Reaction
 * Stack
 
-All `cls.plot()` methods have no required arguments, and while some have specific arguments that are documented in the respective classes,
-all plotting methods share the same optional keyword arguments, denoted in the code by `**kwargs`.
+All `cls.plot()` methods have no required arguments, and while some have specific optional arguments that are documented in the respective classes,
+all plotting methods share the same optional **keyword arguments**, denoted in the code by `**kwargs`.
 
 **f**
 : `matplotlib.pyplot figure`  
@@ -54,3 +54,5 @@ all plotting methods share the same optional keyword arguments, denoted in the c
 **return_plot**
 : `bool`
 	If `True`, then a tuple of (fig, axes) will be returned when calling the `cls.plot()` method.  This can be used to draw multiple plots over each other, e.g. for plotting multiple cross-sections.
+
+**style**, **palette** and **shade** are also available as keyword arguments, and have the same behavior as in `curie.set_style()`.

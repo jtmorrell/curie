@@ -29,7 +29,6 @@ def download(db='all', overwrite=False):
 
 	Examples
 	--------
-	
 	The most common use case will be to (re)download all the data files
 
 	>>> ci.download(overwrite=True)

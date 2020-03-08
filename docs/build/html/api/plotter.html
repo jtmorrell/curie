@@ -136,8 +136,8 @@ on the intended application (i.e. <cite>poster</cite>, <cite>paper</cite>, etc.)
 <li>Reaction</li>
 <li>Stack</li>
 </ul>
-<p>All <cite>cls.plot()</cite> methods have no required arguments, and while some have specific arguments that are documented in the respective classes,
-all plotting methods share the same optional keyword arguments, denoted in the code by <cite>**kwargs</cite>.</p>
+<p>All <cite>cls.plot()</cite> methods have no required arguments, and while some have specific optional arguments that are documented in the respective classes,
+all plotting methods share the same optional <strong>keyword arguments</strong>, denoted in the code by <cite>**kwargs</cite>.</p>
 <p><strong>f</strong>
 : <cite>matplotlib.pyplot figure</cite></p>
 <blockquote>
@@ -172,6 +172,7 @@ all plotting methods share the same optional keyword arguments, denoted in the c
 : <cite>bool</cite></p>
 <blockquote>
 <div>If <cite>True</cite>, then a tuple of (fig, axes) will be returned when calling the <cite>cls.plot()</cite> method.  This can be used to draw multiple plots over each other, e.g. for plotting multiple cross-sections.</div></blockquote>
+<p><strong>style</strong>, <strong>palette</strong> and <strong>shade</strong> are also available as keyword arguments, and have the same behavior as in <cite>curie.set_style()</cite>.</p>
 </div>
 </div>
 

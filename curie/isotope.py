@@ -37,7 +37,6 @@ class Isotope(object):
 
 	Attributes
 	----------
-
 	element : str
 		Elemental symbol, e.g. Xe, Ar, Kr
 
@@ -88,7 +87,6 @@ class Isotope(object):
 
 	Examples
 	--------
-
 	>>> ip = ci.Isotope('115INm')
 	>>> ip = ci.Isotope('Co-60')
 	>>> ip = ci.Isotope('58NI')
@@ -151,6 +149,7 @@ class Isotope(object):
 		if istp=='1n' or istp=='1ng' or istp=='n':
 			self.element, self.A, self.isomer = 'n', 1, 'g'
 			self.name = '1ng'
+			
 		elif '-' in istp:
 			el, A = tuple(istp.split('-'))
 			if 'm' in A:
@@ -158,6 +157,7 @@ class Isotope(object):
 				self.isomer = 'm'+m
 				if self.isomer=='m':
 					self.isomer = 'm1'
+
 			elif 'g' in A:
 				A = A[:-1]
 				self.isomer = 'g'
@@ -168,11 +168,12 @@ class Isotope(object):
 			self.element = el.title()
 
 		else:
-			self.element = ''.join(re.findall('[A-Z]+',istp)).title()
+			self.element = ''.join(re.findall('[A-Z]+', istp)).title()
 			if istp.startswith('nat'):
 				self.A = 'nat'
 			else:
 				self.A = int(istp.split(self.element.upper())[0])
+
 			self.isomer = istp.split(self.element.upper())[1]
 		
 		if self.isomer=='' and type(self.A)==int:
@@ -182,6 +183,7 @@ class Isotope(object):
 
 		if self.element!='n':
 			self.name = str(self.A)+self.element.upper()+self.isomer
+
 		self.Z = ELEMENTS.index(self.element)
 		if type(self.A)==int:
 			self.N = self.A-self.Z
@@ -213,7 +215,6 @@ class Isotope(object):
 
 		Examples
 		--------
-
 		>>> ip = ci.Isotope('67CU')
 		>>> print(ip.half_life('d'))
 		2.57625

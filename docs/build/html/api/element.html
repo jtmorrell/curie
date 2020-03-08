@@ -40,42 +40,75 @@
 <dl class="class">
 <dt id="curie.Element">
 <em class="property">class </em><code class="descclassname">curie.</code><code class="descname">Element</code><span class="sig-paren">(</span><em>element</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/element.html#Element"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Element" title="Permalink to this definition">¶</a></dt>
-<dd><p>…</p>
+<dd><p>Elemental data and properties</p>
+<p>The Element class provides useful data about the natural elements,
+such as mass, density, and isotopic composition.  Additionally, it contains
+functions for determining the interaction of radiation with the natural
+elements.  Principally it provides the mass-attenuation of photons, and 
+the stopping power/ranges of charged particles.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
 <dt><strong>element</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
-<dd><p class="first last">Description of parameter <cite>x</cite>.</p>
+<dd><p class="first last">Symbol for the element, e.g. ‘H’, ‘In’, ‘Zn’, ‘Fe’.  Case insensitive.
+Note that ‘n’ (“neutron”) is not considered a valid element in this
+context, and will be interpreted as ‘N’ (“nitrogen”).</p>
 </dd>
 </dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>name</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
-<dd><p class="first last">Description of attribute</p>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">el</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s1">&#39;Fe&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">el</span><span class="o">.</span><span class="n">mass</span><span class="p">)</span>
+<span class="go">55.847</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">el</span><span class="o">.</span><span class="n">density</span><span class="p">)</span>
+<span class="go">7.866</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>name</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">Symbol for the element, in title-case. E.g. if input was ‘fe’, name 
+will be ‘Fe’.</p>
 </dd>
-<dt><strong>Z</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
-<dd><p class="first last">Description of attribute</p>
+<dt><strong>Z</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">Atomic number of the element.</p>
 </dd>
-<dt><strong>mass</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
-<dd><p class="first last">Description of attribute</p>
+<dt><strong>mass</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">Molar mass of the natural element in atomic mass units (amu).</p>
 </dd>
-<dt><strong>isotopes</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
-<dd><p class="first last">Description of attribute</p>
+<dt><strong>isotopes</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
+<dd><p class="first last">List of isotopes with non-zero natural abundance.</p>
 </dd>
-<dt><strong>abundances</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
-<dd><p class="first last">Description of attribute</p>
+<dt><strong>abundances</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd><p class="first last">Natural abundances, in percent, for all isotopes found in nature. 
+Structure is a DataFrame with the columns ‘isotope’, ‘abundance’, 
+and ‘unc_abundance’.</p>
 </dd>
-<dt><strong>density</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
-<dd><p class="first last">Description of attribute</p>
+<dt><strong>density</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">Density of the natural element in g/cm^3. The density is used in
+calculations of charged particle dEdx and photon attenuation, so
+you can assign a new density using <cite>el.density = new_density</cite> if
+needed, or using the <cite>density</cite> keyword in either of those functions.</p>
 </dd>
-<dt><strong>mass_coeff</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
-<dd><p class="first last">Description of attribute</p>
+<dt><strong>mass_coeff</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd><p class="first last">Table of mass-attenuation coefficients as a function of photon
+energy, from the NIST XCOM database.  Energies are in keV, and
+mass-attenuation coefficients, or mu/rho, are given in cm^2/g.
+DataFrame columns are ‘energy’ and ‘mu’.</p>
 </dd>
-<dt><strong>mass_coeff_en</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
-<dd><p class="first last">Description of attribute</p>
+<dt><strong>mass_coeff_en</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd><p class="first last">Table of mass energy-absorption coefficients as a function of
+photon energy, from the NIST XCOM database.  Energies in keV,
+and mass energy-absorption coefficients, or mu_en/rho, are in
+units of cm^2/g.  DataFrame columns are ‘energy’, and ‘mu_en’.</p>
 </dd>
 </dl>
 </td>
@@ -89,38 +122,64 @@
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#curie.Element.attenuation" title="curie.Element.attenuation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">attenuation</span></code></a>(energy[,&nbsp;x,&nbsp;ad])</td>
-<td>Description</td>
+<tr class="row-odd"><td><a class="reference internal" href="#curie.Element.S" title="curie.Element.S"><code class="xref py py-obj docutils literal notranslate"><span class="pre">S</span></code></a>(energy[,&nbsp;particle,&nbsp;density])</td>
+<td>Charged particle stopping power in matter</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#curie.Element.dEdx" title="curie.Element.dEdx"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dEdx</span></code></a>(energy[,&nbsp;particle])</td>
-<td>Description</td>
+<tr class="row-even"><td><a class="reference internal" href="#curie.Element.attenuation" title="curie.Element.attenuation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">attenuation</span></code></a>(energy,&nbsp;x[,&nbsp;density])</td>
+<td>Photon attenuation in matter</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#curie.Element.plot_S" title="curie.Element.plot_S"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_S</span></code></a>(compound[,&nbsp;energy])</td>
-<td>Description</td>
+<tr class="row-odd"><td><a class="reference internal" href="#curie.Element.plot_S" title="curie.Element.plot_S"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_S</span></code></a>([particle,&nbsp;energy])</td>
+<td>Plot the stopping power in the element</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#curie.Element.plot_mass_coeff" title="curie.Element.plot_mass_coeff"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_mass_coeff</span></code></a>([energy])</td>
-<td>Description</td>
+<td>Plot the mass-attenuation coefficient in the element</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#curie.Element.plot_mass_coeff_en" title="curie.Element.plot_mass_coeff_en"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_mass_coeff_en</span></code></a>([energy])</td>
-<td>Description</td>
+<td>Plot the mass energy-absorption coefficient in the element</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#curie.Element.range" title="curie.Element.range"><code class="xref py py-obj docutils literal notranslate"><span class="pre">range</span></code></a>(energy[,&nbsp;particle])</td>
-<td>Description</td>
+<tr class="row-even"><td><a class="reference internal" href="#curie.Element.plot_range" title="curie.Element.plot_range"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_range</span></code></a>([particle,&nbsp;energy,&nbsp;density])</td>
+<td>Plot the charged particle range in the element</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#curie.Element.range" title="curie.Element.range"><code class="xref py py-obj docutils literal notranslate"><span class="pre">range</span></code></a>(energy[,&nbsp;particle,&nbsp;density])</td>
+<td>Charged particle range in matter</td>
 </tr>
 </tbody>
 </table>
 <dl class="method">
-<dt id="curie.Element.attenuation">
-<code class="descname">attenuation</code><span class="sig-paren">(</span><em>energy</em>, <em>x=1.0</em>, <em>ad=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/element.html#Element.attenuation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Element.attenuation" title="Permalink to this definition">¶</a></dt>
-<dd><p>Description</p>
-<p>…</p>
+<dt id="curie.Element.S">
+<code class="descname">S</code><span class="sig-paren">(</span><em>energy</em>, <em>particle='p'</em>, <em>density=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/element.html#Element.S"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Element.S" title="Permalink to this definition">¶</a></dt>
+<dd><p>Charged particle stopping power in matter</p>
+<p>Calculate the stopping power, S=-dE/dx, for a given ion as a 
+function of the ion energy in MeV.  Units of S are MeV/cm.  To return
+stopping power in units of MeV/(mg/cm^2), use option <cite>density=1E-3</cite>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>x</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
-<dd><p class="first last">Description of x</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>energy</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
+<dd><p class="first last">Incident ion energy in MeV.</p>
+</dd>
+<dt><strong>particle</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
+<dd><p class="first last">Incident ion.  For light ions, options are ‘p’ (default), ‘d’, ‘t’, ‘a’ for proton, 
+deuteron, triton and alpha, respectively.  Additionally, heavy ions can be
+specified either by element or isotope, e.g. ‘Fe’, ‘40CA’, ‘U’, ‘Bi-209’. For
+light ions, the charge state is assumed to be fully stripped. For heavy ions
+the charge state is handled by a Bohr/Northcliffe parameterization consistent
+with the Anderson-Ziegler formalism.</p>
+</dd>
+<dt><strong>density</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float, optional</span></dt>
+<dd><p class="first last">Density of the element in g/cm^3.  Default behavior is to use
+<cite>Element.density</cite>.  To return stopping power in units of MeV/(mg/cm^2), i.e.
+the mass-stopping power, use <cite>density=1E-3</cite>.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>numpy.ndarray</strong></dt>
+<dd><p class="first last">Stopping power, S=-dE/dx, for a given ion as a function of the 
+ion energy in MeV.  Units of S are MeV/cm.</p>
 </dd>
 </dl>
 </td>
@@ -130,37 +189,79 @@
 </dd></dl>
 
 <dl class="method">
-<dt id="curie.Element.dEdx">
-<code class="descname">dEdx</code><span class="sig-paren">(</span><em>energy</em>, <em>particle='p'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/element.html#Element.dEdx"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Element.dEdx" title="Permalink to this definition">¶</a></dt>
-<dd><p>Description</p>
-<p>…</p>
+<dt id="curie.Element.attenuation">
+<code class="descname">attenuation</code><span class="sig-paren">(</span><em>energy</em>, <em>x</em>, <em>density=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/element.html#Element.attenuation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Element.attenuation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Photon attenuation in matter</p>
+<p>Calculate the attenuation factor I(x)/I_0 = e^(-mu*x) for a given
+photon energy (in keV) and slab thickness (in cm).</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>x</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
-<dd><p class="first last">Description of x</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>energy</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
+<dd><p class="first last">Incident photon energy in keV.</p>
+</dd>
+<dt><strong>x</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">Thickness of slab of given element, in cm.</p>
+</dd>
+<dt><strong>density</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float, optional</span></dt>
+<dd><p class="first last">Density of the element in g/cm^3.  Default behavior is to
+use <cite>Element.density</cite>.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>numpy.ndarray</strong></dt>
+<dd><p class="first last">The slab attenuation factor as an absolute number (i.e. from 0 to 1).
+E.g. if the incident intensity is I_0, the transmitted intensity I(x) 
+is I_0 times the attenuation factor.</p>
 </dd>
 </dl>
 </td>
 </tr>
 </tbody>
 </table>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">el</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s1">&#39;Fe&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">el</span><span class="o">.</span><span class="n">attenuation</span><span class="p">(</span><span class="mi">511</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mf">0.3</span><span class="p">))</span>
+<span class="go">0.821621630674751</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">el</span><span class="o">.</span><span class="n">attenuation</span><span class="p">(</span><span class="mi">300</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="mi">8</span><span class="p">))</span>
+<span class="go">0.6442940871813587</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="method">
 <dt id="curie.Element.plot_S">
-<code class="descname">plot_S</code><span class="sig-paren">(</span><em>compound</em>, <em>energy=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/element.html#Element.plot_S"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Element.plot_S" title="Permalink to this definition">¶</a></dt>
-<dd><p>Description</p>
-<p>…</p>
+<code class="descname">plot_S</code><span class="sig-paren">(</span><em>particle='p'</em>, <em>energy=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/element.html#Element.plot_S"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Element.plot_S" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the stopping power in the element</p>
+<p>Creates a plot of the charged particle stopping power (in MeV/(mg/cm^2))
+in the element as a function of the incident ion energy (in MeV).</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>x</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
-<dd><p class="first last">Description of x</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>particle</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">Incident ion.  For light ions, options are ‘p’ (default), ‘d’, ‘t’, ‘a’ for proton, 
+deuteron, triton and alpha, respectively.  Additionally, heavy ions can be
+specified either by element or isotope, e.g. ‘Fe’, ‘40CA’, ‘U’, ‘Bi-209’.</p>
+</dd>
+<dt><strong>energy</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like, optional</span></dt>
+<dd><p class="first last">Energy grid on which to plot, replacing the default energy grid.
+Units are in MeV.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Other Parameters:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body"><dl class="first last docutils">
+<dt><strong>**kwargs</strong></dt>
+<dd><p class="first last">Optional keyword arguments for plotting.  See the 
+plotting section of the curie API for a complete
+list of kwargs.</p>
 </dd>
 </dl>
 </td>
@@ -172,35 +273,116 @@
 <dl class="method">
 <dt id="curie.Element.plot_mass_coeff">
 <code class="descname">plot_mass_coeff</code><span class="sig-paren">(</span><em>energy=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/element.html#Element.plot_mass_coeff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Element.plot_mass_coeff" title="Permalink to this definition">¶</a></dt>
-<dd><p>Description</p>
-<p>…</p>
+<dd><p>Plot the mass-attenuation coefficient in the element</p>
+<p>Creates a plot of the mass-attenuation coefficient (in cm^2/g)
+as a function of photon energy in keV.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>x</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
-<dd><p class="first last">Description of x</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>energy</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like, optional</span></dt>
+<dd><p class="first last">Energy grid on which to plot, replacing the default energy grid.
+Units are in keV.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Other Parameters:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body"><dl class="first last docutils">
+<dt><strong>**kwargs</strong></dt>
+<dd><p class="first last">Optional keyword arguments for plotting.  See the 
+plotting section of the curie API for a complete
+list of kwargs.</p>
 </dd>
 </dl>
 </td>
 </tr>
 </tbody>
 </table>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">el</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s1">&#39;Fe&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">el</span><span class="o">.</span><span class="n">plot_mass_coeff</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">el</span><span class="o">.</span><span class="n">plot_mass_coeff</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s1">&#39;poster&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="method">
 <dt id="curie.Element.plot_mass_coeff_en">
 <code class="descname">plot_mass_coeff_en</code><span class="sig-paren">(</span><em>energy=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/element.html#Element.plot_mass_coeff_en"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Element.plot_mass_coeff_en" title="Permalink to this definition">¶</a></dt>
-<dd><p>Description</p>
-<p>…</p>
+<dd><p>Plot the mass energy-absorption coefficient in the element</p>
+<p>Creates a plot of the mass energy-absorption coefficient (in cm^2/g)
+as a function of photon energy in keV.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>x</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
-<dd><p class="first last">Description of x</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>energy</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like, optional</span></dt>
+<dd><p class="first last">Energy grid on which to plot, replacing the default energy grid.
+Units are in keV.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Other Parameters:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body"><dl class="first last docutils">
+<dt><strong>**kwargs</strong></dt>
+<dd><p class="first last">Optional keyword arguments for plotting.  See the 
+plotting section of the curie API for a complete
+list of kwargs.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">el</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s1">&#39;Hf&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Example plotting the mass-attenuation coefficient together with the mass
+energy-absorption coefficient, on the same axes.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">f</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">el</span><span class="o">.</span><span class="n">plot_mass_coeff</span><span class="p">(</span><span class="n">return_plot</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">el</span><span class="o">.</span><span class="n">plot_mass_coeff_en</span><span class="p">(</span><span class="n">f</span><span class="o">=</span><span class="n">f</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="curie.Element.plot_range">
+<code class="descname">plot_range</code><span class="sig-paren">(</span><em>particle='p'</em>, <em>energy=None</em>, <em>density=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/element.html#Element.plot_range"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Element.plot_range" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the charged particle range in the element</p>
+<p>Creates a plot of the charged particle range (in cm)
+in the element as a function of the incident ion energy (in MeV).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>particle</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">Incident ion.  For light ions, options are ‘p’ (default), ‘d’, ‘t’, ‘a’ for proton, 
+deuteron, triton and alpha, respectively.  Additionally, heavy ions can be
+specified either by element or isotope, e.g. ‘Fe’, ‘40CA’, ‘U’, ‘Bi-209’.</p>
+</dd>
+<dt><strong>energy</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like, optional</span></dt>
+<dd><p class="first last">Energy grid on which to plot, replacing the default energy grid.
+Units are in MeV.</p>
+</dd>
+<dt><strong>density</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float, optional</span></dt>
+<dd><p class="first last">Density of the element in g/cm^3.  Default behavior is to use
+<cite>Element.density</cite>.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Other Parameters:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body"><dl class="first last docutils">
+<dt><strong>**kwargs</strong></dt>
+<dd><p class="first last">Optional keyword arguments for plotting.  See the 
+plotting section of the curie API for a complete
+list of kwargs.</p>
 </dd>
 </dl>
 </td>
@@ -211,16 +393,37 @@
 
 <dl class="method">
 <dt id="curie.Element.range">
-<code class="descname">range</code><span class="sig-paren">(</span><em>energy</em>, <em>particle='p'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/element.html#Element.range"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Element.range" title="Permalink to this definition">¶</a></dt>
-<dd><p>Description</p>
-<p>…</p>
+<code class="descname">range</code><span class="sig-paren">(</span><em>energy</em>, <em>particle='p'</em>, <em>density=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/element.html#Element.range"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Element.range" title="Permalink to this definition">¶</a></dt>
+<dd><p>Charged particle range in matter</p>
+<p>Calculates the charged particle range in the element, in cm.  Incident
+energy should be in MeV, and the particle type definition is identical
+to <cite>Element.S()</cite>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>x</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
-<dd><p class="first last">Description of x</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>energy</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
+<dd><p class="first last">Incident ion energy in MeV.</p>
+</dd>
+<dt><strong>particle</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
+<dd><p class="first last">Incident ion.  For light ions, options are ‘p’ (default), ‘d’, ‘t’, ‘a’ for proton, 
+deuteron, triton and alpha, respectively.  Additionally, heavy ions can be
+specified either by element or isotope, e.g. ‘Fe’, ‘40CA’, ‘U’, ‘Bi-209’. For
+light ions, the charge state is assumed to be fully stripped. For heavy ions
+the charge state is handled by a Bohr/Northcliffe parameterization consistent
+with the Anderson-Ziegler formalism.</p>
+</dd>
+<dt><strong>density</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float, optional</span></dt>
+<dd><p class="first last">Density of the element in g/cm^3.  Default behavior is to use
+<cite>Element.density</cite>.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>float</strong></dt>
+<dd><p class="first last">Charged particle range in the element, in cm.</p>
 </dd>
 </dl>
 </td>

@@ -37,6 +37,7 @@ Use the built-in ``help`` function to view a function or class's docstring::
 
 from .data import _data_path, download
 from .plotting import colormap, set_style
+set_style('default')
 
 from .isotope import Isotope
 from .compound import Compound
