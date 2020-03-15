@@ -63,11 +63,38 @@ import curie as ci
 # # el.plot_mass_coeff()
 # # el.plot_mass_coeff(style='poster')
 
-el = ci.Element('La')
-print(el.S(60.0))
-print(el.S(55.0, density=1E-3)) ### S in MeV/(mg/cm^2)
+# el = ci.Element('La')
+# print(el.S(60.0))
+# print(el.S(55.0, density=1E-3)) ### S in MeV/(mg/cm^2)
 
-el = ci.Element('Fe')
-print(el.range(60.0))
-el = ci.Element('U')
-print(el.range(60.0))
+# el = ci.Element('Fe')
+# print(el.range(60.0))
+# el = ci.Element('U')
+# print(el.range(60.0))
+
+# cm = ci.Compound('Silicone')
+# print cm.weights
+
+# for c in ['H2C3.2RbHeCe4Pb','H2O','NHO2','H2.5O1.5','SrCO3']:
+# 	cm = ci.Compound(c)
+# 	print cm.weights
+
+
+# cm = ci.Compound('Brass', weights={'Zn':-33,'Cu':-66})
+# print cm.weights
+
+# cm = ci.Compound('Bronze', weights='example_compounds.json')
+# print cm.weights
+
+# cm = ci.Compound('Bronze', weights='example_compounds.csv', density=8.9)
+# # cm.plot_mass_coeff()
+# cm.plot_S()
+# cm.plot_range()
+
+stack = [{'cm':'H20','ad':1200.0,'name':'watr'},{'cm':'RbCl','density':3.0,'r':0.03,'name':'salt'},{'cm':'Kapton','r':0.025}]
+st = ci.Stack(stack)
+print st.stack
+print st.fluxes
+st.saveas('test.csv')
+st.summarize()
+st.plot()

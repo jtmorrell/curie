@@ -40,10 +40,17 @@
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
 
+<span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
+<span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="kn">import</span> <span class="n">interp1d</span>
+
 <span class="kn">from</span> <span class="nn">.data</span> <span class="kn">import</span> <span class="n">_get_connection</span>
+<span class="kn">from</span> <span class="nn">.plotting</span> <span class="kn">import</span> <span class="n">_init_plot</span><span class="p">,</span> <span class="n">_draw_plot</span>
+<span class="kn">from</span> <span class="nn">.element</span> <span class="kn">import</span> <span class="n">ELEMENTS</span><span class="p">,</span> <span class="n">Element</span>
+
+<span class="n">compound_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s1">&#39;SELECT compound FROM compounds&#39;</span><span class="p">,</span> <span class="n">_get_connection</span><span class="p">(</span><span class="s1">&#39;ziegler&#39;</span><span class="p">))[</span><span class="s1">&#39;compound&#39;</span><span class="p">]))</span>
 
 <div class="viewcode-block" id="Compound"><a class="viewcode-back" href="../../api/compound.html#curie.Compound">[docs]</a><span class="k">class</span> <span class="nc">Compound</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 	<span class="sd">&quot;&quot;&quot;Compound</span>
@@ -52,19 +59,39 @@
 <span class="sd">	</span>
 <span class="sd">	Parameters</span>
 <span class="sd">	----------</span>
-<span class="sd">	x : type</span>
+<span class="sd">	compound : str</span>
 <span class="sd">		Description of parameter `x`.</span>
+
+<span class="sd">	weights : str</span>
+<span class="sd">		Description</span>
+
+<span class="sd">	density : float</span>
+<span class="sd">		Description</span>
 
 <span class="sd">	Attributes</span>
 <span class="sd">	----------</span>
-<span class="sd">	density : type</span>
-<span class="sd">		Description of parameter</span>
+<span class="sd">	name : str</span>
+<span class="sd">		Description</span>
 
-<span class="sd">	mass_coeff : type</span>
-<span class="sd">		Description of parameter</span>
+<span class="sd">	weights : pandas.DataFrame</span>
+<span class="sd">		Description</span>
 
-<span class="sd">	mass_coeff_en : type</span>
-<span class="sd">		Description of parameter</span>
+<span class="sd">	density : float</span>
+<span class="sd">		Density of the compound in g/cm^3. The density is used in</span>
+<span class="sd">		calculations of charged particle dEdx and photon attenuation, so</span>
+<span class="sd">		you can assign a new density using `cm.density = new_density` if</span>
+<span class="sd">		needed, or using the `density` keyword in either of those functions.</span>
+
+<span class="sd">	elements : list of ci.Element</span>
+<span class="sd">		Elements</span>
+
+<span class="sd">	mass_coeff : pandas.DataFrame</span>
+<span class="sd">		Table of mass-attenuation coefficients as a function of photon</span>
+<span class="sd">		energy, from the NIST XCOM database.  Energies are in keV, and</span>
+<span class="sd">		mass-attenuation coefficients, or mu/rho, are given in cm^2/g.</span>
+<span class="sd">		DataFrame columns are &#39;energy&#39;, &#39;mu&#39; and &#39;mu_en&#39; for the </span>
+<span class="sd">		mass-energy absorption coefficient.</span>
+
 
 
 <span class="sd">	Examples</span>
@@ -72,30 +99,160 @@
 
 <span class="sd">	&quot;&quot;&quot;</span>
 
-	<span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compound</span><span class="p">):</span>
-		<span class="k">pass</span>
+	<span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compound</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">compound</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">density</span> <span class="o">=</span> <span class="kc">None</span>
+
+		<span class="k">if</span> <span class="n">compound</span> <span class="ow">in</span> <span class="n">compound_list</span><span class="p">:</span>
+			<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s1">&#39;SELECT * FROM compounds WHERE compound=&quot;</span><span class="si">{}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">compound</span><span class="p">),</span> <span class="n">_get_connection</span><span class="p">(</span><span class="s1">&#39;ziegler&#39;</span><span class="p">))</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">density</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+			<span class="n">wts</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;weights&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+			<span class="n">elements</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">wts</span><span class="p">]</span>
+			<span class="n">atom_weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">wts</span><span class="p">])</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">_set_weights</span><span class="p">(</span><span class="n">elements</span><span class="p">,</span> <span class="n">atom_weights</span><span class="o">=</span><span class="n">atom_weights</span><span class="p">)</span>
+			
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">elements</span> <span class="o">=</span> <span class="p">[]</span>
+			<span class="k">for</span> <span class="n">el_gp</span> <span class="ow">in</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;[0-9]+|</span><span class="se">\\</span><span class="s1">.&#39;</span><span class="p">,</span> <span class="n">compound</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span><span class="p">]:</span>
+				<span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;([A-Z])&#39;</span><span class="p">,</span> <span class="n">el_gp</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span><span class="p">]:</span>
+					<span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">==</span><span class="n">s</span><span class="p">:</span>
+						<span class="n">elements</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+					<span class="k">else</span><span class="p">:</span>
+						<span class="n">elements</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="n">s</span>
+
+			<span class="k">if</span> <span class="nb">all</span><span class="p">([</span><span class="n">e</span> <span class="ow">in</span> <span class="n">ELEMENTS</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">elements</span><span class="p">]):</span>
+				<span class="n">wts</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">elements</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">i</span><span class="p">:</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">i</span><span class="p">))),</span> <span class="n">compound</span><span class="p">)</span>
+				<span class="n">atom_weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">wts</span><span class="p">[</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span> <span class="k">if</span> <span class="n">wts</span><span class="p">[</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="k">else</span> <span class="mf">1.0</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span><span class="n">e</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">elements</span><span class="p">)])</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">_set_weights</span><span class="p">(</span><span class="n">elements</span><span class="p">,</span> <span class="n">atom_weights</span><span class="o">=</span><span class="n">atom_weights</span><span class="p">)</span>
+
+		<span class="k">if</span> <span class="n">weights</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+
+			<span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span><span class="o">==</span><span class="nb">dict</span><span class="p">:</span>
+				<span class="n">elements</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">weights</span><span class="p">]</span>
+				<span class="n">wts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">weights</span><span class="p">[</span><span class="n">e</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">elements</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+				<span class="k">if</span> <span class="n">wts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+					<span class="bp">self</span><span class="o">.</span><span class="n">_set_weights</span><span class="p">(</span><span class="n">elements</span><span class="p">,</span> <span class="n">atom_weights</span><span class="o">=</span><span class="n">wts</span><span class="p">)</span>
+				<span class="k">else</span><span class="p">:</span>
+					<span class="bp">self</span><span class="o">.</span><span class="n">_set_weights</span><span class="p">(</span><span class="n">elements</span><span class="p">,</span> <span class="n">mass_weights</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">wts</span><span class="p">))</span>
+
+			<span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span><span class="o">==</span><span class="nb">str</span><span class="p">:</span>
+				<span class="k">if</span> <span class="n">weights</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.json&#39;</span><span class="p">):</span>
+					<span class="n">elements</span><span class="p">,</span> <span class="n">wts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_json</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span>
+
+				<span class="k">elif</span> <span class="n">weights</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.csv&#39;</span><span class="p">):</span>
+					<span class="n">elements</span><span class="p">,</span> <span class="n">wts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_csv</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span>
+
+				<span class="k">else</span><span class="p">:</span>
+					<span class="n">elements</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">weights</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)]</span>
+					<span class="n">wts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">weights</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)])</span>
+
+				<span class="k">if</span> <span class="n">wts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+					<span class="bp">self</span><span class="o">.</span><span class="n">_set_weights</span><span class="p">(</span><span class="n">elements</span><span class="p">,</span> <span class="n">atom_weights</span><span class="o">=</span><span class="n">wts</span><span class="p">)</span>
+				<span class="k">else</span><span class="p">:</span>
+					<span class="bp">self</span><span class="o">.</span><span class="n">_set_weights</span><span class="p">(</span><span class="n">elements</span><span class="p">,</span> <span class="n">mass_weights</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">wts</span><span class="p">))</span>
+
+			<span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span><span class="o">==</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">weights</span> <span class="o">=</span> <span class="n">weights</span>
+
+
+		<span class="k">if</span> <span class="n">density</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">density</span> <span class="o">=</span> <span class="n">density</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">elements</span> <span class="o">=</span> <span class="p">[</span><span class="n">Element</span><span class="p">(</span><span class="n">el</span><span class="p">)</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">[</span><span class="s1">&#39;element&#39;</span><span class="p">]]</span>
+
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">density</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">)</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">density</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">density</span>
+
+		<span class="n">E</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">el</span><span class="o">.</span><span class="n">mass_coeff</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">]))</span>
+		<span class="n">mu</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">([</span><span class="n">el</span><span class="o">.</span><span class="n">mu</span><span class="p">(</span><span class="n">E</span><span class="p">)</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">],</span> <span class="n">weights</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">[</span><span class="s1">&#39;mass_weight&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+		<span class="n">mu_en</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">([</span><span class="n">el</span><span class="o">.</span><span class="n">mu_en</span><span class="p">(</span><span class="n">E</span><span class="p">)</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">],</span> <span class="n">weights</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">[</span><span class="s1">&#39;mass_weight&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">mass_coeff</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;energy&#39;</span><span class="p">:</span><span class="n">E</span><span class="p">,</span><span class="s1">&#39;mu&#39;</span><span class="p">:</span><span class="n">mu</span><span class="p">,</span><span class="s1">&#39;mu_en&#39;</span><span class="p">:</span><span class="n">mu_en</span><span class="p">})</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_mc_interp</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mc_en_interp</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+
+
+	<span class="k">def</span> <span class="nf">_set_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elements</span><span class="p">,</span> <span class="n">atom_weights</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mass_weights</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+		<span class="n">amu</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s1">&#39;SELECT * FROM weights&#39;</span><span class="p">,</span> <span class="n">_get_connection</span><span class="p">(</span><span class="s1">&#39;ziegler&#39;</span><span class="p">))</span>
+		<span class="n">Zs</span> <span class="o">=</span> <span class="p">[</span><span class="n">ELEMENTS</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">el</span><span class="p">)</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">elements</span><span class="p">]</span>
+
+		<span class="k">if</span> <span class="n">mass_weights</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="n">mass_weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">amu</span><span class="p">[</span><span class="n">amu</span><span class="p">[</span><span class="s1">&#39;Z&#39;</span><span class="p">]</span><span class="o">==</span><span class="n">z</span><span class="p">][</span><span class="s1">&#39;amu&#39;</span><span class="p">][</span><span class="n">z</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">atom_weights</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span><span class="n">z</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">Zs</span><span class="p">)])</span>
+		<span class="k">elif</span> <span class="n">atom_weights</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="n">atom_weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">mass_weights</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">/</span><span class="n">amu</span><span class="p">[</span><span class="n">amu</span><span class="p">[</span><span class="s1">&#39;Z&#39;</span><span class="p">]</span><span class="o">==</span><span class="n">z</span><span class="p">][</span><span class="s1">&#39;amu&#39;</span><span class="p">][</span><span class="n">z</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span><span class="n">z</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">Zs</span><span class="p">)])</span>
+
+		<span class="n">atom_weights</span><span class="p">,</span> <span class="n">mass_weights</span> <span class="o">=</span> <span class="n">atom_weights</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">atom_weights</span><span class="p">),</span> <span class="n">mass_weights</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">mass_weights</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">weights</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;element&#39;</span><span class="p">:</span><span class="n">elements</span><span class="p">,</span> <span class="s1">&#39;Z&#39;</span><span class="p">:</span><span class="n">Zs</span><span class="p">,</span> <span class="s1">&#39;atom_weight&#39;</span><span class="p">:</span><span class="n">atom_weights</span><span class="p">,</span> <span class="s1">&#39;mass_weight&#39;</span><span class="p">:</span><span class="n">mass_weights</span><span class="p">},</span> 
+								<span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;element&#39;</span><span class="p">,</span><span class="s1">&#39;Z&#39;</span><span class="p">,</span><span class="s1">&#39;atom_weight&#39;</span><span class="p">,</span><span class="s1">&#39;mass_weight&#39;</span><span class="p">])</span>
+
+	<span class="k">def</span> <span class="nf">_read_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+		<span class="kn">import</span> <span class="nn">json</span>
+
+		<span class="n">js</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">())[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+		<span class="n">elements</span> <span class="o">=</span> <span class="p">[</span><span class="n">el</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">js</span><span class="p">]</span>
+		<span class="k">return</span> <span class="n">elements</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">js</span><span class="p">[</span><span class="n">el</span><span class="p">]</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">elements</span><span class="p">])</span>
+
+	<span class="k">def</span> <span class="nf">_read_csv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+		<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;compound&#39;</span><span class="p">,</span> <span class="s1">&#39;element&#39;</span><span class="p">,</span> <span class="s1">&#39;weight&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s1">&#39;ffill&#39;</span><span class="p">)</span>
+		<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;compound&#39;</span><span class="p">]</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+
+		<span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;element&#39;</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;weight&#39;</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
 
 	<span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-		<span class="k">pass</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
 
-<div class="viewcode-block" id="Compound.attenuation"><a class="viewcode-back" href="../../api/compound.html#curie.Compound.attenuation">[docs]</a>	<span class="k">def</span> <span class="nf">attenuation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">ad</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot; Description</span>
+	<span class="k">def</span> <span class="nf">mu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">):</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mc_interp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">_mc_interp</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mass_coeff</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mass_coeff</span><span class="p">[</span><span class="s1">&#39;mu&#39;</span><span class="p">]),</span> <span class="n">bounds_error</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="s1">&#39;extrapolate&#39;</span><span class="p">)</span>
+		<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mc_interp</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">energy</span><span class="p">)))</span>
 
-<span class="sd">		...</span>
+	<span class="k">def</span> <span class="nf">mu_en</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">):</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mc_en_interp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">_mc_en_interp</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mass_coeff</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mass_coeff</span><span class="p">[</span><span class="s1">&#39;mu_en&#39;</span><span class="p">]),</span> <span class="n">bounds_error</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="s1">&#39;extrapolate&#39;</span><span class="p">)</span>
+		<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mc_en_interp</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">energy</span><span class="p">)))</span>
+
+<div class="viewcode-block" id="Compound.attenuation"><a class="viewcode-back" href="../../api/compound.html#curie.Compound.attenuation">[docs]</a>	<span class="k">def</span> <span class="nf">attenuation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Photon attenuation in matter</span>
+
+<span class="sd">		Calculate the attenuation factor I(x)/I_0 = e^(-mu*x) for a given</span>
+<span class="sd">		photon energy (in keV) and slab thickness (in cm).</span>
 
 <span class="sd">		Parameters</span>
 <span class="sd">		----------</span>
-<span class="sd">		x : type</span>
-<span class="sd">			Description of x</span>
+<span class="sd">		energy : array_like</span>
+<span class="sd">			Incident photon energy in keV.</span>
+
+<span class="sd">		x : float</span>
+<span class="sd">			Thickness of slab of given element, in cm. </span>
+
+<span class="sd">		density : float, optional</span>
+<span class="sd">			Density of the element in g/cm^3.  Default behavior is to</span>
+<span class="sd">			use `Element.density`.</span>
+
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+<span class="sd">		numpy.ndarray</span>
+<span class="sd">			The slab attenuation factor as an absolute number (i.e. from 0 to 1).</span>
+<span class="sd">			E.g. if the incident intensity is I_0, the transmitted intensity I(x) </span>
+<span class="sd">			is I_0 times the attenuation factor.</span>
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>
+<span class="sd">		&gt;&gt;&gt; el = ci.Element(&#39;Fe&#39;)</span>
+<span class="sd">		&gt;&gt;&gt; print(el.attenuation(511, x=0.3))</span>
+<span class="sd">		0.821621630674751</span>
+<span class="sd">		&gt;&gt;&gt; print(el.attenuation(300, x=0.5, density=8))</span>
+<span class="sd">		0.6442940871813587</span>
 
 <span class="sd">		&quot;&quot;&quot;</span>
 
-		<span class="k">pass</span></div>
+		<span class="n">energy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+		<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+		<span class="k">if</span> <span class="n">density</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="n">density</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">density</span>
+
+		<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">mu</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span><span class="o">*</span><span class="n">x</span><span class="o">*</span><span class="n">density</span><span class="p">)</span></div>
 		
-<div class="viewcode-block" id="Compound.dEdx"><a class="viewcode-back" href="../../api/compound.html#curie.Compound.dEdx">[docs]</a>	<span class="k">def</span> <span class="nf">dEdx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">particle</span><span class="o">=</span><span class="s1">&#39;p&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="Compound.S"><a class="viewcode-back" href="../../api/compound.html#curie.Compound.S">[docs]</a>	<span class="k">def</span> <span class="nf">S</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">particle</span><span class="o">=</span><span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot; Description</span>
 
 <span class="sd">		...</span>
@@ -110,9 +267,13 @@
 
 <span class="sd">		&quot;&quot;&quot;</span>
 
-		<span class="k">pass</span></div>
+		<span class="n">energy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+		<span class="k">if</span> <span class="n">density</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="n">density</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">density</span>
+
+		<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">([</span><span class="n">el</span><span class="o">.</span><span class="n">S</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">particle</span><span class="o">=</span><span class="n">particle</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="mf">1E-3</span><span class="p">)</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">],</span> <span class="n">weights</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">[</span><span class="s1">&#39;mass_weight&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">*</span><span class="mf">1E3</span><span class="o">*</span><span class="n">density</span></div>
 		
-<div class="viewcode-block" id="Compound.range"><a class="viewcode-back" href="../../api/compound.html#curie.Compound.range">[docs]</a>	<span class="k">def</span> <span class="nf">range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">particle</span><span class="o">=</span><span class="s1">&#39;p&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="Compound.range"><a class="viewcode-back" href="../../api/compound.html#curie.Compound.range">[docs]</a>	<span class="k">def</span> <span class="nf">range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">particle</span><span class="o">=</span><span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot; Description</span>
 
 <span class="sd">		...</span>
@@ -127,59 +288,207 @@
 
 <span class="sd">		&quot;&quot;&quot;</span>
 
-		<span class="k">pass</span></div>
+		<span class="n">energy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+		
+		<span class="n">dE</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span><span class="o">/</span><span class="mf">1E3</span>
+		<span class="n">E_min</span> <span class="o">=</span> <span class="nb">min</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">energy</span><span class="p">),</span> <span class="mf">1.0</span><span class="p">))</span>
+		<span class="n">E_grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">E_min</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span><span class="o">+</span><span class="n">dE</span><span class="p">,</span> <span class="n">dE</span><span class="p">)</span>
+
+		<span class="n">S</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">S</span><span class="p">(</span><span class="n">E_grid</span><span class="p">,</span> <span class="n">particle</span><span class="o">=</span><span class="n">particle</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="n">density</span><span class="p">)</span>
+		<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">((</span><span class="mf">1.0</span><span class="o">/</span><span class="n">S</span><span class="p">)</span><span class="o">*</span><span class="n">dE</span><span class="p">)</span>
+		<span class="k">return</span> <span class="n">interp1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">E_grid</span><span class="p">),</span> <span class="n">x</span><span class="p">,</span> <span class="n">bounds_error</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="s1">&#39;extrapolate&#39;</span><span class="p">)(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">energy</span><span class="p">))</span></div>
 		
 <div class="viewcode-block" id="Compound.plot_mass_coeff"><a class="viewcode-back" href="../../api/compound.html#curie.Compound.plot_mass_coeff">[docs]</a>	<span class="k">def</span> <span class="nf">plot_mass_coeff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot; Description</span>
+		<span class="sd">&quot;&quot;&quot;Plot the mass-attenuation coefficient in the element</span>
 
-<span class="sd">		...</span>
+<span class="sd">		Creates a plot of the mass-attenuation coefficient (in cm^2/g)</span>
+<span class="sd">		as a function of photon energy in keV.</span>
 
 <span class="sd">		Parameters</span>
 <span class="sd">		----------</span>
-<span class="sd">		x : type</span>
-<span class="sd">			Description of x</span>
+<span class="sd">		energy : array_like, optional</span>
+<span class="sd">			Energy grid on which to plot, replacing the default energy grid.</span>
+<span class="sd">			Units are in keV.</span>
+<span class="sd">		</span>
+<span class="sd">		Other Parameters</span>
+<span class="sd">		----------------</span>
+<span class="sd">		**kwargs</span>
+<span class="sd">			Optional keyword arguments for plotting.  See the </span>
+<span class="sd">			plotting section of the curie API for a complete</span>
+<span class="sd">			list of kwargs.</span>
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>
+<span class="sd">		&gt;&gt;&gt; cm = ci.Compound(&#39;Fe&#39;)</span>
+<span class="sd">		&gt;&gt;&gt; cm.plot_mass_coeff()</span>
+<span class="sd">		&gt;&gt;&gt; cm.plot_mass_coeff(style=&#39;poster&#39;)</span>
 
 <span class="sd">		&quot;&quot;&quot;</span>
 
-		<span class="k">pass</span></div>
+		<span class="k">if</span> <span class="n">energy</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="n">energy</span><span class="p">,</span> <span class="n">mu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mass_coeff</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">mass_coeff</span><span class="p">[</span><span class="s1">&#39;mu&#39;</span><span class="p">]</span>
+			
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">energy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+			<span class="n">mu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mu</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span>
+
+		<span class="n">f</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">_init_plot</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+		<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$\mu/\rho$&#39;</span><span class="o">+</span><span class="s1">&#39; (</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+		<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Photon Energy (keV)&#39;</span><span class="p">)</span>
+		<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Attenuation Coeff. (cm$^2$/g)&#39;</span><span class="p">)</span>
+		<span class="n">ax</span><span class="o">.</span><span class="n">set_xscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+		<span class="n">ax</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+		<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+		
+		<span class="k">return</span> <span class="n">_draw_plot</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 		
 <div class="viewcode-block" id="Compound.plot_mass_coeff_en"><a class="viewcode-back" href="../../api/compound.html#curie.Compound.plot_mass_coeff_en">[docs]</a>	<span class="k">def</span> <span class="nf">plot_mass_coeff_en</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot; Description</span>
+		<span class="sd">&quot;&quot;&quot;Plot the mass energy-absorption coefficient in the element</span>
 
-<span class="sd">		...</span>
-
-<span class="sd">		Parameters</span>
-<span class="sd">		----------</span>
-<span class="sd">		x : type</span>
-<span class="sd">			Description of x</span>
-
-<span class="sd">		Examples</span>
-<span class="sd">		--------</span>
-
-<span class="sd">		&quot;&quot;&quot;</span>
-
-		<span class="k">pass</span></div>
-		
-<div class="viewcode-block" id="Compound.plot_S"><a class="viewcode-back" href="../../api/compound.html#curie.Compound.plot_S">[docs]</a>	<span class="k">def</span> <span class="nf">plot_S</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compound</span><span class="p">,</span> <span class="n">energy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot; Description</span>
-
-<span class="sd">		...</span>
+<span class="sd">		Creates a plot of the mass energy-absorption coefficient (in cm^2/g)</span>
+<span class="sd">		as a function of photon energy in keV.</span>
 
 <span class="sd">		Parameters</span>
 <span class="sd">		----------</span>
-<span class="sd">		x : type</span>
-<span class="sd">			Description of x</span>
+<span class="sd">		energy : array_like, optional</span>
+<span class="sd">			Energy grid on which to plot, replacing the default energy grid.</span>
+<span class="sd">			Units are in keV.</span>
+
+<span class="sd">		Other Parameters</span>
+<span class="sd">		----------------</span>
+<span class="sd">		**kwargs</span>
+<span class="sd">			Optional keyword arguments for plotting.  See the </span>
+<span class="sd">			plotting section of the curie API for a complete</span>
+<span class="sd">			list of kwargs.</span>
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>
+<span class="sd">		&gt;&gt;&gt; cm = ci.Compound(&#39;Hf&#39;)</span>
+<span class="sd">		</span>
+<span class="sd">		Example plotting the mass-attenuation coefficient together with the mass</span>
+<span class="sd">		energy-absorption coefficient, on the same axes.</span>
+
+<span class="sd">		&gt;&gt;&gt; f,ax = cm.plot_mass_coeff(return_plot=True)</span>
+<span class="sd">		&gt;&gt;&gt; cm.plot_mass_coeff_en(f=f, ax=ax)</span>
 
 <span class="sd">		&quot;&quot;&quot;</span>
 
-		<span class="k">pass</span></div></div>
+		<span class="k">if</span> <span class="n">energy</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="n">energy</span><span class="p">,</span> <span class="n">mu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mass_coeff</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">mass_coeff</span><span class="p">[</span><span class="s1">&#39;mu_en&#39;</span><span class="p">]</span>
+			
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">energy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+			<span class="n">mu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mu_en</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span>
+
+		<span class="n">f</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">_init_plot</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+		<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$\mu_</span><span class="si">{en}</span><span class="s1">/\rho$&#39;</span><span class="o">+</span><span class="s1">&#39; (</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+		<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Photon Energy (keV)&#39;</span><span class="p">)</span>
+		<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Attenuation Coeff. (cm$^2$/g)&#39;</span><span class="p">)</span>
+		<span class="n">ax</span><span class="o">.</span><span class="n">set_xscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+		<span class="n">ax</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+		<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+		<span class="k">return</span> <span class="n">_draw_plot</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 		
+		
+<div class="viewcode-block" id="Compound.plot_S"><a class="viewcode-back" href="../../api/compound.html#curie.Compound.plot_S">[docs]</a>	<span class="k">def</span> <span class="nf">plot_S</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">particle</span><span class="o">=</span><span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="n">energy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Plot the stopping power in the element</span>
+
+<span class="sd">		Creates a plot of the charged particle stopping power (in MeV/(mg/cm^2))</span>
+<span class="sd">		in the element as a function of the incident ion energy (in MeV).</span>
+
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">		particle : str</span>
+<span class="sd">			Incident ion.  For light ions, options are &#39;p&#39; (default), &#39;d&#39;, &#39;t&#39;, &#39;a&#39; for proton, </span>
+<span class="sd">			deuteron, triton and alpha, respectively.  Additionally, heavy ions can be</span>
+<span class="sd">			specified either by element or isotope, e.g. &#39;Fe&#39;, &#39;40CA&#39;, &#39;U&#39;, &#39;Bi-209&#39;.</span>
+
+<span class="sd">		energy : array_like, optional</span>
+<span class="sd">			Energy grid on which to plot, replacing the default energy grid.</span>
+<span class="sd">			Units are in MeV.</span>
+
+<span class="sd">		Other Parameters</span>
+<span class="sd">		----------------</span>
+<span class="sd">		**kwargs</span>
+<span class="sd">			Optional keyword arguments for plotting.  See the </span>
+<span class="sd">			plotting section of the curie API for a complete</span>
+<span class="sd">			list of kwargs.</span>
+
+<span class="sd">		Examples</span>
+<span class="sd">		--------</span>
+<span class="sd">		&gt;&gt;&gt; el = ci.Element(&#39;He&#39;)</span>
+<span class="sd">		&gt;&gt;&gt; el.plot_S(particle=&#39;a&#39;)</span>
+<span class="sd">		&gt;&gt;&gt; el = ci.Element(&#39;Fe&#39;)</span>
+<span class="sd">		&gt;&gt;&gt; el.plot_S(particle=&#39;d&#39;)</span>
+
+
+<span class="sd">		&quot;&quot;&quot;</span>
+
+		<span class="k">if</span> <span class="n">energy</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="n">energy</span> <span class="o">=</span> <span class="mf">10.0</span><span class="o">**</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">2.8</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">)</span>
+
+		<span class="n">f</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">_init_plot</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+		<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">S</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">particle</span><span class="o">=</span><span class="n">particle</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="mf">1E-3</span><span class="p">),</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;S (</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+
+		<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Incident Energy (MeV)&#39;</span><span class="p">)</span>
+		<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Stopping Power (MeV/(mg/cm$^2$))&#39;</span><span class="p">)</span>
+		<span class="n">ax</span><span class="o">.</span><span class="n">set_xscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+		<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+		<span class="k">return</span> <span class="n">_draw_plot</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+		
+<div class="viewcode-block" id="Compound.plot_range"><a class="viewcode-back" href="../../api/compound.html#curie.Compound.plot_range">[docs]</a>	<span class="k">def</span> <span class="nf">plot_range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">particle</span><span class="o">=</span><span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="n">energy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Plot the charged particle range in the element</span>
+
+<span class="sd">		Creates a plot of the charged particle range (in cm)</span>
+<span class="sd">		in the element as a function of the incident ion energy (in MeV).</span>
+
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">		particle : str</span>
+<span class="sd">			Incident ion.  For light ions, options are &#39;p&#39; (default), &#39;d&#39;, &#39;t&#39;, &#39;a&#39; for proton, </span>
+<span class="sd">			deuteron, triton and alpha, respectively.  Additionally, heavy ions can be</span>
+<span class="sd">			specified either by element or isotope, e.g. &#39;Fe&#39;, &#39;40CA&#39;, &#39;U&#39;, &#39;Bi-209&#39;.</span>
+
+<span class="sd">		energy : array_like, optional</span>
+<span class="sd">			Energy grid on which to plot, replacing the default energy grid.</span>
+<span class="sd">			Units are in MeV.</span>
+
+<span class="sd">		density : float, optional</span>
+<span class="sd">			Density of the element in g/cm^3.  Default behavior is to use</span>
+<span class="sd">			`Element.density`.</span>
+
+<span class="sd">		Other Parameters</span>
+<span class="sd">		----------------</span>
+<span class="sd">		**kwargs</span>
+<span class="sd">			Optional keyword arguments for plotting.  See the </span>
+<span class="sd">			plotting section of the curie API for a complete</span>
+<span class="sd">			list of kwargs.</span>
+
+<span class="sd">		Examples</span>
+<span class="sd">		--------</span>
+<span class="sd">		&gt;&gt;&gt; el = ci.Element(&#39;Ar&#39;)</span>
+<span class="sd">		&gt;&gt;&gt; el.plot_range()</span>
+<span class="sd">		&gt;&gt;&gt; el.plot_range(density=0.5)</span>
+
+<span class="sd">		&quot;&quot;&quot;</span>
+
+		<span class="k">if</span> <span class="n">energy</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="n">energy</span> <span class="o">=</span> <span class="mf">10.0</span><span class="o">**</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">2.8</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">)</span>
+
+		<span class="n">f</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">_init_plot</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+		<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">particle</span><span class="o">=</span><span class="n">particle</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="n">density</span><span class="p">),</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Range (</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+
+		<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Incident Energy (MeV)&#39;</span><span class="p">)</span>
+		<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Range (cm)&#39;</span><span class="p">)</span>
+		<span class="n">ax</span><span class="o">.</span><span class="n">set_xscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+		<span class="n">ax</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+		<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+		<span class="k">return</span> <span class="n">_draw_plot</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
 </pre></div>
 
           </div>

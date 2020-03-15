@@ -39,7 +39,7 @@
 <span id="id1"></span><h1>11. Stack<a class="headerlink" href="#stack" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="curie.Stack">
-<em class="property">class </em><code class="descclassname">curie.</code><code class="descname">Stack</code><span class="sig-paren">(</span><em>stack</em>, <em>beam_config=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/stack.html#Stack"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Stack" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">curie.</code><code class="descname">Stack</code><span class="sig-paren">(</span><em>stack</em>, <em>particle='p'</em>, <em>E0=60.0</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/stack.html#Stack"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Stack" title="Permalink to this definition">¶</a></dt>
 <dd><p>…</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -52,11 +52,32 @@
 </dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>beam_config</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
+<tr class="field-even field"><th class="field-name" colspan="2">Other Parameters:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body"><dl class="first docutils">
+<dt><strong>The following keyword arguments are also available</strong></dt>
+<dd></dd>
+<dt><strong>==================   ============</strong></dt>
+<dd></dd>
+<dt><strong>Name                 Age</strong></dt>
+<dd></dd>
+<dt><strong>==================   ============</strong></dt>
+<dd></dd>
+<dt><strong>John D Hunter        40</strong></dt>
+<dd></dd>
+<dt><strong>Cast of Thousands    41</strong></dt>
+<dd></dd>
+<dt><strong>And Still More       42</strong></dt>
+<dd></dd>
+<dt><strong>==================   ============</strong></dt>
+<dd></dd>
+</dl>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>stack</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
 <dd><p class="first last">Description</p>
 </dd>
-<dt><strong>stack</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
+<dt><strong>fluxes</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
 <dd><p class="first last">Description</p>
 </dd>
 </dl>
@@ -74,7 +95,7 @@
 <tr class="row-odd"><td><a class="reference internal" href="#curie.Stack.plot" title="curie.Stack.plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot</span></code></a>([samples])</td>
 <td>Description</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#curie.Stack.saveas" title="curie.Stack.saveas"><code class="xref py py-obj docutils literal notranslate"><span class="pre">saveas</span></code></a>(filename)</td>
+<tr class="row-even"><td><a class="reference internal" href="#curie.Stack.saveas" title="curie.Stack.saveas"><code class="xref py py-obj docutils literal notranslate"><span class="pre">saveas</span></code></a>(filename[,&nbsp;save_fluxes,&nbsp;samples])</td>
 <td>Description</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#curie.Stack.summarize" title="curie.Stack.summarize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">summarize</span></code></a>([samples])</td>
@@ -104,7 +125,7 @@
 
 <dl class="method">
 <dt id="curie.Stack.saveas">
-<code class="descname">saveas</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/stack.html#Stack.saveas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Stack.saveas" title="Permalink to this definition">¶</a></dt>
+<code class="descname">saveas</code><span class="sig-paren">(</span><em>filename</em>, <em>save_fluxes=True</em>, <em>samples=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/stack.html#Stack.saveas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Stack.saveas" title="Permalink to this definition">¶</a></dt>
 <dd><p>Description</p>
 <p>…</p>
 <table class="docutils field-list" frame="void" rules="none">

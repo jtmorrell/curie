@@ -92,7 +92,7 @@ class Spectrum(object):
 
 		pass
 		
-	def auto_calibrate(self, ):
+	def auto_calibrate(self):
 		""" Description
 
 		...
@@ -126,7 +126,7 @@ class Spectrum(object):
 
 		pass
 		
-	def geometry_correction(self, ):
+	def geometry_correction(self):
 		""" Description
 
 		...
@@ -177,7 +177,7 @@ class Spectrum(object):
 
 		pass
 		
-	def summarize(self, ):
+	def summarize(self):
 		""" Description
 
 		...

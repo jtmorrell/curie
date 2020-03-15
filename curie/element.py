@@ -69,13 +69,9 @@ class Element(object):
 		Table of mass-attenuation coefficients as a function of photon
 		energy, from the NIST XCOM database.  Energies are in keV, and
 		mass-attenuation coefficients, or mu/rho, are given in cm^2/g.
-		DataFrame columns are 'energy' and 'mu'.
+		DataFrame columns are 'energy', 'mu' and 'mu_en' for the 
+		mass-energy absorption coefficient.
 
-	mass_coeff_en : pandas.DataFrame
-		Table of mass energy-absorption coefficients as a function of
-		photon energy, from the NIST XCOM database.  Energies in keV,
-		and mass energy-absorption coefficients, or mu_en/rho, are in
-		units of cm^2/g.  DataFrame columns are 'energy', and 'mu_en'.
 
 
 	Examples
@@ -101,14 +97,23 @@ class Element(object):
 			self.abundances['isotope'] = map(lambda i:i.replace('180TA','180TAm1'), self.abundances['isotope'])
 		self.isotopes = list(map(str, self.abundances['isotope']))
 
-		self.mass_coeff = pd.read_sql('SELECT energy, mu FROM mass_coeff WHERE Z={}'.format(self.Z), _get_connection('ziegler'))
-		self.mass_coeff_en = pd.read_sql('SELECT energy, mu_en FROM mass_coeff WHERE Z={}'.format(self.Z), _get_connection('ziegler'))
+		self.mass_coeff = pd.read_sql('SELECT energy, mu, mu_en FROM mass_coeff WHERE Z={}'.format(self.Z), _get_connection('ziegler'))
 		self._mc_interp, self._mc_en_interp = None, None
 		self._A_p, self._A_he, self._I_p = None, None, None
 
 
 	def __str__(self):
 		return self.name
+
+	def mu(self, energy):
+		if self._mc_interp is None:
+			self._mc_interp = interp1d(np.log(self.mass_coeff['energy']), np.log(self.mass_coeff['mu']), bounds_error=False, fill_value='extrapolate')
+		return np.exp(self._mc_interp(np.log(energy)))
+
+	def mu_en(self, energy):
+		if self._mc_en_interp is None:
+			self._mc_en_interp = interp1d(np.log(self.mass_coeff['energy']), np.log(self.mass_coeff['mu_en']), bounds_error=False, fill_value='extrapolate')
+		return np.exp(self._mc_en_interp(np.log(energy)))
 
 	def attenuation(self, energy, x, density=None):
 		"""Photon attenuation in matter
@@ -150,11 +155,7 @@ class Element(object):
 		if density is None:
 			density = self.density
 
-		if self._mc_interp is None:
-			self._mc_interp = interp1d(np.log(self.mass_coeff['energy']), np.log(self.mass_coeff['mu']), bounds_error=False, fill_value='extrapolate')
-		mu = np.exp(self._mc_interp(np.log(energy)))
-
-		return np.exp(-mu*x*density)
+		return np.exp(-self.mu(energy)*x*density)
 
 
 	def _parse_particle(self, particle):
@@ -394,10 +395,7 @@ class Element(object):
 			
 		else:
 			energy = np.asarray(energy, dtype=np.float64)
-
-			if self._mc_interp is None:
-				self._mc_interp = interp1d(np.log(self.mass_coeff['energy']), np.log(self.mass_coeff['mu']), bounds_error=False, fill_value='extrapolate')
-			mu = np.exp(self._mc_interp(np.log(energy)))
+			mu = self.mu(energy)
 
 		f,ax = _init_plot(**kwargs)
 
@@ -442,14 +440,11 @@ class Element(object):
 		"""
 
 		if energy is None:
-			energy, mu = self.mass_coeff_en['energy'], self.mass_coeff_en['mu_en']
+			energy, mu = self.mass_coeff['energy'], self.mass_coeff['mu_en']
 			
 		else:
 			energy = np.asarray(energy, dtype=np.float64)
-
-			if self._mc_en_interp is None:
-				self._mc_en_interp = interp1d(np.log(self.mass_coeff['energy']), np.log(self.mass_coeff_en['mu_en']), bounds_error=False, fill_value='extrapolate')
-			mu = np.exp(self._mc_en_interp(np.log(energy)))
+			mu = self.mu_en(energy)
 
 		f,ax = _init_plot(**kwargs)
 

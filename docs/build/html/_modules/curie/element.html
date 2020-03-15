@@ -107,13 +107,9 @@
 <span class="sd">		Table of mass-attenuation coefficients as a function of photon</span>
 <span class="sd">		energy, from the NIST XCOM database.  Energies are in keV, and</span>
 <span class="sd">		mass-attenuation coefficients, or mu/rho, are given in cm^2/g.</span>
-<span class="sd">		DataFrame columns are &#39;energy&#39; and &#39;mu&#39;.</span>
+<span class="sd">		DataFrame columns are &#39;energy&#39;, &#39;mu&#39; and &#39;mu_en&#39; for the </span>
+<span class="sd">		mass-energy absorption coefficient.</span>
 
-<span class="sd">	mass_coeff_en : pandas.DataFrame</span>
-<span class="sd">		Table of mass energy-absorption coefficients as a function of</span>
-<span class="sd">		photon energy, from the NIST XCOM database.  Energies in keV,</span>
-<span class="sd">		and mass energy-absorption coefficients, or mu_en/rho, are in</span>
-<span class="sd">		units of cm^2/g.  DataFrame columns are &#39;energy&#39;, and &#39;mu_en&#39;.</span>
 
 
 <span class="sd">	Examples</span>
@@ -135,18 +131,27 @@
 		<span class="bp">self</span><span class="o">.</span><span class="n">density</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
 
 		<span class="bp">self</span><span class="o">.</span><span class="n">abundances</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s1">&#39;SELECT isotope, abundance, unc_abundance FROM chart WHERE Z=</span><span class="si">{}</span><span class="s1"> AND abundance&gt;0&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Z</span><span class="p">),</span> <span class="n">_get_connection</span><span class="p">(</span><span class="s1">&#39;decay&#39;</span><span class="p">))</span>
-		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="o">==</span><span class="s1">&#39;Ta&#39;</span><span class="p">:</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="o">==</span><span class="s1">&#39;Ta&#39;</span><span class="p">:</span> <span class="c1">### Ta has a naturally occuring isomer</span>
 			<span class="bp">self</span><span class="o">.</span><span class="n">abundances</span><span class="p">[</span><span class="s1">&#39;isotope&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;180TA&#39;</span><span class="p">,</span><span class="s1">&#39;180TAm1&#39;</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">abundances</span><span class="p">[</span><span class="s1">&#39;isotope&#39;</span><span class="p">])</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">isotopes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">abundances</span><span class="p">[</span><span class="s1">&#39;isotope&#39;</span><span class="p">]))</span>
 
-		<span class="bp">self</span><span class="o">.</span><span class="n">mass_coeff</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s1">&#39;SELECT energy, mu FROM mass_coeff WHERE Z=</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Z</span><span class="p">),</span> <span class="n">_get_connection</span><span class="p">(</span><span class="s1">&#39;ziegler&#39;</span><span class="p">))</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">mass_coeff_en</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s1">&#39;SELECT energy, mu_en FROM mass_coeff WHERE Z=</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Z</span><span class="p">),</span> <span class="n">_get_connection</span><span class="p">(</span><span class="s1">&#39;ziegler&#39;</span><span class="p">))</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">mass_coeff</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s1">&#39;SELECT energy, mu, mu_en FROM mass_coeff WHERE Z=</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Z</span><span class="p">),</span> <span class="n">_get_connection</span><span class="p">(</span><span class="s1">&#39;ziegler&#39;</span><span class="p">))</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_mc_interp</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mc_en_interp</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_A_p</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_A_he</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_I_p</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
 
 
 	<span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+
+	<span class="k">def</span> <span class="nf">mu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">):</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mc_interp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">_mc_interp</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mass_coeff</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mass_coeff</span><span class="p">[</span><span class="s1">&#39;mu&#39;</span><span class="p">]),</span> <span class="n">bounds_error</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="s1">&#39;extrapolate&#39;</span><span class="p">)</span>
+		<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mc_interp</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">energy</span><span class="p">)))</span>
+
+	<span class="k">def</span> <span class="nf">mu_en</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">):</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mc_en_interp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">_mc_en_interp</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mass_coeff</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mass_coeff</span><span class="p">[</span><span class="s1">&#39;mu_en&#39;</span><span class="p">]),</span> <span class="n">bounds_error</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="s1">&#39;extrapolate&#39;</span><span class="p">)</span>
+		<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mc_en_interp</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">energy</span><span class="p">)))</span>
 
 <div class="viewcode-block" id="Element.attenuation"><a class="viewcode-back" href="../../api/element.html#curie.Element.attenuation">[docs]</a>	<span class="k">def</span> <span class="nf">attenuation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;Photon attenuation in matter</span>
@@ -188,11 +193,7 @@
 		<span class="k">if</span> <span class="n">density</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
 			<span class="n">density</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">density</span>
 
-		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mc_interp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-			<span class="bp">self</span><span class="o">.</span><span class="n">_mc_interp</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mass_coeff</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mass_coeff</span><span class="p">[</span><span class="s1">&#39;mu&#39;</span><span class="p">]),</span> <span class="n">bounds_error</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="s1">&#39;extrapolate&#39;</span><span class="p">)</span>
-		<span class="n">mu</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mc_interp</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">energy</span><span class="p">)))</span>
-
-		<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">mu</span><span class="o">*</span><span class="n">x</span><span class="o">*</span><span class="n">density</span><span class="p">)</span></div>
+		<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">mu</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span><span class="o">*</span><span class="n">x</span><span class="o">*</span><span class="n">density</span><span class="p">)</span></div>
 
 
 	<span class="k">def</span> <span class="nf">_parse_particle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">particle</span><span class="p">):</span>
@@ -325,6 +326,11 @@
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>
+<span class="sd">		&gt;&gt;&gt; el = ci.Element(&#39;La&#39;)</span>
+<span class="sd">		&gt;&gt;&gt; print(el.S(60.0))</span>
+<span class="sd">		36.8687750516453</span>
+<span class="sd">		&gt;&gt;&gt; print(el.S(55.0, density=1E-3)) ### S in MeV/(mg/cm^2)</span>
+<span class="sd">		0.006371657662505643</span>
 
 <span class="sd">		&quot;&quot;&quot;</span>
 
@@ -370,18 +376,23 @@
 <span class="sd">		</span>
 <span class="sd">		Returns</span>
 <span class="sd">		-------</span>
-<span class="sd">		float</span>
+<span class="sd">		array_like</span>
 <span class="sd">			Charged particle range in the element, in cm.</span>
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>
+<span class="sd">		&gt;&gt;&gt; el = ci.Element(&#39;Fe&#39;)</span>
+<span class="sd">		&gt;&gt;&gt; print(el.range(60.0))</span>
+<span class="sd">		0.5858151125192633</span>
+<span class="sd">		&gt;&gt;&gt; el = ci.Element(&#39;U&#39;)</span>
+<span class="sd">		&gt;&gt;&gt; print(el.range(60.0))</span>
+<span class="sd">		0.3763111404628591</span>
 
 <span class="sd">		&quot;&quot;&quot;</span>
 
 		<span class="n">energy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
 		
 		<span class="n">dE</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span><span class="o">/</span><span class="mf">1E3</span>
-		<span class="c1"># E_grid = np.exp(np.arange(-3.0, np.log(np.max(energy)+dE), dE))</span>
 		<span class="n">E_min</span> <span class="o">=</span> <span class="nb">min</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">energy</span><span class="p">),</span> <span class="mf">1.0</span><span class="p">))</span>
 		<span class="n">E_grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">E_min</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span><span class="o">+</span><span class="n">dE</span><span class="p">,</span> <span class="n">dE</span><span class="p">)</span>
 
@@ -422,10 +433,7 @@
 			
 		<span class="k">else</span><span class="p">:</span>
 			<span class="n">energy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
-
-			<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mc_interp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-				<span class="bp">self</span><span class="o">.</span><span class="n">_mc_interp</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mass_coeff</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mass_coeff</span><span class="p">[</span><span class="s1">&#39;mu&#39;</span><span class="p">]),</span> <span class="n">bounds_error</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="s1">&#39;extrapolate&#39;</span><span class="p">)</span>
-			<span class="n">mu</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mc_interp</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">energy</span><span class="p">)))</span>
+			<span class="n">mu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mu</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span>
 
 		<span class="n">f</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">_init_plot</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
@@ -470,14 +478,11 @@
 <span class="sd">		&quot;&quot;&quot;</span>
 
 		<span class="k">if</span> <span class="n">energy</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-			<span class="n">energy</span><span class="p">,</span> <span class="n">mu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mass_coeff_en</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">mass_coeff_en</span><span class="p">[</span><span class="s1">&#39;mu_en&#39;</span><span class="p">]</span>
+			<span class="n">energy</span><span class="p">,</span> <span class="n">mu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mass_coeff</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">mass_coeff</span><span class="p">[</span><span class="s1">&#39;mu_en&#39;</span><span class="p">]</span>
 			
 		<span class="k">else</span><span class="p">:</span>
 			<span class="n">energy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
-
-			<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mc_en_interp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-				<span class="bp">self</span><span class="o">.</span><span class="n">_mc_en_interp</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mass_coeff</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mass_coeff_en</span><span class="p">[</span><span class="s1">&#39;mu_en&#39;</span><span class="p">]),</span> <span class="n">bounds_error</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="s1">&#39;extrapolate&#39;</span><span class="p">)</span>
-			<span class="n">mu</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mc_en_interp</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">energy</span><span class="p">)))</span>
+			<span class="n">mu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mu_en</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span>
 
 		<span class="n">f</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">_init_plot</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
@@ -516,6 +521,11 @@
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>
+<span class="sd">		&gt;&gt;&gt; el = ci.Element(&#39;He&#39;)</span>
+<span class="sd">		&gt;&gt;&gt; el.plot_S(particle=&#39;a&#39;)</span>
+<span class="sd">		&gt;&gt;&gt; el = ci.Element(&#39;Fe&#39;)</span>
+<span class="sd">		&gt;&gt;&gt; el.plot_S(particle=&#39;d&#39;)</span>
+
 
 <span class="sd">		&quot;&quot;&quot;</span>
 
@@ -562,6 +572,9 @@
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>
+<span class="sd">		&gt;&gt;&gt; el = ci.Element(&#39;Ar&#39;)</span>
+<span class="sd">		&gt;&gt;&gt; el.plot_range()</span>
+<span class="sd">		&gt;&gt;&gt; el.plot_range(density=0.5)</span>
 
 <span class="sd">		&quot;&quot;&quot;</span>
 

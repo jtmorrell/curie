@@ -40,7 +40,7 @@ from .plotting import colormap, set_style
 set_style('default')
 
 from .isotope import Isotope
-from .compound import Compound
+from .compound import Compound, compound_list
 from .element import Element
 
 from .spectrum import Spectrum
