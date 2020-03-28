@@ -28,9 +28,11 @@ class Stack(object):
 	E0 : float
 		Description
 
+
 	Other Parameters
 	----------------
-	The following optional keyword arguments are also available
+	compounds : str, pandas.DataFrame, list or dict
+		Description
 
 	dE0 : float
 		Description
@@ -151,7 +153,7 @@ class Stack(object):
 			compounds = kwargs['compounds']
 			if type(compounds)==str:
 				if compounds.endswith('.json'):
-					js = json.reads(open(compounds).read())
+					js = json.loads(open(compounds).read())
 					cms = [i for i in js]
 					self.compounds = {cm:Compound(cm, weights=js[cm]) for cm in cms}
 
@@ -251,9 +253,9 @@ class Stack(object):
 
 			if str(self.stack['name'][n])!='nan':
 				sm['name'] = str(self.stack['name'][n])
-				sm['flux'] = sm['flux'][lh[0]:lh[-1]]
-				sm['energy'] = energy[lh[0]:lh[-1]]
-				sm['bins'] = bins[lh[0]:lh[-1]+1]
+				sm['flux'] = sm['flux'][lh[0]:lh[-1]+1]
+				sm['energy'] = energy[lh[0]:lh[-1]+1]
+				sm['bins'] = bins[lh[0]:lh[-1]+2]
 				self._flux_list.append(sm)
 
 		cols = ['name','energy','flux']
@@ -298,8 +300,15 @@ class Stack(object):
 				self._filter_samples(self.fluxes, filter_name).to_csv(filename.replace('.csv','_fluxes.csv'), index=False)
 
 		if filename.endswith('.db'):
-			stack.to_sql('stack', _get_connection(filename), if_exists='replace', index=False)
-			fluxes.to_sql('fluxes', _get_connection(filename), if_exists='replace', index=False)
+			self._filter_samples(self.stack, filter_name).to_sql('stack', _get_connection(filename), if_exists='replace', index=False)
+			if save_fluxes:
+				self._filter_samples(self.fluxes, filter_name).to_sql('fluxes', _get_connection(filename), if_exists='replace', index=False)
+
+		if filename.endswith('.json'):
+			self._filter_samples(self.stack, filter_name).to_json(filename, orient='records')
+			if save_fluxes:
+				self._filter_samples(self.fluxes, filter_name).to_json(filename.replace('.json','_fluxes.json'), orient='records')
+
 		
 	def summarize(self, filter_name=True):
 		""" Description

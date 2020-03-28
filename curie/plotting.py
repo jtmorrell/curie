@@ -85,7 +85,7 @@ def colormap(palette='default', shade='dark', aslist=False):
 		cl = DARK.split('\n')[pmap.index(palette.lower())].split(' ')
 
 	if aslist:
-		return cl
+		return [cl[n] for n in [4,9,7,2,1,6,0,5,3]]
 
 	return {cmap[n]:cl[n] for n in range(len(cl))}
 
@@ -249,6 +249,8 @@ def _draw_plot(fig, axis, **kwargs):
 	if '_default_log' in kwargs:
 		if kwargs['_default_log']:
 			ax.set_yscale('log')
+		else:
+			ax.set_yscale('linear')
 
 	if 'scale' in kwargs:
 		s = kwargs['scale'].lower()

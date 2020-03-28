@@ -46,38 +46,55 @@
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>x</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
+<dt><strong>stack</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of dicts or str</span></dt>
 <dd><p class="first last">Description of parameter <cite>x</cite>.</p>
+</dd>
+<dt><strong>particle</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">Description</p>
+</dd>
+<dt><strong>E0</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">Description</p>
 </dd>
 </dl>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name" colspan="2">Other Parameters:</th></tr>
 <tr class="field-even field"><td>&#160;</td><td class="field-body"><dl class="first docutils">
-<dt><strong>The following keyword arguments are also available</strong></dt>
-<dd></dd>
-<dt><strong>==================   ============</strong></dt>
-<dd></dd>
-<dt><strong>Name                 Age</strong></dt>
-<dd></dd>
-<dt><strong>==================   ============</strong></dt>
-<dd></dd>
-<dt><strong>John D Hunter        40</strong></dt>
-<dd></dd>
-<dt><strong>Cast of Thousands    41</strong></dt>
-<dd></dd>
-<dt><strong>And Still More       42</strong></dt>
-<dd></dd>
-<dt><strong>==================   ============</strong></dt>
-<dd></dd>
+<dt><strong>compounds</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, pandas.DataFrame, list or dict</span></dt>
+<dd><p class="first last">Description</p>
+</dd>
+<dt><strong>dE0</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">Description</p>
+</dd>
+<dt><strong>N</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">Description</p>
+</dd>
+<dt><strong>dp</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">Description</p>
+</dd>
+<dt><strong>chunk_size</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">Description</p>
+</dd>
+<dt><strong>accuracy</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">Description</p>
+</dd>
+<dt><strong>min_steps</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">Description</p>
+</dd>
+<dt><strong>max_steps</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">Description</p>
+</dd>
 </dl>
 </td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>stack</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
+<dt><strong>stack</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
 <dd><p class="first last">Description</p>
 </dd>
-<dt><strong>fluxes</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
+<dt><strong>fluxes</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd><p class="first last">Description</p>
+</dd>
+<dt><strong>compounds</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
 <dd><p class="first last">Description</p>
 </dd>
 </dl>
@@ -92,20 +109,20 @@
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#curie.Stack.plot" title="curie.Stack.plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot</span></code></a>([samples])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#curie.Stack.plot" title="curie.Stack.plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot</span></code></a>([filter_name])</td>
 <td>Description</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#curie.Stack.saveas" title="curie.Stack.saveas"><code class="xref py py-obj docutils literal notranslate"><span class="pre">saveas</span></code></a>(filename[,&nbsp;save_fluxes,&nbsp;samples])</td>
+<tr class="row-even"><td><a class="reference internal" href="#curie.Stack.saveas" title="curie.Stack.saveas"><code class="xref py py-obj docutils literal notranslate"><span class="pre">saveas</span></code></a>(filename[,&nbsp;save_fluxes,&nbsp;filter_name])</td>
 <td>Description</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#curie.Stack.summarize" title="curie.Stack.summarize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">summarize</span></code></a>([samples])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#curie.Stack.summarize" title="curie.Stack.summarize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">summarize</span></code></a>([filter_name])</td>
 <td>Description</td>
 </tr>
 </tbody>
 </table>
 <dl class="method">
 <dt id="curie.Stack.plot">
-<code class="descname">plot</code><span class="sig-paren">(</span><em>samples=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/stack.html#Stack.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Stack.plot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plot</code><span class="sig-paren">(</span><em>filter_name=True</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/stack.html#Stack.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Stack.plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Description</p>
 <p>…</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -125,7 +142,7 @@
 
 <dl class="method">
 <dt id="curie.Stack.saveas">
-<code class="descname">saveas</code><span class="sig-paren">(</span><em>filename</em>, <em>save_fluxes=True</em>, <em>samples=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/stack.html#Stack.saveas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Stack.saveas" title="Permalink to this definition">¶</a></dt>
+<code class="descname">saveas</code><span class="sig-paren">(</span><em>filename</em>, <em>save_fluxes=True</em>, <em>filter_name=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/stack.html#Stack.saveas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Stack.saveas" title="Permalink to this definition">¶</a></dt>
 <dd><p>Description</p>
 <p>…</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -145,7 +162,7 @@
 
 <dl class="method">
 <dt id="curie.Stack.summarize">
-<code class="descname">summarize</code><span class="sig-paren">(</span><em>samples=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/stack.html#Stack.summarize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Stack.summarize" title="Permalink to this definition">¶</a></dt>
+<code class="descname">summarize</code><span class="sig-paren">(</span><em>filter_name=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/stack.html#Stack.summarize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Stack.summarize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Description</p>
 <p>…</p>
 <table class="docutils field-list" frame="void" rules="none">

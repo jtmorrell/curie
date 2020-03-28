@@ -402,7 +402,7 @@ class Compound(object):
 			energy = 10.0**np.arange(-1.5, 2.8, 0.05)
 
 		f,ax = _init_plot(**kwargs)
-		ax.plot(energy, self.S(energy, particle=particle, density=1E-3), label='S ({})'.format(self.name))
+		ax.plot(energy, self.S(energy, particle=particle, density=1E-3), label=r'$-\frac{dE}{dx}$ ('+self.name+')')
 
 		ax.set_xlabel('Incident Energy (MeV)')
 		ax.set_ylabel(r'Stopping Power (MeV/(mg/cm$^2$))')

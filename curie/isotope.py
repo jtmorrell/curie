@@ -149,6 +149,7 @@ class Isotope(object):
 		if istp=='1n' or istp=='1ng' or istp=='n':
 			self.element, self.A, self.isomer = 'n', 1, 'g'
 			self.name = '1ng'
+			self._short_name = '1n'
 			
 		elif '-' in istp:
 			el, A = tuple(istp.split('-'))
@@ -183,6 +184,7 @@ class Isotope(object):
 
 		if self.element!='n':
 			self.name = str(self.A)+self.element.upper()+self.isomer
+			self._short_name = str(self.A)+self.element.upper()
 
 		self.Z = ELEMENTS.index(self.element)
 		if type(self.A)==int:
@@ -355,7 +357,7 @@ class Isotope(object):
 		return pd.read_sql('SELECT daughter, yield, unc_yield FROM NFY WHERE parent="{0}" AND energy={1}'.format(self.name, E), _get_connection('decay'))
 
 
-	def gammas(self, I_lim=None, E_lim=None, xrays=False, dE_511=0.0):
+	def gammas(self, I_lim=None, E_lim=None, xrays=False, dE_511=0.0, istp_col=False):
 		"""Gamma-rays emitted by the decay of the isotope
 
 		Returns a DataFrame of gamma-ray energies, intensities and intensity-uncertainties
@@ -428,8 +430,11 @@ class Isotope(object):
 				df = df[df['energy']>=E_lim]
 			else:
 				df = df[(df['energy']>=E_lim[0])&(df['energy']<=E_lim[1])]
+				
+		if istp_col:
+			df['isotope'] = self.name
 
-		return df.reset_index(drop=True)
+		return df.sort_values(by=['energy']).reset_index(drop=True)
 
 	def electrons(self, I_lim=None, E_lim=None, CE_only=False, Auger_only=False):
 		"""Electrons (conversion and Auger) emitted by the decay of the isotope
@@ -491,7 +496,7 @@ class Isotope(object):
 			else:
 				df = df[(df['energy']>=E_lim[0])&(df['energy']<=E_lim[1])]
 
-		return df.reset_index(drop=True)
+		return df.sort_values(by=['energy']).reset_index(drop=True)
 
 	def beta_minus(self, I_lim=None, Endpoint_lim=None):
 		"""Electrons from beta-minus decay
@@ -540,7 +545,7 @@ class Isotope(object):
 			else:
 				df = df[(df['endpoint_energy']>=Endpoint_lim[0])&(df['endpoint_energy']<=Endpoint_lim[1])]
 
-		return df.reset_index(drop=True)
+		return df.sort_values(by=['endpoint_energy']).reset_index(drop=True)
 
 	def beta_plus(self, I_lim=None, Endpoint_lim=None):
 		"""Positrons from beta-plus decay
@@ -589,7 +594,7 @@ class Isotope(object):
 			else:
 				df = df[(df['endpoint_energy']>=Endpoint_lim[0])&(df['endpoint_energy']<=Endpoint_lim[1])]
 
-		return df.reset_index(drop=True)
+		return df.sort_values(by=['endpoint_energy']).reset_index(drop=True)
 
 	def alphas(self, I_lim=None, E_lim=None):
 		"""Alpha-particles emitted by the decay of the isotope
@@ -638,7 +643,7 @@ class Isotope(object):
 			else:
 				df = df[(df['energy']>=E_lim[0])&(df['energy']<=E_lim[1])]
 
-		return df.reset_index(drop=True)
+		return df.sort_values(by=['energy']).reset_index(drop=True)
 
 	def dose_rate(self, activity=1.0, distance=30.0, units='R/hr'):
 		"""Dose-rate from a point source of the isotope

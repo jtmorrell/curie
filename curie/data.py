@@ -98,16 +98,21 @@ def download(db='all', overwrite=False):
 def _get_connection(db='decay'):
 	
 	def connector(dbnm):
-		try:
-			if os.path.getsize(dbnm)>0:
-				return sqlite3.connect(dbnm)
-			else:
-				raise ValueError('{} exists but is of zero size.'.format(dbnm))
-		except:
-			print('Error connecting to {}.'.format(dbnm))
-			if _data_path() in dbnm:
-				print('Try using ci.download("all", overwrite=True) to update nuclear data files.')
-			raise
+		if os.path.exists(dbnm):
+			try:
+				if os.path.getsize(dbnm)>0:
+					return sqlite3.connect(dbnm)
+				else:
+					raise ValueError('{} exists but is of zero size.'.format(dbnm))
+			except:
+				print('Error connecting to {}.'.format(dbnm))
+				if _data_path() in dbnm:
+					print('Try using ci.download("all", overwrite=True) to update nuclear data files.')
+				raise
+		else:
+			print('WARNING: database {} does not exist, creating new file.'.format(dbnm))
+			return sqlite3.connect(dbnm)
+
 
 	db_nm = db.lower().replace('.db','')
 	db_f = None
