@@ -212,7 +212,7 @@ class Isotope(object):
 
 		Returns
 		-------
-		float or 2-tuple of floats
+		half_life : float or 2-tuple of floats
 			Half-life in specified units, with uncertainty only if `unc=True`
 
 		Examples
@@ -258,7 +258,7 @@ class Isotope(object):
 
 		Returns
 		-------
-		float or 2-tuple of floats
+		decay_const : float or 2-tuple of floats
 			Decay constant in specified units, with uncertainty only if `unc=True`
 
 		Examples
@@ -286,7 +286,7 @@ class Isotope(object):
 
 		Returns
 		-------
-		str
+		units : str
 			Units that will represent half-life as a number greater than 1, but with as few digits as possible.
 
 		Examples
@@ -315,12 +315,11 @@ class Isotope(object):
 		
 		Returns
 		-------
-		pandas.DataFrame
+		sfy : pd.DataFrame
 			Tabular spontaneous fission yields, with keys 'daughter', 'yield' and 'unc_yield'
 
 		Examples
 		--------
-
 		>>> ip = ci.Isotope('238U')
 		>>> print(ip.get_SFY())
 
@@ -343,12 +342,11 @@ class Isotope(object):
 
 		Returns
 		-------
-		pandas.DataFrame
+		nfy : pd.DataFrame
 			Tabular neutron induced fission yields, with keys 'daughter', 'yield' and 'unc_yield'
 
 		Examples
 		--------
-
 		>>> ip = ci.Isotope('235U')
 		>>> print(ip.get_NFY(E=0.0253))
 
@@ -382,7 +380,7 @@ class Isotope(object):
 
 		Returns
 		-------
-		pandas.DataFrame
+		gammas : pd.DataFrame
 			Tabular gamma-ray data, with keys 'energy', 'intensity' and 'unc_intensity'. Units
 			of energy are in keV and units of intensity are in percent.
 
@@ -430,7 +428,7 @@ class Isotope(object):
 				df = df[df['energy']>=E_lim]
 			else:
 				df = df[(df['energy']>=E_lim[0])&(df['energy']<=E_lim[1])]
-				
+
 		if istp_col:
 			df['isotope'] = self.name
 
@@ -460,7 +458,7 @@ class Isotope(object):
 
 		Returns
 		-------
-		pandas.DataFrame
+		electrons : pd.DataFrame
 			Tabular electron data, with keywords 'energy', 'intensity', 'unc_intensity'. Units
 			of energy are in keV and units of intensity are in percent.
 
@@ -516,7 +514,7 @@ class Isotope(object):
 
 		Returns
 		-------
-		pandas.DataFrame
+		beta_minus : pd.DataFrame
 			Tabular beta-minus data, with keywords 'mean_energy', 'endpoint_energy', 'intensity',
 			'unc_intensity'. Units of energy are in keV and units of intensity are in percent.
 
@@ -565,7 +563,7 @@ class Isotope(object):
 
 		Returns
 		-------
-		pandas.DataFrame
+		beta_plus : pd.DataFrame
 			Tabular beta-plus data, with keywords 'mean_energy', 'endpoint_energy', 'intensity',
 			'unc_intensity'. Units of energy are in keV and units of intensity are in percent.
 
@@ -614,7 +612,7 @@ class Isotope(object):
 
 		Returns
 		-------
-		pandas.DataFrame
+		alphas : pd.DataFrame
 			Tabular alpha emission data, with keys 'energy', 'intensity' and 'unc_intensity'. Units
 			of energy are in keV and units of intensity are in percent.
 
@@ -666,16 +664,14 @@ class Isotope(object):
 
 		Returns
 		-------
-		dict
+		dose_rate : dict
 			Dictionary of dose from each of the following particle type: 'gamma', 'electron', 
 			'beta_minus', 'beta_plus', 'alpha', and 'total'.  Units are specified as an input.
 
 		Examples
 		--------
-		1 Ci of Co-60 at 30 cm
-
 		>>> ip = ci.Isotope('Co-60')
-		>>> print(ip.dose_rate(activity=3.7E10, units='R/hr'))
+		>>> print(ip.dose_rate(activity=3.7E10, units='R/hr')) # 1 Ci of Co-60 at 30 cm
 		{'beta_plus': 0.0, 'alphas': 0.0, 'gammas': 52035.28424827692, 
 		'electrons': 65.66251805557148, 'beta_minus': 5536.541902410433, 'total': 57637.488668742924}
 

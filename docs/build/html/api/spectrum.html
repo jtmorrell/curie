@@ -39,39 +39,59 @@
 <span id="id1"></span><h1>7. Spectrum<a class="headerlink" href="#spectrum" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="curie.Spectrum">
-<em class="property">class </em><code class="descclassname">curie.</code><code class="descname">Spectrum</code><span class="sig-paren">(</span><em>filename</em>, <em>cb=None</em>, <em>shelf=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/spectrum.html#Spectrum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Spectrum" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">curie.</code><code class="descname">Spectrum</code><span class="sig-paren">(</span><em>filename</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/spectrum.html#Spectrum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Spectrum" title="Permalink to this definition">¶</a></dt>
 <dd><p>…</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>x</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
+<dt><strong>filename</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
 <dd><p class="first last">Description of parameter <cite>x</cite>.</p>
 </dd>
 </dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>cb</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
+<tr class="field-even field"><th class="field-name" colspan="2">Other Parameters:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body"><dl class="first docutils">
+<dt><strong>cb</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str or ci.Calibration</span></dt>
 <dd><p class="first last">Description</p>
 </dd>
-<dt><strong>filename</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
+<dt><strong>isotopes</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
 <dd><p class="first last">Description</p>
 </dd>
-<dt><strong>directory</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
+<dt><strong>fit_config</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
 <dd><p class="first last">Description</p>
 </dd>
-<dt><strong>shelf</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
+</dl>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>cb</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ci.Calibration</span></dt>
 <dd><p class="first last">Description</p>
 </dd>
-<dt><strong>isotopes</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
+<dt><strong>isotopes</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
 <dd><p class="first last">Description</p>
 </dd>
-<dt><strong>fit_config</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
+<dt><strong>fit_config</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
 <dd><p class="first last">Description</p>
 </dd>
-<dt><strong>peaks</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
+<dt><strong>filename</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">Description</p>
+</dd>
+<dt><strong>hist</strong> <span class="classifier-delimiter">:</span> <span class="classifier">np.ndarray</span></dt>
+<dd><p class="first last">Description</p>
+</dd>
+<dt><strong>start_time</strong> <span class="classifier-delimiter">:</span> <span class="classifier">datetime.datetime</span></dt>
+<dd><p class="first last">Description</p>
+</dd>
+<dt><strong>live_time</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">Description</p>
+</dd>
+<dt><strong>real_time</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">Description</p>
+</dd>
+<dt><strong>peaks</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pd.DataFrame</span></dt>
 <dd><p class="first last">Description</p>
 </dd>
 </dl>
@@ -86,25 +106,25 @@
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#curie.Spectrum.attenuation_correction" title="curie.Spectrum.attenuation_correction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">attenuation_correction</span></code></a>(cm[,&nbsp;x,&nbsp;ad])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#curie.Spectrum.attenuation_correction" title="curie.Spectrum.attenuation_correction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">attenuation_correction</span></code></a>(compounds[,&nbsp;x,&nbsp;ad])</td>
 <td>Description</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#curie.Spectrum.auto_calibrate" title="curie.Spectrum.auto_calibrate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">auto_calibrate</span></code></a>()</td>
+<tr class="row-even"><td><a class="reference internal" href="#curie.Spectrum.auto_calibrate" title="curie.Spectrum.auto_calibrate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">auto_calibrate</span></code></a>([guess,&nbsp;peaks])</td>
 <td>Description</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#curie.Spectrum.geometry_correction" title="curie.Spectrum.geometry_correction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">geometry_correction</span></code></a>()</td>
+<tr class="row-odd"><td><a class="reference internal" href="#curie.Spectrum.fit_peaks" title="curie.Spectrum.fit_peaks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_peaks</span></code></a>([gammas])</td>
 <td>Description</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#curie.Spectrum.multiplet" title="curie.Spectrum.multiplet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">multiplet</span></code></a>(x,&nbsp;*args)</td>
+<tr class="row-even"><td><a class="reference internal" href="#curie.Spectrum.geometry_correction" title="curie.Spectrum.geometry_correction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">geometry_correction</span></code></a>(distance,&nbsp;r_det,&nbsp;…[,&nbsp;…])</td>
 <td>Description</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#curie.Spectrum.plot" title="curie.Spectrum.plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot</span></code></a>([fit,&nbsp;labels,&nbsp;snip,&nbsp;xcalib])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#curie.Spectrum.plot" title="curie.Spectrum.plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot</span></code></a>([fit,&nbsp;xcalib])</td>
 <td>Description</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#curie.Spectrum.rebin" title="curie.Spectrum.rebin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rebin</span></code></a>(N_bins)</td>
 <td>Description</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#curie.Spectrum.saveas" title="curie.Spectrum.saveas"><code class="xref py py-obj docutils literal notranslate"><span class="pre">saveas</span></code></a>(filename)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#curie.Spectrum.saveas" title="curie.Spectrum.saveas"><code class="xref py py-obj docutils literal notranslate"><span class="pre">saveas</span></code></a>(filename[,&nbsp;replace])</td>
 <td>Description</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#curie.Spectrum.summarize" title="curie.Spectrum.summarize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">summarize</span></code></a>()</td>
@@ -114,16 +134,29 @@
 </table>
 <dl class="method">
 <dt id="curie.Spectrum.attenuation_correction">
-<code class="descname">attenuation_correction</code><span class="sig-paren">(</span><em>cm</em>, <em>x=None</em>, <em>ad=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/spectrum.html#Spectrum.attenuation_correction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Spectrum.attenuation_correction" title="Permalink to this definition">¶</a></dt>
+<code class="descname">attenuation_correction</code><span class="sig-paren">(</span><em>compounds</em>, <em>x=None</em>, <em>ad=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/spectrum.html#Spectrum.attenuation_correction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Spectrum.attenuation_correction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Description</p>
 <p>…</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>x</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>compounds</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of str or ci.Compound</span></dt>
 <dd><p class="first last">Description of x</p>
+</dd>
+<dt><strong>x</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of float</span></dt>
+<dd><p class="first last">Description</p>
+</dd>
+<dt><strong>ad</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of float</span></dt>
+<dd><p class="first last">Description</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>type</strong></dt>
+<dd><p class="first last">Description</p>
 </dd>
 </dl>
 </td>
@@ -134,7 +167,7 @@
 
 <dl class="method">
 <dt id="curie.Spectrum.auto_calibrate">
-<code class="descname">auto_calibrate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/spectrum.html#Spectrum.auto_calibrate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Spectrum.auto_calibrate" title="Permalink to this definition">¶</a></dt>
+<code class="descname">auto_calibrate</code><span class="sig-paren">(</span><em>guess=None</em>, <em>peaks=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/spectrum.html#Spectrum.auto_calibrate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Spectrum.auto_calibrate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Description</p>
 <p>…</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -142,8 +175,38 @@
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>x</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
+<dt><strong>guess</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
 <dd><p class="first last">Description of x</p>
+</dd>
+<dt><strong>peaks</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
+<dd><p class="first last">Description</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="curie.Spectrum.fit_peaks">
+<code class="descname">fit_peaks</code><span class="sig-paren">(</span><em>gammas=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/spectrum.html#Spectrum.fit_peaks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Spectrum.fit_peaks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Description</p>
+<p>…</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>gammas</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list, dict or pd.DataFrame, optional</span></dt>
+<dd><p class="first last">Description of x</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>type</strong></dt>
+<dd><p class="first last">Description</p>
 </dd>
 </dl>
 </td>
@@ -154,36 +217,38 @@
 
 <dl class="method">
 <dt id="curie.Spectrum.geometry_correction">
-<code class="descname">geometry_correction</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/spectrum.html#Spectrum.geometry_correction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Spectrum.geometry_correction" title="Permalink to this definition">¶</a></dt>
+<code class="descname">geometry_correction</code><span class="sig-paren">(</span><em>distance</em>, <em>r_det</em>, <em>thickness</em>, <em>sample_size</em>, <em>shape='circle'</em>, <em>N=1000000.0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/spectrum.html#Spectrum.geometry_correction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Spectrum.geometry_correction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Description</p>
 <p>…</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>x</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>distance</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">Description of x</p>
+</dd>
+<dt><strong>r_det</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">Description of x</p>
+</dd>
+<dt><strong>thickness</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">Description of x</p>
+</dd>
+<dt><strong>sample_size</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">Description of x</p>
+</dd>
+<dt><strong>shape</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
+<dd><p class="first last">Description of x</p>
+</dd>
+<dt><strong>N</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, optional</span></dt>
 <dd><p class="first last">Description of x</p>
 </dd>
 </dl>
 </td>
 </tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="curie.Spectrum.multiplet">
-<code class="descname">multiplet</code><span class="sig-paren">(</span><em>x</em>, <em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/spectrum.html#Spectrum.multiplet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Spectrum.multiplet" title="Permalink to this definition">¶</a></dt>
-<dd><p>Description</p>
-<p>…</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>x</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
-<dd><p class="first last">Description of x</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>type</strong></dt>
+<dd><p class="first last">Description</p>
 </dd>
 </dl>
 </td>
@@ -194,16 +259,29 @@
 
 <dl class="method">
 <dt id="curie.Spectrum.plot">
-<code class="descname">plot</code><span class="sig-paren">(</span><em>fit=True</em>, <em>labels=True</em>, <em>snip=False</em>, <em>xcalib=True</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/spectrum.html#Spectrum.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Spectrum.plot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plot</code><span class="sig-paren">(</span><em>fit=True</em>, <em>xcalib=True</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/spectrum.html#Spectrum.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Spectrum.plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Description</p>
 <p>…</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>x</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>fit</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
 <dd><p class="first last">Description of x</p>
+</dd>
+<dt><strong>xcalib</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
+<dd><p class="first last">Description</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Other Parameters:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body"><dl class="first last docutils">
+<dt><strong>**kwargs</strong></dt>
+<dd><p class="first last">Optional keyword arguments for plotting.  See the 
+plotting section of the curie API for a complete
+list of kwargs.</p>
 </dd>
 </dl>
 </td>
@@ -222,7 +300,7 @@
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>x</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
+<dt><strong>N_bins</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
 <dd><p class="first last">Description of x</p>
 </dd>
 </dl>
@@ -234,7 +312,7 @@
 
 <dl class="method">
 <dt id="curie.Spectrum.saveas">
-<code class="descname">saveas</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/spectrum.html#Spectrum.saveas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Spectrum.saveas" title="Permalink to this definition">¶</a></dt>
+<code class="descname">saveas</code><span class="sig-paren">(</span><em>filename</em>, <em>replace=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/spectrum.html#Spectrum.saveas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Spectrum.saveas" title="Permalink to this definition">¶</a></dt>
 <dd><p>Description</p>
 <p>…</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -242,8 +320,11 @@
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>x</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
+<dt><strong>filename</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
 <dd><p class="first last">Description of x</p>
+</dd>
+<dt><strong>replace</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
+<dd><p class="first last">Description</p>
 </dd>
 </dl>
 </td>
@@ -257,19 +338,6 @@
 <code class="descname">summarize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/spectrum.html#Spectrum.summarize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Spectrum.summarize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Description</p>
 <p>…</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>x</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
-<dd><p class="first last">Description of x</p>
-</dd>
-</dl>
-</td>
-</tr>
-</tbody>
-</table>
 </dd></dl>
 
 </dd></dl>

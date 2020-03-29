@@ -54,7 +54,7 @@ class Element(object):
 	isotopes : list
 		List of isotopes with non-zero natural abundance.
 
-	abundances : pandas.DataFrame
+	abundances : pd.DataFrame
 		Natural abundances, in percent, for all isotopes found in nature. 
 		Structure is a DataFrame with the columns 'isotope', 'abundance', 
 		and 'unc_abundance'.
@@ -65,14 +65,12 @@ class Element(object):
 		you can assign a new density using `el.density = new_density` if
 		needed, or using the `density` keyword in either of those functions.
 
-	mass_coeff : pandas.DataFrame
+	mass_coeff : pd.DataFrame
 		Table of mass-attenuation coefficients as a function of photon
 		energy, from the NIST XCOM database.  Energies are in keV, and
 		mass-attenuation coefficients, or mu/rho, are given in cm^2/g.
 		DataFrame columns are 'energy', 'mu' and 'mu_en' for the 
 		mass-energy absorption coefficient.
-
-
 
 	Examples
 	--------
@@ -106,11 +104,57 @@ class Element(object):
 		return self.name
 
 	def mu(self, energy):
+		"""Mass-attenuation coefficient
+
+		Interpolates the mass-attenuation coefficient, mu/rho,
+		for the element along the input energy grid.
+
+		Parameters
+		----------
+		energy : array_like
+			The incident photon energy, in keV.
+
+		Returns
+		-------
+		mu : np.ndarray
+			Mass attenuation coefficient, mu/rho, in cm^2/g.
+
+		Examples
+		--------
+		>>> el = ci.Element('Hg')
+		>>> print(el.mu(200))
+		0.9456
+
+		"""
+
 		if self._mc_interp is None:
 			self._mc_interp = interp1d(np.log(self.mass_coeff['energy']), np.log(self.mass_coeff['mu']), bounds_error=False, fill_value='extrapolate')
 		return np.exp(self._mc_interp(np.log(energy)))
 
 	def mu_en(self, energy):
+		"""Mass energy-absorption coefficient
+
+		Interpolates the mass-energy absorption coefficient, mu_en/rho,
+		for the element along the input energy grid.
+
+		Parameters
+		----------
+		energy : array_like
+			The incident photon energy, in keV.
+
+		Returns
+		-------
+		mu_en : np.ndarray
+			Mass energy absorption coefficient, mu_en/rho, in cm^2/g.
+
+		Examples
+		--------
+		>>> el = ci.Element('Hg')
+		>>> print(el.mu_en(200))
+		0.5661
+
+		"""
+
 		if self._mc_en_interp is None:
 			self._mc_en_interp = interp1d(np.log(self.mass_coeff['energy']), np.log(self.mass_coeff['mu_en']), bounds_error=False, fill_value='extrapolate')
 		return np.exp(self._mc_en_interp(np.log(energy)))
@@ -135,7 +179,7 @@ class Element(object):
 
 		Returns
 		-------
-		numpy.ndarray
+		attenuation : numpy.ndarray
 			The slab attenuation factor as an absolute number (i.e. from 0 to 1).
 			E.g. if the incident intensity is I_0, the transmitted intensity I(x) 
 			is I_0 times the attenuation factor.
@@ -282,7 +326,7 @@ class Element(object):
 
 		Returns
 		-------
-		numpy.ndarray
+		stopping_power : numpy.ndarray
 			Stopping power, S=-dE/dx, for a given ion as a function of the 
 			ion energy in MeV.  Units of S are MeV/cm.
 
@@ -338,7 +382,7 @@ class Element(object):
 		
 		Returns
 		-------
-		array_like
+		range : np.ndarray
 			Charged particle range in the element, in cm.
 
 		Examples

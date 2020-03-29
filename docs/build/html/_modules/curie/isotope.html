@@ -187,6 +187,7 @@
 		<span class="k">if</span> <span class="n">istp</span><span class="o">==</span><span class="s1">&#39;1n&#39;</span> <span class="ow">or</span> <span class="n">istp</span><span class="o">==</span><span class="s1">&#39;1ng&#39;</span> <span class="ow">or</span> <span class="n">istp</span><span class="o">==</span><span class="s1">&#39;n&#39;</span><span class="p">:</span>
 			<span class="bp">self</span><span class="o">.</span><span class="n">element</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">isomer</span> <span class="o">=</span> <span class="s1">&#39;n&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;g&#39;</span>
 			<span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;1ng&#39;</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">_short_name</span> <span class="o">=</span> <span class="s1">&#39;1n&#39;</span>
 			
 		<span class="k">elif</span> <span class="s1">&#39;-&#39;</span> <span class="ow">in</span> <span class="n">istp</span><span class="p">:</span>
 			<span class="n">el</span><span class="p">,</span> <span class="n">A</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">istp</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">))</span>
@@ -221,6 +222,7 @@
 
 		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">element</span><span class="o">!=</span><span class="s1">&#39;n&#39;</span><span class="p">:</span>
 			<span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">)</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">isomer</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">_short_name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">)</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
 
 		<span class="bp">self</span><span class="o">.</span><span class="n">Z</span> <span class="o">=</span> <span class="n">ELEMENTS</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">element</span><span class="p">)</span>
 		<span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">)</span><span class="o">==</span><span class="nb">int</span><span class="p">:</span>
@@ -248,7 +250,7 @@
 
 <span class="sd">		Returns</span>
 <span class="sd">		-------</span>
-<span class="sd">		float or 2-tuple of floats</span>
+<span class="sd">		half_life : float or 2-tuple of floats</span>
 <span class="sd">			Half-life in specified units, with uncertainty only if `unc=True`</span>
 
 <span class="sd">		Examples</span>
@@ -294,7 +296,7 @@
 
 <span class="sd">		Returns</span>
 <span class="sd">		-------</span>
-<span class="sd">		float or 2-tuple of floats</span>
+<span class="sd">		decay_const : float or 2-tuple of floats</span>
 <span class="sd">			Decay constant in specified units, with uncertainty only if `unc=True`</span>
 
 <span class="sd">		Examples</span>
@@ -322,7 +324,7 @@
 
 <span class="sd">		Returns</span>
 <span class="sd">		-------</span>
-<span class="sd">		str</span>
+<span class="sd">		units : str</span>
 <span class="sd">			Units that will represent half-life as a number greater than 1, but with as few digits as possible.</span>
 
 <span class="sd">		Examples</span>
@@ -351,12 +353,11 @@
 <span class="sd">		</span>
 <span class="sd">		Returns</span>
 <span class="sd">		-------</span>
-<span class="sd">		pandas.DataFrame</span>
+<span class="sd">		sfy : pd.DataFrame</span>
 <span class="sd">			Tabular spontaneous fission yields, with keys &#39;daughter&#39;, &#39;yield&#39; and &#39;unc_yield&#39;</span>
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>
-
 <span class="sd">		&gt;&gt;&gt; ip = ci.Isotope(&#39;238U&#39;)</span>
 <span class="sd">		&gt;&gt;&gt; print(ip.get_SFY())</span>
 
@@ -379,12 +380,11 @@
 
 <span class="sd">		Returns</span>
 <span class="sd">		-------</span>
-<span class="sd">		pandas.DataFrame</span>
+<span class="sd">		nfy : pd.DataFrame</span>
 <span class="sd">			Tabular neutron induced fission yields, with keys &#39;daughter&#39;, &#39;yield&#39; and &#39;unc_yield&#39;</span>
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>
-
 <span class="sd">		&gt;&gt;&gt; ip = ci.Isotope(&#39;235U&#39;)</span>
 <span class="sd">		&gt;&gt;&gt; print(ip.get_NFY(E=0.0253))</span>
 
@@ -393,7 +393,7 @@
 		<span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s1">&#39;SELECT daughter, yield, unc_yield FROM NFY WHERE parent=&quot;</span><span class="si">{0}</span><span class="s1">&quot; AND energy=</span><span class="si">{1}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">E</span><span class="p">),</span> <span class="n">_get_connection</span><span class="p">(</span><span class="s1">&#39;decay&#39;</span><span class="p">))</span></div>
 
 
-<div class="viewcode-block" id="Isotope.gammas"><a class="viewcode-back" href="../../api/isotope.html#curie.Isotope.gammas">[docs]</a>	<span class="k">def</span> <span class="nf">gammas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">I_lim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">E_lim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">xrays</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dE_511</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
+<div class="viewcode-block" id="Isotope.gammas"><a class="viewcode-back" href="../../api/isotope.html#curie.Isotope.gammas">[docs]</a>	<span class="k">def</span> <span class="nf">gammas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">I_lim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">E_lim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">xrays</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dE_511</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">istp_col</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;Gamma-rays emitted by the decay of the isotope</span>
 
 <span class="sd">		Returns a DataFrame of gamma-ray energies, intensities and intensity-uncertainties</span>
@@ -418,7 +418,7 @@
 
 <span class="sd">		Returns</span>
 <span class="sd">		-------</span>
-<span class="sd">		pandas.DataFrame</span>
+<span class="sd">		gammas : pd.DataFrame</span>
 <span class="sd">			Tabular gamma-ray data, with keys &#39;energy&#39;, &#39;intensity&#39; and &#39;unc_intensity&#39;. Units</span>
 <span class="sd">			of energy are in keV and units of intensity are in percent.</span>
 
@@ -467,7 +467,10 @@
 			<span class="k">else</span><span class="p">:</span>
 				<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">]</span><span class="o">&gt;=</span><span class="n">E_lim</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">&amp;</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">]</span><span class="o">&lt;=</span><span class="n">E_lim</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span>
 
-		<span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+		<span class="k">if</span> <span class="n">istp_col</span><span class="p">:</span>
+			<span class="n">df</span><span class="p">[</span><span class="s1">&#39;isotope&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+
+		<span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Isotope.electrons"><a class="viewcode-back" href="../../api/isotope.html#curie.Isotope.electrons">[docs]</a>	<span class="k">def</span> <span class="nf">electrons</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">I_lim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">E_lim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">CE_only</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">Auger_only</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;Electrons (conversion and Auger) emitted by the decay of the isotope</span>
@@ -493,7 +496,7 @@
 
 <span class="sd">		Returns</span>
 <span class="sd">		-------</span>
-<span class="sd">		pandas.DataFrame</span>
+<span class="sd">		electrons : pd.DataFrame</span>
 <span class="sd">			Tabular electron data, with keywords &#39;energy&#39;, &#39;intensity&#39;, &#39;unc_intensity&#39;. Units</span>
 <span class="sd">			of energy are in keV and units of intensity are in percent.</span>
 
@@ -529,7 +532,7 @@
 			<span class="k">else</span><span class="p">:</span>
 				<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">]</span><span class="o">&gt;=</span><span class="n">E_lim</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">&amp;</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">]</span><span class="o">&lt;=</span><span class="n">E_lim</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span>
 
-		<span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+		<span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Isotope.beta_minus"><a class="viewcode-back" href="../../api/isotope.html#curie.Isotope.beta_minus">[docs]</a>	<span class="k">def</span> <span class="nf">beta_minus</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">I_lim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">Endpoint_lim</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;Electrons from beta-minus decay</span>
@@ -549,7 +552,7 @@
 
 <span class="sd">		Returns</span>
 <span class="sd">		-------</span>
-<span class="sd">		pandas.DataFrame</span>
+<span class="sd">		beta_minus : pd.DataFrame</span>
 <span class="sd">			Tabular beta-minus data, with keywords &#39;mean_energy&#39;, &#39;endpoint_energy&#39;, &#39;intensity&#39;,</span>
 <span class="sd">			&#39;unc_intensity&#39;. Units of energy are in keV and units of intensity are in percent.</span>
 
@@ -578,7 +581,7 @@
 			<span class="k">else</span><span class="p">:</span>
 				<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;endpoint_energy&#39;</span><span class="p">]</span><span class="o">&gt;=</span><span class="n">Endpoint_lim</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">&amp;</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;endpoint_energy&#39;</span><span class="p">]</span><span class="o">&lt;=</span><span class="n">Endpoint_lim</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span>
 
-		<span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+		<span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;endpoint_energy&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Isotope.beta_plus"><a class="viewcode-back" href="../../api/isotope.html#curie.Isotope.beta_plus">[docs]</a>	<span class="k">def</span> <span class="nf">beta_plus</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">I_lim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">Endpoint_lim</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;Positrons from beta-plus decay</span>
@@ -598,7 +601,7 @@
 
 <span class="sd">		Returns</span>
 <span class="sd">		-------</span>
-<span class="sd">		pandas.DataFrame</span>
+<span class="sd">		beta_plus : pd.DataFrame</span>
 <span class="sd">			Tabular beta-plus data, with keywords &#39;mean_energy&#39;, &#39;endpoint_energy&#39;, &#39;intensity&#39;,</span>
 <span class="sd">			&#39;unc_intensity&#39;. Units of energy are in keV and units of intensity are in percent.</span>
 
@@ -627,7 +630,7 @@
 			<span class="k">else</span><span class="p">:</span>
 				<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;endpoint_energy&#39;</span><span class="p">]</span><span class="o">&gt;=</span><span class="n">Endpoint_lim</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">&amp;</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;endpoint_energy&#39;</span><span class="p">]</span><span class="o">&lt;=</span><span class="n">Endpoint_lim</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span>
 
-		<span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+		<span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;endpoint_energy&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Isotope.alphas"><a class="viewcode-back" href="../../api/isotope.html#curie.Isotope.alphas">[docs]</a>	<span class="k">def</span> <span class="nf">alphas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">I_lim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">E_lim</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;Alpha-particles emitted by the decay of the isotope</span>
@@ -647,7 +650,7 @@
 
 <span class="sd">		Returns</span>
 <span class="sd">		-------</span>
-<span class="sd">		pandas.DataFrame</span>
+<span class="sd">		alphas : pd.DataFrame</span>
 <span class="sd">			Tabular alpha emission data, with keys &#39;energy&#39;, &#39;intensity&#39; and &#39;unc_intensity&#39;. Units</span>
 <span class="sd">			of energy are in keV and units of intensity are in percent.</span>
 
@@ -676,7 +679,7 @@
 			<span class="k">else</span><span class="p">:</span>
 				<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">]</span><span class="o">&gt;=</span><span class="n">E_lim</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">&amp;</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">]</span><span class="o">&lt;=</span><span class="n">E_lim</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span>
 
-		<span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+		<span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Isotope.dose_rate"><a class="viewcode-back" href="../../api/isotope.html#curie.Isotope.dose_rate">[docs]</a>	<span class="k">def</span> <span class="nf">dose_rate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">activity</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">distance</span><span class="o">=</span><span class="mf">30.0</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;R/hr&#39;</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;Dose-rate from a point source of the isotope</span>
@@ -699,16 +702,14 @@
 
 <span class="sd">		Returns</span>
 <span class="sd">		-------</span>
-<span class="sd">		dict</span>
+<span class="sd">		dose_rate : dict</span>
 <span class="sd">			Dictionary of dose from each of the following particle type: &#39;gamma&#39;, &#39;electron&#39;, </span>
 <span class="sd">			&#39;beta_minus&#39;, &#39;beta_plus&#39;, &#39;alpha&#39;, and &#39;total&#39;.  Units are specified as an input.</span>
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>
-<span class="sd">		1 Ci of Co-60 at 30 cm</span>
-
 <span class="sd">		&gt;&gt;&gt; ip = ci.Isotope(&#39;Co-60&#39;)</span>
-<span class="sd">		&gt;&gt;&gt; print(ip.dose_rate(activity=3.7E10, units=&#39;R/hr&#39;))</span>
+<span class="sd">		&gt;&gt;&gt; print(ip.dose_rate(activity=3.7E10, units=&#39;R/hr&#39;)) # 1 Ci of Co-60 at 30 cm</span>
 <span class="sd">		{&#39;beta_plus&#39;: 0.0, &#39;alphas&#39;: 0.0, &#39;gammas&#39;: 52035.28424827692, </span>
 <span class="sd">		&#39;electrons&#39;: 65.66251805557148, &#39;beta_minus&#39;: 5536.541902410433, &#39;total&#39;: 57637.488668742924}</span>
 

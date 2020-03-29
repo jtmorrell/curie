@@ -49,6 +49,7 @@
 <span class="kn">from</span> <span class="nn">.data</span> <span class="kn">import</span> <span class="n">_get_connection</span>
 <span class="kn">from</span> <span class="nn">.plotting</span> <span class="kn">import</span> <span class="n">_init_plot</span><span class="p">,</span> <span class="n">_draw_plot</span>
 <span class="kn">from</span> <span class="nn">.compound</span> <span class="kn">import</span> <span class="n">Compound</span>
+<span class="kn">from</span> <span class="nn">.element</span> <span class="kn">import</span> <span class="n">Element</span>
 
 <div class="viewcode-block" id="Stack"><a class="viewcode-back" href="../../api/stack.html#curie.Stack">[docs]</a><span class="k">class</span> <span class="nc">Stack</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 	<span class="sd">&quot;&quot;&quot;Stack</span>
@@ -116,11 +117,13 @@
 
 		<span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">stack</span><span class="p">)</span><span class="o">==</span><span class="nb">str</span><span class="p">:</span>
 			<span class="k">if</span> <span class="n">stack</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.json&#39;</span><span class="p">):</span>
-				<span class="n">js</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">reads</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">stack</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
-				<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">js</span><span class="p">)</span>
+				<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_json</span><span class="p">(</span><span class="n">stack</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s1">&#39;records&#39;</span><span class="p">)</span>
 
 			<span class="k">elif</span> <span class="n">stack</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.csv&#39;</span><span class="p">):</span>
 				<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">stack</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+			<span class="k">elif</span> <span class="n">stack</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.db&#39;</span><span class="p">):</span>
+				<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s1">&#39;SELECT * FROM stack&#39;</span><span class="p">,</span> <span class="n">_get_connection</span><span class="p">(</span><span class="n">stack</span><span class="p">))</span>
 
 		<span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">stack</span><span class="p">)</span><span class="o">==</span><span class="nb">list</span><span class="p">:</span>
 			<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">stack</span><span class="p">)</span>
@@ -211,7 +214,7 @@
 						<span class="c1">### e.g. [&#39;H20&#39;, &#39;RbCl&#39;]</span>
 						<span class="bp">self</span><span class="o">.</span><span class="n">compounds</span><span class="p">[</span><span class="n">cm</span><span class="p">]</span> <span class="o">=</span> <span class="n">Compound</span><span class="p">(</span><span class="n">cm</span><span class="p">)</span>
 
-					<span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">cm</span><span class="p">)</span><span class="o">==</span><span class="n">Compound</span><span class="p">:</span>
+					<span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">cm</span><span class="p">)</span><span class="o">==</span><span class="n">Compound</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">cm</span><span class="p">)</span><span class="o">==</span><span class="n">Element</span><span class="p">:</span>
 						<span class="c1">### ci.Compound class</span>
 						<span class="bp">self</span><span class="o">.</span><span class="n">compounds</span><span class="p">[</span><span class="n">cm</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">cm</span>
 
@@ -321,8 +324,14 @@
 
 <span class="sd">		Parameters</span>
 <span class="sd">		----------</span>
-<span class="sd">		x : type</span>
+<span class="sd">		filename : str</span>
 <span class="sd">			Description of x</span>
+
+<span class="sd">		save_fluxes : bool, optional</span>
+<span class="sd">			Description</span>
+
+<span class="sd">		filter_name : bool or str, optional</span>
+<span class="sd">			Description</span>
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>
@@ -343,9 +352,9 @@
 				<span class="bp">self</span><span class="o">.</span><span class="n">_filter_samples</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fluxes</span><span class="p">,</span> <span class="n">filter_name</span><span class="p">)</span><span class="o">.</span><span class="n">to_sql</span><span class="p">(</span><span class="s1">&#39;fluxes&#39;</span><span class="p">,</span> <span class="n">_get_connection</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span> <span class="n">if_exists</span><span class="o">=</span><span class="s1">&#39;replace&#39;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
 		<span class="k">if</span> <span class="n">filename</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.json&#39;</span><span class="p">):</span>
-			<span class="bp">self</span><span class="o">.</span><span class="n">_filter_samples</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stack</span><span class="p">,</span> <span class="n">filter_name</span><span class="p">)</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s1">&#39;records&#39;</span><span class="p">)</span>
+			<span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_filter_samples</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stack</span><span class="p">,</span> <span class="n">filter_name</span><span class="p">)</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">orient</span><span class="o">=</span><span class="s1">&#39;records&#39;</span><span class="p">)),</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">),</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
 			<span class="k">if</span> <span class="n">save_fluxes</span><span class="p">:</span>
-				<span class="bp">self</span><span class="o">.</span><span class="n">_filter_samples</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fluxes</span><span class="p">,</span> <span class="n">filter_name</span><span class="p">)</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">filename</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.json&#39;</span><span class="p">,</span><span class="s1">&#39;_fluxes.json&#39;</span><span class="p">),</span> <span class="n">orient</span><span class="o">=</span><span class="s1">&#39;records&#39;</span><span class="p">)</span></div>
+				<span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_filter_samples</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fluxes</span><span class="p">,</span> <span class="n">filter_name</span><span class="p">)</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">orient</span><span class="o">=</span><span class="s1">&#39;records&#39;</span><span class="p">)),</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.json&#39;</span><span class="p">,</span><span class="s1">&#39;_fluxes.json&#39;</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">),</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span></div>
 
 		
 <div class="viewcode-block" id="Stack.summarize"><a class="viewcode-back" href="../../api/stack.html#curie.Stack.summarize">[docs]</a>	<span class="k">def</span> <span class="nf">summarize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filter_name</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
@@ -355,7 +364,7 @@
 
 <span class="sd">		Parameters</span>
 <span class="sd">		----------</span>
-<span class="sd">		x : type</span>
+<span class="sd">		filter_name : bool or str, optional</span>
 <span class="sd">			Description of x</span>
 
 <span class="sd">		Examples</span>
@@ -383,8 +392,15 @@
 
 <span class="sd">		Parameters</span>
 <span class="sd">		----------</span>
-<span class="sd">		x : type</span>
+<span class="sd">		filter_name : bool or str, optional</span>
 <span class="sd">			Description of x</span>
+
+<span class="sd">		Other Parameters</span>
+<span class="sd">		----------------</span>
+<span class="sd">		**kwargs</span>
+<span class="sd">			Optional keyword arguments for plotting.  See the </span>
+<span class="sd">			plotting section of the curie API for a complete</span>
+<span class="sd">			list of kwargs.</span>
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>

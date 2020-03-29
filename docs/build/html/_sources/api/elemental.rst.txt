@@ -1,0 +1,8 @@
+.. _elemental:
+
+=======
+Element
+=======
+
+.. autoclass:: curie.Element
+	:members:

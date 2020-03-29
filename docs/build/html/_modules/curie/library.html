@@ -40,66 +40,251 @@
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
 
+<span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
 <span class="kn">from</span> <span class="nn">.data</span> <span class="kn">import</span> <span class="n">_get_connection</span>
+<span class="kn">from</span> <span class="nn">.isotope</span> <span class="kn">import</span> <span class="n">Isotope</span>
 
 <div class="viewcode-block" id="Library"><a class="viewcode-back" href="../../api/library.html#curie.Library">[docs]</a><span class="k">class</span> <span class="nc">Library</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-	<span class="sd">&quot;&quot;&quot;Library</span>
+	<span class="sd">&quot;&quot;&quot;Library of nuclear reaction data</span>
 
-<span class="sd">	...</span>
+<span class="sd">	Provides a means of searching and retrieving data from various nuclear reaction</span>
+<span class="sd">	libraries.  The currently available libraries are ENDF/B-VII.1, TENDL-2015, IRDFF-II,</span>
+<span class="sd">	and the IAEA Medical Monitor reaction library.  For neutrons, the libraries are</span>
+<span class="sd">	categorized by either the exlusive reaction, as in ENDF, TENDL, and partially IRDFF,</span>
+<span class="sd">	or by the residual product (rp), in TENDL and partially IRDFF.  For charged particles,</span>
+<span class="sd">	all libraries (TENDL, IAEA) are categorized by the residual product.  As such, TENDL</span>
+<span class="sd">	is split into separate libraries based on incident particle, and by exclusive reaction</span>
+<span class="sd">	type or residual product.</span>
 <span class="sd">	</span>
 <span class="sd">	Parameters</span>
 <span class="sd">	----------</span>
-<span class="sd">	x : type</span>
-<span class="sd">		Description of parameter `x`.</span>
+<span class="sd">	name : str</span>
+<span class="sd">		The name of the library.  For exclusive neutron reactions, use &#39;endf&#39;, &#39;tendl&#39;, </span>
+<span class="sd">		or &#39;irdff&#39;.  For residual product neutron reactions, use &#39;tendl_n&#39; or &#39;irdff&#39;.  Use</span>
+<span class="sd">		&#39;tendl_p&#39; for proton reactions, &#39;tendl_d&#39; for deuteron reactions, or &#39;iaea&#39; for either.</span>
 
 <span class="sd">	Examples</span>
 <span class="sd">	--------</span>
+<span class="sd">	&gt;&gt;&gt; lb = ci.Library(&#39;tendl_n&#39;)</span>
+<span class="sd">	&gt;&gt;&gt; print(lb.name)</span>
+<span class="sd">	TENDL-2015</span>
+<span class="sd">	&gt;&gt;&gt; lb = ci.Library(&#39;endf&#39;)</span>
+<span class="sd">	&gt;&gt;&gt; print(lb.name)</span>
+<span class="sd">	ENDF/B-VII.1</span>
 
 <span class="sd">	&quot;&quot;&quot;</span>
 
 	<span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-		<span class="k">pass</span>
+		<span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+		<span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;endf&#39;</span><span class="p">]:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">db_name</span> <span class="o">=</span> <span class="s1">&#39;endf&#39;</span>
+		<span class="k">elif</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;tendl&#39;</span><span class="p">]:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">db_name</span> <span class="o">=</span> <span class="s1">&#39;tendl&#39;</span>
+		<span class="k">elif</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;tendl_n_rp&#39;</span><span class="p">,</span><span class="s1">&#39;tendl_nrp&#39;</span><span class="p">,</span><span class="s1">&#39;tendl_n&#39;</span><span class="p">,</span><span class="s1">&#39;nrp&#39;</span><span class="p">,</span><span class="s1">&#39;rpn&#39;</span><span class="p">]:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">db_name</span> <span class="o">=</span> <span class="s1">&#39;tendl_n_rp&#39;</span>
+		<span class="k">elif</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;tendl_p_rp&#39;</span><span class="p">,</span><span class="s1">&#39;tendl_prp&#39;</span><span class="p">,</span><span class="s1">&#39;tendl_p&#39;</span><span class="p">,</span><span class="s1">&#39;prp&#39;</span><span class="p">,</span><span class="s1">&#39;rpp&#39;</span><span class="p">]:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">db_name</span> <span class="o">=</span> <span class="s1">&#39;tendl_p_rp&#39;</span>
+		<span class="k">elif</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;tendl_d_rp&#39;</span><span class="p">,</span><span class="s1">&#39;tendl_drp&#39;</span><span class="p">,</span><span class="s1">&#39;tendl_d&#39;</span><span class="p">,</span><span class="s1">&#39;drp&#39;</span><span class="p">,</span><span class="s1">&#39;rpd&#39;</span><span class="p">]:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">db_name</span> <span class="o">=</span> <span class="s1">&#39;tendl_d_rp&#39;</span>
+		<span class="k">elif</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;irdff&#39;</span><span class="p">]:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">db_name</span> <span class="o">=</span> <span class="s1">&#39;irdff&#39;</span>
+		<span class="k">elif</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;iaea&#39;</span><span class="p">,</span><span class="s1">&#39;iaea-cpr&#39;</span><span class="p">,</span><span class="s1">&#39;iaea-monitor&#39;</span><span class="p">,</span><span class="s1">&#39;cpr&#39;</span><span class="p">,</span><span class="s1">&#39;iaea_cpr&#39;</span><span class="p">,</span><span class="s1">&#39;iaea_monitor&#39;</span><span class="p">,</span><span class="s1">&#39;medical&#39;</span><span class="p">,</span><span class="s1">&#39;iaea-medical&#39;</span><span class="p">,</span><span class="s1">&#39;iaea_medical&#39;</span><span class="p">]:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">db_name</span> <span class="o">=</span> <span class="s1">&#39;iaea_medical&#39;</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Library </span><span class="si">{}</span><span class="s1"> not recognized.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">_con</span> <span class="o">=</span> <span class="n">_get_connection</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">db_name</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;endf&#39;</span><span class="p">:</span><span class="s1">&#39;ENDF/B-VII.1&#39;</span><span class="p">,</span><span class="s1">&#39;tendl&#39;</span><span class="p">:</span><span class="s1">&#39;TENDL-2015&#39;</span><span class="p">,</span><span class="s1">&#39;irdff&#39;</span><span class="p">:</span><span class="s1">&#39;IRDFF-II&#39;</span><span class="p">,</span><span class="s1">&#39;iaea&#39;</span><span class="p">:</span><span class="s1">&#39;IAEA CP-Reference (2017)&#39;</span><span class="p">}[</span><span class="bp">self</span><span class="o">.</span><span class="n">db_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]]</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_warn</span> <span class="o">=</span> <span class="kc">True</span>
 
 	<span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-		<span class="k">pass</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
 		
 
 <div class="viewcode-block" id="Library.search"><a class="viewcode-back" href="../../api/library.html#curie.Library.search">[docs]</a>	<span class="k">def</span> <span class="nf">search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">incident</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">outgoing</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">product</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_label</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot; Description</span>
+		<span class="sd">&quot;&quot;&quot;Searches the library for reactions</span>
 
-<span class="sd">		...</span>
+<span class="sd">		Returns a list of reactions that match the specified target, incident</span>
+<span class="sd">		or outgoing projectile, or product.  Any combination of arguments can</span>
+<span class="sd">		be specified, but at least one must be specified.  Note that if the library</span>
+<span class="sd">		is a TENDL residual-product library, outgoing does not need to be specified.</span>
 
 <span class="sd">		Parameters</span>
 <span class="sd">		----------</span>
-<span class="sd">		x : type</span>
-<span class="sd">			Description of x</span>
+<span class="sd">		target : str, optional</span>
+<span class="sd">			The target nucleus.  Some libraries support natural elements, e.g. &#39;natEl&#39;.</span>
+
+<span class="sd">		incident : str, optional</span>
+<span class="sd">			Incident particle.  Must be one of &#39;n&#39;, &#39;p&#39; or &#39;d&#39;.  Only needed for IAEA</span>
+<span class="sd">			library with multiple incident projectiles optional.</span>
+
+<span class="sd">		outgoing : str, optional</span>
+<span class="sd">			Outgoing particle, or reaction shorthand.  E.g. &#39;2n&#39;, &#39;d&#39;, &#39;f&#39;, &#39;inl&#39;, &#39;x&#39;.</span>
+<span class="sd">			Does not need to be specified for TENDL residual product libraries.</span>
+
+<span class="sd">		product : str, optional</span>
+<span class="sd">			The product isotope.  Not required for some exclusive reactions, e.g. </span>
+<span class="sd">			&#39;115IN(n,g)116IN&#39; is the same as &#39;115IN(n,g)&#39;, but not the same as</span>
+<span class="sd">			&#39;115IN(n,g)116INm1&#39;.</span>
+
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+<span class="sd">		available_reactions : list of str (reaction names)</span>
+<span class="sd">			Reactions that were found in the libary matching the search criteria.</span>
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>
+<span class="sd">		&gt;&gt;&gt; lb = ci.Library(&#39;tendl_p&#39;)</span>
+<span class="sd">		&gt;&gt;&gt; print(lb.search(target=&#39;Sr-86&#39;, product=&#39;Y-86g&#39;))</span>
+<span class="sd">		[&#39;86SR(p,x)86Yg&#39;]</span>
+<span class="sd">		&gt;&gt;&gt; lb = ci.Library(&#39;endf&#39;)</span>
+<span class="sd">		&gt;&gt;&gt; print(lb.search(target=&#39;226RA&#39;, product=&#39;225RA&#39;))</span>
+<span class="sd">		[&#39;226RA(n,2n)225RA&#39;]</span>
 
 <span class="sd">		&quot;&quot;&quot;</span>
 
-		<span class="k">pass</span></div>
+		<span class="k">if</span> <span class="n">incident</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="n">incident</span> <span class="o">=</span> <span class="n">incident</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+		<span class="k">if</span> <span class="n">outgoing</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="n">outgoing</span> <span class="o">=</span> <span class="n">outgoing</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+		<span class="k">if</span> <span class="n">target</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="k">if</span> <span class="s1">&#39;-&#39;</span> <span class="ow">in</span> <span class="n">target</span><span class="p">:</span>
+				<span class="k">if</span> <span class="n">target</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;m&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">target</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;g&#39;</span><span class="p">):</span>
+					<span class="n">target</span> <span class="o">=</span> <span class="n">Isotope</span><span class="p">(</span><span class="n">target</span><span class="p">)</span><span class="o">.</span><span class="n">name</span>
+				<span class="k">else</span><span class="p">:</span>
+					<span class="n">target</span> <span class="o">=</span> <span class="n">Isotope</span><span class="p">(</span><span class="n">target</span><span class="p">)</span><span class="o">.</span><span class="n">_short_name</span>
+
+		<span class="k">if</span> <span class="n">product</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="k">if</span> <span class="s1">&#39;-&#39;</span> <span class="ow">in</span> <span class="n">product</span><span class="p">:</span>
+				<span class="k">if</span> <span class="n">product</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;m&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">product</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;g&#39;</span><span class="p">):</span>
+					<span class="n">product</span> <span class="o">=</span> <span class="n">Isotope</span><span class="p">(</span><span class="n">product</span><span class="p">)</span><span class="o">.</span><span class="n">name</span>
+				<span class="k">else</span><span class="p">:</span>
+					<span class="n">product</span> <span class="o">=</span> <span class="n">Isotope</span><span class="p">(</span><span class="n">product</span><span class="p">)</span><span class="o">.</span><span class="n">_short_name</span>
+
+		<span class="n">ss</span> <span class="o">=</span> <span class="s1">&#39;SELECT * FROM all_reactions&#39;</span>
+
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;endf&#39;</span><span class="p">,</span><span class="s1">&#39;tendl&#39;</span><span class="p">,</span><span class="s1">&#39;irdff&#39;</span><span class="p">]:</span>
+			<span class="k">if</span> <span class="n">incident</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+				<span class="k">if</span> <span class="n">incident</span><span class="o">!=</span><span class="s1">&#39;n&#39;</span><span class="p">:</span>
+					<span class="k">return</span> <span class="p">[]</span>
+			<span class="n">q</span> <span class="o">=</span> <span class="p">[(</span><span class="n">i</span><span class="o">+</span><span class="s1">&#39;%&#39;</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">n</span><span class="o">%</span><span class="mi">2</span> <span class="k">else</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span><span class="n">i</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">([</span><span class="n">target</span><span class="p">,</span> <span class="n">outgoing</span><span class="p">,</span> <span class="n">product</span><span class="p">])</span> <span class="k">if</span> <span class="n">i</span><span class="p">]</span>
+			<span class="n">ss</span> <span class="o">+=</span> <span class="s1">&#39; WHERE &#39;</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">q</span><span class="p">)</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+			<span class="n">ss</span> <span class="o">+=</span> <span class="s1">&#39; AND &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">[(</span><span class="s1">&#39;target LIKE ?&#39;</span> <span class="k">if</span> <span class="n">target</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">),(</span><span class="s1">&#39;outgoing=?&#39;</span> <span class="k">if</span> <span class="n">outgoing</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">),(</span><span class="s1">&#39;product LIKE ?&#39;</span> <span class="k">if</span> <span class="n">product</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">)]</span> <span class="k">if</span> <span class="n">i</span><span class="p">])</span>
+			<span class="n">reacs</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span><span class="o">.</span><span class="n">to_list</span><span class="p">()</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span><span class="n">r</span> <span class="ow">in</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="n">ss</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_con</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">q</span><span class="p">))</span><span class="o">.</span><span class="n">iterrows</span><span class="p">()]</span>
+			<span class="n">fmt</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{0}</span><span class="s1">(n,</span><span class="si">{1}</span><span class="s1">)</span><span class="si">{2}</span><span class="s1">&#39;</span>
+
+		<span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;tendl_n_rp&#39;</span><span class="p">,</span><span class="s1">&#39;tendl_p_rp&#39;</span><span class="p">,</span><span class="s1">&#39;tendl_d_rp&#39;</span><span class="p">]:</span>
+			<span class="k">if</span> <span class="n">incident</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+				<span class="k">if</span> <span class="n">incident</span><span class="o">!=</span><span class="bp">self</span><span class="o">.</span><span class="n">db_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]:</span>
+					<span class="k">return</span> <span class="p">[]</span>
+
+			<span class="k">if</span> <span class="n">product</span><span class="p">:</span>
+				<span class="k">if</span> <span class="s1">&#39;m&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">product</span> <span class="ow">and</span> <span class="s1">&#39;g&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">product</span><span class="p">:</span>
+					<span class="n">product</span> <span class="o">+=</span> <span class="s1">&#39;g&#39;</span>
+					<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_warn</span><span class="p">:</span>
+						<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;WARNING: Product isomeric state not specified, ground state assumed.&#39;</span><span class="p">)</span>
+						<span class="bp">self</span><span class="o">.</span><span class="n">_warn</span> <span class="o">=</span> <span class="kc">False</span>
+
+			<span class="n">q</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="s1">&#39;%&#39;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">[</span><span class="n">target</span><span class="p">,</span> <span class="n">product</span><span class="p">]</span> <span class="k">if</span> <span class="n">i</span><span class="p">]</span>
+			<span class="n">ss</span> <span class="o">+=</span> <span class="s1">&#39; WHERE &#39;</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">q</span><span class="p">)</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+			<span class="n">ss</span> <span class="o">+=</span> <span class="s1">&#39; AND &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">[(</span><span class="s1">&#39;target LIKE ?&#39;</span> <span class="k">if</span> <span class="n">target</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">),(</span><span class="s1">&#39;product LIKE ?&#39;</span> <span class="k">if</span> <span class="n">product</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">)]</span> <span class="k">if</span> <span class="n">i</span><span class="p">])</span>
+			<span class="n">reacs</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span><span class="o">.</span><span class="n">to_list</span><span class="p">()</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span><span class="n">r</span> <span class="ow">in</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="n">ss</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_con</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">q</span><span class="p">))</span><span class="o">.</span><span class="n">iterrows</span><span class="p">()]</span>
+			<span class="n">fmt</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{0}</span><span class="s1">(&#39;</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">db_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;,x)</span><span class="si">{1}</span><span class="s1">&#39;</span>
+
+		<span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_name</span><span class="o">==</span><span class="s1">&#39;iaea_medical&#39;</span><span class="p">:</span>
+			<span class="n">q</span> <span class="o">=</span> <span class="p">[(</span><span class="n">i</span><span class="o">+</span><span class="s1">&#39;%&#39;</span> <span class="k">if</span> <span class="n">n</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span> <span class="k">else</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span><span class="n">i</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">([</span><span class="n">target</span><span class="p">,</span> <span class="n">incident</span><span class="p">,</span> <span class="n">outgoing</span><span class="p">,</span> <span class="n">product</span><span class="p">])</span> <span class="k">if</span> <span class="n">i</span><span class="p">]</span>
+			<span class="n">ss</span> <span class="o">+=</span> <span class="s1">&#39; WHERE &#39;</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">q</span><span class="p">)</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+			<span class="n">ss</span> <span class="o">+=</span> <span class="s1">&#39; AND &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">[(</span><span class="s1">&#39;target LIKE ?&#39;</span> <span class="k">if</span> <span class="n">target</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">),(</span><span class="s1">&#39;incident=?&#39;</span> <span class="k">if</span> <span class="n">incident</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">),(</span><span class="s1">&#39;outgoing=?&#39;</span> <span class="k">if</span> <span class="n">outgoing</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">),(</span><span class="s1">&#39;product LIKE ?&#39;</span> <span class="k">if</span> <span class="n">product</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">)]</span> <span class="k">if</span> <span class="n">i</span><span class="p">])</span>
+			<span class="n">reacs</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span><span class="o">.</span><span class="n">to_list</span><span class="p">()</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span><span class="n">r</span> <span class="ow">in</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="n">ss</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_con</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">q</span><span class="p">))</span><span class="o">.</span><span class="n">iterrows</span><span class="p">()]</span>
+			<span class="n">fmt</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{0}</span><span class="s1">(</span><span class="si">{1}</span><span class="s1">,</span><span class="si">{2}</span><span class="s1">)</span><span class="si">{3}</span><span class="s1">&#39;</span>
+
+		<span class="k">if</span> <span class="n">target</span><span class="p">:</span>
+			<span class="n">reacs</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">reacs</span> <span class="k">if</span> <span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">==</span><span class="n">target</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span>
+		<span class="k">if</span> <span class="n">_label</span><span class="p">:</span>
+			<span class="k">return</span> <span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">reacs</span><span class="p">]</span>
+
+		<span class="k">return</span> <span class="p">[</span><span class="n">fmt</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">reacs</span><span class="p">]</span></div>
+
 		
 <div class="viewcode-block" id="Library.retrieve"><a class="viewcode-back" href="../../api/library.html#curie.Library.retrieve">[docs]</a>	<span class="k">def</span> <span class="nf">retrieve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">incident</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">outgoing</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">product</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot; Description</span>
+		<span class="sd">&quot;&quot;&quot;Pull reaction data from the library</span>
 
-<span class="sd">		...</span>
+<span class="sd">		Returns a numpy ndarray containing the reaction energy grid (in MeV),</span>
+<span class="sd">		the cross section (in mb), and for IRDFF and IAEA, the uncertainty in the </span>
+<span class="sd">		cross section (mb).  The arguments are the same as for `Library.search()`.</span>
 
 <span class="sd">		Parameters</span>
 <span class="sd">		----------</span>
-<span class="sd">		x : type</span>
-<span class="sd">			Description of x</span>
+<span class="sd">		target : str, optional</span>
+<span class="sd">			The target nucleus.  Some libraries support natural elements, e.g. &#39;natEl&#39;.</span>
+
+<span class="sd">		incident : str, optional</span>
+<span class="sd">			Incident particle.  Must be one of &#39;n&#39;, &#39;p&#39; or &#39;d&#39;.  Only needed for IAEA</span>
+<span class="sd">			library with multiple incident projectiles optional.</span>
+
+<span class="sd">		outgoing : str, optional</span>
+<span class="sd">			Outgoing particle, or reaction shorthand.  E.g. &#39;2n&#39;, &#39;d&#39;, &#39;f&#39;, &#39;inl&#39;, &#39;x&#39;.</span>
+<span class="sd">			Does not need to be specified for TENDL residual product libraries.</span>
+
+<span class="sd">		product : str, optional</span>
+<span class="sd">			The product isotope.  Not required for some exclusive reactions, e.g. </span>
+<span class="sd">			&#39;115IN(n,g)116IN&#39; is the same as &#39;115IN(n,g)&#39;, but not the same as</span>
+<span class="sd">			&#39;115IN(n,g)116INm1&#39;.</span>
+
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+<span class="sd">		reaction : np.ndarray</span>
+<span class="sd">			Numpy ndarray containing the reaction data. Energy is in MeV, cross section</span>
+<span class="sd">			is in mb.  The first column is energy, the second column is cross section, and</span>
+<span class="sd">			if the library provides uncertainties in cross section this will be in the third column.</span>
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>
+<span class="sd">		&gt;&gt;&gt; lb = ci.Library(&#39;endf&#39;)</span>
+<span class="sd">		&gt;&gt;&gt; print(lb.retrieve(target=&#39;226RA&#39;, product=&#39;225RA&#39;)[-8:])</span>
+<span class="sd">		[[18.5      11.97908 ]</span>
+<span class="sd">		 [18.75     10.30011 ]</span>
+<span class="sd">		 [19.        8.62115 ]</span>
+<span class="sd">		 [19.25      6.942188]</span>
+<span class="sd">		 [19.5       5.263225]</span>
+<span class="sd">		 [19.75      3.584263]</span>
+<span class="sd">		 [19.875     2.744781]</span>
+<span class="sd">		 [20.        1.9053  ]]</span>
 
 <span class="sd">		&quot;&quot;&quot;</span>
 
-		<span class="k">pass</span></div></div>
+		<span class="n">labels</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">incident</span><span class="p">,</span> <span class="n">outgoing</span><span class="p">,</span> <span class="n">product</span><span class="p">,</span> <span class="n">_label</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+		<span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{0}</span><span class="s1">(</span><span class="si">{1}</span><span class="s1">,</span><span class="si">{2}</span><span class="s1">)</span><span class="si">{3}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">incident</span><span class="p">,</span> <span class="n">outgoing</span><span class="p">,</span> <span class="n">product</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; is not a unique reaction.&#39;</span><span class="p">)</span>
+
+		<span class="k">if</span> <span class="ow">not</span> <span class="n">target</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Target Must be specified.&#39;</span><span class="p">)</span>
+
+		<span class="k">if</span> <span class="s1">&#39;-&#39;</span> <span class="ow">in</span> <span class="n">target</span><span class="p">:</span>
+			<span class="k">if</span> <span class="n">target</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;m&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">target</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;g&#39;</span><span class="p">):</span>
+				<span class="n">target</span> <span class="o">=</span> <span class="n">Isotope</span><span class="p">(</span><span class="n">target</span><span class="p">)</span><span class="o">.</span><span class="n">name</span>
+			<span class="k">else</span><span class="p">:</span>
+				<span class="n">target</span> <span class="o">=</span> <span class="n">Isotope</span><span class="p">(</span><span class="n">target</span><span class="p">)</span><span class="o">.</span><span class="n">_short_name</span>
+
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;endf&#39;</span><span class="p">,</span><span class="s1">&#39;tendl&#39;</span><span class="p">,</span><span class="s1">&#39;tendl_n_rp&#39;</span><span class="p">,</span><span class="s1">&#39;tendl_p_rp&#39;</span><span class="p">,</span><span class="s1">&#39;tendl_d_rp&#39;</span><span class="p">]:</span>
+			<span class="n">table</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s1">&#39;[A-Z]+&#39;</span><span class="p">,</span> <span class="n">target</span><span class="p">))</span><span class="o">+</span><span class="s1">&#39;_&#39;</span><span class="o">+</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s1">&#39;[0-9]+&#39;</span><span class="p">,</span> <span class="n">target</span><span class="p">))</span><span class="o">+</span><span class="p">(</span><span class="s1">&#39;m&#39;</span> <span class="k">if</span> <span class="s1">&#39;m&#39;</span> <span class="ow">in</span> <span class="n">target</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+			<span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s1">&#39;SELECT energy,</span><span class="si">{0}</span><span class="s1"> FROM </span><span class="si">{1}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">labels</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">table</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_con</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">*</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1E-6</span><span class="p">,</span> <span class="mf">1E3</span><span class="p">])</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_name</span><span class="o">==</span><span class="s1">&#39;endf&#39;</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+
+		<span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_name</span><span class="o">==</span><span class="s1">&#39;irdff&#39;</span><span class="p">:</span>
+			<span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s1">&#39;SELECT * FROM </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">labels</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_con</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1E-6</span><span class="p">,</span> <span class="mf">1E3</span><span class="p">,</span> <span class="mf">1E3</span><span class="p">])</span>
+
+		<span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_name</span><span class="o">==</span><span class="s1">&#39;iaea_medical&#39;</span><span class="p">:</span>
+			<span class="k">if</span> <span class="n">incident</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+				<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Incident particle must be specified.&#39;</span><span class="p">)</span>
+			<span class="n">table</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;n&#39;</span><span class="p">:</span><span class="s1">&#39;neutron&#39;</span><span class="p">,</span><span class="s1">&#39;p&#39;</span><span class="p">:</span><span class="s1">&#39;proton&#39;</span><span class="p">,</span><span class="s1">&#39;d&#39;</span><span class="p">:</span><span class="s1">&#39;deuteron&#39;</span><span class="p">,</span><span class="s1">&#39;h&#39;</span><span class="p">:</span><span class="s1">&#39;helion&#39;</span><span class="p">,</span><span class="s1">&#39;a&#39;</span><span class="p">:</span><span class="s1">&#39;alpha&#39;</span><span class="p">,</span><span class="s1">&#39;g&#39;</span><span class="p">:</span><span class="s1">&#39;gamma&#39;</span><span class="p">}[</span><span class="n">incident</span><span class="p">]</span>
+			<span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s1">&#39;SELECT energy,cross_section,unc_cross_section FROM </span><span class="si">{0}</span><span class="s1"> WHERE target LIKE </span><span class="si">{1}</span><span class="s1"> AND product=</span><span class="si">{2}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="s1">&#39;%&#39;</span><span class="o">+</span><span class="n">target</span><span class="o">+</span><span class="s1">&#39;%&#39;</span><span class="p">,</span> <span class="n">labels</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_con</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span></div></div>
 		
 </pre></div>
 

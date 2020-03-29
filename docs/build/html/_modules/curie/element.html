@@ -92,7 +92,7 @@
 <span class="sd">	isotopes : list</span>
 <span class="sd">		List of isotopes with non-zero natural abundance.</span>
 
-<span class="sd">	abundances : pandas.DataFrame</span>
+<span class="sd">	abundances : pd.DataFrame</span>
 <span class="sd">		Natural abundances, in percent, for all isotopes found in nature. </span>
 <span class="sd">		Structure is a DataFrame with the columns &#39;isotope&#39;, &#39;abundance&#39;, </span>
 <span class="sd">		and &#39;unc_abundance&#39;.</span>
@@ -103,14 +103,12 @@
 <span class="sd">		you can assign a new density using `el.density = new_density` if</span>
 <span class="sd">		needed, or using the `density` keyword in either of those functions.</span>
 
-<span class="sd">	mass_coeff : pandas.DataFrame</span>
+<span class="sd">	mass_coeff : pd.DataFrame</span>
 <span class="sd">		Table of mass-attenuation coefficients as a function of photon</span>
 <span class="sd">		energy, from the NIST XCOM database.  Energies are in keV, and</span>
 <span class="sd">		mass-attenuation coefficients, or mu/rho, are given in cm^2/g.</span>
 <span class="sd">		DataFrame columns are &#39;energy&#39;, &#39;mu&#39; and &#39;mu_en&#39; for the </span>
 <span class="sd">		mass-energy absorption coefficient.</span>
-
-
 
 <span class="sd">	Examples</span>
 <span class="sd">	--------</span>
@@ -143,15 +141,61 @@
 	<span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
 
-	<span class="k">def</span> <span class="nf">mu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">):</span>
+<div class="viewcode-block" id="Element.mu"><a class="viewcode-back" href="../../api/element.html#curie.Element.mu">[docs]</a>	<span class="k">def</span> <span class="nf">mu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Mass-attenuation coefficient</span>
+
+<span class="sd">		Interpolates the mass-attenuation coefficient, mu/rho,</span>
+<span class="sd">		for the element along the input energy grid.</span>
+
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">		energy : array_like</span>
+<span class="sd">			The incident photon energy, in keV.</span>
+
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+<span class="sd">		mu : np.ndarray</span>
+<span class="sd">			Mass attenuation coefficient, mu/rho, in cm^2/g.</span>
+
+<span class="sd">		Examples</span>
+<span class="sd">		--------</span>
+<span class="sd">		&gt;&gt;&gt; el = ci.Element(&#39;Hg&#39;)</span>
+<span class="sd">		&gt;&gt;&gt; print(el.mu(200))</span>
+<span class="sd">		0.9456</span>
+
+<span class="sd">		&quot;&quot;&quot;</span>
+
 		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mc_interp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
 			<span class="bp">self</span><span class="o">.</span><span class="n">_mc_interp</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mass_coeff</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mass_coeff</span><span class="p">[</span><span class="s1">&#39;mu&#39;</span><span class="p">]),</span> <span class="n">bounds_error</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="s1">&#39;extrapolate&#39;</span><span class="p">)</span>
-		<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mc_interp</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">energy</span><span class="p">)))</span>
+		<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mc_interp</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">energy</span><span class="p">)))</span></div>
 
-	<span class="k">def</span> <span class="nf">mu_en</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">):</span>
+<div class="viewcode-block" id="Element.mu_en"><a class="viewcode-back" href="../../api/element.html#curie.Element.mu_en">[docs]</a>	<span class="k">def</span> <span class="nf">mu_en</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Mass energy-absorption coefficient</span>
+
+<span class="sd">		Interpolates the mass-energy absorption coefficient, mu_en/rho,</span>
+<span class="sd">		for the element along the input energy grid.</span>
+
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">		energy : array_like</span>
+<span class="sd">			The incident photon energy, in keV.</span>
+
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+<span class="sd">		mu_en : np.ndarray</span>
+<span class="sd">			Mass energy absorption coefficient, mu_en/rho, in cm^2/g.</span>
+
+<span class="sd">		Examples</span>
+<span class="sd">		--------</span>
+<span class="sd">		&gt;&gt;&gt; el = ci.Element(&#39;Hg&#39;)</span>
+<span class="sd">		&gt;&gt;&gt; print(el.mu_en(200))</span>
+<span class="sd">		0.5661</span>
+
+<span class="sd">		&quot;&quot;&quot;</span>
+
 		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mc_en_interp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
 			<span class="bp">self</span><span class="o">.</span><span class="n">_mc_en_interp</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mass_coeff</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mass_coeff</span><span class="p">[</span><span class="s1">&#39;mu_en&#39;</span><span class="p">]),</span> <span class="n">bounds_error</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="s1">&#39;extrapolate&#39;</span><span class="p">)</span>
-		<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mc_en_interp</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">energy</span><span class="p">)))</span>
+		<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mc_en_interp</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">energy</span><span class="p">)))</span></div>
 
 <div class="viewcode-block" id="Element.attenuation"><a class="viewcode-back" href="../../api/element.html#curie.Element.attenuation">[docs]</a>	<span class="k">def</span> <span class="nf">attenuation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;Photon attenuation in matter</span>
@@ -173,7 +217,7 @@
 
 <span class="sd">		Returns</span>
 <span class="sd">		-------</span>
-<span class="sd">		numpy.ndarray</span>
+<span class="sd">		attenuation : numpy.ndarray</span>
 <span class="sd">			The slab attenuation factor as an absolute number (i.e. from 0 to 1).</span>
 <span class="sd">			E.g. if the incident intensity is I_0, the transmitted intensity I(x) </span>
 <span class="sd">			is I_0 times the attenuation factor.</span>
@@ -320,7 +364,7 @@
 
 <span class="sd">		Returns</span>
 <span class="sd">		-------</span>
-<span class="sd">		numpy.ndarray</span>
+<span class="sd">		stopping_power : numpy.ndarray</span>
 <span class="sd">			Stopping power, S=-dE/dx, for a given ion as a function of the </span>
 <span class="sd">			ion energy in MeV.  Units of S are MeV/cm.</span>
 
@@ -376,7 +420,7 @@
 <span class="sd">		</span>
 <span class="sd">		Returns</span>
 <span class="sd">		-------</span>
-<span class="sd">		array_like</span>
+<span class="sd">		range : np.ndarray</span>
 <span class="sd">			Charged particle range in the element, in cm.</span>
 
 <span class="sd">		Examples</span>

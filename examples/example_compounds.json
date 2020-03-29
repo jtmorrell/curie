@@ -1,6 +1,20 @@
-{
-"Brass":{"Zn":-33,
-		 "Cu":-66},
-"Bronze":{"Cu":-80,
-		  "Sn":-20}
-}
+[
+	{
+		"compound": "Brass",
+		"element": "Zn",
+		"weight": -33
+	},
+	{
+		"element": "Cu",
+		"weight": -66
+	},
+	{
+		"compound": "Bronze",
+		"element": "Cu",
+		"weight": -80
+	},
+	{
+		"element": "Sn",
+		"weight": -20
+	}
+]

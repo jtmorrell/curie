@@ -39,30 +39,30 @@
 <span id="id1"></span><h1>6. Calibration<a class="headerlink" href="#calibration" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="curie.Calibration">
-<em class="property">class </em><code class="descclassname">curie.</code><code class="descname">Calibration</code><span class="sig-paren">(</span><em>filename=None</em>, <em>sources=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Calibration" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">curie.</code><code class="descname">Calibration</code><span class="sig-paren">(</span><em>filename=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Calibration" title="Permalink to this definition">¶</a></dt>
 <dd><p>…</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>x</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
+<dt><strong>filename</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
 <dd><p class="first last">Description of parameter <cite>x</cite>.</p>
 </dd>
 </dl>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>engcal</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
+<dt><strong>engcal</strong> <span class="classifier-delimiter">:</span> <span class="classifier">np.ndarray</span></dt>
 <dd><p class="first last">Description of parameter</p>
 </dd>
-<dt><strong>effcal</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
+<dt><strong>effcal</strong> <span class="classifier-delimiter">:</span> <span class="classifier">np.ndarray</span></dt>
 <dd><p class="first last">Description of parameter</p>
 </dd>
-<dt><strong>unc_effcal</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
+<dt><strong>unc_effcal</strong> <span class="classifier-delimiter">:</span> <span class="classifier">np.ndarray</span></dt>
 <dd><p class="first last">Description of parameter</p>
 </dd>
-<dt><strong>rescal</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
+<dt><strong>rescal</strong> <span class="classifier-delimiter">:</span> <span class="classifier">np.ndarray</span></dt>
 <dd><p class="first last">Description of parameter</p>
 </dd>
 </dl>
@@ -77,22 +77,22 @@
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#curie.Calibration.calibrate" title="curie.Calibration.calibrate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calibrate</span></code></a>(spectra)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#curie.Calibration.calibrate" title="curie.Calibration.calibrate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calibrate</span></code></a>(spectra,&nbsp;sources)</td>
 <td>Description</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#curie.Calibration.eff" title="curie.Calibration.eff"><code class="xref py py-obj docutils literal notranslate"><span class="pre">eff</span></code></a>(energy,&nbsp;*cal)</td>
+<tr class="row-even"><td><a class="reference internal" href="#curie.Calibration.eff" title="curie.Calibration.eff"><code class="xref py py-obj docutils literal notranslate"><span class="pre">eff</span></code></a>(energy[,&nbsp;effcal])</td>
 <td>Description</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#curie.Calibration.eng" title="curie.Calibration.eng"><code class="xref py py-obj docutils literal notranslate"><span class="pre">eng</span></code></a>(channel,&nbsp;*cal)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#curie.Calibration.eng" title="curie.Calibration.eng"><code class="xref py py-obj docutils literal notranslate"><span class="pre">eng</span></code></a>(channel[,&nbsp;engcal])</td>
 <td>Description</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#curie.Calibration.map_channel" title="curie.Calibration.map_channel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">map_channel</span></code></a>(energy,&nbsp;*cal)</td>
+<tr class="row-even"><td><a class="reference internal" href="#curie.Calibration.map_channel" title="curie.Calibration.map_channel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">map_channel</span></code></a>(energy[,&nbsp;engcal])</td>
 <td>Description</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#curie.Calibration.plot" title="curie.Calibration.plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot</span></code></a>(**kwargs)</td>
 <td>Description</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#curie.Calibration.plot_effcal" title="curie.Calibration.plot_effcal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_effcal</span></code></a>([shelves])</td>
+<tr class="row-even"><td><a class="reference internal" href="#curie.Calibration.plot_effcal" title="curie.Calibration.plot_effcal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_effcal</span></code></a>(**kwargs)</td>
 <td>Description</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#curie.Calibration.plot_engcal" title="curie.Calibration.plot_engcal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_engcal</span></code></a>(**kwargs)</td>
@@ -101,20 +101,20 @@
 <tr class="row-even"><td><a class="reference internal" href="#curie.Calibration.plot_rescal" title="curie.Calibration.plot_rescal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_rescal</span></code></a>(**kwargs)</td>
 <td>Description</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#curie.Calibration.res" title="curie.Calibration.res"><code class="xref py py-obj docutils literal notranslate"><span class="pre">res</span></code></a>(channel,&nbsp;*cal)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#curie.Calibration.res" title="curie.Calibration.res"><code class="xref py py-obj docutils literal notranslate"><span class="pre">res</span></code></a>(channel[,&nbsp;rescal])</td>
 <td>Description</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#curie.Calibration.saveas" title="curie.Calibration.saveas"><code class="xref py py-obj docutils literal notranslate"><span class="pre">saveas</span></code></a>(filename)</td>
 <td>Description</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#curie.Calibration.unc_eff" title="curie.Calibration.unc_eff"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unc_eff</span></code></a>(energy[,&nbsp;cal,&nbsp;unc])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#curie.Calibration.unc_eff" title="curie.Calibration.unc_eff"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unc_eff</span></code></a>(energy[,&nbsp;effcal,&nbsp;unc_effcal])</td>
 <td>Description</td>
 </tr>
 </tbody>
 </table>
 <dl class="method">
 <dt id="curie.Calibration.calibrate">
-<code class="descname">calibrate</code><span class="sig-paren">(</span><em>spectra</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration.calibrate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Calibration.calibrate" title="Permalink to this definition">¶</a></dt>
+<code class="descname">calibrate</code><span class="sig-paren">(</span><em>spectra</em>, <em>sources</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration.calibrate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Calibration.calibrate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Description</p>
 <p>…</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -122,8 +122,11 @@
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>x</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
+<dt><strong>spectra</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of sp.Spectrum</span></dt>
 <dd><p class="first last">Description of x</p>
+</dd>
+<dt><strong>sources</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, list, dict or pd.DataFrame</span></dt>
+<dd><p class="first last">Description</p>
 </dd>
 </dl>
 </td>
@@ -134,16 +137,26 @@
 
 <dl class="method">
 <dt id="curie.Calibration.eff">
-<code class="descname">eff</code><span class="sig-paren">(</span><em>energy</em>, <em>*cal</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration.eff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Calibration.eff" title="Permalink to this definition">¶</a></dt>
+<code class="descname">eff</code><span class="sig-paren">(</span><em>energy</em>, <em>effcal=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration.eff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Calibration.eff" title="Permalink to this definition">¶</a></dt>
 <dd><p>Description</p>
 <p>…</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>x</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>energy</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
 <dd><p class="first last">Description of x</p>
+</dd>
+<dt><strong>effcal</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like, optional</span></dt>
+<dd><p class="first last">Description of x</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>type</strong></dt>
+<dd><p class="first last">Description</p>
 </dd>
 </dl>
 </td>
@@ -154,16 +167,26 @@
 
 <dl class="method">
 <dt id="curie.Calibration.eng">
-<code class="descname">eng</code><span class="sig-paren">(</span><em>channel</em>, <em>*cal</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration.eng"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Calibration.eng" title="Permalink to this definition">¶</a></dt>
+<code class="descname">eng</code><span class="sig-paren">(</span><em>channel</em>, <em>engcal=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration.eng"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Calibration.eng" title="Permalink to this definition">¶</a></dt>
 <dd><p>Description</p>
 <p>…</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>x</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>channel</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
 <dd><p class="first last">Description of x</p>
+</dd>
+<dt><strong>engcal</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like, optional</span></dt>
+<dd><p class="first last">Description</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>type</strong></dt>
+<dd><p class="first last">Description</p>
 </dd>
 </dl>
 </td>
@@ -174,16 +197,26 @@
 
 <dl class="method">
 <dt id="curie.Calibration.map_channel">
-<code class="descname">map_channel</code><span class="sig-paren">(</span><em>energy</em>, <em>*cal</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration.map_channel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Calibration.map_channel" title="Permalink to this definition">¶</a></dt>
+<code class="descname">map_channel</code><span class="sig-paren">(</span><em>energy</em>, <em>engcal=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration.map_channel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Calibration.map_channel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Description</p>
 <p>…</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>x</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>energy</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
 <dd><p class="first last">Description of x</p>
+</dd>
+<dt><strong>engcal</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like, optional</span></dt>
+<dd><p class="first last">Description of x</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>type</strong></dt>
+<dd><p class="first last">Description</p>
 </dd>
 </dl>
 </td>
@@ -201,9 +234,12 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>x</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
-<dd><p class="first last">Description of x</p>
+<tr class="field-odd field"><th class="field-name" colspan="2">Other Parameters:</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body"><dl class="first last docutils">
+<dt><strong>**kwargs</strong></dt>
+<dd><p class="first last">Optional keyword arguments for plotting.  See the 
+plotting section of the curie API for a complete
+list of kwargs.</p>
 </dd>
 </dl>
 </td>
@@ -214,16 +250,19 @@
 
 <dl class="method">
 <dt id="curie.Calibration.plot_effcal">
-<code class="descname">plot_effcal</code><span class="sig-paren">(</span><em>shelves=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration.plot_effcal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Calibration.plot_effcal" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plot_effcal</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration.plot_effcal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Calibration.plot_effcal" title="Permalink to this definition">¶</a></dt>
 <dd><p>Description</p>
 <p>…</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>x</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
-<dd><p class="first last">Description of x</p>
+<tr class="field-odd field"><th class="field-name" colspan="2">Other Parameters:</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body"><dl class="first last docutils">
+<dt><strong>**kwargs</strong></dt>
+<dd><p class="first last">Optional keyword arguments for plotting.  See the 
+plotting section of the curie API for a complete
+list of kwargs.</p>
 </dd>
 </dl>
 </td>
@@ -241,9 +280,12 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>x</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
-<dd><p class="first last">Description of x</p>
+<tr class="field-odd field"><th class="field-name" colspan="2">Other Parameters:</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body"><dl class="first last docutils">
+<dt><strong>**kwargs</strong></dt>
+<dd><p class="first last">Optional keyword arguments for plotting.  See the 
+plotting section of the curie API for a complete
+list of kwargs.</p>
 </dd>
 </dl>
 </td>
@@ -261,9 +303,12 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>x</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
-<dd><p class="first last">Description of x</p>
+<tr class="field-odd field"><th class="field-name" colspan="2">Other Parameters:</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body"><dl class="first last docutils">
+<dt><strong>**kwargs</strong></dt>
+<dd><p class="first last">Optional keyword arguments for plotting.  See the 
+plotting section of the curie API for a complete
+list of kwargs.</p>
 </dd>
 </dl>
 </td>
@@ -274,16 +319,26 @@
 
 <dl class="method">
 <dt id="curie.Calibration.res">
-<code class="descname">res</code><span class="sig-paren">(</span><em>channel</em>, <em>*cal</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration.res"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Calibration.res" title="Permalink to this definition">¶</a></dt>
+<code class="descname">res</code><span class="sig-paren">(</span><em>channel</em>, <em>rescal=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration.res"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Calibration.res" title="Permalink to this definition">¶</a></dt>
 <dd><p>Description</p>
 <p>…</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>x</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>channel</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
 <dd><p class="first last">Description of x</p>
+</dd>
+<dt><strong>rescal</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like, optional</span></dt>
+<dd><p class="first last">Description of x</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>type</strong></dt>
+<dd><p class="first last">Description</p>
 </dd>
 </dl>
 </td>
@@ -302,7 +357,7 @@
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>x</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
+<dt><strong>filename</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
 <dd><p class="first last">Description of x</p>
 </dd>
 </dl>
@@ -314,16 +369,29 @@
 
 <dl class="method">
 <dt id="curie.Calibration.unc_eff">
-<code class="descname">unc_eff</code><span class="sig-paren">(</span><em>energy</em>, <em>cal=None</em>, <em>unc=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration.unc_eff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Calibration.unc_eff" title="Permalink to this definition">¶</a></dt>
+<code class="descname">unc_eff</code><span class="sig-paren">(</span><em>energy</em>, <em>effcal=None</em>, <em>unc_effcal=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration.unc_eff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Calibration.unc_eff" title="Permalink to this definition">¶</a></dt>
 <dd><p>Description</p>
 <p>…</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>x</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>energy</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
 <dd><p class="first last">Description of x</p>
+</dd>
+<dt><strong>effcal</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like, optional</span></dt>
+<dd><p class="first last">Description of x</p>
+</dd>
+<dt><strong>unc_effcal</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like, optional</span></dt>
+<dd><p class="first last">Description of x</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>type</strong></dt>
+<dd><p class="first last">Description</p>
 </dd>
 </dl>
 </td>

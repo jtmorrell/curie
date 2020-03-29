@@ -39,24 +39,36 @@
 <span id="decaychain"></span><h1>8. Decay Chain<a class="headerlink" href="#decay-chain" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="curie.DecayChain">
-<em class="property">class </em><code class="descclassname">curie.</code><code class="descname">DecayChain</code><span class="sig-paren">(</span><em>parent_isotope</em>, <em>units='s'</em>, <em>R=None</em>, <em>A0=None</em>, <em>decay_time=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/decay_chain.html#DecayChain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.DecayChain" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">curie.</code><code class="descname">DecayChain</code><span class="sig-paren">(</span><em>parent_isotope</em>, <em>R=None</em>, <em>A0=None</em>, <em>units='s'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/decay_chain.html#DecayChain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.DecayChain" title="Permalink to this definition">¶</a></dt>
 <dd><p>…</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>x</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
-<dd><p class="first last">Description of parameter <cite>x</cite>.</p>
+<dt><strong>parent_isotope</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">Description of parameter x</p>
+</dd>
+<dt><strong>R</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, array_like, dict or pd.DataFrame</span></dt>
+<dd><p class="first last">Description of parameter x</p>
+</dd>
+<dt><strong>A0</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float or dict</span></dt>
+<dd><p class="first last">Description of parameter x</p>
+</dd>
+<dt><strong>units</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
+<dd><p class="first last">Description of parameter x</p>
 </dd>
 </dl>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>isotopes</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
+<dt><strong>isotopes</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
 <dd><p class="first last">Description</p>
 </dd>
-<dt><strong>counts</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
+<dt><strong>counts</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pd.DataFrame</span></dt>
+<dd><p class="first last">Description</p>
+</dd>
+<dt><strong>R_avg</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pd.DataFrame</span></dt>
 <dd><p class="first last">Description</p>
 </dd>
 </dl>
@@ -71,44 +83,51 @@
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#curie.DecayChain.activity" title="curie.DecayChain.activity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">activity</span></code></a>(isotope[,&nbsp;t,&nbsp;units])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#curie.DecayChain.activity" title="curie.DecayChain.activity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">activity</span></code></a>(isotope,&nbsp;time[,&nbsp;units,&nbsp;_R_dict,&nbsp;…])</td>
 <td>Description</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#curie.DecayChain.decays" title="curie.DecayChain.decays"><code class="xref py py-obj docutils literal notranslate"><span class="pre">decays</span></code></a>(isotope,&nbsp;t_start,&nbsp;t_stop[,&nbsp;units])</td>
+<tr class="row-even"><td><a class="reference internal" href="#curie.DecayChain.decays" title="curie.DecayChain.decays"><code class="xref py py-obj docutils literal notranslate"><span class="pre">decays</span></code></a>(isotope,&nbsp;t_start,&nbsp;t_stop[,&nbsp;units,&nbsp;…])</td>
 <td>Description</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#curie.DecayChain.fit_A0" title="curie.DecayChain.fit_A0"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_A0</span></code></a>([isotope,&nbsp;unc,&nbsp;_update])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#curie.DecayChain.fit_A0" title="curie.DecayChain.fit_A0"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_A0</span></code></a>()</td>
 <td>Description</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#curie.DecayChain.fit_R" title="curie.DecayChain.fit_R"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_R</span></code></a>([isotope,&nbsp;unc,&nbsp;_update])</td>
+<tr class="row-even"><td><a class="reference internal" href="#curie.DecayChain.fit_R" title="curie.DecayChain.fit_R"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_R</span></code></a>()</td>
 <td>Description</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#curie.DecayChain.fit_spectra" title="curie.DecayChain.fit_spectra"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_spectra</span></code></a>(spectra[,&nbsp;db,&nbsp;max_unc,&nbsp;EoB])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#curie.DecayChain.get_counts" title="curie.DecayChain.get_counts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_counts</span></code></a>(spectra,&nbsp;EoB[,&nbsp;peak_data])</td>
 <td>Description</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#curie.DecayChain.plot" title="curie.DecayChain.plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot</span></code></a>([time,&nbsp;max_plot,&nbsp;max_label])</td>
-<td>Description</td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="#curie.DecayChain.read_csv" title="curie.DecayChain.read_csv"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_csv</span></code></a>(csv[,&nbsp;spec_fnms,&nbsp;EoB])</td>
-<td>Description</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="#curie.DecayChain.read_db" title="curie.DecayChain.read_db"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_db</span></code></a>(db[,&nbsp;spec_fnms,&nbsp;EoB])</td>
 <td>Description</td>
 </tr>
 </tbody>
 </table>
 <dl class="method">
 <dt id="curie.DecayChain.activity">
-<code class="descname">activity</code><span class="sig-paren">(</span><em>isotope</em>, <em>t=None</em>, <em>units=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/decay_chain.html#DecayChain.activity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.DecayChain.activity" title="Permalink to this definition">¶</a></dt>
+<code class="descname">activity</code><span class="sig-paren">(</span><em>isotope</em>, <em>time</em>, <em>units=None</em>, <em>_R_dict=None</em>, <em>_A_dict=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/decay_chain.html#DecayChain.activity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.DecayChain.activity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Description</p>
 <p>…</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>x</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>isotope</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
 <dd><p class="first last">Description of x</p>
+</dd>
+<dt><strong>time</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
+<dd><p class="first last">Description</p>
+</dd>
+<dt><strong>units</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
+<dd><p class="first last">Description</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>np.ndarray</strong></dt>
+<dd><p class="first last">Description</p>
 </dd>
 </dl>
 </td>
@@ -119,16 +138,32 @@
 
 <dl class="method">
 <dt id="curie.DecayChain.decays">
-<code class="descname">decays</code><span class="sig-paren">(</span><em>isotope</em>, <em>t_start</em>, <em>t_stop</em>, <em>units=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/decay_chain.html#DecayChain.decays"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.DecayChain.decays" title="Permalink to this definition">¶</a></dt>
+<code class="descname">decays</code><span class="sig-paren">(</span><em>isotope</em>, <em>t_start</em>, <em>t_stop</em>, <em>units=None</em>, <em>_A_dict=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/decay_chain.html#DecayChain.decays"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.DecayChain.decays" title="Permalink to this definition">¶</a></dt>
 <dd><p>Description</p>
 <p>…</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>x</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>isotope</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
 <dd><p class="first last">Description of x</p>
+</dd>
+<dt><strong>t_start</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
+<dd><p class="first last">Description</p>
+</dd>
+<dt><strong>t_stop</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
+<dd><p class="first last">Description</p>
+</dd>
+<dt><strong>units</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
+<dd><p class="first last">Description</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>np.ndarray</strong></dt>
+<dd><p class="first last">Description</p>
 </dd>
 </dl>
 </td>
@@ -139,16 +174,22 @@
 
 <dl class="method">
 <dt id="curie.DecayChain.fit_A0">
-<code class="descname">fit_A0</code><span class="sig-paren">(</span><em>isotope=None</em>, <em>unc=False</em>, <em>_update=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/decay_chain.html#DecayChain.fit_A0"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.DecayChain.fit_A0" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fit_A0</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/decay_chain.html#DecayChain.fit_A0"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.DecayChain.fit_A0" title="Permalink to this definition">¶</a></dt>
 <dd><p>Description</p>
 <p>…</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>x</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
-<dd><p class="first last">Description of x</p>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>list</strong></dt>
+<dd><p class="first last">Description</p>
+</dd>
+<dt><strong>np.ndarray</strong></dt>
+<dd><p class="first last">Description</p>
+</dd>
+<dt><strong>np.ndarray</strong></dt>
+<dd><p class="first last">Description</p>
 </dd>
 </dl>
 </td>
@@ -159,16 +200,22 @@
 
 <dl class="method">
 <dt id="curie.DecayChain.fit_R">
-<code class="descname">fit_R</code><span class="sig-paren">(</span><em>isotope=None</em>, <em>unc=False</em>, <em>_update=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/decay_chain.html#DecayChain.fit_R"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.DecayChain.fit_R" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fit_R</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/decay_chain.html#DecayChain.fit_R"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.DecayChain.fit_R" title="Permalink to this definition">¶</a></dt>
 <dd><p>Description</p>
 <p>…</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>x</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
-<dd><p class="first last">Description of x</p>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>list</strong></dt>
+<dd><p class="first last">Description</p>
+</dd>
+<dt><strong>np.ndarray</strong></dt>
+<dd><p class="first last">Description</p>
+</dd>
+<dt><strong>np.ndarray</strong></dt>
+<dd><p class="first last">Description</p>
 </dd>
 </dl>
 </td>
@@ -178,8 +225,8 @@
 </dd></dl>
 
 <dl class="method">
-<dt id="curie.DecayChain.fit_spectra">
-<code class="descname">fit_spectra</code><span class="sig-paren">(</span><em>spectra</em>, <em>db=None</em>, <em>max_unc=0.15</em>, <em>EoB=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/decay_chain.html#DecayChain.fit_spectra"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.DecayChain.fit_spectra" title="Permalink to this definition">¶</a></dt>
+<dt id="curie.DecayChain.get_counts">
+<code class="descname">get_counts</code><span class="sig-paren">(</span><em>spectra</em>, <em>EoB</em>, <em>peak_data=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/decay_chain.html#DecayChain.get_counts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.DecayChain.get_counts" title="Permalink to this definition">¶</a></dt>
 <dd><p>Description</p>
 <p>…</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -187,8 +234,14 @@
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>x</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
+<dt><strong>spectra</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
 <dd><p class="first last">Description of x</p>
+</dd>
+<dt><strong>EoB</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str or datetime.datetime</span></dt>
+<dd><p class="first last">Description</p>
+</dd>
+<dt><strong>peak_data</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str or pd.DataFrame, optional</span></dt>
+<dd><p class="first last">Description</p>
 </dd>
 </dl>
 </td>
@@ -206,49 +259,25 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>x</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>time</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like, optional</span></dt>
 <dd><p class="first last">Description of x</p>
+</dd>
+<dt><strong>max_plot</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, optional</span></dt>
+<dd><p class="first last">Description</p>
+</dd>
+<dt><strong>max_label</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, optional</span></dt>
+<dd><p class="first last">Description</p>
 </dd>
 </dl>
 </td>
 </tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="curie.DecayChain.read_csv">
-<code class="descname">read_csv</code><span class="sig-paren">(</span><em>csv</em>, <em>spec_fnms=None</em>, <em>EoB=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/decay_chain.html#DecayChain.read_csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.DecayChain.read_csv" title="Permalink to this definition">¶</a></dt>
-<dd><p>Description</p>
-<p>…</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>x</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
-<dd><p class="first last">Description of x</p>
-</dd>
-</dl>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="curie.DecayChain.read_db">
-<code class="descname">read_db</code><span class="sig-paren">(</span><em>db</em>, <em>spec_fnms=None</em>, <em>EoB=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/decay_chain.html#DecayChain.read_db"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.DecayChain.read_db" title="Permalink to this definition">¶</a></dt>
-<dd><p>Description</p>
-<p>…</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>x</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
-<dd><p class="first last">Description of x</p>
+<tr class="field-even field"><th class="field-name" colspan="2">Other Parameters:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body"><dl class="first last docutils">
+<dt><strong>**kwargs</strong></dt>
+<dd><p class="first last">Optional keyword arguments for plotting.  See the 
+plotting section of the curie API for a complete
+list of kwargs.</p>
 </dd>
 </dl>
 </td>

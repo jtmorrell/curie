@@ -42,6 +42,13 @@
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">json</span>
+
+<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">curve_fit</span>
+
+<span class="kn">from</span> <span class="nn">.isotope</span> <span class="kn">import</span> <span class="n">Isotope</span>
+<span class="kn">from</span> <span class="nn">.plotting</span> <span class="kn">import</span> <span class="n">_init_plot</span><span class="p">,</span> <span class="n">_draw_plot</span><span class="p">,</span> <span class="n">colormap</span>
+
 
 <div class="viewcode-block" id="Calibration"><a class="viewcode-back" href="../../api/calibration.html#curie.Calibration">[docs]</a><span class="k">class</span> <span class="nc">Calibration</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 	<span class="sd">&quot;&quot;&quot;Calibration</span>
@@ -50,21 +57,21 @@
 <span class="sd">	</span>
 <span class="sd">	Parameters</span>
 <span class="sd">	----------</span>
-<span class="sd">	x : type</span>
+<span class="sd">	filename : str, optional</span>
 <span class="sd">		Description of parameter `x`.</span>
 
 <span class="sd">	Attributes</span>
 <span class="sd">	----------</span>
-<span class="sd">	engcal : type</span>
+<span class="sd">	engcal : np.ndarray</span>
 <span class="sd">		Description of parameter</span>
 
-<span class="sd">	effcal : type</span>
+<span class="sd">	effcal : np.ndarray</span>
 <span class="sd">		Description of parameter</span>
 
-<span class="sd">	unc_effcal : type</span>
+<span class="sd">	unc_effcal : np.ndarray</span>
 <span class="sd">		Description of parameter</span>
 
-<span class="sd">	rescal : type</span>
+<span class="sd">	rescal : np.ndarray</span>
 <span class="sd">		Description of parameter</span>
 
 
@@ -73,110 +80,399 @@
 
 <span class="sd">	&quot;&quot;&quot;</span>
 
-	<span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sources</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-		<span class="k">pass</span>
+	<span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_engcal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">])</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_effcal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.331</span><span class="p">,</span> <span class="mf">0.158</span><span class="p">,</span> <span class="mf">0.410</span><span class="p">,</span> <span class="mf">0.001</span><span class="p">,</span> <span class="mf">1.476</span><span class="p">])</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_unc_effcal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span> <span class="mf">5.038e-02</span><span class="p">,</span>  <span class="mf">3.266e-02</span><span class="p">,</span> <span class="o">-</span><span class="mf">2.151e-02</span><span class="p">,</span> <span class="o">-</span><span class="mf">4.869e-05</span><span class="p">,</span> <span class="o">-</span><span class="mf">7.748e-03</span><span class="p">],</span>
+									 <span class="p">[</span> <span class="mf">3.266e-02</span><span class="p">,</span>  <span class="mf">2.144e-02</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.416e-02</span><span class="p">,</span> <span class="o">-</span><span class="mf">3.416e-05</span><span class="p">,</span> <span class="o">-</span><span class="mf">4.137e-03</span><span class="p">],</span>
+									 <span class="p">[</span><span class="o">-</span><span class="mf">2.151e-02</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.416e-02</span><span class="p">,</span>  <span class="mf">9.367e-03</span><span class="p">,</span>  <span class="mf">2.294e-05</span><span class="p">,</span>  <span class="mf">2.569e-03</span><span class="p">],</span>
+									 <span class="p">[</span><span class="o">-</span><span class="mf">4.869e-05</span><span class="p">,</span> <span class="o">-</span><span class="mf">3.416e-05</span><span class="p">,</span>  <span class="mf">2.294e-05</span><span class="p">,</span>  <span class="mf">5.411e-07</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.165e-04</span><span class="p">],</span>
+									 <span class="p">[</span><span class="o">-</span><span class="mf">7.748e-03</span><span class="p">,</span> <span class="o">-</span><span class="mf">4.137e-03</span><span class="p">,</span>  <span class="mf">2.569e-03</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.165e-04</span><span class="p">,</span>  <span class="mf">3.332e-02</span><span class="p">]])</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_rescal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">4E-4</span><span class="p">])</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_calib_data</span> <span class="o">=</span> <span class="p">{}</span>
 
-<div class="viewcode-block" id="Calibration.eng"><a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.eng">[docs]</a>	<span class="k">def</span> <span class="nf">eng</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="o">*</span><span class="n">cal</span><span class="p">):</span>
+		<span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="k">if</span> <span class="n">filename</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.json&#39;</span><span class="p">):</span>
+				<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+					<span class="n">js</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+					<span class="k">if</span> <span class="s1">&#39;engcal&#39;</span> <span class="ow">in</span> <span class="n">js</span><span class="p">:</span>
+						<span class="bp">self</span><span class="o">.</span><span class="n">engcal</span> <span class="o">=</span> <span class="n">js</span><span class="p">[</span><span class="s1">&#39;engcal&#39;</span><span class="p">]</span>
+					<span class="k">if</span> <span class="s1">&#39;rescal&#39;</span> <span class="ow">in</span> <span class="n">js</span><span class="p">:</span>
+						<span class="bp">self</span><span class="o">.</span><span class="n">rescal</span> <span class="o">=</span> <span class="n">js</span><span class="p">[</span><span class="s1">&#39;rescal&#39;</span><span class="p">]</span>
+					<span class="k">if</span> <span class="s1">&#39;effcal&#39;</span> <span class="ow">in</span> <span class="n">js</span><span class="p">:</span>
+						<span class="bp">self</span><span class="o">.</span><span class="n">effcal</span> <span class="o">=</span> <span class="n">js</span><span class="p">[</span><span class="s1">&#39;effcal&#39;</span><span class="p">]</span>
+					<span class="k">if</span> <span class="s1">&#39;unc_effcal&#39;</span> <span class="ow">in</span> <span class="n">js</span><span class="p">:</span>
+						<span class="bp">self</span><span class="o">.</span><span class="n">unc_effcal</span> <span class="o">=</span> <span class="n">js</span><span class="p">[</span><span class="s1">&#39;unc_effcal&#39;</span><span class="p">]</span>
+					<span class="k">if</span> <span class="s1">&#39;_calib_data&#39;</span> <span class="ow">in</span> <span class="n">js</span><span class="p">:</span>
+						<span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;engcal&#39;</span><span class="p">,</span><span class="s1">&#39;rescal&#39;</span><span class="p">,</span><span class="s1">&#39;effcal&#39;</span><span class="p">]:</span>
+							<span class="k">if</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">js</span><span class="p">[</span><span class="s1">&#39;_calib_data&#39;</span><span class="p">]:</span>
+								<span class="bp">self</span><span class="o">.</span><span class="n">_calib_data</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">):</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">js</span><span class="p">[</span><span class="s1">&#39;_calib_data&#39;</span><span class="p">][</span><span class="n">c</span><span class="p">][</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">js</span><span class="p">[</span><span class="s1">&#39;_calib_data&#39;</span><span class="p">][</span><span class="n">c</span><span class="p">]}</span>
+
+
+	<span class="nd">@property</span>
+	<span class="k">def</span> <span class="nf">engcal</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_engcal</span>
+
+	<span class="nd">@engcal</span><span class="o">.</span><span class="n">setter</span>
+	<span class="k">def</span> <span class="nf">engcal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cal</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_engcal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">cal</span><span class="p">)</span>
+
+	<span class="nd">@property</span>
+	<span class="k">def</span> <span class="nf">effcal</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_effcal</span>
+
+	<span class="nd">@effcal</span><span class="o">.</span><span class="n">setter</span>
+	<span class="k">def</span> <span class="nf">effcal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cal</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_effcal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">cal</span><span class="p">)</span>
+
+	<span class="nd">@property</span>
+	<span class="k">def</span> <span class="nf">unc_effcal</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unc_effcal</span>
+
+	<span class="nd">@unc_effcal</span><span class="o">.</span><span class="n">setter</span>
+	<span class="k">def</span> <span class="nf">unc_effcal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cal</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_unc_effcal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">cal</span><span class="p">)</span>
+
+	<span class="nd">@property</span>
+	<span class="k">def</span> <span class="nf">rescal</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rescal</span>
+
+	<span class="nd">@rescal</span><span class="o">.</span><span class="n">setter</span>
+	<span class="k">def</span> <span class="nf">rescal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cal</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_rescal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">cal</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Calibration.eng"><a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.eng">[docs]</a>	<span class="k">def</span> <span class="nf">eng</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">engcal</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot; Description</span>
 
 <span class="sd">		...</span>
 
 <span class="sd">		Parameters</span>
 <span class="sd">		----------</span>
-<span class="sd">		x : type</span>
+<span class="sd">		channel : array_like</span>
 <span class="sd">			Description of x</span>
+
+<span class="sd">		engcal : array_like, optional</span>
+<span class="sd">			Description</span>
+
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+<span class="sd">		type</span>
+<span class="sd">			Description</span>
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>
 
 <span class="sd">		&quot;&quot;&quot;</span>
 
-		<span class="k">pass</span></div>
+		<span class="n">channel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">channel</span><span class="p">)</span>
+
+		<span class="k">if</span> <span class="n">engcal</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="n">engcal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">engcal</span>
+
+		<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">engcal</span><span class="p">)</span><span class="o">==</span><span class="mi">2</span><span class="p">:</span>
+			<span class="k">return</span> <span class="n">engcal</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">engcal</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">channel</span>
+
+		<span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">engcal</span><span class="p">)</span><span class="o">==</span><span class="mi">3</span><span class="p">:</span>
+			<span class="k">return</span> <span class="n">engcal</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">engcal</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">channel</span> <span class="o">+</span> <span class="n">engcal</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="n">channel</span><span class="o">**</span><span class="mi">2</span></div>
 		
-<div class="viewcode-block" id="Calibration.eff"><a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.eff">[docs]</a>	<span class="k">def</span> <span class="nf">eff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="o">*</span><span class="n">cal</span><span class="p">):</span>
+<div class="viewcode-block" id="Calibration.eff"><a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.eff">[docs]</a>	<span class="k">def</span> <span class="nf">eff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">effcal</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot; Description</span>
 
 <span class="sd">		...</span>
 
 <span class="sd">		Parameters</span>
 <span class="sd">		----------</span>
-<span class="sd">		x : type</span>
+<span class="sd">		energy : array_like</span>
 <span class="sd">			Description of x</span>
+
+<span class="sd">		effcal : array_like, optional</span>
+<span class="sd">			Description of x</span>
+
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+<span class="sd">		type</span>
+<span class="sd">			Description</span>
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>
 
 <span class="sd">		&quot;&quot;&quot;</span>
 
-		<span class="k">pass</span></div>
+		<span class="n">energy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span>
+
+		<span class="k">if</span> <span class="n">effcal</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="n">effcal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">effcal</span>
+
+		<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">effcal</span><span class="p">)</span><span class="o">==</span><span class="mi">3</span><span class="p">:</span>
+			<span class="k">return</span> <span class="n">effcal</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">effcal</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">energy</span><span class="o">**</span><span class="n">effcal</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+
+		<span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">effcal</span><span class="p">)</span><span class="o">==</span><span class="mi">5</span><span class="p">:</span>
+			<span class="k">return</span> <span class="n">effcal</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">effcal</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">energy</span><span class="o">**</span><span class="n">effcal</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">effcal</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">*</span><span class="n">energy</span><span class="o">**</span><span class="n">effcal</span><span class="p">[</span><span class="mi">4</span><span class="p">]))</span></div>
 		
-<div class="viewcode-block" id="Calibration.unc_eff"><a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.unc_eff">[docs]</a>	<span class="k">def</span> <span class="nf">unc_eff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">cal</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unc</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Calibration.unc_eff"><a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.unc_eff">[docs]</a>	<span class="k">def</span> <span class="nf">unc_eff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">effcal</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unc_effcal</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot; Description</span>
 
 <span class="sd">		...</span>
 
 <span class="sd">		Parameters</span>
 <span class="sd">		----------</span>
-<span class="sd">		x : type</span>
+<span class="sd">		energy : array_like</span>
 <span class="sd">			Description of x</span>
+
+<span class="sd">		effcal : array_like, optional</span>
+<span class="sd">			Description of x</span>
+
+<span class="sd">		unc_effcal : array_like, optional</span>
+<span class="sd">			Description of x</span>
+
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+<span class="sd">		type</span>
+<span class="sd">			Description</span>
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>
 
 <span class="sd">		&quot;&quot;&quot;</span>
 
-		<span class="k">pass</span></div>
+		<span class="n">energy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span>
+
+		<span class="k">if</span> <span class="n">effcal</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">unc_effcal</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="n">effcal</span><span class="p">,</span> <span class="n">unc_effcal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">effcal</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">unc_effcal</span>
+
+		<span class="n">eps</span> <span class="o">=</span> <span class="mf">1E-8</span>
+		<span class="n">var</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">energy</span><span class="p">))</span> <span class="k">if</span> <span class="n">energy</span><span class="o">.</span><span class="n">shape</span> <span class="k">else</span> <span class="mf">0.0</span>
+
+		<span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">effcal</span><span class="p">)):</span>
+			<span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">effcal</span><span class="p">)):</span>
+
+				<span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">unc_effcal</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="n">m</span><span class="p">]):</span>
+					<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="o">*</span><span class="p">(</span><span class="n">var</span><span class="o">+</span><span class="mf">1.0</span><span class="p">)</span>
+
+				<span class="n">c_n</span><span class="p">,</span> <span class="n">c_m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">effcal</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">effcal</span><span class="p">)</span>
+				<span class="n">c_n</span><span class="p">[</span><span class="n">n</span><span class="p">],</span> <span class="n">c_m</span><span class="p">[</span><span class="n">m</span><span class="p">]</span> <span class="o">=</span> <span class="n">c_n</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">+</span><span class="n">eps</span><span class="p">,</span> <span class="n">c_m</span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="o">+</span><span class="n">eps</span>
+
+				<span class="n">par_n</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eff</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">c_n</span><span class="p">)</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">eff</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">effcal</span><span class="p">))</span><span class="o">/</span><span class="n">eps</span>
+				<span class="n">par_m</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eff</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">c_m</span><span class="p">)</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">eff</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">effcal</span><span class="p">))</span><span class="o">/</span><span class="n">eps</span>
+
+				<span class="n">var</span> <span class="o">+=</span> <span class="n">unc_effcal</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="n">m</span><span class="p">]</span><span class="o">*</span><span class="n">par_n</span><span class="o">*</span><span class="n">par_m</span><span class="o">*</span><span class="p">(</span><span class="mf">2.0</span> <span class="k">if</span> <span class="n">n</span><span class="o">!=</span><span class="n">m</span> <span class="k">else</span> <span class="mf">1.0</span><span class="p">)</span>
+
+		<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">var</span><span class="p">)</span></div>
 		
-<div class="viewcode-block" id="Calibration.res"><a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.res">[docs]</a>	<span class="k">def</span> <span class="nf">res</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="o">*</span><span class="n">cal</span><span class="p">):</span>
+<div class="viewcode-block" id="Calibration.res"><a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.res">[docs]</a>	<span class="k">def</span> <span class="nf">res</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">rescal</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot; Description</span>
 
 <span class="sd">		...</span>
 
 <span class="sd">		Parameters</span>
 <span class="sd">		----------</span>
-<span class="sd">		x : type</span>
+<span class="sd">		channel : array_like</span>
 <span class="sd">			Description of x</span>
+
+<span class="sd">		rescal : array_like, optional</span>
+<span class="sd">			Description of x</span>
+
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+<span class="sd">		type</span>
+<span class="sd">			Description</span>
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>
 
 <span class="sd">		&quot;&quot;&quot;</span>
 
-		<span class="k">pass</span></div>
+		<span class="n">channel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">channel</span><span class="p">)</span>
+
+		<span class="k">if</span> <span class="n">rescal</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="n">rescal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rescal</span>
+
+		<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rescal</span><span class="p">)</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+			<span class="k">return</span> <span class="n">rescal</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">channel</span><span class="p">)</span>
+
+		<span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">rescal</span><span class="p">)</span><span class="o">==</span><span class="mi">2</span><span class="p">:</span>
+			<span class="k">return</span> <span class="n">rescal</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">rescal</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">channel</span></div>
 		
-<div class="viewcode-block" id="Calibration.map_channel"><a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.map_channel">[docs]</a>	<span class="k">def</span> <span class="nf">map_channel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="o">*</span><span class="n">cal</span><span class="p">):</span>
+<div class="viewcode-block" id="Calibration.map_channel"><a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.map_channel">[docs]</a>	<span class="k">def</span> <span class="nf">map_channel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">engcal</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot; Description</span>
 
 <span class="sd">		...</span>
 
 <span class="sd">		Parameters</span>
 <span class="sd">		----------</span>
-<span class="sd">		x : type</span>
+<span class="sd">		energy : array_like</span>
 <span class="sd">			Description of x</span>
+
+<span class="sd">		engcal : array_like, optional</span>
+<span class="sd">			Description of x</span>
+
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+<span class="sd">		type</span>
+<span class="sd">			Description</span>
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>
 
 <span class="sd">		&quot;&quot;&quot;</span>
 
-		<span class="k">pass</span></div>
+		<span class="n">energy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span>
+
+		<span class="k">if</span> <span class="n">engcal</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="n">engcal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">engcal</span>
+
+		<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">engcal</span><span class="p">)</span><span class="o">==</span><span class="mi">3</span><span class="p">:</span>
+			<span class="k">if</span> <span class="n">engcal</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">!=</span><span class="mf">0.0</span><span class="p">:</span>
+				<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">rint</span><span class="p">(</span><span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">engcal</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="o">-</span><span class="mf">4.0</span><span class="o">*</span><span class="n">engcal</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="n">engcal</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="n">energy</span><span class="p">))</span><span class="o">-</span><span class="n">engcal</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">/</span><span class="n">engcal</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+
+		<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">rint</span><span class="p">((</span><span class="n">energy</span><span class="o">-</span><span class="n">engcal</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">/</span><span class="n">engcal</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span></div>
 		
-<div class="viewcode-block" id="Calibration.calibrate"><a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.calibrate">[docs]</a>	<span class="k">def</span> <span class="nf">calibrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spectra</span><span class="p">):</span>
+<div class="viewcode-block" id="Calibration.calibrate"><a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.calibrate">[docs]</a>	<span class="k">def</span> <span class="nf">calibrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spectra</span><span class="p">,</span> <span class="n">sources</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot; Description</span>
 
 <span class="sd">		...</span>
 
 <span class="sd">		Parameters</span>
 <span class="sd">		----------</span>
-<span class="sd">		x : type</span>
+<span class="sd">		spectra : list of sp.Spectrum</span>
 <span class="sd">			Description of x</span>
+
+<span class="sd">		sources : str, list, dict or pd.DataFrame</span>
+<span class="sd">			Description</span>
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>
 
 <span class="sd">		&quot;&quot;&quot;</span>
 
-		<span class="k">pass</span></div>
+		<span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">sources</span><span class="p">)</span><span class="o">==</span><span class="nb">str</span><span class="p">:</span>
+			<span class="k">if</span> <span class="n">sources</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.json&#39;</span><span class="p">):</span>
+				<span class="n">sources</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">sources</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()))</span>
+			<span class="k">elif</span> <span class="n">sources</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.csv&#39;</span><span class="p">):</span>
+				<span class="n">sources</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">sources</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s1">&#39;ffill&#39;</span><span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">sources</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">sources</span><span class="p">)</span>
+		<span class="n">sources</span><span class="p">[</span><span class="s1">&#39;ref_date&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">sources</span><span class="p">[</span><span class="s1">&#39;ref_date&#39;</span><span class="p">],</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;%m/</span><span class="si">%d</span><span class="s1">/%Y %H:%M:%S&#39;</span><span class="p">)</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">_calib_data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;engcal&#39;</span><span class="p">:{</span><span class="s1">&#39;channel&#39;</span><span class="p">:[],</span> <span class="s1">&#39;energy&#39;</span><span class="p">:[],</span> <span class="s1">&#39;unc_channel&#39;</span><span class="p">:[]},</span>
+							<span class="s1">&#39;rescal&#39;</span><span class="p">:{</span><span class="s1">&#39;channel&#39;</span><span class="p">:[],</span> <span class="s1">&#39;width&#39;</span><span class="p">:[],</span> <span class="s1">&#39;unc_width&#39;</span><span class="p">:[]},</span>
+							<span class="s1">&#39;effcal&#39;</span><span class="p">:{</span><span class="s1">&#39;energy&#39;</span><span class="p">:[],</span> <span class="s1">&#39;efficiency&#39;</span><span class="p">:[],</span> <span class="s1">&#39;unc_efficiency&#39;</span><span class="p">:[]}}</span>
+
+		<span class="n">src_itps</span> <span class="o">=</span> <span class="n">sources</span><span class="p">[</span><span class="s1">&#39;isotope&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">to_list</span><span class="p">()</span>
+		<span class="n">lm</span> <span class="o">=</span> <span class="p">{</span><span class="n">ip</span><span class="p">:</span><span class="n">Isotope</span><span class="p">(</span><span class="n">ip</span><span class="p">)</span><span class="o">.</span><span class="n">dc</span> <span class="k">for</span> <span class="n">ip</span> <span class="ow">in</span> <span class="n">src_itps</span><span class="p">}</span>
+		<span class="n">unc_lm</span> <span class="o">=</span> <span class="p">{</span><span class="n">ip</span><span class="p">:</span><span class="n">Isotope</span><span class="p">(</span><span class="n">ip</span><span class="p">)</span><span class="o">.</span><span class="n">decay_const</span><span class="p">(</span><span class="n">unc</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">ip</span> <span class="ow">in</span> <span class="n">src_itps</span><span class="p">}</span>
+		<span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="n">spectra</span><span class="p">:</span>
+			<span class="k">if</span> <span class="n">sp</span><span class="o">.</span><span class="n">_fits</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+				<span class="n">sp</span><span class="o">.</span><span class="n">fit_peaks</span><span class="p">()</span>
+
+			<span class="n">cfg</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">fit_config</span>
+			<span class="n">ix</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+
+			<span class="k">for</span> <span class="n">ft</span> <span class="ow">in</span> <span class="n">sp</span><span class="o">.</span><span class="n">_fits</span><span class="p">:</span>
+				<span class="n">f</span> <span class="o">=</span> <span class="n">ft</span><span class="p">[</span><span class="s1">&#39;fit&#39;</span><span class="p">]</span>
+				<span class="n">u</span> <span class="o">=</span> <span class="n">ft</span><span class="p">[</span><span class="s1">&#39;unc&#39;</span><span class="p">]</span>
+				<span class="n">B</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;snip&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;constant&#39;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;linear&#39;</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;quadratic&#39;</span><span class="p">:</span><span class="mi">3</span><span class="p">}[</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;bg&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span>
+				<span class="n">L</span> <span class="o">=</span> <span class="mi">3</span><span class="o">+</span><span class="mi">2</span><span class="o">*</span><span class="nb">int</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;skew_fit&#39;</span><span class="p">])</span><span class="o">+</span><span class="nb">int</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;step_fit&#39;</span><span class="p">])</span>
+
+				<span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">f</span><span class="p">)</span><span class="o">-</span><span class="n">B</span><span class="p">)</span><span class="o">/</span><span class="n">L</span><span class="p">)):</span>
+					<span class="n">ix</span> <span class="o">+=</span> <span class="mi">1</span>
+					<span class="n">pk</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">peaks</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">ix</span><span class="p">,</span> <span class="p">:]</span>
+					<span class="k">if</span> <span class="n">pk</span><span class="p">[</span><span class="s1">&#39;isotope&#39;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">src_itps</span><span class="p">:</span>
+						<span class="k">continue</span>
+
+					<span class="n">j</span> <span class="o">=</span> <span class="n">B</span><span class="o">+</span><span class="n">n</span><span class="o">*</span><span class="n">L</span><span class="o">+</span><span class="mi">1</span>
+					<span class="n">mu</span><span class="p">,</span> <span class="n">sig</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">f</span><span class="p">[</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+					<span class="n">unc_mu</span><span class="p">,</span> <span class="n">unc_sig</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">u</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">j</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">u</span><span class="p">[</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">][</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>
+					<span class="n">eng</span> <span class="o">=</span> <span class="n">pk</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">]</span>
+
+					<span class="bp">self</span><span class="o">.</span><span class="n">_calib_data</span><span class="p">[</span><span class="s1">&#39;engcal&#39;</span><span class="p">][</span><span class="s1">&#39;channel&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span>
+					<span class="bp">self</span><span class="o">.</span><span class="n">_calib_data</span><span class="p">[</span><span class="s1">&#39;engcal&#39;</span><span class="p">][</span><span class="s1">&#39;energy&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">eng</span><span class="p">)</span>
+					<span class="bp">self</span><span class="o">.</span><span class="n">_calib_data</span><span class="p">[</span><span class="s1">&#39;engcal&#39;</span><span class="p">][</span><span class="s1">&#39;unc_channel&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">unc_mu</span><span class="p">)</span>
+
+					<span class="bp">self</span><span class="o">.</span><span class="n">_calib_data</span><span class="p">[</span><span class="s1">&#39;rescal&#39;</span><span class="p">][</span><span class="s1">&#39;channel&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span>
+					<span class="bp">self</span><span class="o">.</span><span class="n">_calib_data</span><span class="p">[</span><span class="s1">&#39;rescal&#39;</span><span class="p">][</span><span class="s1">&#39;width&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sig</span><span class="p">)</span>
+					<span class="bp">self</span><span class="o">.</span><span class="n">_calib_data</span><span class="p">[</span><span class="s1">&#39;rescal&#39;</span><span class="p">][</span><span class="s1">&#39;unc_width&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">unc_sig</span><span class="p">)</span>
+
+					<span class="n">src</span> <span class="o">=</span> <span class="n">sources</span><span class="p">[</span><span class="n">sources</span><span class="p">[</span><span class="s1">&#39;isotope&#39;</span><span class="p">]</span><span class="o">==</span><span class="n">pk</span><span class="p">[</span><span class="s1">&#39;isotope&#39;</span><span class="p">]]</span>
+					<span class="n">rd</span><span class="p">,</span> <span class="n">A0</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;ref_date&#39;</span><span class="p">],</span> <span class="n">src</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;A0&#39;</span><span class="p">]</span>
+					<span class="n">unc_A0</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;unc_A0&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;unc_A0&#39;</span> <span class="ow">in</span> <span class="n">src</span><span class="o">.</span><span class="n">columns</span> <span class="k">else</span> <span class="mf">0.0</span>
+					<span class="n">td</span> <span class="o">=</span> <span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">start_time</span><span class="o">-</span><span class="n">rd</span><span class="p">)</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
+					<span class="n">dc</span> <span class="o">=</span> <span class="n">lm</span><span class="p">[</span><span class="n">pk</span><span class="p">[</span><span class="s1">&#39;isotope&#39;</span><span class="p">]]</span>
+
+					<span class="k">if</span> <span class="n">sp</span><span class="o">.</span><span class="n">_atten_corr</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+						<span class="n">corr</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">_geom_corr</span>
+					<span class="k">else</span><span class="p">:</span>
+						<span class="n">corr</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">_geom_corr</span><span class="o">*</span><span class="n">sp</span><span class="o">.</span><span class="n">_atten_corr</span><span class="p">(</span><span class="n">pk</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">])</span>
+
+					<span class="n">eff</span> <span class="o">=</span> <span class="n">pk</span><span class="p">[</span><span class="s1">&#39;counts&#39;</span><span class="p">]</span><span class="o">*</span><span class="n">dc</span><span class="o">/</span><span class="p">(</span><span class="n">corr</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">dc</span><span class="o">*</span><span class="n">sp</span><span class="o">.</span><span class="n">real_time</span><span class="p">))</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">dc</span><span class="o">*</span><span class="n">td</span><span class="p">)</span><span class="o">*</span><span class="n">pk</span><span class="p">[</span><span class="s1">&#39;intensity&#39;</span><span class="p">]</span><span class="o">*</span><span class="n">A0</span><span class="o">*</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">live_time</span><span class="o">/</span><span class="n">sp</span><span class="o">.</span><span class="n">real_time</span><span class="p">))</span>
+					<span class="n">unc_eff</span> <span class="o">=</span> <span class="n">eff</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">pk</span><span class="p">[</span><span class="s1">&#39;unc_counts&#39;</span><span class="p">]</span><span class="o">/</span><span class="n">pk</span><span class="p">[</span><span class="s1">&#39;counts&#39;</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span><span class="o">+</span><span class="p">(</span><span class="n">pk</span><span class="p">[</span><span class="s1">&#39;unc_intensity&#39;</span><span class="p">]</span><span class="o">/</span><span class="n">pk</span><span class="p">[</span><span class="s1">&#39;intensity&#39;</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span><span class="o">+</span><span class="p">(</span><span class="n">unc_lm</span><span class="p">[</span><span class="n">pk</span><span class="p">[</span><span class="s1">&#39;isotope&#39;</span><span class="p">]]</span><span class="o">/</span><span class="n">dc</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="o">+</span><span class="p">(</span><span class="n">unc_A0</span><span class="o">/</span><span class="n">A0</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+
+					<span class="bp">self</span><span class="o">.</span><span class="n">_calib_data</span><span class="p">[</span><span class="s1">&#39;effcal&#39;</span><span class="p">][</span><span class="s1">&#39;energy&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">eng</span><span class="p">)</span>
+					<span class="bp">self</span><span class="o">.</span><span class="n">_calib_data</span><span class="p">[</span><span class="s1">&#39;effcal&#39;</span><span class="p">][</span><span class="s1">&#39;efficiency&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">eff</span><span class="p">)</span>
+					<span class="bp">self</span><span class="o">.</span><span class="n">_calib_data</span><span class="p">[</span><span class="s1">&#39;effcal&#39;</span><span class="p">][</span><span class="s1">&#39;unc_efficiency&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">unc_eff</span><span class="p">)</span>
+
+		<span class="k">for</span> <span class="n">ctyp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calib_data</span><span class="p">:</span>
+			<span class="k">for</span> <span class="n">cvar</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calib_data</span><span class="p">[</span><span class="n">ctyp</span><span class="p">]:</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">_calib_data</span><span class="p">[</span><span class="n">ctyp</span><span class="p">][</span><span class="n">cvar</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_calib_data</span><span class="p">[</span><span class="n">ctyp</span><span class="p">][</span><span class="n">cvar</span><span class="p">])</span>
+
+		<span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">yerr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calib_data</span><span class="p">[</span><span class="s1">&#39;engcal&#39;</span><span class="p">][</span><span class="s1">&#39;channel&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calib_data</span><span class="p">[</span><span class="s1">&#39;engcal&#39;</span><span class="p">][</span><span class="s1">&#39;energy&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">eng</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_calib_data</span><span class="p">[</span><span class="s1">&#39;engcal&#39;</span><span class="p">][</span><span class="s1">&#39;unc_channel&#39;</span><span class="p">])</span>
+		<span class="n">fn</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="o">*</span><span class="n">A</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">eng</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">A</span><span class="p">)</span>
+		<span class="n">fit</span><span class="p">,</span> <span class="n">unc</span> <span class="o">=</span> <span class="n">curve_fit</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">yerr</span><span class="p">,</span> <span class="n">p0</span><span class="o">=</span><span class="n">spectra</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">cb</span><span class="o">.</span><span class="n">engcal</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_calib_data</span><span class="p">[</span><span class="s1">&#39;engcal&#39;</span><span class="p">][</span><span class="s1">&#39;fit&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calib_data</span><span class="p">[</span><span class="s1">&#39;engcal&#39;</span><span class="p">][</span><span class="s1">&#39;unc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fit</span><span class="p">,</span> <span class="n">unc</span>
+
+		<span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">yerr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calib_data</span><span class="p">[</span><span class="s1">&#39;rescal&#39;</span><span class="p">][</span><span class="s1">&#39;channel&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calib_data</span><span class="p">[</span><span class="s1">&#39;rescal&#39;</span><span class="p">][</span><span class="s1">&#39;width&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calib_data</span><span class="p">[</span><span class="s1">&#39;rescal&#39;</span><span class="p">][</span><span class="s1">&#39;unc_width&#39;</span><span class="p">]</span>
+		<span class="n">fn</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="o">*</span><span class="n">A</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">res</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">A</span><span class="p">)</span>
+		<span class="n">fit</span><span class="p">,</span> <span class="n">unc</span> <span class="o">=</span> <span class="n">curve_fit</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">yerr</span><span class="p">,</span> <span class="n">p0</span><span class="o">=</span><span class="n">spectra</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">cb</span><span class="o">.</span><span class="n">rescal</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_calib_data</span><span class="p">[</span><span class="s1">&#39;rescal&#39;</span><span class="p">][</span><span class="s1">&#39;fit&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calib_data</span><span class="p">[</span><span class="s1">&#39;rescal&#39;</span><span class="p">][</span><span class="s1">&#39;unc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fit</span><span class="p">,</span> <span class="n">unc</span>
+
+		<span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">yerr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calib_data</span><span class="p">[</span><span class="s1">&#39;effcal&#39;</span><span class="p">][</span><span class="s1">&#39;energy&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calib_data</span><span class="p">[</span><span class="s1">&#39;effcal&#39;</span><span class="p">][</span><span class="s1">&#39;efficiency&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calib_data</span><span class="p">[</span><span class="s1">&#39;effcal&#39;</span><span class="p">][</span><span class="s1">&#39;unc_efficiency&#39;</span><span class="p">]</span>
+		<span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">y</span><span class="o">&gt;</span><span class="n">yerr</span><span class="p">)</span><span class="o">&amp;</span><span class="p">(</span><span class="n">yerr</span><span class="o">&gt;</span><span class="mf">0.0</span><span class="p">)</span><span class="o">&amp;</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">yerr</span><span class="p">)))</span>
+		<span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">yerr</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">y</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">yerr</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+		<span class="n">fn</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="o">*</span><span class="n">A</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">eff</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">A</span><span class="p">)</span>
+
+		<span class="n">p0</span> <span class="o">=</span> <span class="n">spectra</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">cb</span><span class="o">.</span><span class="n">effcal</span>
+		<span class="n">p0</span> <span class="o">=</span> <span class="n">p0</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">p0</span><span class="p">)</span><span class="o">==</span><span class="mi">5</span> <span class="k">else</span> <span class="n">p0</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span><span class="o">+</span><span class="p">[</span><span class="mf">0.001</span><span class="p">,</span> <span class="mf">1.476</span><span class="p">]</span>
+		<span class="n">p0</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">([</span><span class="nb">min</span><span class="p">([</span><span class="n">p0</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">y</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">eff</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">p0</span><span class="p">),</span> <span class="n">weights</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eff</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">p0</span><span class="p">)</span><span class="o">/</span><span class="n">yerr</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">),</span><span class="mf">99.9</span><span class="p">]),</span><span class="mf">0.001</span><span class="p">])</span>
+		<span class="n">bounds</span> <span class="o">=</span> <span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">2.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">100.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">])</span>
+
+		<span class="k">if</span> <span class="nb">any</span><span class="p">([</span><span class="n">sp</span><span class="o">.</span><span class="n">fit_config</span><span class="p">[</span><span class="s1">&#39;xrays&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="n">spectra</span><span class="p">]):</span>
+			<span class="k">try</span><span class="p">:</span>
+				<span class="n">fit3</span><span class="p">,</span> <span class="n">unc3</span> <span class="o">=</span> <span class="n">curve_fit</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">yerr</span><span class="p">,</span> <span class="n">p0</span><span class="o">=</span><span class="n">p0</span><span class="p">[:</span><span class="mi">3</span><span class="p">],</span> <span class="n">bounds</span><span class="o">=</span><span class="p">(</span><span class="n">bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">][:</span><span class="mi">3</span><span class="p">],</span> <span class="n">bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">][:</span><span class="mi">3</span><span class="p">]))</span>
+				<span class="n">fit5</span><span class="p">,</span> <span class="n">unc5</span> <span class="o">=</span> <span class="n">curve_fit</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">yerr</span><span class="p">,</span> <span class="n">p0</span><span class="o">=</span><span class="n">fit3</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span><span class="o">+</span><span class="n">p0</span><span class="p">[</span><span class="mi">3</span><span class="p">:],</span> <span class="n">bounds</span><span class="o">=</span><span class="n">bounds</span><span class="p">)</span>
+				
+				<span class="n">chi5</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">y</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">eff</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">fit5</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="n">yerr</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+				<span class="n">chi3</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">y</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">eff</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">fit3</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="n">yerr</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+				<span class="c1">## Invert to find which is closer to one</span>
+				<span class="n">chi5</span> <span class="o">=</span> <span class="n">chi5</span> <span class="k">if</span> <span class="n">chi5</span><span class="o">&gt;</span><span class="mf">1.0</span> <span class="k">else</span> <span class="mf">1.0</span><span class="o">/</span><span class="n">chi5</span>
+				<span class="n">chi3</span> <span class="o">=</span> <span class="n">chi3</span> <span class="k">if</span> <span class="n">chi3</span><span class="o">&gt;</span><span class="mf">1.0</span> <span class="k">else</span> <span class="mf">1.0</span><span class="o">/</span><span class="n">chi3</span>
+				<span class="n">fit</span><span class="p">,</span> <span class="n">unc</span> <span class="o">=</span> <span class="p">(</span><span class="n">fit3</span><span class="p">,</span> <span class="n">unc3</span><span class="p">)</span> <span class="k">if</span> <span class="n">chi3</span><span class="o">&lt;=</span><span class="n">chi5</span> <span class="k">else</span> <span class="p">(</span><span class="n">fit5</span><span class="p">,</span> <span class="n">unc5</span><span class="p">)</span>
+			<span class="k">except</span><span class="p">:</span>
+				<span class="n">fit</span><span class="p">,</span> <span class="n">unc</span> <span class="o">=</span> <span class="n">curve_fit</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">yerr</span><span class="p">,</span> <span class="n">p0</span><span class="o">=</span><span class="n">p0</span><span class="p">[:</span><span class="mi">3</span><span class="p">],</span> <span class="n">bounds</span><span class="o">=</span><span class="p">(</span><span class="n">bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">][:</span><span class="mi">3</span><span class="p">],</span> <span class="n">bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">][:</span><span class="mi">3</span><span class="p">]))</span>
+
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">fit</span><span class="p">,</span> <span class="n">unc</span> <span class="o">=</span> <span class="n">curve_fit</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">yerr</span><span class="p">,</span> <span class="n">p0</span><span class="o">=</span><span class="n">p0</span><span class="p">[:</span><span class="mi">3</span><span class="p">],</span> <span class="n">bounds</span><span class="o">=</span><span class="p">(</span><span class="n">bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">][:</span><span class="mi">3</span><span class="p">],</span> <span class="n">bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">][:</span><span class="mi">3</span><span class="p">]))</span>
+
+		<span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">fn</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">*</span><span class="n">fit</span><span class="p">)</span><span class="o">-</span><span class="n">y</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="n">yerr</span><span class="o">**</span><span class="mi">2</span> <span class="o">&lt;</span> <span class="mf">10.0</span><span class="p">)</span>
+		<span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">yerr</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">y</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">yerr</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_calib_data</span><span class="p">[</span><span class="s1">&#39;effcal&#39;</span><span class="p">][</span><span class="s1">&#39;energy&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calib_data</span><span class="p">[</span><span class="s1">&#39;effcal&#39;</span><span class="p">][</span><span class="s1">&#39;efficiency&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calib_data</span><span class="p">[</span><span class="s1">&#39;effcal&#39;</span><span class="p">][</span><span class="s1">&#39;unc_efficiency&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">yerr</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">_calib_data</span><span class="p">[</span><span class="s1">&#39;effcal&#39;</span><span class="p">][</span><span class="s1">&#39;fit&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calib_data</span><span class="p">[</span><span class="s1">&#39;effcal&#39;</span><span class="p">][</span><span class="s1">&#39;unc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fit</span><span class="p">,</span> <span class="n">unc</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">engcal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calib_data</span><span class="p">[</span><span class="s1">&#39;engcal&#39;</span><span class="p">][</span><span class="s1">&#39;fit&#39;</span><span class="p">]</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">rescal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calib_data</span><span class="p">[</span><span class="s1">&#39;rescal&#39;</span><span class="p">][</span><span class="s1">&#39;fit&#39;</span><span class="p">]</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">effcal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calib_data</span><span class="p">[</span><span class="s1">&#39;effcal&#39;</span><span class="p">][</span><span class="s1">&#39;fit&#39;</span><span class="p">]</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">unc_effcal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calib_data</span><span class="p">[</span><span class="s1">&#39;effcal&#39;</span><span class="p">][</span><span class="s1">&#39;unc&#39;</span><span class="p">]</span>
+
+		<span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="n">spectra</span><span class="p">:</span>
+			<span class="n">sp</span><span class="o">.</span><span class="n">cb</span><span class="o">.</span><span class="n">engcal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calib_data</span><span class="p">[</span><span class="s1">&#39;engcal&#39;</span><span class="p">][</span><span class="s1">&#39;fit&#39;</span><span class="p">]</span>
+			<span class="n">sp</span><span class="o">.</span><span class="n">cb</span><span class="o">.</span><span class="n">rescal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calib_data</span><span class="p">[</span><span class="s1">&#39;rescal&#39;</span><span class="p">][</span><span class="s1">&#39;fit&#39;</span><span class="p">]</span>
+			<span class="n">sp</span><span class="o">.</span><span class="n">cb</span><span class="o">.</span><span class="n">effcal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calib_data</span><span class="p">[</span><span class="s1">&#39;effcal&#39;</span><span class="p">][</span><span class="s1">&#39;fit&#39;</span><span class="p">]</span>
+			<span class="n">sp</span><span class="o">.</span><span class="n">cb</span><span class="o">.</span><span class="n">unc_effcal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calib_data</span><span class="p">[</span><span class="s1">&#39;effcal&#39;</span><span class="p">][</span><span class="s1">&#39;unc&#39;</span><span class="p">]</span>
+			<span class="n">sp</span><span class="o">.</span><span class="n">_peaks</span><span class="p">,</span> <span class="n">sp</span><span class="o">.</span><span class="n">_fits</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span></div>
+
+
+
 		
 <div class="viewcode-block" id="Calibration.saveas"><a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.saveas">[docs]</a>	<span class="k">def</span> <span class="nf">saveas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot; Description</span>
@@ -185,7 +481,7 @@
 
 <span class="sd">		Parameters</span>
 <span class="sd">		----------</span>
-<span class="sd">		x : type</span>
+<span class="sd">		filename : str</span>
 <span class="sd">			Description of x</span>
 
 <span class="sd">		Examples</span>
@@ -193,76 +489,149 @@
 
 <span class="sd">		&quot;&quot;&quot;</span>
 
-		<span class="k">pass</span></div>
+		<span class="k">if</span> <span class="nb">any</span><span class="p">([</span><span class="n">filename</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;.png&#39;</span><span class="p">,</span><span class="s1">&#39;.pdf&#39;</span><span class="p">,</span><span class="s1">&#39;.eps&#39;</span><span class="p">,</span><span class="s1">&#39;.pgf&#39;</span><span class="p">,</span><span class="s1">&#39;.ps&#39;</span><span class="p">,</span><span class="s1">&#39;.raw&#39;</span><span class="p">,</span><span class="s1">&#39;.rgba&#39;</span><span class="p">,</span><span class="s1">&#39;.svg&#39;</span><span class="p">,</span><span class="s1">&#39;.svgz&#39;</span><span class="p">]]):</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">saveas</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+		<span class="k">if</span> <span class="n">filename</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.json&#39;</span><span class="p">):</span>
+			<span class="n">js</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;engcal&#39;</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">engcal</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+				  <span class="s1">&#39;effcal&#39;</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">effcal</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+				  <span class="s1">&#39;unc_effcal&#39;</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">unc_effcal</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+				  <span class="s1">&#39;rescal&#39;</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">rescal</span><span class="o">.</span><span class="n">tolist</span><span class="p">()}</span>
+			<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calib_data</span><span class="p">:</span>
+				<span class="n">js</span><span class="p">[</span><span class="s1">&#39;_calib_data&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+				<span class="k">for</span> <span class="n">cl</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;engcal&#39;</span><span class="p">,</span><span class="s1">&#39;rescal&#39;</span><span class="p">,</span><span class="s1">&#39;effcal&#39;</span><span class="p">]:</span>
+					<span class="k">if</span> <span class="n">cl</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calib_data</span><span class="p">:</span>
+						<span class="n">js</span><span class="p">[</span><span class="s1">&#39;_calib_data&#39;</span><span class="p">][</span><span class="n">cl</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">i</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">_calib_data</span><span class="p">[</span><span class="n">cl</span><span class="p">][</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calib_data</span><span class="p">[</span><span class="n">cl</span><span class="p">]}</span>
+
+			<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+				<span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">js</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span></div>
+
 		
 <div class="viewcode-block" id="Calibration.plot_engcal"><a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.plot_engcal">[docs]</a>	<span class="k">def</span> <span class="nf">plot_engcal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot; Description</span>
 
 <span class="sd">		...</span>
 
-<span class="sd">		Parameters</span>
-<span class="sd">		----------</span>
-<span class="sd">		x : type</span>
-<span class="sd">			Description of x</span>
+<span class="sd">		Other Parameters</span>
+<span class="sd">		----------------</span>
+<span class="sd">		**kwargs</span>
+<span class="sd">			Optional keyword arguments for plotting.  See the </span>
+<span class="sd">			plotting section of the curie API for a complete</span>
+<span class="sd">			list of kwargs.</span>
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>
 
 <span class="sd">		&quot;&quot;&quot;</span>
 
-		<span class="k">pass</span></div>
+		<span class="n">f</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">_init_plot</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+		<span class="k">if</span> <span class="s1">&#39;engcal&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calib_data</span><span class="p">:</span>
+			<span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calib_data</span><span class="p">[</span><span class="s1">&#39;engcal&#39;</span><span class="p">]</span>
+			<span class="n">ax</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;channel&#39;</span><span class="p">],</span> <span class="n">yerr</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;unc_channel&#39;</span><span class="p">],</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;None&#39;</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">)</span>
+			<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">]),</span> <span class="nb">max</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">]),</span> <span class="mf">0.1</span><span class="p">)</span>
+			<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_channel</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;fit&#39;</span><span class="p">]))</span>
+
+		<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Energy (keV)&#39;</span><span class="p">)</span>
+		<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;ADC Channel&#39;</span><span class="p">)</span>
+		<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Energy Calibration&#39;</span><span class="p">)</span>
+
+		<span class="k">return</span> <span class="n">_draw_plot</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 		
 <div class="viewcode-block" id="Calibration.plot_rescal"><a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.plot_rescal">[docs]</a>	<span class="k">def</span> <span class="nf">plot_rescal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot; Description</span>
 
 <span class="sd">		...</span>
 
-<span class="sd">		Parameters</span>
-<span class="sd">		----------</span>
-<span class="sd">		x : type</span>
-<span class="sd">			Description of x</span>
+<span class="sd">		Other Parameters</span>
+<span class="sd">		----------------</span>
+<span class="sd">		**kwargs</span>
+<span class="sd">			Optional keyword arguments for plotting.  See the </span>
+<span class="sd">			plotting section of the curie API for a complete</span>
+<span class="sd">			list of kwargs.</span>
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>
 
 <span class="sd">		&quot;&quot;&quot;</span>
 
-		<span class="k">pass</span></div>
+		<span class="n">f</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">_init_plot</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+		<span class="k">if</span> <span class="s1">&#39;rescal&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calib_data</span><span class="p">:</span>
+			<span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calib_data</span><span class="p">[</span><span class="s1">&#39;rescal&#39;</span><span class="p">]</span>
+			<span class="n">ax</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;channel&#39;</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;width&#39;</span><span class="p">],</span> <span class="n">yerr</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;unc_width&#39;</span><span class="p">],</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;None&#39;</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">)</span>
+			<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;channel&#39;</span><span class="p">]),</span> <span class="nb">max</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;channel&#39;</span><span class="p">]),</span> <span class="mf">0.1</span><span class="p">)</span>
+			<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">res</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;fit&#39;</span><span class="p">]))</span>
+
+		<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;ADC Channel&#39;</span><span class="p">)</span>
+		<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Peak Width&#39;</span><span class="p">)</span>
+		<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Resolution Calibration&#39;</span><span class="p">)</span>
+
+		<span class="k">return</span> <span class="n">_draw_plot</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 		
-<div class="viewcode-block" id="Calibration.plot_effcal"><a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.plot_effcal">[docs]</a>	<span class="k">def</span> <span class="nf">plot_effcal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shelves</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="Calibration.plot_effcal"><a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.plot_effcal">[docs]</a>	<span class="k">def</span> <span class="nf">plot_effcal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot; Description</span>
 
 <span class="sd">		...</span>
 
-<span class="sd">		Parameters</span>
-<span class="sd">		----------</span>
-<span class="sd">		x : type</span>
-<span class="sd">			Description of x</span>
+<span class="sd">		Other Parameters</span>
+<span class="sd">		----------------</span>
+<span class="sd">		**kwargs</span>
+<span class="sd">			Optional keyword arguments for plotting.  See the </span>
+<span class="sd">			plotting section of the curie API for a complete</span>
+<span class="sd">			list of kwargs.</span>
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>
 
 <span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">cm</span> <span class="o">=</span> <span class="n">colormap</span><span class="p">()</span>
+		<span class="n">cm_light</span> <span class="o">=</span> <span class="n">colormap</span><span class="p">(</span><span class="n">shade</span><span class="o">=</span><span class="s1">&#39;light&#39;</span><span class="p">)</span>
 
-		<span class="k">pass</span></div>
+		<span class="n">f</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">_init_plot</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+		<span class="k">if</span> <span class="s1">&#39;effcal&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calib_data</span><span class="p">:</span>
+			<span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calib_data</span><span class="p">[</span><span class="s1">&#39;effcal&#39;</span><span class="p">]</span>
+			<span class="n">ax</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;efficiency&#39;</span><span class="p">],</span> <span class="n">yerr</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;unc_efficiency&#39;</span><span class="p">],</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;None&#39;</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">cm</span><span class="p">[</span><span class="s1">&#39;k&#39;</span><span class="p">])</span>
+			<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">]),</span> <span class="nb">max</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">]),</span> <span class="mf">0.1</span><span class="p">)</span>
+			<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">eff</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;fit&#39;</span><span class="p">]),</span> <span class="n">color</span><span class="o">=</span><span class="n">cm</span><span class="p">[</span><span class="s1">&#39;k&#39;</span><span class="p">])</span>
+			<span class="n">low</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eff</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;fit&#39;</span><span class="p">])</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">unc_eff</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;fit&#39;</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;unc&#39;</span><span class="p">])</span>
+			<span class="n">high</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eff</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;fit&#39;</span><span class="p">])</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">unc_eff</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;fit&#39;</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;unc&#39;</span><span class="p">])</span>
+			<span class="n">ax</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">low</span><span class="p">,</span> <span class="n">high</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="n">cm_light</span><span class="p">[</span><span class="s1">&#39;k&#39;</span><span class="p">],</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+
+		<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Energy (keV)&#39;</span><span class="p">)</span>
+		<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Efficiency&#39;</span><span class="p">)</span>
+		<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Efficiency Calibration&#39;</span><span class="p">)</span>
+
+		<span class="k">return</span> <span class="n">_draw_plot</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 		
 <div class="viewcode-block" id="Calibration.plot"><a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.plot">[docs]</a>	<span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot; Description</span>
 
 <span class="sd">		...</span>
 
-<span class="sd">		Parameters</span>
-<span class="sd">		----------</span>
-<span class="sd">		x : type</span>
-<span class="sd">			Description of x</span>
+<span class="sd">		Other Parameters</span>
+<span class="sd">		----------------</span>
+<span class="sd">		**kwargs</span>
+<span class="sd">			Optional keyword arguments for plotting.  See the </span>
+<span class="sd">			plotting section of the curie API for a complete</span>
+<span class="sd">			list of kwargs.</span>
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>
 
 <span class="sd">		&quot;&quot;&quot;</span>
 
-		<span class="k">pass</span></div></div>
 		
+		<span class="n">f</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">_init_plot</span><span class="p">(</span><span class="n">_N_plots</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">12.8</span><span class="p">,</span> <span class="mf">4.8</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+		<span class="n">f</span><span class="p">,</span> <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plot_engcal</span><span class="p">(</span><span class="n">f</span><span class="o">=</span><span class="n">f</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">return_plot</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+		<span class="n">f</span><span class="p">,</span> <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plot_rescal</span><span class="p">(</span><span class="n">f</span><span class="o">=</span><span class="n">f</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">return_plot</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+		<span class="n">f</span><span class="p">,</span> <span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plot_effcal</span><span class="p">(</span><span class="n">f</span><span class="o">=</span><span class="n">f</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">return_plot</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+		<span class="k">return</span> <span class="n">_draw_plot</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
+		
+
 </pre></div>
 
           </div>

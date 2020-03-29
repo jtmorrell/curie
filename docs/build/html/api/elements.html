@@ -36,7 +36,7 @@
           <div class="body" role="main">
             
   <div class="section" id="element">
-<span id="id1"></span><h1>4. Element<a class="headerlink" href="#element" title="Permalink to this headline">¶</a></h1>
+<span id="elements"></span><h1>4. Element<a class="headerlink" href="#element" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="curie.Element">
 <em class="property">class </em><code class="descclassname">curie.</code><code class="descname">Element</code><span class="sig-paren">(</span><em>element</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/element.html#Element"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Element" title="Permalink to this definition">¶</a></dt>
@@ -124,10 +124,10 @@ mass-energy absorption coefficient.</p>
 <td>Photon attenuation in matter</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#curie.Element.mu" title="curie.Element.mu"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mu</span></code></a>(energy)</td>
-<td>Mass-attenuation coefficient</td>
+<td>Description</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#curie.Element.mu_en" title="curie.Element.mu_en"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mu_en</span></code></a>(energy)</td>
-<td>Mass energy-absorption coefficient</td>
+<td>Description</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#curie.Element.plot_S" title="curie.Element.plot_S"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_S</span></code></a>([particle,&nbsp;energy])</td>
 <td>Plot the stopping power in the element</td>
@@ -178,7 +178,7 @@ the mass-stopping power, use <cite>density=1E-3</cite>.</p>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>stopping_power</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy.ndarray</span></dt>
+<dt><strong>numpy.ndarray</strong></dt>
 <dd><p class="first last">Stopping power, S=-dE/dx, for a given ion as a function of the 
 ion energy in MeV.  Units of S are MeV/cm.</p>
 </dd>
@@ -222,7 +222,7 @@ use <cite>Element.density</cite>.</p>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>attenuation</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy.ndarray</span></dt>
+<dt><strong>numpy.ndarray</strong></dt>
 <dd><p class="first last">The slab attenuation factor as an absolute number (i.e. from 0 to 1).
 E.g. if the incident intensity is I_0, the transmitted intensity I(x) 
 is I_0 times the attenuation factor.</p>
@@ -245,69 +245,55 @@ is I_0 times the attenuation factor.</p>
 <dl class="method">
 <dt id="curie.Element.mu">
 <code class="descname">mu</code><span class="sig-paren">(</span><em>energy</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/element.html#Element.mu"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Element.mu" title="Permalink to this definition">¶</a></dt>
-<dd><p>Mass-attenuation coefficient</p>
-<p>Interpolates the mass-attenuation coefficient, mu/rho,
-for the element along the input energy grid.</p>
+<dd><p>Description</p>
+<p>…</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
 <dt><strong>energy</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
-<dd><p class="first last">The incident photon energy, in keV.</p>
+<dd><p class="first last">Description</p>
 </dd>
 </dl>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
 <dt><strong>mu</strong> <span class="classifier-delimiter">:</span> <span class="classifier">np.ndarray</span></dt>
-<dd><p class="first last">Mass attenuation coefficient, mu/rho, in cm^2/g.</p>
+<dd><p class="first last">Description</p>
 </dd>
 </dl>
 </td>
 </tr>
 </tbody>
 </table>
-<p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">el</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s1">&#39;Hg&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">el</span><span class="o">.</span><span class="n">mu</span><span class="p">(</span><span class="mi">200</span><span class="p">))</span>
-<span class="go">0.9456</span>
-</pre></div>
-</div>
 </dd></dl>
 
 <dl class="method">
 <dt id="curie.Element.mu_en">
 <code class="descname">mu_en</code><span class="sig-paren">(</span><em>energy</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/element.html#Element.mu_en"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Element.mu_en" title="Permalink to this definition">¶</a></dt>
-<dd><p>Mass energy-absorption coefficient</p>
-<p>Interpolates the mass-energy absorption coefficient, mu_en/rho,
-for the element along the input energy grid.</p>
+<dd><p>Description</p>
+<p>…</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
 <dt><strong>energy</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
-<dd><p class="first last">The incident photon energy, in keV.</p>
+<dd><p class="first last">Description</p>
 </dd>
 </dl>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
 <dt><strong>mu_en</strong> <span class="classifier-delimiter">:</span> <span class="classifier">np.ndarray</span></dt>
-<dd><p class="first last">Mass energy absorption coefficient, mu_en/rho, in cm^2/g.</p>
+<dd><p class="first last">Description</p>
 </dd>
 </dl>
 </td>
 </tr>
 </tbody>
 </table>
-<p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">el</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s1">&#39;Hg&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">el</span><span class="o">.</span><span class="n">mu_en</span><span class="p">(</span><span class="mi">200</span><span class="p">))</span>
-<span class="go">0.5661</span>
-</pre></div>
-</div>
 </dd></dl>
 
 <dl class="method">
@@ -512,7 +498,7 @@ with the Anderson-Ziegler formalism.</p>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>range</strong> <span class="classifier-delimiter">:</span> <span class="classifier">np.ndarray</span></dt>
+<dt><strong>array_like</strong></dt>
 <dd><p class="first last">Charged particle range in the element, in cm.</p>
 </dd>
 </dl>
@@ -544,7 +530,7 @@ with the Anderson-Ziegler formalism.</p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/api/element.rst.txt"
+      <li><a href="../_sources/api/elements.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>

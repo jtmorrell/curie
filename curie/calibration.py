@@ -19,21 +19,21 @@ class Calibration(object):
 	
 	Parameters
 	----------
-	x : type
+	filename : str, optional
 		Description of parameter `x`.
 
 	Attributes
 	----------
-	engcal : type
+	engcal : np.ndarray
 		Description of parameter
 
-	effcal : type
+	effcal : np.ndarray
 		Description of parameter
 
-	unc_effcal : type
+	unc_effcal : np.ndarray
 		Description of parameter
 
-	rescal : type
+	rescal : np.ndarray
 		Description of parameter
 
 
@@ -111,8 +111,16 @@ class Calibration(object):
 
 		Parameters
 		----------
-		x : type
+		channel : array_like
 			Description of x
+
+		engcal : array_like, optional
+			Description
+
+		Returns
+		-------
+		type
+			Description
 
 		Examples
 		--------
@@ -137,8 +145,16 @@ class Calibration(object):
 
 		Parameters
 		----------
-		x : type
+		energy : array_like
 			Description of x
+
+		effcal : array_like, optional
+			Description of x
+
+		Returns
+		-------
+		type
+			Description
 
 		Examples
 		--------
@@ -163,8 +179,19 @@ class Calibration(object):
 
 		Parameters
 		----------
-		x : type
+		energy : array_like
 			Description of x
+
+		effcal : array_like, optional
+			Description of x
+
+		unc_effcal : array_like, optional
+			Description of x
+
+		Returns
+		-------
+		type
+			Description
 
 		Examples
 		--------
@@ -202,8 +229,16 @@ class Calibration(object):
 
 		Parameters
 		----------
-		x : type
+		channel : array_like
 			Description of x
+
+		rescal : array_like, optional
+			Description of x
+
+		Returns
+		-------
+		type
+			Description
 
 		Examples
 		--------
@@ -228,8 +263,16 @@ class Calibration(object):
 
 		Parameters
 		----------
-		x : type
+		energy : array_like
 			Description of x
+
+		engcal : array_like, optional
+			Description of x
+
+		Returns
+		-------
+		type
+			Description
 
 		Examples
 		--------
@@ -254,8 +297,11 @@ class Calibration(object):
 
 		Parameters
 		----------
-		x : type
+		spectra : list of sp.Spectrum
 			Description of x
+
+		sources : str, list, dict or pd.DataFrame
+			Description
 
 		Examples
 		--------
@@ -397,7 +443,7 @@ class Calibration(object):
 
 		Parameters
 		----------
-		x : type
+		filename : str
 			Description of x
 
 		Examples
@@ -428,10 +474,12 @@ class Calibration(object):
 
 		...
 
-		Parameters
-		----------
-		x : type
-			Description of x
+		Other Parameters
+		----------------
+		**kwargs
+			Optional keyword arguments for plotting.  See the 
+			plotting section of the curie API for a complete
+			list of kwargs.
 
 		Examples
 		--------
@@ -457,10 +505,12 @@ class Calibration(object):
 
 		...
 
-		Parameters
-		----------
-		x : type
-			Description of x
+		Other Parameters
+		----------------
+		**kwargs
+			Optional keyword arguments for plotting.  See the 
+			plotting section of the curie API for a complete
+			list of kwargs.
 
 		Examples
 		--------
@@ -486,10 +536,12 @@ class Calibration(object):
 
 		...
 
-		Parameters
-		----------
-		x : type
-			Description of x
+		Other Parameters
+		----------------
+		**kwargs
+			Optional keyword arguments for plotting.  See the 
+			plotting section of the curie API for a complete
+			list of kwargs.
 
 		Examples
 		--------
@@ -520,10 +572,12 @@ class Calibration(object):
 
 		...
 
-		Parameters
-		----------
-		x : type
-			Description of x
+		Other Parameters
+		----------------
+		**kwargs
+			Optional keyword arguments for plotting.  See the 
+			plotting section of the curie API for a complete
+			list of kwargs.
 
 		Examples
 		--------

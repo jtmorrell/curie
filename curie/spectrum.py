@@ -205,20 +205,6 @@ class Spectrum(object):
 		return self.filename
 
 	def __add__(self, other):
-		""" Description
-
-		...
-
-		Parameters
-		----------
-		x : type
-			Description of x
-
-		Examples
-		--------
-
-		"""
-
 		if not type(other)==Spectrum:
 			raise ValueError('Cannot add spectrum to type {}'.format(type(other)))
 
@@ -260,7 +246,7 @@ class Spectrum(object):
 
 		Parameters
 		----------
-		x : type
+		N_bins : int
 			Description of x
 
 		Examples
@@ -297,6 +283,11 @@ class Spectrum(object):
 		ad : list of float
 			Description
 
+		Returns
+		-------
+		type
+			Description
+
 		Examples
 		--------
 
@@ -328,8 +319,28 @@ class Spectrum(object):
 
 		Parameters
 		----------
-		x : type
+		distance : float
 			Description of x
+
+		r_det : float
+			Description of x
+
+		thickness : float
+			Description of x
+
+		sample_size : float
+			Description of x
+
+		shape : str, optional
+			Description of x
+
+		N : int, optional
+			Description of x
+
+		Returns
+		-------
+		type
+			Description
 
 		Examples
 		--------
@@ -337,25 +348,27 @@ class Spectrum(object):
 		"""
 
 		N = int(N)
+		distance = float(distance)
+		r_det = float(r_det)
 
 		if shape.lower()=='circle':
-			r = np.sqrt(np.random.uniform(size=N))*sample_size
+			r = np.sqrt(np.random.uniform(size=N))*float(sample_size)
 			ang = np.pi*2.0*np.random.uniform(size=N)
 			x0 = r*np.cos(ang)
 			y0 = r*np.sin(ang)
 
 		elif shape.lower()=='square':
-			x0 = (np.random.uniform(size=N)-0.5)*sample_size
-			y0 = (np.random.uniform(size=N)-0.5)*sample_size
+			x0 = (np.random.uniform(size=N)-0.5)*float(sample_size)
+			y0 = (np.random.uniform(size=N)-0.5)*float(sample_size)
 
 		elif shape.lower()=='rectangle':
-			x0 = (np.random.uniform(size=N)-0.5)*sample_size[0]
-			y0 = (np.random.uniform(size=N)-0.5)*sample_size[1]
+			x0 = (np.random.uniform(size=N)-0.5)*float(sample_size[0])
+			y0 = (np.random.uniform(size=N)-0.5)*float(sample_size[1])
 
 		tht = np.arccos(2.0*np.random.uniform(size=N)-1.0)
 		phi = 2.0*np.pi*np.random.uniform(size=N)
 
-		z = distance+np.random.uniform(size=N)*thickness
+		z = distance+np.random.uniform(size=N)*float(thickness)
 		xf = x0 + z*np.tan(tht)*np.cos(phi)
 		yf = y0 + z*np.tan(tht)*np.sin(phi)
 
@@ -421,15 +434,18 @@ class Spectrum(object):
 		Y = self.hist-self._snip
 		return X, Y, np.dot(np.linalg.inv(np.dot(X, X.T)), np.dot(X, Y.T).T)
 
-	def auto_calibrate(self, guess=None, data=None):
+	def auto_calibrate(self, guess=None, peaks=None):
 		""" Description
 
 		...
 
 		Parameters
 		----------
-		x : type
+		guess : array_like
 			Description of x
+
+		peaks : array_like
+			Description
 
 		Examples
 		--------
@@ -441,14 +457,14 @@ class Spectrum(object):
 		if guess is None:
 			guess = list(self.cb.engcal)
 
-		if data is not None:
-			data = np.asarray(data, dtype=np.float64)
-			if len(data)==1:
-				guess = [0.0, data[0][1]/data[0][0]]
+		if peaks is not None:
+			peaks = np.asarray(peaks, dtype=np.float64)
+			if len(peaks)==1:
+				guess = [0.0, peaks[0][1]/peaks[0][0]]
 			else:
-				N = 2 if len(data)<5 else 3
-				M = np.column_stack([data[:,0]**m for m in range(N)])
-				b = np.array([np.sum(data[:,0]**m*data[:,1]) for m in range(N)])
+				N = 2 if len(peaks)<5 else 3
+				M = np.column_stack([peaks[:,0]**m for m in range(N)])
+				b = np.array([np.sum(peaks[:,0]**m*peaks[:,1]) for m in range(N)])
 				M_inv = np.linalg.inv(np.dot(M.T, M))
 				guess = np.dot(M_inv, b).tolist()
 
@@ -710,8 +726,13 @@ class Spectrum(object):
 
 		Parameters
 		----------
-		x : type
+		gammas : list, dict or pd.DataFrame, optional
 			Description of x
+
+		Returns
+		-------
+		type
+			Description
 
 		Examples
 		--------
@@ -745,8 +766,11 @@ class Spectrum(object):
 
 		Parameters
 		----------
-		x : type
+		filename : str
 			Description of x
+
+		replace : bool, optional
+			Description
 
 		Examples
 		--------
@@ -877,11 +901,6 @@ class Spectrum(object):
 
 		...
 
-		Parameters
-		----------
-		x : type
-			Description of x
-
 		Examples
 		--------
 
@@ -912,8 +931,18 @@ class Spectrum(object):
 
 		Parameters
 		----------
-		x : type
+		fit : bool, optional
 			Description of x
+
+		xcalib : bool, optional
+			Description
+
+		Other Parameters
+		----------------
+		**kwargs
+			Optional keyword arguments for plotting.  See the 
+			plotting section of the curie API for a complete
+			list of kwargs.
 
 		Examples
 		--------

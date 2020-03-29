@@ -20,15 +20,27 @@ class DecayChain(object):
 	
 	Parameters
 	----------
-	x : type
-		Description of parameter `x`.
+	parent_isotope : str
+		Description of parameter x
+
+	R : str, array_like, dict or pd.DataFrame
+		Description of parameter x
+
+	A0 : float or dict
+		Description of parameter x
+
+	units : str, optional
+		Description of parameter x
 
 	Attributes
 	----------
-	isotopes : type
+	isotopes : list
 		Description
 
-	counts : type
+	counts : pd.DataFrame
+		Description
+
+	R_avg : pd.DataFrame
 		Description
 
 
@@ -37,7 +49,7 @@ class DecayChain(object):
 
 	"""
 
-	def __init__(self, parent_isotope, units='s', R=None, A0=None):
+	def __init__(self, parent_isotope, R=None, A0=None, units='s'):
 		if units.lower() in ['hr','min','yr','sec']:
 			units = {'hr':'h','min':'m','yr':'y','sec':'s'}[units.lower()]
 		self.units = units
@@ -99,6 +111,8 @@ class DecayChain(object):
 				_R_dict = {p:self.R[self.R['isotope']==p].iloc[n]['R'] for p in pd.unique(self.R['isotope'])}
 				self.A0 = {p:self.activity(p, dt, _R_dict=_R_dict) for p in self.A0}
 
+	def __str__(self):
+		return self.isotopes[0]
 
 	def _filter_name(self, istp):
 		return Isotope(istp).name
@@ -145,8 +159,19 @@ class DecayChain(object):
 
 		Parameters
 		----------
-		x : type
+		isotope : str
 			Description of x
+
+		time : array_like
+			Description
+
+		units : str, optional
+			Description
+
+		Returns
+		-------
+		np.ndarray
+			Description
 
 		Examples
 		--------
@@ -154,7 +179,7 @@ class DecayChain(object):
 		"""
 
 		time = np.asarray(time)
-		A = np.zeros(len(time)) if time.shape else 0.0
+		A = np.zeros(len(time)) if time.shape else np.array(0.0)
 
 		for m,(BR, chain) in enumerate(zip(*self._get_branches(isotope))):
 			lm = self._r_lm(units)*self.chain[chain, 0]
@@ -166,11 +191,13 @@ class DecayChain(object):
 				ip = self.isotopes[chain[i]]
 				A0 = self.A0[ip] if _A_dict is None else _A_dict[ip]
 				A_i = lm[-1]*(A0/lm[i])
+				
 				B_i = np.prod(lm[i:-1]*BR[i:-1])
 
 				for j in range(i, L):
 					K = np.arange(i, L)
-					C_j = np.prod(np.where((lm[K[K!=j]]-lm[j])!=0, lm[K[K!=j]]-lm[j], 1E-12))
+					d_lm = lm[K[K!=j]]-lm[j]
+					C_j = np.prod(np.where(np.abs(d_lm)>1E-12, d_lm, 1E-12*np.sign(d_lm)))
 					A += A_i*B_i*np.exp(-lm[j]*time)/C_j
 					if _R_dict is not None:
 						if ip in _R_dict:
@@ -187,8 +214,22 @@ class DecayChain(object):
 
 		Parameters
 		----------
-		x : type
+		isotope : str
 			Description of x
+
+		t_start : array_like
+			Description
+
+		t_stop : array_like
+			Description
+
+		units : str, optional
+			Description
+
+		Returns
+		-------
+		np.ndarray
+			Description
 
 		Examples
 		--------
@@ -196,7 +237,7 @@ class DecayChain(object):
 		"""
 
 		t_start, t_stop = np.asarray(t_start), np.asarray(t_stop)
-		D = np.zeros(len(t_start)) if t_start.shape else (np.zeros(len(t_stop)) if t_stop.shape else 0.0)
+		D = np.zeros(len(t_start)) if t_start.shape else (np.zeros(len(t_stop)) if t_stop.shape else np.array(0.0))
 
 		for m,(BR, chain) in enumerate(zip(*self._get_branches(isotope))):
 			lm = self._r_lm(units)*self.chain[chain,0]
@@ -212,7 +253,8 @@ class DecayChain(object):
 
 				for j in range(i, len(chain)):
 					K = np.arange(i, len(chain))
-					C_j = np.prod(np.where((lm[K[K!=j]]-lm[j])!=0, lm[K[K!=j]]-lm[j], 1E-12))
+					d_lm = lm[K[K!=j]]-lm[j]
+					C_j = np.prod(np.where(np.abs(d_lm)>1E-12, d_lm, 1E-12*np.sign(d_lm)))
 					if lm[j]>1E-12:
 						D += A_i*B_i*(np.exp(-lm[j]*t_start)-np.exp(-lm[j]*t_stop))/(lm[j]*C_j)
 					else:
@@ -250,8 +292,14 @@ class DecayChain(object):
 
 		Parameters
 		----------
-		x : type
+		spectra : list
 			Description of x
+		
+		EoB : str or datetime.datetime
+			Description
+
+		peak_data : str or pd.DataFrame, optional
+			Description
 
 		Examples
 		--------
@@ -322,10 +370,16 @@ class DecayChain(object):
 
 		...
 
-		Parameters
-		----------
-		x : type
-			Description of x
+		Returns
+		-------
+		list
+			Description
+
+		np.ndarray
+			Description
+
+		np.ndarray
+			Description
 
 		Examples
 		--------
@@ -372,10 +426,16 @@ class DecayChain(object):
 
 		...
 
-		Parameters
-		----------
-		x : type
-			Description of x
+		Returns
+		-------
+		list
+			Description
+
+		np.ndarray
+			Description
+
+		np.ndarray
+			Description
 
 		Examples
 		--------
@@ -412,8 +472,21 @@ class DecayChain(object):
 
 		Parameters
 		----------
-		x : type
+		time : array_like, optional
 			Description of x
+
+		max_plot : int, optional
+			Description
+
+		max_label : int, optional
+			Description
+
+		Other Parameters
+		----------------
+		**kwargs
+			Optional keyword arguments for plotting.  See the 
+			plotting section of the curie API for a complete
+			list of kwargs.
 
 		Examples
 		--------
@@ -449,15 +522,16 @@ class DecayChain(object):
 				A_grid = {p:np.append(A_grid[p], self.activity(p, dT, _R_dict=_R_dict, _A_dict=A0)) for p in A0}
 				A0 = {p:A_grid[p][-1] for p in A0}
 
+
+		plot_time = time if self.R is None else np.append(T_grid-T_grid[-1], time.copy())
 		for n,istp in enumerate(self.isotopes):
 			if self.chain[n,0]>1E-12 and n<max_plot:
 				A = self.activity(istp, time)
 				if self.R is not None:
-					time = np.append(T_grid-T_grid[-1], time)
 					A = np.append(A_grid[istp], A)
 
 				label = Isotope(istp).TeX if n<max_label else None
-				line, = ax.plot(time, A*mult, label=label)
+				line, = ax.plot(plot_time, A*mult, label=label)
 
 				if self.counts is not None:
 					df = self.counts[self.counts['isotope']==istp]

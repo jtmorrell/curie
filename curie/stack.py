@@ -11,6 +11,7 @@ import pandas as pd
 from .data import _get_connection
 from .plotting import _init_plot, _draw_plot
 from .compound import Compound
+from .element import Element
 
 class Stack(object):
 	"""Stack
@@ -78,11 +79,13 @@ class Stack(object):
 
 		if type(stack)==str:
 			if stack.endswith('.json'):
-				js = json.reads(open(stack).read())
-				df = pd.DataFrame(js)
+				df = pd.read_json(stack, orient='records')
 
 			elif stack.endswith('.csv'):
 				df = pd.read_csv(stack, header=0)
+
+			elif stack.endswith('.db'):
+				df = pd.read_sql('SELECT * FROM stack', _get_connection(stack))
 
 		elif type(stack)==list:
 			df = pd.DataFrame(stack)
@@ -173,7 +176,7 @@ class Stack(object):
 						### e.g. ['H20', 'RbCl']
 						self.compounds[cm] = Compound(cm)
 
-					elif type(cm)==Compound:
+					elif type(cm)==Compound or type(cm)==Element:
 						### ci.Compound class
 						self.compounds[cm.name] = cm
 
@@ -283,8 +286,14 @@ class Stack(object):
 
 		Parameters
 		----------
-		x : type
+		filename : str
 			Description of x
+
+		save_fluxes : bool, optional
+			Description
+
+		filter_name : bool or str, optional
+			Description
 
 		Examples
 		--------
@@ -305,9 +314,9 @@ class Stack(object):
 				self._filter_samples(self.fluxes, filter_name).to_sql('fluxes', _get_connection(filename), if_exists='replace', index=False)
 
 		if filename.endswith('.json'):
-			self._filter_samples(self.stack, filter_name).to_json(filename, orient='records')
+			json.dump(json.loads(self._filter_samples(self.stack, filter_name).to_json(orient='records')), open(filename, 'w'), indent=4)
 			if save_fluxes:
-				self._filter_samples(self.fluxes, filter_name).to_json(filename.replace('.json','_fluxes.json'), orient='records')
+				json.dump(json.loads(self._filter_samples(self.fluxes, filter_name).to_json(orient='records')), open(filename.replace('.json','_fluxes.json'), 'w'), indent=4)
 
 		
 	def summarize(self, filter_name=True):
@@ -317,7 +326,7 @@ class Stack(object):
 
 		Parameters
 		----------
-		x : type
+		filter_name : bool or str, optional
 			Description of x
 
 		Examples
@@ -345,8 +354,15 @@ class Stack(object):
 
 		Parameters
 		----------
-		x : type
+		filter_name : bool or str, optional
 			Description of x
+
+		Other Parameters
+		----------------
+		**kwargs
+			Optional keyword arguments for plotting.  See the 
+			plotting section of the curie API for a complete
+			list of kwargs.
 
 		Examples
 		--------

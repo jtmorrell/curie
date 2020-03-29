@@ -42,8 +42,12 @@
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="kn">import</span> <span class="n">interp1d</span>
 
 <span class="kn">from</span> <span class="nn">.data</span> <span class="kn">import</span> <span class="n">_get_connection</span>
+<span class="kn">from</span> <span class="nn">.plotting</span> <span class="kn">import</span> <span class="n">_init_plot</span><span class="p">,</span> <span class="n">_draw_plot</span><span class="p">,</span> <span class="n">colormap</span>
+<span class="kn">from</span> <span class="nn">.isotope</span> <span class="kn">import</span> <span class="n">Isotope</span>
+<span class="kn">from</span> <span class="nn">.library</span> <span class="kn">import</span> <span class="n">Library</span>
 
 <div class="viewcode-block" id="Reaction"><a class="viewcode-back" href="../../api/reaction.html#curie.Reaction">[docs]</a><span class="k">class</span> <span class="nc">Reaction</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 	<span class="sd">&quot;&quot;&quot;Reaction</span>
@@ -52,39 +56,42 @@
 <span class="sd">	</span>
 <span class="sd">	Parameters</span>
 <span class="sd">	----------</span>
-<span class="sd">	x : type</span>
+<span class="sd">	reaction_name : str</span>
+<span class="sd">		Description of parameter `x`.</span>
+
+<span class="sd">	library : str, optional</span>
 <span class="sd">		Description of parameter `x`.</span>
 
 <span class="sd">	Attributes</span>
 <span class="sd">	----------</span>
-<span class="sd">	target : type</span>
+<span class="sd">	target : str</span>
 <span class="sd">		Description </span>
 
-<span class="sd">	incident : type</span>
+<span class="sd">	incident : str</span>
 <span class="sd">		Description </span>
 
-<span class="sd">	outgoing : type</span>
+<span class="sd">	outgoing : str</span>
 <span class="sd">		Description </span>
 
-<span class="sd">	product : type</span>
+<span class="sd">	product : str</span>
 <span class="sd">		Description </span>
 
-<span class="sd">	eng : type</span>
+<span class="sd">	eng : np.ndarray</span>
 <span class="sd">		Description </span>
 
-<span class="sd">	xs : type</span>
+<span class="sd">	xs : np.ndarray</span>
 <span class="sd">		Description </span>
 
-<span class="sd">	unc_xs : type</span>
+<span class="sd">	unc_xs : np.ndarray</span>
 <span class="sd">		Description </span>
 
-<span class="sd">	name : type</span>
+<span class="sd">	name : str</span>
 <span class="sd">		Description </span>
 
-<span class="sd">	library : type</span>
+<span class="sd">	library : ci.Library</span>
 <span class="sd">		Description </span>
 
-<span class="sd">	TeX : type</span>
+<span class="sd">	TeX : str</span>
 <span class="sd">		Description </span>
 
 
@@ -94,27 +101,110 @@
 <span class="sd">	&quot;&quot;&quot;</span>
 
 	<span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reaction_name</span><span class="p">,</span> <span class="n">library</span><span class="o">=</span><span class="s1">&#39;best&#39;</span><span class="p">):</span>
-		<span class="k">pass</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="n">p</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">reaction_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;(&#39;</span><span class="p">))</span>
+		<span class="n">p</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">product</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;)&#39;</span><span class="p">))</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">incident</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">outgoing</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">))</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">incident</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">outgoing</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">incident</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">outgoing</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_rx</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">incident</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">outgoing</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">product</span><span class="p">]</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">reaction_name</span>
+
+		<span class="k">if</span> <span class="n">library</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">==</span><span class="s1">&#39;best&#39;</span><span class="p">:</span>
+			<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">incident</span><span class="o">==</span><span class="s1">&#39;n&#39;</span><span class="p">:</span>
+				<span class="k">for</span> <span class="n">lb</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;irdff&#39;</span><span class="p">,</span><span class="s1">&#39;endf&#39;</span><span class="p">,</span><span class="s1">&#39;iaea&#39;</span><span class="p">,</span><span class="s1">&#39;tendl&#39;</span><span class="p">,</span><span class="s1">&#39;tendl_n_rp&#39;</span><span class="p">]:</span>
+					<span class="bp">self</span><span class="o">.</span><span class="n">library</span> <span class="o">=</span> <span class="n">Library</span><span class="p">(</span><span class="n">lb</span><span class="p">)</span>
+					<span class="k">if</span> <span class="n">lb</span><span class="o">==</span><span class="s1">&#39;tendl_n_rp&#39;</span><span class="p">:</span>
+						<span class="bp">self</span><span class="o">.</span><span class="n">_check</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+					<span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check</span><span class="p">():</span>
+						<span class="k">break</span>
+			<span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">incident</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;p&#39;</span><span class="p">,</span><span class="s1">&#39;d&#39;</span><span class="p">]:</span>
+				<span class="k">for</span> <span class="n">lb</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;iaea&#39;</span><span class="p">,</span><span class="s1">&#39;tendl_&#39;</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">incident</span><span class="o">+</span><span class="s1">&#39;_rp&#39;</span><span class="p">]:</span>
+					<span class="bp">self</span><span class="o">.</span><span class="n">library</span> <span class="o">=</span> <span class="n">Library</span><span class="p">(</span><span class="n">lb</span><span class="p">)</span>
+					<span class="k">if</span> <span class="n">lb</span><span class="o">==</span><span class="s1">&#39;tendl_d_rp&#39;</span><span class="p">:</span>
+						<span class="bp">self</span><span class="o">.</span><span class="n">_check</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+					<span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check</span><span class="p">():</span>
+						<span class="k">break</span>
+			<span class="k">else</span><span class="p">:</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">library</span> <span class="o">=</span> <span class="n">Library</span><span class="p">(</span><span class="s1">&#39;iaea&#39;</span><span class="p">)</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">_check</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">library</span> <span class="o">=</span> <span class="n">Library</span><span class="p">(</span><span class="n">library</span><span class="p">)</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">_check</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">library</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_rx</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+		<span class="n">q</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">library</span><span class="o">.</span><span class="n">retrieve</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_rx</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">eng</span> <span class="o">=</span> <span class="n">q</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">xs</span> <span class="o">=</span> <span class="n">q</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span>
+		<span class="k">if</span> <span class="n">q</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="mi">3</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">unc_xs</span> <span class="o">=</span> <span class="n">q</span><span class="p">[:,</span><span class="mi">2</span><span class="p">]</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">unc_xs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xs</span><span class="p">))</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_interp</span> <span class="o">=</span> <span class="kc">None</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_interp_unc</span> <span class="o">=</span> <span class="kc">None</span>
+
+		<span class="k">if</span> <span class="s1">&#39;nat&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">:</span>
+			<span class="n">tg</span> <span class="o">=</span> <span class="n">Isotope</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">)</span><span class="o">.</span><span class="n">TeX</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">tg</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$^</span><span class="si">{nat}</span><span class="s1">$&#39;</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">[</span><span class="mi">3</span><span class="p">:]</span><span class="o">.</span><span class="n">title</span><span class="p">()</span>
+		<span class="n">prd</span> <span class="o">=</span> <span class="n">Isotope</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">product</span><span class="p">)</span><span class="o">.</span><span class="n">TeX</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">product</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">TeX</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{0}</span><span class="s1">(</span><span class="si">{1}</span><span class="s1">,</span><span class="si">{2}</span><span class="s1">)</span><span class="si">{3}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">tg</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">incident</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">outgoing</span><span class="p">,</span> <span class="n">prd</span><span class="p">)</span>
+
+	<span class="k">def</span> <span class="nf">_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">err</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+		<span class="n">c</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">library</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_rx</span><span class="p">))</span><span class="o">==</span><span class="mi">1</span>
+		<span class="k">if</span> <span class="n">err</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">c</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Reaction &#39;</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="o">+</span><span class="s1">&#39; not found or not unique.&#39;</span><span class="p">)</span>
+		<span class="k">return</span> <span class="n">c</span>
 
 	<span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-		<span class="k">pass</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
 		
-<div class="viewcode-block" id="Reaction.interpolate"><a class="viewcode-back" href="../../api/reaction.html#curie.Reaction.interpolate">[docs]</a>	<span class="k">def</span> <span class="nf">interpolate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">unc</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="Reaction.interpolate"><a class="viewcode-back" href="../../api/reaction.html#curie.Reaction.interpolate">[docs]</a>	<span class="k">def</span> <span class="nf">interpolate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot; Description</span>
 
 <span class="sd">		...</span>
 
 <span class="sd">		Parameters</span>
 <span class="sd">		----------</span>
-<span class="sd">		x : type</span>
+<span class="sd">		energy : array_like</span>
 <span class="sd">			Description of x</span>
+
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+<span class="sd">		type</span>
+<span class="sd">			Description</span>
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>
 
-<span class="sd">		&quot;&quot;&quot;</span>
+<span class="sd">		&quot;&quot;&quot;</span> 
 
-		<span class="k">pass</span></div>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">_interp</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eng</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xs</span><span class="p">,</span> <span class="n">bounds_error</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interp</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Reaction.interpolate_unc"><a class="viewcode-back" href="../../api/reaction.html#curie.Reaction.interpolate_unc">[docs]</a>	<span class="k">def</span> <span class="nf">interpolate_unc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; Description</span>
+
+<span class="sd">		...</span>
+
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">		energy : array_like</span>
+<span class="sd">			Description of x</span>
+
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+<span class="sd">		type</span>
+<span class="sd">			Description</span>
+
+<span class="sd">		Examples</span>
+<span class="sd">		--------</span>
+
+<span class="sd">		&quot;&quot;&quot;</span> 
+
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interp_unc</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">_interp_unc</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eng</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">unc_xs</span><span class="p">,</span> <span class="n">bounds_error</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interp_unc</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span></div>
 		
 <div class="viewcode-block" id="Reaction.integrate"><a class="viewcode-back" href="../../api/reaction.html#curie.Reaction.integrate">[docs]</a>	<span class="k">def</span> <span class="nf">integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">flux</span><span class="p">,</span> <span class="n">unc</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot; Description</span>
@@ -123,15 +213,31 @@
 
 <span class="sd">		Parameters</span>
 <span class="sd">		----------</span>
-<span class="sd">		x : type</span>
+<span class="sd">		energy : array_like</span>
 <span class="sd">			Description of x</span>
+
+<span class="sd">		flux : array_like</span>
+<span class="sd">			Description of x</span>
+
+<span class="sd">		unc : bool, optional</span>
+<span class="sd">			Description of x</span>
+
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+<span class="sd">		type</span>
+<span class="sd">			Description</span>
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>
 
 <span class="sd">		&quot;&quot;&quot;</span>
 
-		<span class="k">pass</span></div>
+		<span class="n">E</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span>
+		<span class="n">phisig</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">flux</span><span class="p">)</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">E</span><span class="p">)</span>
+		<span class="k">if</span> <span class="n">unc</span><span class="p">:</span>
+			<span class="n">unc_phisig</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">flux</span><span class="p">)</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">interpolate_unc</span><span class="p">(</span><span class="n">E</span><span class="p">)</span>
+			<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><span class="n">E</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">-</span><span class="n">E</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">*</span><span class="p">(</span><span class="n">phisig</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">phisig</span><span class="p">[</span><span class="mi">1</span><span class="p">:])),</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><span class="n">E</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">-</span><span class="n">E</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">*</span><span class="p">(</span><span class="n">unc_phisig</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">unc_phisig</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span>
+		<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><span class="n">E</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">-</span><span class="n">E</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">*</span><span class="p">(</span><span class="n">phisig</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">phisig</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span></div>
 		
 <div class="viewcode-block" id="Reaction.average"><a class="viewcode-back" href="../../api/reaction.html#curie.Reaction.average">[docs]</a>	<span class="k">def</span> <span class="nf">average</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">flux</span><span class="p">,</span> <span class="n">unc</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot; Description</span>
@@ -140,32 +246,92 @@
 
 <span class="sd">		Parameters</span>
 <span class="sd">		----------</span>
-<span class="sd">		x : type</span>
+<span class="sd">		energy : array_like</span>
 <span class="sd">			Description of x</span>
+
+<span class="sd">		flux : array_like</span>
+<span class="sd">			Description of x</span>
+
+<span class="sd">		unc : bool, optional</span>
+<span class="sd">			Description of x</span>
+
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+<span class="sd">		type</span>
+<span class="sd">			Description</span>
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>
 
 <span class="sd">		&quot;&quot;&quot;</span>
 
-		<span class="k">pass</span></div>
+		<span class="n">E</span><span class="p">,</span> <span class="n">phi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">energy</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">flux</span><span class="p">)</span>
+		<span class="n">phisig</span> <span class="o">=</span> <span class="n">phi</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">E</span><span class="p">)</span>
+		<span class="n">dE</span> <span class="o">=</span> <span class="n">E</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">-</span><span class="n">E</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+		<span class="k">if</span> <span class="n">unc</span><span class="p">:</span>
+			<span class="n">unc_phisig</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">flux</span><span class="p">)</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">interpolate_unc</span><span class="p">(</span><span class="n">E</span><span class="p">)</span>
+			<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mf">0.5</span><span class="o">*</span><span class="n">dE</span><span class="o">*</span><span class="p">(</span><span class="n">phisig</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">phisig</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mf">0.5</span><span class="o">*</span><span class="n">dE</span><span class="o">*</span><span class="p">(</span><span class="n">phi</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">phi</span><span class="p">[</span><span class="mi">1</span><span class="p">:])),</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mf">0.5</span><span class="o">*</span><span class="n">dE</span><span class="o">*</span><span class="p">(</span><span class="n">unc_phisig</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">unc_phisig</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mf">0.5</span><span class="o">*</span><span class="n">dE</span><span class="o">*</span><span class="p">(</span><span class="n">phi</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">phi</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span>
+		<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mf">0.5</span><span class="o">*</span><span class="n">dE</span><span class="o">*</span><span class="p">(</span><span class="n">phisig</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">phisig</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mf">0.5</span><span class="o">*</span><span class="n">dE</span><span class="o">*</span><span class="p">(</span><span class="n">phi</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">phi</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span></div>
 		
-<div class="viewcode-block" id="Reaction.plot"><a class="viewcode-back" href="../../api/reaction.html#curie.Reaction.plot">[docs]</a>	<span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">E_lim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="Reaction.plot"><a class="viewcode-back" href="../../api/reaction.html#curie.Reaction.plot">[docs]</a>	<span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;reaction&#39;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot; Description</span>
 
 <span class="sd">		...</span>
 
 <span class="sd">		Parameters</span>
 <span class="sd">		----------</span>
-<span class="sd">		x : type</span>
+<span class="sd">		energy : array_like, optional</span>
+<span class="sd">			Description </span>
+
+<span class="sd">		label : str, optional</span>
 <span class="sd">			Description of x</span>
+
+<span class="sd">		title : bool, optional</span>
+<span class="sd">			Description</span>
+
+<span class="sd">		Other Parameters</span>
+<span class="sd">		----------------</span>
+<span class="sd">		**kwargs</span>
+<span class="sd">			Optional keyword arguments for plotting.  See the </span>
+<span class="sd">			plotting section of the curie API for a complete</span>
+<span class="sd">			list of kwargs.</span>
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>
 
 <span class="sd">		&quot;&quot;&quot;</span>
 
-		<span class="k">pass</span></div></div>
+		<span class="n">f</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">_init_plot</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+		<span class="k">if</span> <span class="n">title</span><span class="p">:</span>
+			<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">TeX</span><span class="p">)</span>
+
+		<span class="k">if</span> <span class="n">label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="k">if</span> <span class="n">label</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;both&#39;</span><span class="p">,</span><span class="s1">&#39;library&#39;</span><span class="p">,</span><span class="s1">&#39;reaction&#39;</span><span class="p">]:</span>
+				<span class="n">label</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;both&#39;</span><span class="p">:</span><span class="s1">&#39;</span><span class="si">{0}</span><span class="se">\n</span><span class="s1">(</span><span class="si">{1}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">TeX</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">library</span><span class="o">.</span><span class="n">name</span><span class="p">),</span><span class="s1">&#39;library&#39;</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">library</span><span class="o">.</span><span class="n">name</span><span class="p">,</span><span class="s1">&#39;reaction&#39;</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">TeX</span><span class="p">}[</span><span class="n">label</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span>
+
+		<span class="n">unc_xs</span> <span class="o">=</span> <span class="kc">None</span>
+		<span class="k">if</span> <span class="n">energy</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="n">eng</span><span class="p">,</span> <span class="n">xs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eng</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xs</span>
+			<span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">unc_xs</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">):</span>
+				<span class="n">unc_xs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">unc_xs</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">eng</span><span class="p">,</span> <span class="n">xs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">energy</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span>
+			<span class="n">ux</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">intepolate_unc</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span>
+			<span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">ux</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">):</span>
+				<span class="n">unc_xs</span> <span class="o">=</span> <span class="n">ux</span>
+
+		<span class="n">line</span><span class="p">,</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">eng</span><span class="p">,</span> <span class="n">xs</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span>
+		<span class="k">if</span> <span class="n">unc_xs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="n">ax</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">eng</span><span class="p">,</span> <span class="n">xs</span><span class="o">+</span><span class="n">unc_xs</span><span class="p">,</span> <span class="n">xs</span><span class="o">-</span><span class="n">unc_xs</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="n">line</span><span class="o">.</span><span class="n">get_color</span><span class="p">(),</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+
+		<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Incident Energy (MeV)&#39;</span><span class="p">)</span>
+		<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Cross Section (mb)&#39;</span><span class="p">)</span>
+
+		<span class="k">if</span> <span class="n">label</span><span class="p">:</span>
+			<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+		<span class="k">return</span> <span class="n">_draw_plot</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
 		
 </pre></div>
 

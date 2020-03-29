@@ -18,39 +18,42 @@ class Reaction(object):
 	
 	Parameters
 	----------
-	x : type
+	reaction_name : str
+		Description of parameter `x`.
+
+	library : str, optional
 		Description of parameter `x`.
 
 	Attributes
 	----------
-	target : type
+	target : str
 		Description 
 
-	incident : type
+	incident : str
 		Description 
 
-	outgoing : type
+	outgoing : str
 		Description 
 
-	product : type
+	product : str
 		Description 
 
-	eng : type
+	eng : np.ndarray
 		Description 
 
-	xs : type
+	xs : np.ndarray
 		Description 
 
-	unc_xs : type
+	unc_xs : np.ndarray
 		Description 
 
-	name : type
+	name : str
 		Description 
 
-	library : type
+	library : ci.Library
 		Description 
 
-	TeX : type
+	TeX : str
 		Description 
 
 
@@ -117,15 +120,20 @@ class Reaction(object):
 	def __str__(self):
 		return self.name
 		
-	def interpolate(self):
+	def interpolate(self, energy):
 		""" Description
 
 		...
 
 		Parameters
 		----------
-		x : type
+		energy : array_like
 			Description of x
+
+		Returns
+		-------
+		type
+			Description
 
 		Examples
 		--------
@@ -134,17 +142,22 @@ class Reaction(object):
 
 		if self._interp is None:
 			self._interp = interp1d(self.eng, self.xs, bounds_error=False, fill_value=0.0)
-		return self._interp
+		return self._interp(energy)
 
-	def interpolate_unc(self):
+	def interpolate_unc(self, energy):
 		""" Description
 
 		...
 
 		Parameters
 		----------
-		x : type
+		energy : array_like
 			Description of x
+
+		Returns
+		-------
+		type
+			Description
 
 		Examples
 		--------
@@ -153,7 +166,7 @@ class Reaction(object):
 
 		if self._interp_unc is None:
 			self._interp_unc = interp1d(self.eng, self.unc_xs, bounds_error=False, fill_value=0.0)
-		return self._interp_unc
+		return self._interp_unc(energy)
 		
 	def integrate(self, energy, flux, unc=False):
 		""" Description
@@ -162,8 +175,19 @@ class Reaction(object):
 
 		Parameters
 		----------
-		x : type
+		energy : array_like
 			Description of x
+
+		flux : array_like
+			Description of x
+
+		unc : bool, optional
+			Description of x
+
+		Returns
+		-------
+		type
+			Description
 
 		Examples
 		--------
@@ -171,9 +195,9 @@ class Reaction(object):
 		"""
 
 		E = np.asarray(energy)
-		phisig = np.asarray(flux)*self.interp(E)
+		phisig = np.asarray(flux)*self.interpolate(E)
 		if unc:
-			unc_phisig = np.asarray(flux)*self.interp_unc(E)
+			unc_phisig = np.asarray(flux)*self.interpolate_unc(E)
 			return np.sum(0.5*(E[1:]-E[:-1])*(phisig[:-1]+phisig[1:])), np.sum(0.5*(E[1:]-E[:-1])*(unc_phisig[:-1]+unc_phisig[1:]))
 		return np.sum(0.5*(E[1:]-E[:-1])*(phisig[:-1]+phisig[1:]))
 		
@@ -184,8 +208,19 @@ class Reaction(object):
 
 		Parameters
 		----------
-		x : type
+		energy : array_like
 			Description of x
+
+		flux : array_like
+			Description of x
+
+		unc : bool, optional
+			Description of x
+
+		Returns
+		-------
+		type
+			Description
 
 		Examples
 		--------
@@ -193,22 +228,35 @@ class Reaction(object):
 		"""
 
 		E, phi = np.asarray(energy), np.asarray(flux)
-		phisig = phi*self.interp(E)
+		phisig = phi*self.interpolate(E)
 		dE = E[1:]-E[:-1]
 		if unc:
-			unc_phisig = np.asarray(flux)*self.interp_unc(E)
+			unc_phisig = np.asarray(flux)*self.interpolate_unc(E)
 			return np.sum(0.5*dE*(phisig[:-1]+phisig[1:]))/np.sum(0.5*dE*(phi[:-1]+phi[1:])), np.sum(0.5*dE*(unc_phisig[:-1]+unc_phisig[1:]))/np.sum(0.5*dE*(phi[:-1]+phi[1:]))
 		return np.sum(0.5*dE*(phisig[:-1]+phisig[1:]))/np.sum(0.5*dE*(phi[:-1]+phi[1:]))
 		
-	def plot(self, label='reaction', title=False, energy=None, **kwargs):
+	def plot(self, energy=None, label='reaction', title=False, **kwargs):
 		""" Description
 
 		...
 
 		Parameters
 		----------
-		x : type
+		energy : array_like, optional
+			Description 
+
+		label : str, optional
 			Description of x
+
+		title : bool, optional
+			Description
+
+		Other Parameters
+		----------------
+		**kwargs
+			Optional keyword arguments for plotting.  See the 
+			plotting section of the curie API for a complete
+			list of kwargs.
 
 		Examples
 		--------

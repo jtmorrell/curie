@@ -57,7 +57,7 @@ def colormap(palette='default', shade='dark', aslist=False):
 
 	Returns
 	-------
-	dict or list
+	colormap : dict or list
 		Colormap in list or dictionary format
 
 	Examples

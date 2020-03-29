@@ -167,7 +167,7 @@ and if just m is given, the first isomer is assumed.</p>
 <tr class="row-even"><td><a class="reference internal" href="#curie.Isotope.electrons" title="curie.Isotope.electrons"><code class="xref py py-obj docutils literal notranslate"><span class="pre">electrons</span></code></a>([I_lim,&nbsp;E_lim,&nbsp;CE_only,&nbsp;Auger_only])</td>
 <td>Electrons (conversion and Auger) emitted by the decay of the isotope</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#curie.Isotope.gammas" title="curie.Isotope.gammas"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gammas</span></code></a>([I_lim,&nbsp;E_lim,&nbsp;xrays,&nbsp;dE_511])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#curie.Isotope.gammas" title="curie.Isotope.gammas"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gammas</span></code></a>([I_lim,&nbsp;E_lim,&nbsp;xrays,&nbsp;dE_511,&nbsp;istp_col])</td>
 <td>Gamma-rays emitted by the decay of the isotope</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#curie.Isotope.get_NFY" title="curie.Isotope.get_NFY"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_NFY</span></code></a>(E)</td>
@@ -207,7 +207,7 @@ this is a lower bound, if a 2-tuple then (upper, lower) bounds.</p>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>pandas.DataFrame</strong></dt>
+<dt><strong>alphas</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pd.DataFrame</span></dt>
 <dd><p class="first last">Tabular alpha emission data, with keys ‘energy’, ‘intensity’ and ‘unc_intensity’. Units
 of energy are in keV and units of intensity are in percent.</p>
 </dd>
@@ -248,7 +248,7 @@ is given, this is a lower bound, if a 2-tuple then (upper, lower) bounds.</p>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>pandas.DataFrame</strong></dt>
+<dt><strong>beta_minus</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pd.DataFrame</span></dt>
 <dd><p class="first last">Tabular beta-minus data, with keywords ‘mean_energy’, ‘endpoint_energy’, ‘intensity’,
 ‘unc_intensity’. Units of energy are in keV and units of intensity are in percent.</p>
 </dd>
@@ -289,7 +289,7 @@ is given, this is a lower bound, if a 2-tuple then (upper, lower) bounds.</p>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>pandas.DataFrame</strong></dt>
+<dt><strong>beta_plus</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pd.DataFrame</span></dt>
 <dd><p class="first last">Tabular beta-plus data, with keywords ‘mean_energy’, ‘endpoint_energy’, ‘intensity’,
 ‘unc_intensity’. Units of energy are in keV and units of intensity are in percent.</p>
 </dd>
@@ -329,7 +329,7 @@ Actual value will be given in units of inverse time</p>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>float or 2-tuple of floats</strong></dt>
+<dt><strong>decay_const</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float or 2-tuple of floats</span></dt>
 <dd><p class="first last">Decay constant in specified units, with uncertainty only if <cite>unc=True</cite></p>
 </dd>
 </dl>
@@ -373,7 +373,7 @@ the <cite>Isotope.half_life()</cite> function. E.g. mR/hr, uSv/m, kGy/y. Default
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>dict</strong></dt>
+<dt><strong>dose_rate</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
 <dd><p class="first last">Dictionary of dose from each of the following particle type: ‘gamma’, ‘electron’, 
 ‘beta_minus’, ‘beta_plus’, ‘alpha’, and ‘total’.  Units are specified as an input.</p>
 </dd>
@@ -383,9 +383,8 @@ the <cite>Isotope.half_life()</cite> function. E.g. mR/hr, uSv/m, kGy/y. Default
 </tbody>
 </table>
 <p class="rubric">Examples</p>
-<p>1 Ci of Co-60 at 30 cm</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ip</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Isotope</span><span class="p">(</span><span class="s1">&#39;Co-60&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ip</span><span class="o">.</span><span class="n">dose_rate</span><span class="p">(</span><span class="n">activity</span><span class="o">=</span><span class="mf">3.7E10</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;R/hr&#39;</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ip</span><span class="o">.</span><span class="n">dose_rate</span><span class="p">(</span><span class="n">activity</span><span class="o">=</span><span class="mf">3.7E10</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;R/hr&#39;</span><span class="p">))</span> <span class="c1"># 1 Ci of Co-60 at 30 cm</span>
 <span class="go">{&#39;beta_plus&#39;: 0.0, &#39;alphas&#39;: 0.0, &#39;gammas&#39;: 52035.28424827692, </span>
 <span class="go">&#39;electrons&#39;: 65.66251805557148, &#39;beta_minus&#39;: 5536.541902410433, &#39;total&#39;: 57637.488668742924}</span>
 </pre></div>
@@ -421,7 +420,7 @@ is given, this is a lower bound, if a 2-tuple then (upper, lower) bounds.</p>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>pandas.DataFrame</strong></dt>
+<dt><strong>electrons</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pd.DataFrame</span></dt>
 <dd><p class="first last">Tabular electron data, with keywords ‘energy’, ‘intensity’, ‘unc_intensity’. Units
 of energy are in keV and units of intensity are in percent.</p>
 </dd>
@@ -443,7 +442,7 @@ of energy are in keV and units of intensity are in percent.</p>
 
 <dl class="method">
 <dt id="curie.Isotope.gammas">
-<code class="descname">gammas</code><span class="sig-paren">(</span><em>I_lim=None</em>, <em>E_lim=None</em>, <em>xrays=False</em>, <em>dE_511=0.0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/isotope.html#Isotope.gammas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Isotope.gammas" title="Permalink to this definition">¶</a></dt>
+<code class="descname">gammas</code><span class="sig-paren">(</span><em>I_lim=None</em>, <em>E_lim=None</em>, <em>xrays=False</em>, <em>dE_511=0.0</em>, <em>istp_col=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/isotope.html#Isotope.gammas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Isotope.gammas" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gamma-rays emitted by the decay of the isotope</p>
 <p>Returns a DataFrame of gamma-ray energies, intensities and intensity-uncertainties
 based on an optional set of selection critieria.</p>
@@ -471,7 +470,7 @@ Default 0.0.</p>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>pandas.DataFrame</strong></dt>
+<dt><strong>gammas</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pd.DataFrame</span></dt>
 <dd><p class="first last">Tabular gamma-ray data, with keys ‘energy’, ‘intensity’ and ‘unc_intensity’. Units
 of energy are in keV and units of intensity are in percent.</p>
 </dd>
@@ -523,7 +522,7 @@ where available from ENDF.</p>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>pandas.DataFrame</strong></dt>
+<dt><strong>nfy</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pd.DataFrame</span></dt>
 <dd><p class="first last">Tabular neutron induced fission yields, with keys ‘daughter’, ‘yield’ and ‘unc_yield’</p>
 </dd>
 </dl>
@@ -549,7 +548,7 @@ where available from ENDF.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>pandas.DataFrame</strong></dt>
+<dt><strong>sfy</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pd.DataFrame</span></dt>
 <dd><p class="first last">Tabular spontaneous fission yields, with keys ‘daughter’, ‘yield’ and ‘unc_yield’</p>
 </dd>
 </dl>
@@ -585,7 +584,7 @@ ns, us, ms, s, m, h, d, y, ky, My, Gy</p>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>float or 2-tuple of floats</strong></dt>
+<dt><strong>half_life</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float or 2-tuple of floats</span></dt>
 <dd><p class="first last">Half-life in specified units, with uncertainty only if <cite>unc=True</cite></p>
 </dd>
 </dl>
@@ -612,7 +611,7 @@ ns, us, ms, s, m, h, d, y, ky, My, Gy</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>str</strong></dt>
+<dt><strong>units</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
 <dd><p class="first last">Units that will represent half-life as a number greater than 1, but with as few digits as possible.</p>
 </dd>
 </dl>

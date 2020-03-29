@@ -46,41 +46,44 @@
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>x</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
+<dt><strong>reaction_name</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">Description of parameter <cite>x</cite>.</p>
+</dd>
+<dt><strong>library</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
 <dd><p class="first last">Description of parameter <cite>x</cite>.</p>
 </dd>
 </dl>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>target</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
+<dt><strong>target</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
 <dd><p class="first last">Description</p>
 </dd>
-<dt><strong>incident</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
+<dt><strong>incident</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
 <dd><p class="first last">Description</p>
 </dd>
-<dt><strong>outgoing</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
+<dt><strong>outgoing</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
 <dd><p class="first last">Description</p>
 </dd>
-<dt><strong>product</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
+<dt><strong>product</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
 <dd><p class="first last">Description</p>
 </dd>
-<dt><strong>eng</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
+<dt><strong>eng</strong> <span class="classifier-delimiter">:</span> <span class="classifier">np.ndarray</span></dt>
 <dd><p class="first last">Description</p>
 </dd>
-<dt><strong>xs</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
+<dt><strong>xs</strong> <span class="classifier-delimiter">:</span> <span class="classifier">np.ndarray</span></dt>
 <dd><p class="first last">Description</p>
 </dd>
-<dt><strong>unc_xs</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
+<dt><strong>unc_xs</strong> <span class="classifier-delimiter">:</span> <span class="classifier">np.ndarray</span></dt>
 <dd><p class="first last">Description</p>
 </dd>
-<dt><strong>name</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
+<dt><strong>name</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
 <dd><p class="first last">Description</p>
 </dd>
-<dt><strong>library</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
+<dt><strong>library</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ci.Library</span></dt>
 <dd><p class="first last">Description</p>
 </dd>
-<dt><strong>TeX</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
+<dt><strong>TeX</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
 <dd><p class="first last">Description</p>
 </dd>
 </dl>
@@ -101,10 +104,13 @@
 <tr class="row-even"><td><a class="reference internal" href="#curie.Reaction.integrate" title="curie.Reaction.integrate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">integrate</span></code></a>(energy,&nbsp;flux[,&nbsp;unc])</td>
 <td>Description</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#curie.Reaction.interpolate" title="curie.Reaction.interpolate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">interpolate</span></code></a>([unc])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#curie.Reaction.interpolate" title="curie.Reaction.interpolate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">interpolate</span></code></a>(energy)</td>
 <td>Description</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#curie.Reaction.plot" title="curie.Reaction.plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot</span></code></a>([label,&nbsp;title,&nbsp;E_lim])</td>
+<tr class="row-even"><td><a class="reference internal" href="#curie.Reaction.interpolate_unc" title="curie.Reaction.interpolate_unc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">interpolate_unc</span></code></a>(energy)</td>
+<td>Description</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#curie.Reaction.plot" title="curie.Reaction.plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot</span></code></a>([energy,&nbsp;label,&nbsp;title])</td>
 <td>Description</td>
 </tr>
 </tbody>
@@ -118,9 +124,22 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>x</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>energy</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
 <dd><p class="first last">Description of x</p>
+</dd>
+<dt><strong>flux</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
+<dd><p class="first last">Description of x</p>
+</dd>
+<dt><strong>unc</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
+<dd><p class="first last">Description of x</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>type</strong></dt>
+<dd><p class="first last">Description</p>
 </dd>
 </dl>
 </td>
@@ -138,9 +157,22 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>x</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>energy</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
 <dd><p class="first last">Description of x</p>
+</dd>
+<dt><strong>flux</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
+<dd><p class="first last">Description of x</p>
+</dd>
+<dt><strong>unc</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
+<dd><p class="first last">Description of x</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>type</strong></dt>
+<dd><p class="first last">Description</p>
 </dd>
 </dl>
 </td>
@@ -151,16 +183,50 @@
 
 <dl class="method">
 <dt id="curie.Reaction.interpolate">
-<code class="descname">interpolate</code><span class="sig-paren">(</span><em>unc=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/reaction.html#Reaction.interpolate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Reaction.interpolate" title="Permalink to this definition">¶</a></dt>
+<code class="descname">interpolate</code><span class="sig-paren">(</span><em>energy</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/reaction.html#Reaction.interpolate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Reaction.interpolate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Description</p>
 <p>…</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>x</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>energy</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
 <dd><p class="first last">Description of x</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>type</strong></dt>
+<dd><p class="first last">Description</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="curie.Reaction.interpolate_unc">
+<code class="descname">interpolate_unc</code><span class="sig-paren">(</span><em>energy</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/reaction.html#Reaction.interpolate_unc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Reaction.interpolate_unc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Description</p>
+<p>…</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>energy</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
+<dd><p class="first last">Description of x</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>type</strong></dt>
+<dd><p class="first last">Description</p>
 </dd>
 </dl>
 </td>
@@ -171,16 +237,32 @@
 
 <dl class="method">
 <dt id="curie.Reaction.plot">
-<code class="descname">plot</code><span class="sig-paren">(</span><em>label=None</em>, <em>title=True</em>, <em>E_lim=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/reaction.html#Reaction.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Reaction.plot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plot</code><span class="sig-paren">(</span><em>energy=None</em>, <em>label='reaction'</em>, <em>title=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/reaction.html#Reaction.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Reaction.plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Description</p>
 <p>…</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>x</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>energy</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like, optional</span></dt>
+<dd><p class="first last">Description</p>
+</dd>
+<dt><strong>label</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
 <dd><p class="first last">Description of x</p>
+</dd>
+<dt><strong>title</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
+<dd><p class="first last">Description</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Other Parameters:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body"><dl class="first last docutils">
+<dt><strong>**kwargs</strong></dt>
+<dd><p class="first last">Optional keyword arguments for plotting.  See the 
+plotting section of the curie API for a complete
+list of kwargs.</p>
 </dd>
 </dl>
 </td>

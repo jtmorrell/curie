@@ -95,7 +95,7 @@
 
 <span class="sd">	Returns</span>
 <span class="sd">	-------</span>
-<span class="sd">	dict or list</span>
+<span class="sd">	colormap : dict or list</span>
 <span class="sd">		Colormap in list or dictionary format</span>
 
 <span class="sd">	Examples</span>
@@ -123,7 +123,7 @@
 		<span class="n">cl</span> <span class="o">=</span> <span class="n">DARK</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)[</span><span class="n">pmap</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">palette</span><span class="o">.</span><span class="n">lower</span><span class="p">())]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
 
 	<span class="k">if</span> <span class="n">aslist</span><span class="p">:</span>
-		<span class="k">return</span> <span class="n">cl</span>
+		<span class="k">return</span> <span class="p">[</span><span class="n">cl</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">3</span><span class="p">]]</span>
 
 	<span class="k">return</span> <span class="p">{</span><span class="n">cmap</span><span class="p">[</span><span class="n">n</span><span class="p">]:</span><span class="n">cl</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">cl</span><span class="p">))}</span></div>
 
@@ -287,6 +287,8 @@
 	<span class="k">if</span> <span class="s1">&#39;_default_log&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
 		<span class="k">if</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;_default_log&#39;</span><span class="p">]:</span>
 			<span class="n">ax</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">ax</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s1">&#39;linear&#39;</span><span class="p">)</span>
 
 	<span class="k">if</span> <span class="s1">&#39;scale&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
 		<span class="n">s</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;scale&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>

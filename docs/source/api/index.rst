@@ -8,7 +8,7 @@ Welcome to the Curie API!  Detailed information about Curie's fuctions, classes 
 
 .. toctree::
     :numbered:
-    :maxdepth: 2
+    :maxdepth: 1
 
     data
     plotter
@@ -20,4 +20,4 @@ Welcome to the Curie API!  Detailed information about Curie's fuctions, classes 
     decaychain
     library
     reaction
-    stack    
+    stack

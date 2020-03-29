@@ -1,9 +1,9 @@
 
-================================
+=================================
 Welcome to Curie's documentation!
-================================
+=================================
 
-Curie (nuclear physics analysis tools) is a python toolkit to aid in the analysis of experimental nuclear data.  
+Curie is a python toolkit to aid in the analysis of experimental nuclear data.  
 
 The primary application for Curie is activation analysis, with specific utilities developed for stacked-target, charged-particle activation analysis.
 However, the convenient python interface to nuclear decay data and a range of cross section libraries makes Curie more generally useful in the nuclear sciences.

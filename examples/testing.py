@@ -72,6 +72,10 @@ import curie as ci
 # el = ci.Element('U')
 # print(el.range(60.0))
 
+# el = ci.Element('Hg')
+# print(el.mu(200))
+# print(el.mu_en(200))
+
 # cm = ci.Compound('Silicone')
 # print cm.weights
 
@@ -79,17 +83,56 @@ import curie as ci
 # 	cm = ci.Compound(c)
 # 	print cm.weights
 
+# print 'Silicone' in ci.COMPOUND_LIST
+# cm = ci.Compound('Silicone')
+# print(list(map(str, cm.elements)))
+# cm = ci.Compound('H2O', density=1.0)
+# print(cm.mu(200))
+# print(cm.mu_en(200))
+# print(cm.weights)
+
+
+# cm = ci.Compound('SS_316') # preset compound for 316 Stainless
+# print(cm.attenuation(511, x=0.3))
+# print(cm.attenuation(300, x=1.0, density=5.0))
+
+# cm = ci.Compound('Fe')
+# print(cm.range(60.0))
+# cm = ci.Compound('SS_316')
+# print(cm.range(60.0))
 
 # cm = ci.Compound('Brass', weights={'Zn':-33,'Cu':-66})
 # print cm.weights
+# cm.saveas('compounds.csv')
+
+# cm = ci.Compound('Bronze', weights={'Cu':-80, 'Sn':-20}, density=8.9)
+# f,ax = cm.plot_range(return_plot=True)
+# cm.plot_range(particle='d', f=f, ax=ax)
 
 # cm = ci.Compound('Bronze', weights='example_compounds.json')
 # print cm.weights
+# cm.saveas('compounds.csv')
 
 # cm = ci.Compound('Bronze', weights='example_compounds.csv', density=8.9)
 # # cm.plot_mass_coeff()
 # cm.plot_S()
 # cm.plot_range()
+
+# cm = ci.Compound('SrCO3', density=3.5)
+# print(cm.S(60.0))
+# print(cm.S(55.0, density=1E-3)) ### S in MeV/(mg/cm^2)
+
+
+# lb = ci.Library('tendl_n')
+# print(lb.name)
+# lb = ci.Library('endf')
+# print(lb.name)
+
+lb = ci.Library('tendl_p')
+print(lb.search(target='Sr-86', product='Y-86g'))
+lb = ci.Library('endf')
+print(lb.search(target='226RA', product='225RA'))
+print(lb.retrieve(target='226RA', product='225RA')[-8:])
 
 # stack = [{'cm':'H20','ad':800.0,'name':'watr'},{'cm':'RbCl','density':3.0,'r':0.03,'name':'salt'},{'cm':'Kapton','r':0.025},{'cm':'Brass','ad':350,'name':'shiny'}]
 # st = ci.Stack(stack, compounds='example_compounds.json')
@@ -105,16 +148,16 @@ import curie as ci
 # st.plot()
 
 
-sp = ci.Spectrum('eu_calib_7cm.Spe')
-sp.isotopes = ['152EU']
+# sp = ci.Spectrum('eu_calib_7cm.Spe')
+# sp.isotopes = ['152EU']
 # sp.isotopes = ['152EU', '40K']
 # sp.fit_peaks(gammas=[{'energy':1460.8, 'intensity':10.66, 'unc_intensity':0.55}])
-sp.fit_peaks(gammas=ci.Isotope('40K').gammas(istp_col=True))
-sp.summarize()
+# sp.fit_peaks(gammas=ci.Isotope('40K').gammas(istp_col=True))
+# sp.summarize()
 # sp.saveas('test_spec.csv')
 # sp.saveas('test_spec.db')
 # sp.saveas('test_spec.json')
-sp.plot()
+# sp.plot()
 
 # cb = ci.Calibration()
 # cb.calibrate([sp], [{'isotope':'152EU', 'A0':3.7E4, 'ref_date':'01/01/2016 12:00:00'}])
@@ -125,6 +168,7 @@ sp.plot()
 # rx.plot()
 
 # dc = ci.DecayChain('Ra-225', R=[[1.0, 1.0], [0.5, 1.5], [2.0, 6]], units='d')
+# print dc.R_avg
 # dc.plot()
 
 # dc = ci.DecayChain('152EU', A0=3.7E3, units='h')

@@ -40,20 +40,39 @@
 <dl class="class">
 <dt id="curie.Library">
 <em class="property">class </em><code class="descclassname">curie.</code><code class="descname">Library</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/library.html#Library"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Library" title="Permalink to this definition">¶</a></dt>
-<dd><p>…</p>
+<dd><p>Library of nuclear reaction data</p>
+<p>Provides a means of searching and retrieving data from various nuclear reaction
+libraries.  The currently available libraries are ENDF/B-VII.1, TENDL-2015, IRDFF-II,
+and the IAEA Medical Monitor reaction library.  For neutrons, the libraries are
+categorized by either the exlusive reaction, as in ENDF, TENDL, and partially IRDFF,
+or by the residual product (rp), in TENDL and partially IRDFF.  For charged particles,
+all libraries (TENDL, IAEA) are categorized by the residual product.  As such, TENDL
+is split into separate libraries based on incident particle, and by exclusive reaction
+type or residual product.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>x</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
-<dd><p class="first last">Description of parameter <cite>x</cite>.</p>
+<dt><strong>name</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">The name of the library.  For exclusive neutron reactions, use ‘endf’, ‘tendl’, 
+or ‘irdff’.  For residual product neutron reactions, use ‘tendl_n’ or ‘irdff’.  Use
+‘tendl_p’ for proton reactions, ‘tendl_d’ for deuteron reactions, or ‘iaea’ for either.</p>
 </dd>
 </dl>
 </td>
 </tr>
 </tbody>
 </table>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">lb</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Library</span><span class="p">(</span><span class="s1">&#39;tendl_n&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">lb</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+<span class="go">TENDL-2015</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lb</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Library</span><span class="p">(</span><span class="s1">&#39;endf&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">lb</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+<span class="go">ENDF/B-VII.1</span>
+</pre></div>
+</div>
 <p class="rubric">Methods</p>
 <table border="1" class="longtable docutils">
 <colgroup>
@@ -62,51 +81,120 @@
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td><a class="reference internal" href="#curie.Library.retrieve" title="curie.Library.retrieve"><code class="xref py py-obj docutils literal notranslate"><span class="pre">retrieve</span></code></a>([target,&nbsp;incident,&nbsp;outgoing,&nbsp;product])</td>
-<td>Description</td>
+<td>Pull reaction data from the library</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#curie.Library.search" title="curie.Library.search"><code class="xref py py-obj docutils literal notranslate"><span class="pre">search</span></code></a>([target,&nbsp;incident,&nbsp;outgoing,&nbsp;…])</td>
-<td>Description</td>
+<td>Searches the library for reactions</td>
 </tr>
 </tbody>
 </table>
 <dl class="method">
 <dt id="curie.Library.retrieve">
 <code class="descname">retrieve</code><span class="sig-paren">(</span><em>target=None</em>, <em>incident=None</em>, <em>outgoing=None</em>, <em>product=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/library.html#Library.retrieve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Library.retrieve" title="Permalink to this definition">¶</a></dt>
-<dd><p>Description</p>
-<p>…</p>
+<dd><p>Pull reaction data from the library</p>
+<p>Returns a numpy ndarray containing the reaction energy grid (in MeV),
+the cross section (in mb), and for IRDFF and IAEA, the uncertainty in the 
+cross section (mb).  The arguments are the same as for <cite>Library.search()</cite>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>x</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
-<dd><p class="first last">Description of x</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>target</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
+<dd><p class="first last">The target nucleus.  Some libraries support natural elements, e.g. ‘natEl’.</p>
+</dd>
+<dt><strong>incident</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
+<dd><p class="first last">Incident particle.  Must be one of ‘n’, ‘p’ or ‘d’.  Only needed for IAEA
+library with multiple incident projectiles optional.</p>
+</dd>
+<dt><strong>outgoing</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
+<dd><p class="first last">Outgoing particle, or reaction shorthand.  E.g. ‘2n’, ‘d’, ‘f’, ‘inl’, ‘x’.
+Does not need to be specified for TENDL residual product libraries.</p>
+</dd>
+<dt><strong>product</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
+<dd><p class="first last">The product isotope.  Not required for some exclusive reactions, e.g. 
+‘115IN(n,g)116IN’ is the same as ‘115IN(n,g)’, but not the same as
+‘115IN(n,g)116INm1’.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>reaction</strong> <span class="classifier-delimiter">:</span> <span class="classifier">np.ndarray</span></dt>
+<dd><p class="first last">Numpy ndarray containing the reaction data. Energy is in MeV, cross section
+is in mb.  The first column is energy, the second column is cross section, and
+if the library provides uncertainties in cross section this will be in the third column.</p>
 </dd>
 </dl>
 </td>
 </tr>
 </tbody>
 </table>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">lb</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Library</span><span class="p">(</span><span class="s1">&#39;endf&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">lb</span><span class="o">.</span><span class="n">retrieve</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s1">&#39;226RA&#39;</span><span class="p">,</span> <span class="n">product</span><span class="o">=</span><span class="s1">&#39;225RA&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">8</span><span class="p">:])</span>
+<span class="go">[[18.5      11.97908 ]</span>
+<span class="go"> [18.75     10.30011 ]</span>
+<span class="go"> [19.        8.62115 ]</span>
+<span class="go"> [19.25      6.942188]</span>
+<span class="go"> [19.5       5.263225]</span>
+<span class="go"> [19.75      3.584263]</span>
+<span class="go"> [19.875     2.744781]</span>
+<span class="go"> [20.        1.9053  ]]</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="method">
 <dt id="curie.Library.search">
 <code class="descname">search</code><span class="sig-paren">(</span><em>target=None</em>, <em>incident=None</em>, <em>outgoing=None</em>, <em>product=None</em>, <em>_label=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/library.html#Library.search"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Library.search" title="Permalink to this definition">¶</a></dt>
-<dd><p>Description</p>
-<p>…</p>
+<dd><p>Searches the library for reactions</p>
+<p>Returns a list of reactions that match the specified target, incident
+or outgoing projectile, or product.  Any combination of arguments can
+be specified, but at least one must be specified.  Note that if the library
+is a TENDL residual-product library, outgoing does not need to be specified.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>x</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type</span></dt>
-<dd><p class="first last">Description of x</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>target</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
+<dd><p class="first last">The target nucleus.  Some libraries support natural elements, e.g. ‘natEl’.</p>
+</dd>
+<dt><strong>incident</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
+<dd><p class="first last">Incident particle.  Must be one of ‘n’, ‘p’ or ‘d’.  Only needed for IAEA
+library with multiple incident projectiles optional.</p>
+</dd>
+<dt><strong>outgoing</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
+<dd><p class="first last">Outgoing particle, or reaction shorthand.  E.g. ‘2n’, ‘d’, ‘f’, ‘inl’, ‘x’.
+Does not need to be specified for TENDL residual product libraries.</p>
+</dd>
+<dt><strong>product</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
+<dd><p class="first last">The product isotope.  Not required for some exclusive reactions, e.g. 
+‘115IN(n,g)116IN’ is the same as ‘115IN(n,g)’, but not the same as
+‘115IN(n,g)116INm1’.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>available_reactions</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of str (reaction names)</span></dt>
+<dd><p class="first last">Reactions that were found in the libary matching the search criteria.</p>
 </dd>
 </dl>
 </td>
 </tr>
 </tbody>
 </table>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">lb</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Library</span><span class="p">(</span><span class="s1">&#39;tendl_p&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">lb</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s1">&#39;Sr-86&#39;</span><span class="p">,</span> <span class="n">product</span><span class="o">=</span><span class="s1">&#39;Y-86g&#39;</span><span class="p">))</span>
+<span class="go">[&#39;86SR(p,x)86Yg&#39;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lb</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Library</span><span class="p">(</span><span class="s1">&#39;endf&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">lb</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s1">&#39;226RA&#39;</span><span class="p">,</span> <span class="n">product</span><span class="o">=</span><span class="s1">&#39;225RA&#39;</span><span class="p">))</span>
+<span class="go">[&#39;226RA(n,2n)225RA&#39;]</span>
+</pre></div>
+</div>
 </dd></dl>
 
 </dd></dl>
