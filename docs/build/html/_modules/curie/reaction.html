@@ -50,53 +50,70 @@
 <span class="kn">from</span> <span class="nn">.library</span> <span class="kn">import</span> <span class="n">Library</span>
 
 <div class="viewcode-block" id="Reaction"><a class="viewcode-back" href="../../api/reaction.html#curie.Reaction">[docs]</a><span class="k">class</span> <span class="nc">Reaction</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-	<span class="sd">&quot;&quot;&quot;Reaction</span>
+	<span class="sd">&quot;&quot;&quot;Cross section data for nuclear reactions</span>
 
-<span class="sd">	...</span>
+<span class="sd">	Contains reaction cross sections as a function of incident energy,</span>
+<span class="sd">	and some useful methods for manipulating cross section data, such as</span>
+<span class="sd">	flux-averages, integrated cross-sections, and interpolation.  All </span>
+<span class="sd">	cross sections (and uncertainties) are in mb, and all energies are</span>
+<span class="sd">	in MeV.</span>
 <span class="sd">	</span>
 <span class="sd">	Parameters</span>
 <span class="sd">	----------</span>
 <span class="sd">	reaction_name : str</span>
-<span class="sd">		Description of parameter `x`.</span>
+<span class="sd">		Name of the reaction, in nuclear reaction notation. E.g. &#39;115IN(n,g)&#39;,</span>
+<span class="sd">		&#39;235U(n,f)&#39;, &#39;139LA(p,x)134CE&#39;, &#39;Ra-226(n,2n)Ra-225&#39;, &#39;Al-27(n,a)&#39;, etc.</span>
 
 <span class="sd">	library : str, optional</span>
-<span class="sd">		Description of parameter `x`.</span>
+<span class="sd">		Name of the library to use, or &#39;best&#39; (default).</span>
 
 <span class="sd">	Attributes</span>
 <span class="sd">	----------</span>
 <span class="sd">	target : str</span>
-<span class="sd">		Description </span>
+<span class="sd">		The target nucleus.  Some libraries support natural elements, e.g. &#39;natEl&#39;. </span>
 
 <span class="sd">	incident : str</span>
-<span class="sd">		Description </span>
+<span class="sd">		Incident particle. E.g. &#39;n&#39;, &#39;p&#39;, &#39;d&#39;. </span>
 
 <span class="sd">	outgoing : str</span>
-<span class="sd">		Description </span>
+<span class="sd">		Outgoing particle, or reaction shorthand.  E.g. &#39;2n&#39;, &#39;d&#39;, &#39;f&#39;, &#39;inl&#39;, &#39;x&#39;.</span>
+<span class="sd">		Will always be &#39;x&#39; for (TENDL) residual product libraries. </span>
 
 <span class="sd">	product : str</span>
-<span class="sd">		Description </span>
+<span class="sd">		The product isotope. </span>
 
 <span class="sd">	eng : np.ndarray</span>
-<span class="sd">		Description </span>
+<span class="sd">		Incident particle energy, in MeV. </span>
 
 <span class="sd">	xs : np.ndarray</span>
-<span class="sd">		Description </span>
+<span class="sd">		Reaction cross section, in mb. </span>
 
 <span class="sd">	unc_xs : np.ndarray</span>
-<span class="sd">		Description </span>
+<span class="sd">		Uncertainty in the cross section, in mb.  If not provided by the</span>
+<span class="sd">		library, default is zeros of same shape as xs. </span>
 
 <span class="sd">	name : str</span>
-<span class="sd">		Description </span>
+<span class="sd">		Name of the reaction in nuclear reaction notation. </span>
 
 <span class="sd">	library : ci.Library</span>
-<span class="sd">		Description </span>
+<span class="sd">		Nuclear reaction library.  printing `rx.library.name` will give the</span>
+<span class="sd">		name of the library. </span>
 
 <span class="sd">	TeX : str</span>
-<span class="sd">		Description </span>
+<span class="sd">		LaTeX formatted reaction name. </span>
 
 
 <span class="sd">	Examples</span>
 <span class="sd">	--------</span>
+<span class="sd">	&gt;&gt;&gt; rx = ci.Reaction(&#39;226RA(n,2n)&#39;)</span>
+<span class="sd">	&gt;&gt;&gt; print(rx.library.name)</span>
+<span class="sd">	ENDF/B-VII.1</span>
+<span class="sd">	&gt;&gt;&gt; rx = ci.Reaction(&#39;226RA(n,x)225RA&#39;)</span>
+<span class="sd">	&gt;&gt;&gt; print(rx.library.name)</span>
+<span class="sd">	TENDL-2015</span>
+<span class="sd">	&gt;&gt;&gt; rx = ci.Reaction(&#39;115IN(n,inl)&#39;)</span>
+<span class="sd">	&gt;&gt;&gt; print(rx.library.name)</span>
+<span class="sd">	IRDFF-II</span>
 
 <span class="sd">	&quot;&quot;&quot;</span>
 
@@ -170,7 +187,7 @@
 
 <span class="sd">		Returns</span>
 <span class="sd">		-------</span>
-<span class="sd">		type</span>
+<span class="sd">		cross_section : np.ndarray</span>
 <span class="sd">			Description</span>
 
 <span class="sd">		Examples</span>
@@ -194,7 +211,7 @@
 
 <span class="sd">		Returns</span>
 <span class="sd">		-------</span>
-<span class="sd">		type</span>
+<span class="sd">		unc_cross_section : np.ndarray</span>
 <span class="sd">			Description</span>
 
 <span class="sd">		Examples</span>
@@ -224,7 +241,7 @@
 
 <span class="sd">		Returns</span>
 <span class="sd">		-------</span>
-<span class="sd">		type</span>
+<span class="sd">		xs_integral : np.ndarray</span>
 <span class="sd">			Description</span>
 
 <span class="sd">		Examples</span>
@@ -257,7 +274,7 @@
 
 <span class="sd">		Returns</span>
 <span class="sd">		-------</span>
-<span class="sd">		type</span>
+<span class="sd">		average_xs : np.ndarray</span>
 <span class="sd">			Description</span>
 
 <span class="sd">		Examples</span>

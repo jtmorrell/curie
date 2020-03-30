@@ -51,32 +51,50 @@
 
 
 <div class="viewcode-block" id="Calibration"><a class="viewcode-back" href="../../api/calibration.html#curie.Calibration">[docs]</a><span class="k">class</span> <span class="nc">Calibration</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-	<span class="sd">&quot;&quot;&quot;Calibration</span>
+	<span class="sd">&quot;&quot;&quot;Calibration for HPGe spectra</span>
 
-<span class="sd">	...</span>
+<span class="sd">	Provides methods for calculating and fitting energy, efficiency and resolution</span>
+<span class="sd">	calibrations for HPGe spectra.  Each Spectrum class contains a Calibration, </span>
+<span class="sd">	which can be loaded from a file, or fit to calibration spectra from known sources.</span>
 <span class="sd">	</span>
 <span class="sd">	Parameters</span>
 <span class="sd">	----------</span>
 <span class="sd">	filename : str, optional</span>
-<span class="sd">		Description of parameter `x`.</span>
+<span class="sd">		Path to a .json file storing calibration data.  The .json file can be produced by</span>
+<span class="sd">		calling `cb.saveas(&#39;example_calib.json&#39;)` after performing a calibration fit with</span>
+<span class="sd">		the `cb.calibrate()` function.  This allows past calibrations to be recalled without</span>
+<span class="sd">		needing to re-perform the calibration fits.</span>
 
 <span class="sd">	Attributes</span>
 <span class="sd">	----------</span>
 <span class="sd">	engcal : np.ndarray</span>
-<span class="sd">		Description of parameter</span>
+<span class="sd">		Energy calibration parameters. length 2 or 3 array, depending on whether the calibration</span>
+<span class="sd">		is linear or quadratic.</span>
 
 <span class="sd">	effcal : np.ndarray</span>
-<span class="sd">		Description of parameter</span>
+<span class="sd">		Efficiency calibration parameters. length 3 or 5 array, depending on whether the efficiency</span>
+<span class="sd">		fit includes a &quot;dead-layer term&quot;.</span>
 
 <span class="sd">	unc_effcal : np.ndarray</span>
-<span class="sd">		Description of parameter</span>
+<span class="sd">		Efficiency calibration covariance matrix. shape 3x3 or 5x5, depending on the length of effcal.</span>
 
 <span class="sd">	rescal : np.ndarray</span>
-<span class="sd">		Description of parameter</span>
+<span class="sd">		Resolution calibration parameters.  length 2 array if resolution calibration is of the form</span>
+<span class="sd">		R = a + b*chan (default), or length 1 if R = a*sqrt(chan).</span>
 
 
 <span class="sd">	Examples</span>
 <span class="sd">	--------</span>
+<span class="sd">	&gt;&gt;&gt; cb = Calibration()</span>
+<span class="sd">	&gt;&gt;&gt; cb.engcal = [0.0, 0.25, 0.001]</span>
+<span class="sd">	&gt;&gt;&gt; print(cb.engcal)</span>
+<span class="sd">	[0.0 0.3]</span>
+<span class="sd">	&gt;&gt;&gt; print(cb.effcal)</span>
+<span class="sd">	[0.331 0.158 0.41 0.001 1.476]</span>
+<span class="sd">	&gt;&gt;&gt; cb.saveas(&#39;test_calib.json&#39;)</span>
+<span class="sd">	&gt;&gt;&gt; cb = Calibration(&#39;test_calib.json&#39;)</span>
+<span class="sd">	&gt;&gt;&gt; print(cb.engcal)</span>
+<span class="sd">	[0.0 0.25 0.001]</span>
 
 <span class="sd">	&quot;&quot;&quot;</span>
 

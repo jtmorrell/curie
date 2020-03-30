@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>7. Spectrum &#8212; Curie 0.0.1 documentation</title>
+    <title>Spectrum &#8212; Curie 0.0.1 documentation</title>
     <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     
@@ -36,63 +36,84 @@
           <div class="body" role="main">
             
   <div class="section" id="spectrum">
-<span id="id1"></span><h1>7. Spectrum<a class="headerlink" href="#spectrum" title="Permalink to this headline">¶</a></h1>
+<span id="id1"></span><h1>Spectrum<a class="headerlink" href="#spectrum" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="curie.Spectrum">
 <em class="property">class </em><code class="descclassname">curie.</code><code class="descname">Spectrum</code><span class="sig-paren">(</span><em>filename</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/spectrum.html#Spectrum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Spectrum" title="Permalink to this definition">¶</a></dt>
-<dd><p>…</p>
+<dd><p>Gamma-ray spectrum from High-Purity Germanium (HPGe) detectors</p>
+<p>Provides methods for reading, converting, and fitting gamma-ray spectra
+from HPGe data.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
 <dt><strong>filename</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
-<dd><p class="first last">Description of parameter <cite>x</cite>.</p>
+<dd><p class="first last">File path to the gamma-ray spectrum.  Supported file types are Ortec .Spe
+and .Chn files.</p>
 </dd>
 </dl>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name" colspan="2">Other Parameters:</th></tr>
-<tr class="field-even field"><td>&#160;</td><td class="field-body"><dl class="first docutils">
+<tr class="field-even field"><td>&#160;</td><td class="field-body"><dl class="first last docutils">
 <dt><strong>cb</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str or ci.Calibration</span></dt>
-<dd><p class="first last">Description</p>
+<dd><p class="first last">Calibration to use, or path to a calibration .json file.</p>
 </dd>
 <dt><strong>isotopes</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
-<dd><p class="first last">Description</p>
+<dd><p class="first last">List of gamma-decaying isotopes observed in the spectrum.</p>
 </dd>
 <dt><strong>fit_config</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
-<dd><p class="first last">Description</p>
+<dd><p class="first last">Dictionary of fit configuration parameters passed as keyword arguments to
+<cite>self.fit_peaks()</cite>. See that function for more details on these arguments.</p>
 </dd>
 </dl>
 </td>
 </tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<p>sp = ci.Spectrum(‘eu_calib_7cm.Spe’)
+sp.isotopes = [‘Eu-152’, ‘40K’]
+sp.cb = ‘example_calib.json’
+sp.fit_config = {‘bg’:’quadratic’, ‘xrays’:False}</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
 <dt><strong>cb</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ci.Calibration</span></dt>
-<dd><p class="first last">Description</p>
+<dd><p class="first last">Gamma-ray energy, efficiency and resolution calibration.</p>
 </dd>
 <dt><strong>isotopes</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
-<dd><p class="first last">Description</p>
+<dd><p class="first last">List of gamma-decaying isotopes observed in the spectrum.</p>
 </dd>
 <dt><strong>fit_config</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
-<dd><p class="first last">Description</p>
+<dd><p class="first last">Dictionary of fit configuration parameters passed as keyword arguments to
+<cite>self.fit_peaks()</cite>. See that function for more details on these arguments.</p>
 </dd>
 <dt><strong>filename</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
-<dd><p class="first last">Description</p>
+<dd><p class="first last">File path to the gamma-ray spectrum.</p>
 </dd>
 <dt><strong>hist</strong> <span class="classifier-delimiter">:</span> <span class="classifier">np.ndarray</span></dt>
-<dd><p class="first last">Description</p>
+<dd><p class="first last">Histogram of counts observed in the spectrum.</p>
 </dd>
 <dt><strong>start_time</strong> <span class="classifier-delimiter">:</span> <span class="classifier">datetime.datetime</span></dt>
-<dd><p class="first last">Description</p>
+<dd><p class="first last">Date-time marking the start of the count.</p>
 </dd>
 <dt><strong>live_time</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">Description</p>
+<dd><p class="first last">Total time the spectrum was counting, in seconds, minus the dead time.</p>
 </dd>
 <dt><strong>real_time</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">Description</p>
+<dd><p class="first last">Total time the spectrum was counting, in seconds.</p>
 </dd>
 <dt><strong>peaks</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pd.DataFrame</span></dt>
-<dd><p class="first last">Description</p>
+<dd><p class="first last">Table of fits to the gamma-ray data.  Includes counts, isotopes, energies,
+intensities, efficiencies, calculated decays and decay-rates, chi^2, and other
+information.  The complete list of columns is ‘filename’, ‘isotope’, ‘energy’, ‘counts’,
+‘unc_counts’, ‘intensity’, ‘unc_intensity’, ‘efficiency’, ‘unc_efficiency’,
+‘decays’, ‘unc_decays’, ‘decay_rate’, ‘unc_decay_rate’, ‘chi2’, ‘start_time’,
+‘live_time’, and ‘real_time’.</p>
 </dd>
 </dl>
 </td>
@@ -204,9 +225,65 @@
 </dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>type</strong></dt>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>peaks</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pd.DataFrame</span></dt>
 <dd><p class="first last">Description</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name" colspan="2">Other Parameters:</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body"><dl class="first last docutils">
+<dt><strong>snip_adj</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">Description. Default 1.0.</p>
+</dd>
+<dt><strong>R</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">Description. Default 0.1.</p>
+</dd>
+<dt><strong>alpha</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">Description. Default 0.9.</p>
+</dd>
+<dt><strong>step</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">Description. Default 0.0.</p>
+</dd>
+<dt><strong>bg</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">Description. Default ‘snip’.</p>
+</dd>
+<dt><strong>skew_fit</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd><p class="first last">Description. Default False.</p>
+</dd>
+<dt><strong>step_fit</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd><p class="first last">Description. Default False.</p>
+</dd>
+<dt><strong>SNR_min</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">Description. Default 4.0.</p>
+</dd>
+<dt><strong>A_max</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">Description. Default 10.0.</p>
+</dd>
+<dt><strong>mu_max</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">Description. Default 1.5.</p>
+</dd>
+<dt><strong>sig_max</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">Description. Default 1.5.</p>
+</dd>
+<dt><strong>xrays</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd><p class="first last">Description. Default False.</p>
+</dd>
+<dt><strong>pk_width</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">Description. Default 7.5.</p>
+</dd>
+<dt><strong>E_min</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">Description. Default 75.0.</p>
+</dd>
+<dt><strong>I_min</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">Description. Default 0.05</p>
+</dd>
+<dt><strong>dE_511</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">Description. Default 3.5</p>
+</dd>
+<dt><strong>multi_max</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">Description. Default 8.</p>
 </dd>
 </dl>
 </td>

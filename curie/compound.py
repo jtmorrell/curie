@@ -23,7 +23,9 @@ class Compound(object):
 	element class, but for compounds of atomic elements rather
 	than the individual atomic elements.  The compound is described
 	by a set of elements, a set of weights for each element, and a 
-	density.  The weights can be either given as atom-weights, e.g.
+	density.  
+
+	The weights can be either given as atom-weights, e.g.
 	in H2O the atom weights are 0.67 for H and 0.33 for O, or as 
 	mass-weights, e.g. brass is 0.33 Zn by weight and 0.67 Cu by
 	weight.  Some preset compounds are available; their names can be
@@ -42,13 +44,17 @@ class Compound(object):
 	weights : dict, str or pd.DataFrame, optional
 		The weights of each element in the compound.  Multiple formats are supported.
 		If weights is a dict, it must be formatted as {'el1':wt1, 'el2':wt2}, where
-		atom-weights are positive, and mass-weights are negative. If weights is a pandas 
-		DataFrame, it must contain an 'element' column, and one of 'weight', 'atom_weight',
-		or 'mass_weight'.  If 'weight' is the column given, the convention of positive 
-		atom-weights and negative mass-weights is followed.  If weights is a str, it can 
-		either be formatted as 'el1:wt1, el2:wt2', or it can be a path to a .csv, .json 
-		or .db file.  These files must contain the same information as the DataFrame option, 
-		and can contain weights for multiple compounds, if 'compound' is one of the columns/keys.
+		atom-weights are positive, and mass-weights are negative. 
+
+		If weights is a pandas DataFrame, it must contain an 'element' column, 
+		and one of 'weight', 'atom_weight', or 'mass_weight'.  If 'weight' is the column 
+		given, the convention of positive atom-weights and negative mass-weights is followed.  
+
+		If weights is a str, it can either be formatted as 'el1:wt1, el2:wt2', or it can be 
+		a path to a .csv, .json or .db file.  These files must contain the same information 
+		as the DataFrame option, and can contain weights for multiple compounds, if 'compound' 
+		is one of the columns/keys.
+		
 		If a .json file, it must follow the 'records' formatting convention (see pandas docs).
 
 	density : float, optional

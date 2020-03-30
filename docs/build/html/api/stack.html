@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>11. Stack &#8212; Curie 0.0.1 documentation</title>
+    <title>Stack &#8212; Curie 0.0.1 documentation</title>
     <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     
@@ -36,66 +36,131 @@
           <div class="body" role="main">
             
   <div class="section" id="stack">
-<span id="id1"></span><h1>11. Stack<a class="headerlink" href="#stack" title="Permalink to this headline">¶</a></h1>
+<span id="id1"></span><h1>Stack<a class="headerlink" href="#stack" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="curie.Stack">
 <em class="property">class </em><code class="descclassname">curie.</code><code class="descname">Stack</code><span class="sig-paren">(</span><em>stack</em>, <em>particle='p'</em>, <em>E0=60.0</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/stack.html#Stack"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Stack" title="Permalink to this definition">¶</a></dt>
-<dd><p>…</p>
+<dd><p>Foil pack for stacked target calculations</p>
+<p>Computes the energy loss and (relative) charged particle flux through a stack
+of foils using the Anderson-Ziegler formulation for stopping powers.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>stack</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of dicts or str</span></dt>
-<dd><p class="first last">Description of parameter <cite>x</cite>.</p>
+<dt><strong>stack</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of dicts, pd.DataFrame or str</span></dt>
+<dd><p class="first">Definition of the foils in the stack.  The ‘compound’ for each foil in
+the stack must be given, and the ‘areal_density’ or some combination of parameters
+that allow the areal density to be calculated must also be given.  Foils must
+also be given a ‘name’ if they are to be filtered by the .saveas(), .summarize(),
+and .plot() methods.  By default, foils without ‘name’ are not included by these
+methods.</p>
+<p>There are three acceptable formats for <cite>stack</cite>.  The first is a pd.DataFrame
+with the columns described. The second is a list of dicts, where each dict contains
+the appropriate keys.  The last is a str, which is a path to a file in either .csv,
+.json or .db format, where the headers of the file contain the correct information.
+Note that the .json file must follow the ‘records’ format (see pandas docs).  If a .db
+file, it must have a table named ‘stack’.</p>
+<p>The ‘areal_density’ can be given directly, in units of mg/cm^2, or will be calculated
+from the following: ‘mass’ (in g) and ‘area’ (in cm^2), ‘thickness’ (in mm) and ‘density’
+(in g/cm^3), or just ‘thickness’ if the compound is a natural element, or 
+is in <cite>ci.COMPOUND_LIST</cite> or the ‘compounds’ argument.</p>
+<p class="last">Also, the following shorthand indices are supported: ‘cm’ for ‘compound’, ‘d’ for
+‘density’, ‘t’ for ‘thickness’, ‘m’ for ‘mass’, ‘a’ for ‘area’, ‘ad’ for ‘areal_density’,
+and ‘nm’ for ‘name’.</p>
 </dd>
 <dt><strong>particle</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
-<dd><p class="first last">Description</p>
+<dd><p class="first last">Incident ion.  For light ions, options are ‘p’ (default), ‘d’, ‘t’, ‘a’ for proton, 
+deuteron, triton and alpha, respectively.  Additionally, heavy ions can be
+specified either by element or isotope, e.g. ‘Fe’, ‘40CA’, ‘U’, ‘Bi-209’.For 
+light ions, the charge state is assumed to be fully stripped. For heavy ions
+the charge state is handled by a Bohr/Northcliffe parameterization consistent
+with the Anderson-Ziegler formalism.</p>
 </dd>
 <dt><strong>E0</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">Description</p>
+<dd><p class="first last">Incident particle energy, in MeV.  If dE0 is not provided, it will
+default to 1 percent of E0.</p>
 </dd>
 </dl>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name" colspan="2">Other Parameters:</th></tr>
-<tr class="field-even field"><td>&#160;</td><td class="field-body"><dl class="first docutils">
+<tr class="field-even field"><td>&#160;</td><td class="field-body"><dl class="first last docutils">
 <dt><strong>compounds</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, pandas.DataFrame, list or dict</span></dt>
-<dd><p class="first last">Description</p>
+<dd><p class="first">Compound definitions for the compounds included in the foil stack.  If the compounds
+are not natural elements, or <cite>ci.COMPOUND_LIST</cite>, or if different weights or densities
+are required, they can be specified here. (Note specifying specific densities in the
+‘stack’ argument is probably more appropriate.)  Also, if the ‘compound’ name in the
+stack is a chemical formula, e.g. ‘H2O’, ‘SrCO3’, the weights can be inferred and 
+‘compounds’ doesn’t need to be given.</p>
+<p>If compounds is a pandas DataFrame, it must have the columns ‘compound’, ‘element’, one of 
+‘weight’, ‘atom_weight’, or ‘mass_weight’, and optionally ‘density’.  If a str, it must be
+a path to a .csv, .json or .db file, where .json files must be in the ‘records’ format and
+.db files must have a ‘compounds’ table.  All must have the above information.  For .csv 
+files, the compound only needs to be given for the first line of that compound definition.</p>
+<p class="last">If compounds is a list, it must be a list of ci.Element or ci.Compound classes.  If it is a
+dict, it must have the compound names as keys, and weights as values, e.g. 
+{‘Water’:{‘H’:2, ‘O’:1}, ‘Brass’:{‘Cu’:-66,’Zn’:-33}}</p>
 </dd>
 <dt><strong>dE0</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">Description</p>
+<dd><p class="first last">1-sigma width of the energy distribution from which the initial
+particle energies are sampled, in MeV.  Default is to 1 percent of E0.</p>
 </dd>
 <dt><strong>N</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
-<dd><p class="first last">Description</p>
+<dd><p class="first last">Number of particles to simulate. Default is 10000.</p>
 </dd>
 <dt><strong>dp</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">Description</p>
+<dd><p class="first last">Density multiplier.  dp is uniformly multiplied to all areal densities in the stack.  Default 1.0.</p>
 </dd>
 <dt><strong>chunk_size</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
-<dd><p class="first last">Description</p>
+<dd><p class="first last">If N is large, split the stack calculation in to multiple “chunks” of size <cite>chunk_size</cite>. Default 1E7.</p>
 </dd>
 <dt><strong>accuracy</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">Description</p>
+<dd><p class="first last">Maximum allowed (absolute) error in the predictor-corrector method. Default 0.01.  If error is
+above <cite>accuracy</cite>, each foil in the stack will be solved with multiple steps, between <cite>min_steps</cite>
+and <cite>max_steps</cite>.</p>
 </dd>
 <dt><strong>min_steps</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
-<dd><p class="first last">Description</p>
+<dd><p class="first last">The minimum number of steps per foil, in the predictor-corrector solver.  Default 2.</p>
 </dd>
 <dt><strong>max_steps</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
-<dd><p class="first last">Description</p>
+<dd><p class="first last">The maximum number of steps per foil, in the predictor-corrector solver.  Default 50.</p>
 </dd>
 </dl>
 </td>
 </tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">stack</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;cm&#39;</span><span class="p">:</span><span class="s1">&#39;H2O&#39;</span><span class="p">,</span> <span class="s1">&#39;ad&#39;</span><span class="p">:</span><span class="mf">800.0</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">:</span><span class="s1">&#39;water&#39;</span><span class="p">},</span>
+<span class="go">                        {&#39;cm&#39;:&#39;RbCl&#39;, &#39;density&#39;:3.0, &#39;t&#39;:0.03, &#39;name&#39;:&#39;salt&#39;},</span>
+<span class="go">                        {&#39;cm&#39;:&#39;Kapton&#39;, &#39;t&#39;:0.025},</span>
+<span class="go">                        {&#39;cm&#39;:&#39;Brass&#39;, &#39;m&#39;:3.5, &#39;a&#39;:1.0, &#39;name&#39;:&#39;metal&#39;}]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">st</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Stack</span><span class="p">(</span><span class="n">stack</span><span class="p">,</span> <span class="n">compounds</span><span class="o">=</span><span class="s1">&#39;example_compounds.json&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">st</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Stack</span><span class="p">(</span><span class="n">stack</span><span class="p">,</span> <span class="n">compounds</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;Brass&#39;</span><span class="p">:{</span><span class="s1">&#39;Cu&#39;</span><span class="p">:</span><span class="o">-</span><span class="mi">66</span><span class="p">,</span> <span class="s1">&#39;Zn&#39;</span><span class="p">:</span><span class="o">-</span><span class="mi">33</span><span class="p">}},</span> <span class="n">E0</span><span class="o">=</span><span class="mf">60.0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">st</span><span class="o">.</span><span class="n">stack</span><span class="p">)</span>
+<span class="go">    name compound  areal_density       mu_E     sig_E</span>
+<span class="go">0  water      H2O         800.00  55.444815  2.935233</span>
+<span class="go">1   salt     RbCl           9.00  50.668313  0.683532</span>
+<span class="go">2    NaN   Kapton           3.55  50.612543  0.683325</span>
+<span class="go">3  metal    Brass         350.00  49.159245  1.205481</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">st</span><span class="o">.</span><span class="n">saveas</span><span class="p">(</span><span class="s1">&#39;stack_calc.csv&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
 <dt><strong>stack</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
-<dd><p class="first last">Description</p>
+<dd><p class="first last">‘name’, ‘compound’, ‘areal_density’, mean energy ‘mu_E’, and 1-sigma energy width ‘sig_E’
+for each foil in the stack (energies in MeV).</p>
 </dd>
 <dt><strong>fluxes</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
-<dd><p class="first last">Description</p>
+<dd><p class="first last">‘flux’ as a function of ‘energy’ for each foil in the stack where ‘name’ is not None.</p>
 </dd>
 <dt><strong>compounds</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
-<dd><p class="first last">Description</p>
+<dd><p class="first last">Dictionary with compound names as keys, and ci.Compound classes as values.</p>
 </dd>
 </dl>
 </td>

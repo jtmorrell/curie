@@ -14,38 +14,77 @@ from .isotope import Isotope
 from .spectrum import Spectrum
 
 class DecayChain(object):
-	"""DecayChain
+	"""Radioactive Decay Chain
 
-	...
+	Uses the Bateman equations to calculate the activities and number of decays
+	from a radioactive decay chain as a function of time, both in production
+	and decay.  Also, initial isotope activities and production rates can
+	be fit to observed count data, or directly fit to HPGe spectra using the
+	`get_counts()` function.
 	
 	Parameters
 	----------
 	parent_isotope : str
-		Description of parameter x
+		Parent isotope in the chain.
 
-	R : str, array_like, dict or pd.DataFrame
-		Description of parameter x
+	R : array_like, dict, str or pd.DataFrame
+		Production rate for each isotope in the decay chain as a function of time.
+		If a Nx2 np.ndarray, element n gives the production rate R_n up until
+		time t_n for the parent isotope. E.g. If the production rate of the parent
+		is 2 for 1 hour, and 1 for 3 hours, the array will be [[2, 1], [1, 4]].  
+
+		If R is a dict, it specifies the production rate for multiple isotopes, 
+		where the keys are the isotopes and the values are type np.ndarray.
+
+		If R is a pd.DataFrame, it must have columns 'R' and 'time', and optionally 'isotope'
+		if R>0 for any isotopes other than the parent.  If R is a str, it must be a 
+		path to a file where the same data is provided.  Supported file types are
+		.csv, .json and .db files, where .json files must be in the 'records' format,
+		and .db files must have a table named 'R'.
 
 	A0 : float or dict
-		Description of parameter x
+		Initial activity.  If a float, the initial activity of the parent isotope.
+		If a dict, the keys are the isotopes for which the values represent the
+		initial activity.
 
 	units : str, optional
-		Description of parameter x
+		Units of time for the chain. Options are 'ns', 'us', 'ms', 's', 'm', 'h', 
+		'd', 'y', 'ky', 'My', 'Gy'.  Default is 's'.
 
 	Attributes
 	----------
+	R : pd.DataFrame
+		Production rate as a function of time, for each isotope in the chain. This
+		will be modified if `fit_R()` is called.
+
+	A0 : dict
+		Initial activity of each isotope in the chain.
+
 	isotopes : list
-		Description
+		List of isotopes in the decay chain.
 
 	counts : pd.DataFrame
-		Description
+		Observed counts from isotopes in the decay chain, which can be used
+		to determine the initial activities or average production rates using
+		the `fit_R()` or `fit_A0()` functions.
 
 	R_avg : pd.DataFrame
-		Description
+		Time-averaged production rate for each isotope where R>0.  This will be
+		modified if `fit_R()` is called.
 
 
 	Examples
 	--------
+	>>> dc = ci.DecayChain('Ra-225', R=[[1.0, 1.0], [0.5, 1.5], [2.0, 6]], units='d')
+	>>> print(dc.isotopes)
+	['225RAg', '225ACg', '221FRg', '217ATg', '213BIg', '217RNg', '209TLg', '213POg', '209PBg', '209BIg']
+	>>> print(dc.R_avg)
+      R_avg isotope
+	0  1.708333  225RAg
+
+	>>> dc = ci.DecayChain('152EU', A0=3.7E3, units='h')
+	>>> print(ci.isotopes)
+	['152EUg', '152GDg', '152SMg']
 
 	"""
 
@@ -58,7 +97,7 @@ class DecayChain(object):
 		istps = [Isotope(parent_isotope)]
 		self.isotopes = [istps[0].name]
 		self.R, self.A0, self._counts = None, {self.isotopes[0]:0.0}, None
-		self.chain = [[istps[0].decay_const(units), [], []]]
+		self._chain = [[istps[0].decay_const(units), [], []]]
 		stable_chain = [False]
 
 		while not all(stable_chain):
@@ -68,16 +107,16 @@ class DecayChain(object):
 					br = istps[n].decay_products[prod]
 					I = Isotope(prod)
 					if I.name in self.isotopes:
-						self.chain[self.isotopes.index(I.name)][1].append(br)
-						self.chain[self.isotopes.index(I.name)][2].append(n)
+						self._chain[self.isotopes.index(I.name)][1].append(br)
+						self._chain[self.isotopes.index(I.name)][2].append(n)
 					else:
 						istps.append(I)
 						self.isotopes.append(I.name)
-						self.chain.append([I.decay_const(units), [br], [n]])
-						stable_chain.append(self.chain[-1][0]<1E-12)
+						self._chain.append([I.decay_const(units), [br], [n]])
+						stable_chain.append(self._chain[-1][0]<1E-12)
 						if not stable_chain[-1]:
 							self.A0[self.isotopes[-1]] = 0.0
-		self.chain = np.array(self.chain, dtype=object)
+		self._chain = np.array(self._chain, dtype=object)
 
 
 		if A0 is not None:
@@ -93,6 +132,9 @@ class DecayChain(object):
 					self.R = pd.DataFrame(json.loads(open(R).read()))
 				elif R.endswith('.csv'):
 					self.R = pd.read_csv(R, header=0).fillna(method='ffill')
+				elif R.endswith('.db'):
+					self.R = pd.read_sql('SELECT * FROM R', _get_connection(R))
+
 				if 'isotope' not in self.R.columns.to_list():
 					self.R['isotope'] = self.isotopes[0]
 
@@ -104,7 +146,6 @@ class DecayChain(object):
 				self.R = pd.DataFrame({'isotope':self.isotopes[0], 'R':R[:,0], 'time':R[:,1]})
 
 			self.R['isotope'] = [self._filter_name(i) for i in self.R['isotope']]
-			# self.A0 = {p:0.0 for p in self.isotopes}
 
 			time = np.insert(np.unique(self.R['time']), 0, [0.0])
 			for n,dt in enumerate(time[1:]-time[:-1]):
@@ -125,12 +166,12 @@ class DecayChain(object):
 			return [], []
 
 		m = self._index(istp)
-		BR = [[0.0]]+[[r] for r in self.chain[m,1]]
-		CH = [[m]]+[[n] for n in self.chain[m,2]]
+		BR = [[0.0]]+[[r] for r in self._chain[m,1]]
+		CH = [[m]]+[[n] for n in self._chain[m,2]]
 
 		while not all([c[-1]==0 for c in CH]):
-			BR = [BR[n]+[i] for n,c in enumerate(CH) for i in self.chain[c[-1],1]]
-			CH = [c+[i] for c in CH for i in self.chain[c[-1],2]]
+			BR = [BR[n]+[i] for n,c in enumerate(CH) for i in self._chain[c[-1],1]]
+			CH = [c+[i] for c in CH for i in self._chain[c[-1],2]]
 
 		return [np.array(r)[::-1] for r in BR], [np.array(c)[::-1] for c in CH]
 
@@ -182,7 +223,7 @@ class DecayChain(object):
 		A = np.zeros(len(time)) if time.shape else np.array(0.0)
 
 		for m,(BR, chain) in enumerate(zip(*self._get_branches(isotope))):
-			lm = self._r_lm(units)*self.chain[chain, 0]
+			lm = self._r_lm(units)*self._chain[chain, 0]
 			L = len(chain)
 			for i in range(L):
 				if i==L-1 and m>0:
@@ -240,7 +281,7 @@ class DecayChain(object):
 		D = np.zeros(len(t_start)) if t_start.shape else (np.zeros(len(t_stop)) if t_stop.shape else np.array(0.0))
 
 		for m,(BR, chain) in enumerate(zip(*self._get_branches(isotope))):
-			lm = self._r_lm(units)*self.chain[chain,0]
+			lm = self._r_lm(units)*self._chain[chain,0]
 			L = len(chain)
 			for i in range(L):
 				if i==L-1 and m>0:
@@ -498,7 +539,7 @@ class DecayChain(object):
 		if time is not None:
 			time = np.asarray(time)
 		elif self.counts is None:
-			time = np.linspace(0, 5.0*np.log(2)/self.chain[0,0], 1000)
+			time = np.linspace(0, 5.0*np.log(2)/self._chain[0,0], 1000)
 		else:
 			time = np.linspace(0, 1.25*self.counts['stop'].max(), 1000)
 
@@ -525,7 +566,7 @@ class DecayChain(object):
 
 		plot_time = time if self.R is None else np.append(T_grid-T_grid[-1], time.copy())
 		for n,istp in enumerate(self.isotopes):
-			if self.chain[n,0]>1E-12 and n<max_plot:
+			if self._chain[n,0]>1E-12 and n<max_plot:
 				A = self.activity(istp, time)
 				if self.R is not None:
 					A = np.append(A_grid[istp], A)

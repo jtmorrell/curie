@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>5. Compound &#8212; Curie 0.0.1 documentation</title>
+    <title>Compound &#8212; Curie 0.0.1 documentation</title>
     <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     
@@ -36,7 +36,7 @@
           <div class="body" role="main">
             
   <div class="section" id="compound">
-<span id="id1"></span><h1>5. Compound<a class="headerlink" href="#compound" title="Permalink to this headline">¶</a></h1>
+<span id="id1"></span><h1>Compound<a class="headerlink" href="#compound" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="curie.Compound">
 <em class="property">class </em><code class="descclassname">curie.</code><code class="descname">Compound</code><span class="sig-paren">(</span><em>compound</em>, <em>weights=None</em>, <em>density=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/compound.html#Compound"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Compound" title="Permalink to this definition">¶</a></dt>
@@ -45,7 +45,8 @@
 element class, but for compounds of atomic elements rather
 than the individual atomic elements.  The compound is described
 by a set of elements, a set of weights for each element, and a 
-density.  The weights can be either given as atom-weights, e.g.
+density.</p>
+<p>The weights can be either given as atom-weights, e.g.
 in H2O the atom weights are 0.67 for H and 0.33 for O, or as 
 mass-weights, e.g. brass is 0.33 Zn by weight and 0.67 Cu by
 weight.  Some preset compounds are available; their names can be
@@ -64,16 +65,17 @@ that full chemical notation is not supported, so Ca3(PO4)2 must be written
 as Ca3P2O8.  Decimal weights are supported, e.g. C0.5O is equivalent to CO2.</p>
 </dd>
 <dt><strong>weights</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict, str or pd.DataFrame, optional</span></dt>
-<dd><p class="first last">The weights of each element in the compound.  Multiple formats are supported.
+<dd><p class="first">The weights of each element in the compound.  Multiple formats are supported.
 If weights is a dict, it must be formatted as {‘el1’:wt1, ‘el2’:wt2}, where
-atom-weights are positive, and mass-weights are negative. If weights is a pandas 
-DataFrame, it must contain an ‘element’ column, and one of ‘weight’, ‘atom_weight’,
-or ‘mass_weight’.  If ‘weight’ is the column given, the convention of positive 
-atom-weights and negative mass-weights is followed.  If weights is a str, it can 
-either be formatted as ‘el1:wt1, el2:wt2’, or it can be a path to a .csv, .json 
-or .db file.  These files must contain the same information as the DataFrame option, 
-and can contain weights for multiple compounds, if ‘compound’ is one of the columns/keys.
-If a .json file, it must follow the ‘records’ formatting convention (see pandas docs).</p>
+atom-weights are positive, and mass-weights are negative.</p>
+<p>If weights is a pandas DataFrame, it must contain an ‘element’ column, 
+and one of ‘weight’, ‘atom_weight’, or ‘mass_weight’.  If ‘weight’ is the column 
+given, the convention of positive atom-weights and negative mass-weights is followed.</p>
+<p>If weights is a str, it can either be formatted as ‘el1:wt1, el2:wt2’, or it can be 
+a path to a .csv, .json or .db file.  These files must contain the same information 
+as the DataFrame option, and can contain weights for multiple compounds, if ‘compound’ 
+is one of the columns/keys.</p>
+<p class="last">If a .json file, it must follow the ‘records’ formatting convention (see pandas docs).</p>
 </dd>
 <dt><strong>density</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float, optional</span></dt>
 <dd><p class="first last">Density of the compound in g/cm^3.  The density is required for the cm.attenuation(),

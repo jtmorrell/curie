@@ -20,58 +20,71 @@ from .isotope import Isotope
 from .compound import Compound
 
 class Spectrum(object):
-	"""Spectrum
+	"""Gamma-ray spectrum from High-Purity Germanium (HPGe) detectors
 
-	...
+	Provides methods for reading, converting, and fitting gamma-ray spectra
+	from HPGe data.
 	
 	Parameters
 	----------
 	filename : str
-		Description of parameter `x`.
+		File path to the gamma-ray spectrum.  Supported file types are Ortec .Spe
+		and .Chn files.
 
 	Other Parameters
 	----------------
 	cb : str or ci.Calibration
-		Description
+		Calibration to use, or path to a calibration .json file.
 
 	isotopes : list
-		Description
+		List of gamma-decaying isotopes observed in the spectrum.
 
 	fit_config : dict
-		Description
+		Dictionary of fit configuration parameters passed as keyword arguments to
+		`self.fit_peaks()`. See that function for more details on these arguments.
 
 	Attributes
 	----------
 	cb : ci.Calibration
-		Description
+		Gamma-ray energy, efficiency and resolution calibration.
 
 	isotopes : list
-		Description
+		List of gamma-decaying isotopes observed in the spectrum.
 
 	fit_config : dict
-		Description
+		Dictionary of fit configuration parameters passed as keyword arguments to
+		`self.fit_peaks()`. See that function for more details on these arguments.
 
 	filename : str
-		Description
+		File path to the gamma-ray spectrum.
 
 	hist : np.ndarray
-		Description
+		Histogram of counts observed in the spectrum.
 
 	start_time : datetime.datetime
-		Description
+		Date-time marking the start of the count.
 
 	live_time : float
-		Description
+		Total time the spectrum was counting, in seconds, minus the dead time.
 
 	real_time : float
-		Description
+		Total time the spectrum was counting, in seconds.
 
 	peaks : pd.DataFrame
-		Description
-
+		Table of fits to the gamma-ray data.  Includes counts, isotopes, energies,
+		intensities, efficiencies, calculated decays and decay-rates, chi^2, and other
+		information.  The complete list of columns is 'filename', 'isotope', 'energy', 'counts',
+		'unc_counts', 'intensity', 'unc_intensity', 'efficiency', 'unc_efficiency',
+		'decays', 'unc_decays', 'decay_rate', 'unc_decay_rate', 'chi2', 'start_time',
+		'live_time', and 'real_time'.
 
 	Examples
 	--------
+	sp = ci.Spectrum('eu_calib_7cm.Spe')
+	sp.isotopes = ['Eu-152', '40K']
+	sp.cb = 'example_calib.json'
+	sp.fit_config = {'bg':'quadratic', 'xrays':False}
+
 
 	"""
 
@@ -729,9 +742,62 @@ class Spectrum(object):
 		gammas : list, dict or pd.DataFrame, optional
 			Description of x
 
+		Other Parameters
+		----------------
+		snip_adj : float
+			Description. Default 1.0.
+
+		R : float
+			Description. Default 0.1.
+
+		alpha : float
+			Description. Default 0.9.
+
+		step : float
+			Description. Default 0.0.
+
+		bg : str
+			Description. Default 'snip'.
+
+		skew_fit : bool
+			Description. Default False.
+
+		step_fit : bool
+			Description. Default False.
+
+		SNR_min : float
+			Description. Default 4.0.
+
+		A_max : float
+			Description. Default 10.0.
+
+		mu_max : float
+			Description. Default 1.5.
+
+		sig_max : float
+			Description. Default 1.5.
+
+		xrays : bool
+			Description. Default False.
+
+		pk_width : float
+			Description. Default 7.5.
+
+		E_min : float
+			Description. Default 75.0.
+
+		I_min : float
+			Description. Default 0.05
+
+		dE_511 : float
+			Description. Default 3.5
+
+		multi_max : int
+			Description. Default 8.
+
 		Returns
 		-------
-		type
+		peaks : pd.DataFrame
 			Description
 
 		Examples

@@ -61,7 +61,9 @@
 <span class="sd">	element class, but for compounds of atomic elements rather</span>
 <span class="sd">	than the individual atomic elements.  The compound is described</span>
 <span class="sd">	by a set of elements, a set of weights for each element, and a </span>
-<span class="sd">	density.  The weights can be either given as atom-weights, e.g.</span>
+<span class="sd">	density.  </span>
+
+<span class="sd">	The weights can be either given as atom-weights, e.g.</span>
 <span class="sd">	in H2O the atom weights are 0.67 for H and 0.33 for O, or as </span>
 <span class="sd">	mass-weights, e.g. brass is 0.33 Zn by weight and 0.67 Cu by</span>
 <span class="sd">	weight.  Some preset compounds are available; their names can be</span>
@@ -80,13 +82,17 @@
 <span class="sd">	weights : dict, str or pd.DataFrame, optional</span>
 <span class="sd">		The weights of each element in the compound.  Multiple formats are supported.</span>
 <span class="sd">		If weights is a dict, it must be formatted as {&#39;el1&#39;:wt1, &#39;el2&#39;:wt2}, where</span>
-<span class="sd">		atom-weights are positive, and mass-weights are negative. If weights is a pandas </span>
-<span class="sd">		DataFrame, it must contain an &#39;element&#39; column, and one of &#39;weight&#39;, &#39;atom_weight&#39;,</span>
-<span class="sd">		or &#39;mass_weight&#39;.  If &#39;weight&#39; is the column given, the convention of positive </span>
-<span class="sd">		atom-weights and negative mass-weights is followed.  If weights is a str, it can </span>
-<span class="sd">		either be formatted as &#39;el1:wt1, el2:wt2&#39;, or it can be a path to a .csv, .json </span>
-<span class="sd">		or .db file.  These files must contain the same information as the DataFrame option, </span>
-<span class="sd">		and can contain weights for multiple compounds, if &#39;compound&#39; is one of the columns/keys.</span>
+<span class="sd">		atom-weights are positive, and mass-weights are negative. </span>
+
+<span class="sd">		If weights is a pandas DataFrame, it must contain an &#39;element&#39; column, </span>
+<span class="sd">		and one of &#39;weight&#39;, &#39;atom_weight&#39;, or &#39;mass_weight&#39;.  If &#39;weight&#39; is the column </span>
+<span class="sd">		given, the convention of positive atom-weights and negative mass-weights is followed.  </span>
+
+<span class="sd">		If weights is a str, it can either be formatted as &#39;el1:wt1, el2:wt2&#39;, or it can be </span>
+<span class="sd">		a path to a .csv, .json or .db file.  These files must contain the same information </span>
+<span class="sd">		as the DataFrame option, and can contain weights for multiple compounds, if &#39;compound&#39; </span>
+<span class="sd">		is one of the columns/keys.</span>
+<span class="sd">		</span>
 <span class="sd">		If a .json file, it must follow the &#39;records&#39; formatting convention (see pandas docs).</span>
 
 <span class="sd">	density : float, optional</span>

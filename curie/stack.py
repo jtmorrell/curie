@@ -14,61 +14,122 @@ from .compound import Compound
 from .element import Element
 
 class Stack(object):
-	"""Stack
+	"""Foil pack for stacked target calculations
 
-	...
+	Computes the energy loss and (relative) charged particle flux through a stack
+	of foils using the Anderson-Ziegler formulation for stopping powers.
 	
 	Parameters
 	----------
-	stack : list of dicts or str
-		Description of parameter `x`.
+	stack : list of dicts, pd.DataFrame or str
+		Definition of the foils in the stack.  The 'compound' for each foil in
+		the stack must be given, and the 'areal_density' or some combination of parameters
+		that allow the areal density to be calculated must also be given.  Foils must
+		also be given a 'name' if they are to be filtered by the .saveas(), .summarize(),
+		and .plot() methods.  By default, foils without 'name' are not included by these
+		methods.
+
+		There are three acceptable formats for `stack`.  The first is a pd.DataFrame
+		with the columns described. The second is a list of dicts, where each dict contains
+		the appropriate keys.  The last is a str, which is a path to a file in either .csv,
+		.json or .db format, where the headers of the file contain the correct information.
+		Note that the .json file must follow the 'records' format (see pandas docs).  If a .db
+		file, it must have a table named 'stack'.
+
+		The 'areal_density' can be given directly, in units of mg/cm^2, or will be calculated
+		from the following: 'mass' (in g) and 'area' (in cm^2), 'thickness' (in mm) and 'density'
+		(in g/cm^3), or just 'thickness' if the compound is a natural element, or 
+		is in `ci.COMPOUND_LIST` or the 'compounds' argument.
+
+		Also, the following shorthand indices are supported: 'cm' for 'compound', 'd' for
+		'density', 't' for 'thickness', 'm' for 'mass', 'a' for 'area', 'ad' for 'areal_density',
+		and 'nm' for 'name'.
+
 
 	particle : str
-		Description
+		Incident ion.  For light ions, options are 'p' (default), 'd', 't', 'a' for proton, 
+		deuteron, triton and alpha, respectively.  Additionally, heavy ions can be
+		specified either by element or isotope, e.g. 'Fe', '40CA', 'U', 'Bi-209'.For 
+		light ions, the charge state is assumed to be fully stripped. For heavy ions
+		the charge state is handled by a Bohr/Northcliffe parameterization consistent
+		with the Anderson-Ziegler formalism.
 
 	E0 : float
-		Description
+		Incident particle energy, in MeV.  If dE0 is not provided, it will
+		default to 1 percent of E0.
 
 
 	Other Parameters
 	----------------
 	compounds : str, pandas.DataFrame, list or dict
-		Description
+		Compound definitions for the compounds included in the foil stack.  If the compounds
+		are not natural elements, or `ci.COMPOUND_LIST`, or if different weights or densities
+		are required, they can be specified here. (Note specifying specific densities in the
+		'stack' argument is probably more appropriate.)  Also, if the 'compound' name in the
+		stack is a chemical formula, e.g. 'H2O', 'SrCO3', the weights can be inferred and 
+		'compounds' doesn't need to be given.
+
+		If compounds is a pandas DataFrame, it must have the columns 'compound', 'element', one of 
+		'weight', 'atom_weight', or 'mass_weight', and optionally 'density'.  If a str, it must be
+		a path to a .csv, .json or .db file, where .json files must be in the 'records' format and
+		.db files must have a 'compounds' table.  All must have the above information.  For .csv 
+		files, the compound only needs to be given for the first line of that compound definition.
+
+		If compounds is a list, it must be a list of ci.Element or ci.Compound classes.  If it is a
+		dict, it must have the compound names as keys, and weights as values, e.g. 
+		{'Water':{'H':2, 'O':1}, 'Brass':{'Cu':-66,'Zn':-33}}
 
 	dE0 : float
-		Description
+		1-sigma width of the energy distribution from which the initial
+		particle energies are sampled, in MeV.  Default is to 1 percent of E0.
 
 	N : int
-		Description
+		Number of particles to simulate. Default is 10000.
 
 	dp : float
-		Description
+		Density multiplier.  dp is uniformly multiplied to all areal densities in the stack.  Default 1.0.
 
 	chunk_size : int
-		Description
+		If N is large, split the stack calculation in to multiple "chunks" of size `chunk_size`. Default 1E7.
 
 	accuracy : float
-		Description
+		Maximum allowed (absolute) error in the predictor-corrector method. Default 0.01.  If error is
+		above `accuracy`, each foil in the stack will be solved with multiple steps, between `min_steps`
+		and `max_steps`.
 
 	min_steps : int
-		Description
+		The minimum number of steps per foil, in the predictor-corrector solver.  Default 2.
 
 	max_steps : int
-		Description
+		The maximum number of steps per foil, in the predictor-corrector solver.  Default 50.
 
 	Attributes
 	----------
 	stack : pandas.DataFrame
-		Description
+		'name', 'compound', 'areal_density', mean energy 'mu_E', and 1-sigma energy width 'sig_E'
+		for each foil in the stack (energies in MeV).
 
 	fluxes : pandas.DataFrame
-		Description
+		'flux' as a function of 'energy' for each foil in the stack where 'name' is not None.
 
 	compounds : dict
-		Description
+		Dictionary with compound names as keys, and ci.Compound classes as values.
 
 	Examples
 	--------
+	>>> stack = [{'cm':'H2O', 'ad':800.0, 'name':'water'},
+				{'cm':'RbCl', 'density':3.0, 't':0.03, 'name':'salt'},
+				{'cm':'Kapton', 't':0.025},
+				{'cm':'Brass', 'm':3.5, 'a':1.0, 'name':'metal'}]
+	>>> st = ci.Stack(stack, compounds='example_compounds.json')
+	>>> st = ci.Stack(stack, compounds={'Brass':{'Cu':-66, 'Zn':-33}}, E0=60.0)
+	>>> print(st.stack)
+	    name compound  areal_density       mu_E     sig_E
+	0  water      H2O         800.00  55.444815  2.935233
+	1   salt     RbCl           9.00  50.668313  0.683532
+	2    NaN   Kapton           3.55  50.612543  0.683325
+	3  metal    Brass         350.00  49.159245  1.205481
+	>>> st.saveas('stack_calc.csv')
 
 	"""
 
@@ -121,9 +182,9 @@ class Stack(object):
 			c = cl.lower()
 			if c=='cm':
 				cols.append('compound')
-			elif c=='rho':
+			elif c=='d':
 				cols.append('density')
-			elif c=='r':
+			elif c=='t':
 				cols.append('thickness')
 			elif c=='m':
 				cols.append('mass')
@@ -161,35 +222,28 @@ class Stack(object):
 					self.compounds = {cm:Compound(cm, weights=js[cm]) for cm in cms}
 
 				elif compounds.endswith('.csv'):
-					df = pd.read_csv(filename, header=0, names=['compound', 'element', 'weight']).fillna(method='ffill')
+					df = pd.read_csv(filename, header=0).fillna(method='ffill')
 					cms = [str(i) for i in pd.unique(df['compound'])]
 					self.compounds = {cm:Compound(cm, weights=df[df['compound']==cm]) for cm in cms}
+
+				elif compounds.endswith('.db'):
+					df = pd.read_sql('SELECT * FROM compounds', _get_connection(filename))
+					cms = [str(i) for i in pd.unique(df['compound'])]
+					self.compounds = {cm:Compound(cm, weights=df[df['compound']==cm]) for cm in cms}
+
 
 			elif type(compounds)==pd.DataFrame:
 				cms = [str(i) for i in pd.unique(compounds['compound'])]
 				self.compounds = {cm:Compound(cm, weights=compounds[compounds['compound']==cm]) for cm in cms}
 
 			elif type(compounds)==list:
-
 				for cm in compounds:
-					if type(cm)==str:
-						### e.g. ['H20', 'RbCl']
-						self.compounds[cm] = Compound(cm)
-
-					elif type(cm)==Compound or type(cm)==Element:
+					if type(cm)==Compound or type(cm)==Element:
 						### ci.Compound class
 						self.compounds[cm.name] = cm
 
-					elif type(cm)==dict:
-						### e.g. [{'cm':'Water','weights':{'H':2,'O':1}}]
-						if 'cm' in cm:
-							c = cm['cm']
-						elif 'compound' in cm:
-							c = cm['compound']
-						self.compounds[c] = Compound(c, weights=cm['weights'])
-
 			elif type(compounds)==dict:
-				### e.g. {'Water':{'H':2, 'O':1}, 'RbCl':{'Rb':1,'Cl':1}}
+				### e.g. {'Water':{'H':2, 'O':1}, 'Brass':{'Cu':-66,'Zn':-33}}
 				self.compounds = {c:Compound(c, weights=compounds[c]) for c in compounds}
 
 

@@ -52,61 +52,122 @@
 <span class="kn">from</span> <span class="nn">.element</span> <span class="kn">import</span> <span class="n">Element</span>
 
 <div class="viewcode-block" id="Stack"><a class="viewcode-back" href="../../api/stack.html#curie.Stack">[docs]</a><span class="k">class</span> <span class="nc">Stack</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-	<span class="sd">&quot;&quot;&quot;Stack</span>
+	<span class="sd">&quot;&quot;&quot;Foil pack for stacked target calculations</span>
 
-<span class="sd">	...</span>
+<span class="sd">	Computes the energy loss and (relative) charged particle flux through a stack</span>
+<span class="sd">	of foils using the Anderson-Ziegler formulation for stopping powers.</span>
 <span class="sd">	</span>
 <span class="sd">	Parameters</span>
 <span class="sd">	----------</span>
-<span class="sd">	stack : list of dicts or str</span>
-<span class="sd">		Description of parameter `x`.</span>
+<span class="sd">	stack : list of dicts, pd.DataFrame or str</span>
+<span class="sd">		Definition of the foils in the stack.  The &#39;compound&#39; for each foil in</span>
+<span class="sd">		the stack must be given, and the &#39;areal_density&#39; or some combination of parameters</span>
+<span class="sd">		that allow the areal density to be calculated must also be given.  Foils must</span>
+<span class="sd">		also be given a &#39;name&#39; if they are to be filtered by the .saveas(), .summarize(),</span>
+<span class="sd">		and .plot() methods.  By default, foils without &#39;name&#39; are not included by these</span>
+<span class="sd">		methods.</span>
+
+<span class="sd">		There are three acceptable formats for `stack`.  The first is a pd.DataFrame</span>
+<span class="sd">		with the columns described. The second is a list of dicts, where each dict contains</span>
+<span class="sd">		the appropriate keys.  The last is a str, which is a path to a file in either .csv,</span>
+<span class="sd">		.json or .db format, where the headers of the file contain the correct information.</span>
+<span class="sd">		Note that the .json file must follow the &#39;records&#39; format (see pandas docs).  If a .db</span>
+<span class="sd">		file, it must have a table named &#39;stack&#39;.</span>
+
+<span class="sd">		The &#39;areal_density&#39; can be given directly, in units of mg/cm^2, or will be calculated</span>
+<span class="sd">		from the following: &#39;mass&#39; (in g) and &#39;area&#39; (in cm^2), &#39;thickness&#39; (in mm) and &#39;density&#39;</span>
+<span class="sd">		(in g/cm^3), or just &#39;thickness&#39; if the compound is a natural element, or </span>
+<span class="sd">		is in `ci.COMPOUND_LIST` or the &#39;compounds&#39; argument.</span>
+
+<span class="sd">		Also, the following shorthand indices are supported: &#39;cm&#39; for &#39;compound&#39;, &#39;d&#39; for</span>
+<span class="sd">		&#39;density&#39;, &#39;t&#39; for &#39;thickness&#39;, &#39;m&#39; for &#39;mass&#39;, &#39;a&#39; for &#39;area&#39;, &#39;ad&#39; for &#39;areal_density&#39;,</span>
+<span class="sd">		and &#39;nm&#39; for &#39;name&#39;.</span>
+
 
 <span class="sd">	particle : str</span>
-<span class="sd">		Description</span>
+<span class="sd">		Incident ion.  For light ions, options are &#39;p&#39; (default), &#39;d&#39;, &#39;t&#39;, &#39;a&#39; for proton, </span>
+<span class="sd">		deuteron, triton and alpha, respectively.  Additionally, heavy ions can be</span>
+<span class="sd">		specified either by element or isotope, e.g. &#39;Fe&#39;, &#39;40CA&#39;, &#39;U&#39;, &#39;Bi-209&#39;.For </span>
+<span class="sd">		light ions, the charge state is assumed to be fully stripped. For heavy ions</span>
+<span class="sd">		the charge state is handled by a Bohr/Northcliffe parameterization consistent</span>
+<span class="sd">		with the Anderson-Ziegler formalism.</span>
 
 <span class="sd">	E0 : float</span>
-<span class="sd">		Description</span>
+<span class="sd">		Incident particle energy, in MeV.  If dE0 is not provided, it will</span>
+<span class="sd">		default to 1 percent of E0.</span>
 
 
 <span class="sd">	Other Parameters</span>
 <span class="sd">	----------------</span>
 <span class="sd">	compounds : str, pandas.DataFrame, list or dict</span>
-<span class="sd">		Description</span>
+<span class="sd">		Compound definitions for the compounds included in the foil stack.  If the compounds</span>
+<span class="sd">		are not natural elements, or `ci.COMPOUND_LIST`, or if different weights or densities</span>
+<span class="sd">		are required, they can be specified here. (Note specifying specific densities in the</span>
+<span class="sd">		&#39;stack&#39; argument is probably more appropriate.)  Also, if the &#39;compound&#39; name in the</span>
+<span class="sd">		stack is a chemical formula, e.g. &#39;H2O&#39;, &#39;SrCO3&#39;, the weights can be inferred and </span>
+<span class="sd">		&#39;compounds&#39; doesn&#39;t need to be given.</span>
+
+<span class="sd">		If compounds is a pandas DataFrame, it must have the columns &#39;compound&#39;, &#39;element&#39;, one of </span>
+<span class="sd">		&#39;weight&#39;, &#39;atom_weight&#39;, or &#39;mass_weight&#39;, and optionally &#39;density&#39;.  If a str, it must be</span>
+<span class="sd">		a path to a .csv, .json or .db file, where .json files must be in the &#39;records&#39; format and</span>
+<span class="sd">		.db files must have a &#39;compounds&#39; table.  All must have the above information.  For .csv </span>
+<span class="sd">		files, the compound only needs to be given for the first line of that compound definition.</span>
+
+<span class="sd">		If compounds is a list, it must be a list of ci.Element or ci.Compound classes.  If it is a</span>
+<span class="sd">		dict, it must have the compound names as keys, and weights as values, e.g. </span>
+<span class="sd">		{&#39;Water&#39;:{&#39;H&#39;:2, &#39;O&#39;:1}, &#39;Brass&#39;:{&#39;Cu&#39;:-66,&#39;Zn&#39;:-33}}</span>
 
 <span class="sd">	dE0 : float</span>
-<span class="sd">		Description</span>
+<span class="sd">		1-sigma width of the energy distribution from which the initial</span>
+<span class="sd">		particle energies are sampled, in MeV.  Default is to 1 percent of E0.</span>
 
 <span class="sd">	N : int</span>
-<span class="sd">		Description</span>
+<span class="sd">		Number of particles to simulate. Default is 10000.</span>
 
 <span class="sd">	dp : float</span>
-<span class="sd">		Description</span>
+<span class="sd">		Density multiplier.  dp is uniformly multiplied to all areal densities in the stack.  Default 1.0.</span>
 
 <span class="sd">	chunk_size : int</span>
-<span class="sd">		Description</span>
+<span class="sd">		If N is large, split the stack calculation in to multiple &quot;chunks&quot; of size `chunk_size`. Default 1E7.</span>
 
 <span class="sd">	accuracy : float</span>
-<span class="sd">		Description</span>
+<span class="sd">		Maximum allowed (absolute) error in the predictor-corrector method. Default 0.01.  If error is</span>
+<span class="sd">		above `accuracy`, each foil in the stack will be solved with multiple steps, between `min_steps`</span>
+<span class="sd">		and `max_steps`.</span>
 
 <span class="sd">	min_steps : int</span>
-<span class="sd">		Description</span>
+<span class="sd">		The minimum number of steps per foil, in the predictor-corrector solver.  Default 2.</span>
 
 <span class="sd">	max_steps : int</span>
-<span class="sd">		Description</span>
+<span class="sd">		The maximum number of steps per foil, in the predictor-corrector solver.  Default 50.</span>
 
 <span class="sd">	Attributes</span>
 <span class="sd">	----------</span>
 <span class="sd">	stack : pandas.DataFrame</span>
-<span class="sd">		Description</span>
+<span class="sd">		&#39;name&#39;, &#39;compound&#39;, &#39;areal_density&#39;, mean energy &#39;mu_E&#39;, and 1-sigma energy width &#39;sig_E&#39;</span>
+<span class="sd">		for each foil in the stack (energies in MeV).</span>
 
 <span class="sd">	fluxes : pandas.DataFrame</span>
-<span class="sd">		Description</span>
+<span class="sd">		&#39;flux&#39; as a function of &#39;energy&#39; for each foil in the stack where &#39;name&#39; is not None.</span>
 
 <span class="sd">	compounds : dict</span>
-<span class="sd">		Description</span>
+<span class="sd">		Dictionary with compound names as keys, and ci.Compound classes as values.</span>
 
 <span class="sd">	Examples</span>
 <span class="sd">	--------</span>
+<span class="sd">	&gt;&gt;&gt; stack = [{&#39;cm&#39;:&#39;H2O&#39;, &#39;ad&#39;:800.0, &#39;name&#39;:&#39;water&#39;},</span>
+<span class="sd">				{&#39;cm&#39;:&#39;RbCl&#39;, &#39;density&#39;:3.0, &#39;t&#39;:0.03, &#39;name&#39;:&#39;salt&#39;},</span>
+<span class="sd">				{&#39;cm&#39;:&#39;Kapton&#39;, &#39;t&#39;:0.025},</span>
+<span class="sd">				{&#39;cm&#39;:&#39;Brass&#39;, &#39;m&#39;:3.5, &#39;a&#39;:1.0, &#39;name&#39;:&#39;metal&#39;}]</span>
+<span class="sd">	&gt;&gt;&gt; st = ci.Stack(stack, compounds=&#39;example_compounds.json&#39;)</span>
+<span class="sd">	&gt;&gt;&gt; st = ci.Stack(stack, compounds={&#39;Brass&#39;:{&#39;Cu&#39;:-66, &#39;Zn&#39;:-33}}, E0=60.0)</span>
+<span class="sd">	&gt;&gt;&gt; print(st.stack)</span>
+<span class="sd">	    name compound  areal_density       mu_E     sig_E</span>
+<span class="sd">	0  water      H2O         800.00  55.444815  2.935233</span>
+<span class="sd">	1   salt     RbCl           9.00  50.668313  0.683532</span>
+<span class="sd">	2    NaN   Kapton           3.55  50.612543  0.683325</span>
+<span class="sd">	3  metal    Brass         350.00  49.159245  1.205481</span>
+<span class="sd">	&gt;&gt;&gt; st.saveas(&#39;stack_calc.csv&#39;)</span>
 
 <span class="sd">	&quot;&quot;&quot;</span>
 
@@ -159,9 +220,9 @@
 			<span class="n">c</span> <span class="o">=</span> <span class="n">cl</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
 			<span class="k">if</span> <span class="n">c</span><span class="o">==</span><span class="s1">&#39;cm&#39;</span><span class="p">:</span>
 				<span class="n">cols</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;compound&#39;</span><span class="p">)</span>
-			<span class="k">elif</span> <span class="n">c</span><span class="o">==</span><span class="s1">&#39;rho&#39;</span><span class="p">:</span>
+			<span class="k">elif</span> <span class="n">c</span><span class="o">==</span><span class="s1">&#39;d&#39;</span><span class="p">:</span>
 				<span class="n">cols</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;density&#39;</span><span class="p">)</span>
-			<span class="k">elif</span> <span class="n">c</span><span class="o">==</span><span class="s1">&#39;r&#39;</span><span class="p">:</span>
+			<span class="k">elif</span> <span class="n">c</span><span class="o">==</span><span class="s1">&#39;t&#39;</span><span class="p">:</span>
 				<span class="n">cols</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;thickness&#39;</span><span class="p">)</span>
 			<span class="k">elif</span> <span class="n">c</span><span class="o">==</span><span class="s1">&#39;m&#39;</span><span class="p">:</span>
 				<span class="n">cols</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;mass&#39;</span><span class="p">)</span>
@@ -199,35 +260,28 @@
 					<span class="bp">self</span><span class="o">.</span><span class="n">compounds</span> <span class="o">=</span> <span class="p">{</span><span class="n">cm</span><span class="p">:</span><span class="n">Compound</span><span class="p">(</span><span class="n">cm</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">js</span><span class="p">[</span><span class="n">cm</span><span class="p">])</span> <span class="k">for</span> <span class="n">cm</span> <span class="ow">in</span> <span class="n">cms</span><span class="p">}</span>
 
 				<span class="k">elif</span> <span class="n">compounds</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.csv&#39;</span><span class="p">):</span>
-					<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;compound&#39;</span><span class="p">,</span> <span class="s1">&#39;element&#39;</span><span class="p">,</span> <span class="s1">&#39;weight&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s1">&#39;ffill&#39;</span><span class="p">)</span>
+					<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s1">&#39;ffill&#39;</span><span class="p">)</span>
 					<span class="n">cms</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">pd</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;compound&#39;</span><span class="p">])]</span>
 					<span class="bp">self</span><span class="o">.</span><span class="n">compounds</span> <span class="o">=</span> <span class="p">{</span><span class="n">cm</span><span class="p">:</span><span class="n">Compound</span><span class="p">(</span><span class="n">cm</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;compound&#39;</span><span class="p">]</span><span class="o">==</span><span class="n">cm</span><span class="p">])</span> <span class="k">for</span> <span class="n">cm</span> <span class="ow">in</span> <span class="n">cms</span><span class="p">}</span>
+
+				<span class="k">elif</span> <span class="n">compounds</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.db&#39;</span><span class="p">):</span>
+					<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s1">&#39;SELECT * FROM compounds&#39;</span><span class="p">,</span> <span class="n">_get_connection</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
+					<span class="n">cms</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">pd</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;compound&#39;</span><span class="p">])]</span>
+					<span class="bp">self</span><span class="o">.</span><span class="n">compounds</span> <span class="o">=</span> <span class="p">{</span><span class="n">cm</span><span class="p">:</span><span class="n">Compound</span><span class="p">(</span><span class="n">cm</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;compound&#39;</span><span class="p">]</span><span class="o">==</span><span class="n">cm</span><span class="p">])</span> <span class="k">for</span> <span class="n">cm</span> <span class="ow">in</span> <span class="n">cms</span><span class="p">}</span>
+
 
 			<span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">compounds</span><span class="p">)</span><span class="o">==</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 				<span class="n">cms</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">pd</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">compounds</span><span class="p">[</span><span class="s1">&#39;compound&#39;</span><span class="p">])]</span>
 				<span class="bp">self</span><span class="o">.</span><span class="n">compounds</span> <span class="o">=</span> <span class="p">{</span><span class="n">cm</span><span class="p">:</span><span class="n">Compound</span><span class="p">(</span><span class="n">cm</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">compounds</span><span class="p">[</span><span class="n">compounds</span><span class="p">[</span><span class="s1">&#39;compound&#39;</span><span class="p">]</span><span class="o">==</span><span class="n">cm</span><span class="p">])</span> <span class="k">for</span> <span class="n">cm</span> <span class="ow">in</span> <span class="n">cms</span><span class="p">}</span>
 
 			<span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">compounds</span><span class="p">)</span><span class="o">==</span><span class="nb">list</span><span class="p">:</span>
-
 				<span class="k">for</span> <span class="n">cm</span> <span class="ow">in</span> <span class="n">compounds</span><span class="p">:</span>
-					<span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">cm</span><span class="p">)</span><span class="o">==</span><span class="nb">str</span><span class="p">:</span>
-						<span class="c1">### e.g. [&#39;H20&#39;, &#39;RbCl&#39;]</span>
-						<span class="bp">self</span><span class="o">.</span><span class="n">compounds</span><span class="p">[</span><span class="n">cm</span><span class="p">]</span> <span class="o">=</span> <span class="n">Compound</span><span class="p">(</span><span class="n">cm</span><span class="p">)</span>
-
-					<span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">cm</span><span class="p">)</span><span class="o">==</span><span class="n">Compound</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">cm</span><span class="p">)</span><span class="o">==</span><span class="n">Element</span><span class="p">:</span>
+					<span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">cm</span><span class="p">)</span><span class="o">==</span><span class="n">Compound</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">cm</span><span class="p">)</span><span class="o">==</span><span class="n">Element</span><span class="p">:</span>
 						<span class="c1">### ci.Compound class</span>
 						<span class="bp">self</span><span class="o">.</span><span class="n">compounds</span><span class="p">[</span><span class="n">cm</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">cm</span>
 
-					<span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">cm</span><span class="p">)</span><span class="o">==</span><span class="nb">dict</span><span class="p">:</span>
-						<span class="c1">### e.g. [{&#39;cm&#39;:&#39;Water&#39;,&#39;weights&#39;:{&#39;H&#39;:2,&#39;O&#39;:1}}]</span>
-						<span class="k">if</span> <span class="s1">&#39;cm&#39;</span> <span class="ow">in</span> <span class="n">cm</span><span class="p">:</span>
-							<span class="n">c</span> <span class="o">=</span> <span class="n">cm</span><span class="p">[</span><span class="s1">&#39;cm&#39;</span><span class="p">]</span>
-						<span class="k">elif</span> <span class="s1">&#39;compound&#39;</span> <span class="ow">in</span> <span class="n">cm</span><span class="p">:</span>
-							<span class="n">c</span> <span class="o">=</span> <span class="n">cm</span><span class="p">[</span><span class="s1">&#39;compound&#39;</span><span class="p">]</span>
-						<span class="bp">self</span><span class="o">.</span><span class="n">compounds</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="n">Compound</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">cm</span><span class="p">[</span><span class="s1">&#39;weights&#39;</span><span class="p">])</span>
-
 			<span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">compounds</span><span class="p">)</span><span class="o">==</span><span class="nb">dict</span><span class="p">:</span>
-				<span class="c1">### e.g. {&#39;Water&#39;:{&#39;H&#39;:2, &#39;O&#39;:1}, &#39;RbCl&#39;:{&#39;Rb&#39;:1,&#39;Cl&#39;:1}}</span>
+				<span class="c1">### e.g. {&#39;Water&#39;:{&#39;H&#39;:2, &#39;O&#39;:1}, &#39;Brass&#39;:{&#39;Cu&#39;:-66,&#39;Zn&#39;:-33}}</span>
 				<span class="bp">self</span><span class="o">.</span><span class="n">compounds</span> <span class="o">=</span> <span class="p">{</span><span class="n">c</span><span class="p">:</span><span class="n">Compound</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">compounds</span><span class="p">[</span><span class="n">c</span><span class="p">])</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">compounds</span><span class="p">}</span>
 
 

@@ -128,15 +128,28 @@ import curie as ci
 # lb = ci.Library('endf')
 # print(lb.name)
 
-lb = ci.Library('tendl_p')
-print(lb.search(target='Sr-86', product='Y-86g'))
-lb = ci.Library('endf')
-print(lb.search(target='226RA', product='225RA'))
-print(lb.retrieve(target='226RA', product='225RA')[-8:])
+# lb = ci.Library('tendl_p')
+# print(lb.search(target='Sr-86', product='Y-86g'))
+# lb = ci.Library('endf')
+# print(lb.search(target='226RA', product='225RA'))
+# print(lb.retrieve(target='226RA', product='225RA')[-8:])
 
-# stack = [{'cm':'H20','ad':800.0,'name':'watr'},{'cm':'RbCl','density':3.0,'r':0.03,'name':'salt'},{'cm':'Kapton','r':0.025},{'cm':'Brass','ad':350,'name':'shiny'}]
+# rx = ci.Reaction('226RA(n,2n)')
+# print(rx.library.name)
+# rx = ci.Reaction('226RA(n,x)225RA')
+# print(rx.library.name)
+# rx = ci.Reaction('115IN(n,inl)')
+# print(rx.library.name)
+
+# stack = [{'cm':'H2O', 'ad':800.0, 'name':'water'},
+# 		{'cm':'RbCl', 'density':3.0, 't':0.03, 'name':'salt'},
+# 		{'cm':'Kapton', 't':0.025},
+# 		{'cm':'Brass','ad':350, 'name':'metal'}]
+
+# st = ci.Stack(stack, compounds={'Brass':{'Cu':-66, 'Zn':-33}}, E0=60.0)
 # st = ci.Stack(stack, compounds='example_compounds.json')
 # print st.stack
+# st.saveas('stack_calc.csv')
 # print st.fluxes
 # st.saveas('test.csv')
 # st.saveas('test.db')
@@ -148,9 +161,9 @@ print(lb.retrieve(target='226RA', product='225RA')[-8:])
 # st.plot()
 
 
-# sp = ci.Spectrum('eu_calib_7cm.Spe')
+sp = ci.Spectrum('eu_calib_7cm.Spe')
 # sp.isotopes = ['152EU']
-# sp.isotopes = ['152EU', '40K']
+sp.isotopes = ['152EU', '40K']
 # sp.fit_peaks(gammas=[{'energy':1460.8, 'intensity':10.66, 'unc_intensity':0.55}])
 # sp.fit_peaks(gammas=ci.Isotope('40K').gammas(istp_col=True))
 # sp.summarize()
@@ -159,9 +172,10 @@ print(lb.retrieve(target='226RA', product='225RA')[-8:])
 # sp.saveas('test_spec.json')
 # sp.plot()
 
-# cb = ci.Calibration()
-# cb.calibrate([sp], [{'isotope':'152EU', 'A0':3.7E4, 'ref_date':'01/01/2016 12:00:00'}])
+cb = ci.Calibration()
+cb.calibrate([sp], [{'isotope':'152EU', 'A0':3.7E4, 'ref_date':'01/01/2016 12:00:00'}])
 # cb.plot()
+cb.saveas('calib.json')
 # sp.saveas('test_spec.json')
 
 # rx = ci.Reaction('Ra-226(n,2n)Ra-225')
@@ -169,6 +183,7 @@ print(lb.retrieve(target='226RA', product='225RA')[-8:])
 
 # dc = ci.DecayChain('Ra-225', R=[[1.0, 1.0], [0.5, 1.5], [2.0, 6]], units='d')
 # print dc.R_avg
+# print dc.isotopes
 # dc.plot()
 
 # dc = ci.DecayChain('152EU', A0=3.7E3, units='h')
@@ -177,5 +192,6 @@ print(lb.retrieve(target='226RA', product='225RA')[-8:])
 # dc.get_counts([sp], EoB='01/01/2016 08:39:08')
 # print dc.fit_R()
 # print dc.R_avg
+# print dc.isotopes
 # print dc.fit_A0()
 # dc.plot()

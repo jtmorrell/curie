@@ -58,58 +58,71 @@
 <span class="kn">from</span> <span class="nn">.compound</span> <span class="kn">import</span> <span class="n">Compound</span>
 
 <div class="viewcode-block" id="Spectrum"><a class="viewcode-back" href="../../api/spectrum.html#curie.Spectrum">[docs]</a><span class="k">class</span> <span class="nc">Spectrum</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-	<span class="sd">&quot;&quot;&quot;Spectrum</span>
+	<span class="sd">&quot;&quot;&quot;Gamma-ray spectrum from High-Purity Germanium (HPGe) detectors</span>
 
-<span class="sd">	...</span>
+<span class="sd">	Provides methods for reading, converting, and fitting gamma-ray spectra</span>
+<span class="sd">	from HPGe data.</span>
 <span class="sd">	</span>
 <span class="sd">	Parameters</span>
 <span class="sd">	----------</span>
 <span class="sd">	filename : str</span>
-<span class="sd">		Description of parameter `x`.</span>
+<span class="sd">		File path to the gamma-ray spectrum.  Supported file types are Ortec .Spe</span>
+<span class="sd">		and .Chn files.</span>
 
 <span class="sd">	Other Parameters</span>
 <span class="sd">	----------------</span>
 <span class="sd">	cb : str or ci.Calibration</span>
-<span class="sd">		Description</span>
+<span class="sd">		Calibration to use, or path to a calibration .json file.</span>
 
 <span class="sd">	isotopes : list</span>
-<span class="sd">		Description</span>
+<span class="sd">		List of gamma-decaying isotopes observed in the spectrum.</span>
 
 <span class="sd">	fit_config : dict</span>
-<span class="sd">		Description</span>
+<span class="sd">		Dictionary of fit configuration parameters passed as keyword arguments to</span>
+<span class="sd">		`self.fit_peaks()`. See that function for more details on these arguments.</span>
 
 <span class="sd">	Attributes</span>
 <span class="sd">	----------</span>
 <span class="sd">	cb : ci.Calibration</span>
-<span class="sd">		Description</span>
+<span class="sd">		Gamma-ray energy, efficiency and resolution calibration.</span>
 
 <span class="sd">	isotopes : list</span>
-<span class="sd">		Description</span>
+<span class="sd">		List of gamma-decaying isotopes observed in the spectrum.</span>
 
 <span class="sd">	fit_config : dict</span>
-<span class="sd">		Description</span>
+<span class="sd">		Dictionary of fit configuration parameters passed as keyword arguments to</span>
+<span class="sd">		`self.fit_peaks()`. See that function for more details on these arguments.</span>
 
 <span class="sd">	filename : str</span>
-<span class="sd">		Description</span>
+<span class="sd">		File path to the gamma-ray spectrum.</span>
 
 <span class="sd">	hist : np.ndarray</span>
-<span class="sd">		Description</span>
+<span class="sd">		Histogram of counts observed in the spectrum.</span>
 
 <span class="sd">	start_time : datetime.datetime</span>
-<span class="sd">		Description</span>
+<span class="sd">		Date-time marking the start of the count.</span>
 
 <span class="sd">	live_time : float</span>
-<span class="sd">		Description</span>
+<span class="sd">		Total time the spectrum was counting, in seconds, minus the dead time.</span>
 
 <span class="sd">	real_time : float</span>
-<span class="sd">		Description</span>
+<span class="sd">		Total time the spectrum was counting, in seconds.</span>
 
 <span class="sd">	peaks : pd.DataFrame</span>
-<span class="sd">		Description</span>
-
+<span class="sd">		Table of fits to the gamma-ray data.  Includes counts, isotopes, energies,</span>
+<span class="sd">		intensities, efficiencies, calculated decays and decay-rates, chi^2, and other</span>
+<span class="sd">		information.  The complete list of columns is &#39;filename&#39;, &#39;isotope&#39;, &#39;energy&#39;, &#39;counts&#39;,</span>
+<span class="sd">		&#39;unc_counts&#39;, &#39;intensity&#39;, &#39;unc_intensity&#39;, &#39;efficiency&#39;, &#39;unc_efficiency&#39;,</span>
+<span class="sd">		&#39;decays&#39;, &#39;unc_decays&#39;, &#39;decay_rate&#39;, &#39;unc_decay_rate&#39;, &#39;chi2&#39;, &#39;start_time&#39;,</span>
+<span class="sd">		&#39;live_time&#39;, and &#39;real_time&#39;.</span>
 
 <span class="sd">	Examples</span>
 <span class="sd">	--------</span>
+<span class="sd">	sp = ci.Spectrum(&#39;eu_calib_7cm.Spe&#39;)</span>
+<span class="sd">	sp.isotopes = [&#39;Eu-152&#39;, &#39;40K&#39;]</span>
+<span class="sd">	sp.cb = &#39;example_calib.json&#39;</span>
+<span class="sd">	sp.fit_config = {&#39;bg&#39;:&#39;quadratic&#39;, &#39;xrays&#39;:False}</span>
+
 
 <span class="sd">	&quot;&quot;&quot;</span>
 
@@ -767,9 +780,62 @@
 <span class="sd">		gammas : list, dict or pd.DataFrame, optional</span>
 <span class="sd">			Description of x</span>
 
+<span class="sd">		Other Parameters</span>
+<span class="sd">		----------------</span>
+<span class="sd">		snip_adj : float</span>
+<span class="sd">			Description. Default 1.0.</span>
+
+<span class="sd">		R : float</span>
+<span class="sd">			Description. Default 0.1.</span>
+
+<span class="sd">		alpha : float</span>
+<span class="sd">			Description. Default 0.9.</span>
+
+<span class="sd">		step : float</span>
+<span class="sd">			Description. Default 0.0.</span>
+
+<span class="sd">		bg : str</span>
+<span class="sd">			Description. Default &#39;snip&#39;.</span>
+
+<span class="sd">		skew_fit : bool</span>
+<span class="sd">			Description. Default False.</span>
+
+<span class="sd">		step_fit : bool</span>
+<span class="sd">			Description. Default False.</span>
+
+<span class="sd">		SNR_min : float</span>
+<span class="sd">			Description. Default 4.0.</span>
+
+<span class="sd">		A_max : float</span>
+<span class="sd">			Description. Default 10.0.</span>
+
+<span class="sd">		mu_max : float</span>
+<span class="sd">			Description. Default 1.5.</span>
+
+<span class="sd">		sig_max : float</span>
+<span class="sd">			Description. Default 1.5.</span>
+
+<span class="sd">		xrays : bool</span>
+<span class="sd">			Description. Default False.</span>
+
+<span class="sd">		pk_width : float</span>
+<span class="sd">			Description. Default 7.5.</span>
+
+<span class="sd">		E_min : float</span>
+<span class="sd">			Description. Default 75.0.</span>
+
+<span class="sd">		I_min : float</span>
+<span class="sd">			Description. Default 0.05</span>
+
+<span class="sd">		dE_511 : float</span>
+<span class="sd">			Description. Default 3.5</span>
+
+<span class="sd">		multi_max : int</span>
+<span class="sd">			Description. Default 8.</span>
+
 <span class="sd">		Returns</span>
 <span class="sd">		-------</span>
-<span class="sd">		type</span>
+<span class="sd">		peaks : pd.DataFrame</span>
 <span class="sd">			Description</span>
 
 <span class="sd">		Examples</span>

@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>6. Calibration &#8212; Curie 0.0.1 documentation</title>
+    <title>Calibration &#8212; Curie 0.0.1 documentation</title>
     <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     
@@ -36,34 +36,62 @@
           <div class="body" role="main">
             
   <div class="section" id="calibration">
-<span id="id1"></span><h1>6. Calibration<a class="headerlink" href="#calibration" title="Permalink to this headline">¶</a></h1>
+<span id="id1"></span><h1>Calibration<a class="headerlink" href="#calibration" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="curie.Calibration">
 <em class="property">class </em><code class="descclassname">curie.</code><code class="descname">Calibration</code><span class="sig-paren">(</span><em>filename=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Calibration" title="Permalink to this definition">¶</a></dt>
-<dd><p>…</p>
+<dd><p>Calibration for HPGe spectra</p>
+<p>Provides methods for calculating and fitting energy, efficiency and resolution
+calibrations for HPGe spectra.  Each Spectrum class contains a Calibration, 
+which can be loaded from a file, or fit to calibration spectra from known sources.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
 <dt><strong>filename</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
-<dd><p class="first last">Description of parameter <cite>x</cite>.</p>
+<dd><p class="first last">Path to a .json file storing calibration data.  The .json file can be produced by
+calling <cite>cb.saveas(‘example_calib.json’)</cite> after performing a calibration fit with
+the <cite>cb.calibrate()</cite> function.  This allows past calibrations to be recalled without
+needing to re-perform the calibration fits.</p>
 </dd>
 </dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cb</span> <span class="o">=</span> <span class="n">Calibration</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cb</span><span class="o">.</span><span class="n">engcal</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.001</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">cb</span><span class="o">.</span><span class="n">engcal</span><span class="p">)</span>
+<span class="go">[0.0 0.3]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">cb</span><span class="o">.</span><span class="n">effcal</span><span class="p">)</span>
+<span class="go">[0.331 0.158 0.41 0.001 1.476]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cb</span><span class="o">.</span><span class="n">saveas</span><span class="p">(</span><span class="s1">&#39;test_calib.json&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cb</span> <span class="o">=</span> <span class="n">Calibration</span><span class="p">(</span><span class="s1">&#39;test_calib.json&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">cb</span><span class="o">.</span><span class="n">engcal</span><span class="p">)</span>
+<span class="go">[0.0 0.25 0.001]</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
 <dt><strong>engcal</strong> <span class="classifier-delimiter">:</span> <span class="classifier">np.ndarray</span></dt>
-<dd><p class="first last">Description of parameter</p>
+<dd><p class="first last">Energy calibration parameters. length 2 or 3 array, depending on whether the calibration
+is linear or quadratic.</p>
 </dd>
 <dt><strong>effcal</strong> <span class="classifier-delimiter">:</span> <span class="classifier">np.ndarray</span></dt>
-<dd><p class="first last">Description of parameter</p>
+<dd><p class="first last">Efficiency calibration parameters. length 3 or 5 array, depending on whether the efficiency
+fit includes a “dead-layer term”.</p>
 </dd>
 <dt><strong>unc_effcal</strong> <span class="classifier-delimiter">:</span> <span class="classifier">np.ndarray</span></dt>
-<dd><p class="first last">Description of parameter</p>
+<dd><p class="first last">Efficiency calibration covariance matrix. shape 3x3 or 5x5, depending on the length of effcal.</p>
 </dd>
 <dt><strong>rescal</strong> <span class="classifier-delimiter">:</span> <span class="classifier">np.ndarray</span></dt>
-<dd><p class="first last">Description of parameter</p>
+<dd><p class="first last">Resolution calibration parameters.  length 2 array if resolution calibration is of the form
+R = a + b*chan (default), or length 1 if R = a*sqrt(chan).</p>
 </dd>
 </dl>
 </td>

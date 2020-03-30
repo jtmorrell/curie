@@ -12,53 +12,70 @@ from .isotope import Isotope
 from .library import Library
 
 class Reaction(object):
-	"""Reaction
+	"""Cross section data for nuclear reactions
 
-	...
+	Contains reaction cross sections as a function of incident energy,
+	and some useful methods for manipulating cross section data, such as
+	flux-averages, integrated cross-sections, and interpolation.  All 
+	cross sections (and uncertainties) are in mb, and all energies are
+	in MeV.
 	
 	Parameters
 	----------
 	reaction_name : str
-		Description of parameter `x`.
+		Name of the reaction, in nuclear reaction notation. E.g. '115IN(n,g)',
+		'235U(n,f)', '139LA(p,x)134CE', 'Ra-226(n,2n)Ra-225', 'Al-27(n,a)', etc.
 
 	library : str, optional
-		Description of parameter `x`.
+		Name of the library to use, or 'best' (default).
 
 	Attributes
 	----------
 	target : str
-		Description 
+		The target nucleus.  Some libraries support natural elements, e.g. 'natEl'. 
 
 	incident : str
-		Description 
+		Incident particle. E.g. 'n', 'p', 'd'. 
 
 	outgoing : str
-		Description 
+		Outgoing particle, or reaction shorthand.  E.g. '2n', 'd', 'f', 'inl', 'x'.
+		Will always be 'x' for (TENDL) residual product libraries. 
 
 	product : str
-		Description 
+		The product isotope. 
 
 	eng : np.ndarray
-		Description 
+		Incident particle energy, in MeV. 
 
 	xs : np.ndarray
-		Description 
+		Reaction cross section, in mb. 
 
 	unc_xs : np.ndarray
-		Description 
+		Uncertainty in the cross section, in mb.  If not provided by the
+		library, default is zeros of same shape as xs. 
 
 	name : str
-		Description 
+		Name of the reaction in nuclear reaction notation. 
 
 	library : ci.Library
-		Description 
+		Nuclear reaction library.  printing `rx.library.name` will give the
+		name of the library. 
 
 	TeX : str
-		Description 
+		LaTeX formatted reaction name. 
 
 
 	Examples
 	--------
+	>>> rx = ci.Reaction('226RA(n,2n)')
+	>>> print(rx.library.name)
+	ENDF/B-VII.1
+	>>> rx = ci.Reaction('226RA(n,x)225RA')
+	>>> print(rx.library.name)
+	TENDL-2015
+	>>> rx = ci.Reaction('115IN(n,inl)')
+	>>> print(rx.library.name)
+	IRDFF-II
 
 	"""
 
@@ -132,7 +149,7 @@ class Reaction(object):
 
 		Returns
 		-------
-		type
+		cross_section : np.ndarray
 			Description
 
 		Examples
@@ -156,7 +173,7 @@ class Reaction(object):
 
 		Returns
 		-------
-		type
+		unc_cross_section : np.ndarray
 			Description
 
 		Examples
@@ -186,7 +203,7 @@ class Reaction(object):
 
 		Returns
 		-------
-		type
+		xs_integral : np.ndarray
 			Description
 
 		Examples
@@ -219,7 +236,7 @@ class Reaction(object):
 
 		Returns
 		-------
-		type
+		average_xs : np.ndarray
 			Description
 
 		Examples

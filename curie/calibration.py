@@ -13,32 +13,50 @@ from .plotting import _init_plot, _draw_plot, colormap
 
 
 class Calibration(object):
-	"""Calibration
+	"""Calibration for HPGe spectra
 
-	...
+	Provides methods for calculating and fitting energy, efficiency and resolution
+	calibrations for HPGe spectra.  Each Spectrum class contains a Calibration, 
+	which can be loaded from a file, or fit to calibration spectra from known sources.
 	
 	Parameters
 	----------
 	filename : str, optional
-		Description of parameter `x`.
+		Path to a .json file storing calibration data.  The .json file can be produced by
+		calling `cb.saveas('example_calib.json')` after performing a calibration fit with
+		the `cb.calibrate()` function.  This allows past calibrations to be recalled without
+		needing to re-perform the calibration fits.
 
 	Attributes
 	----------
 	engcal : np.ndarray
-		Description of parameter
+		Energy calibration parameters. length 2 or 3 array, depending on whether the calibration
+		is linear or quadratic.
 
 	effcal : np.ndarray
-		Description of parameter
+		Efficiency calibration parameters. length 3 or 5 array, depending on whether the efficiency
+		fit includes a "dead-layer term".
 
 	unc_effcal : np.ndarray
-		Description of parameter
+		Efficiency calibration covariance matrix. shape 3x3 or 5x5, depending on the length of effcal.
 
 	rescal : np.ndarray
-		Description of parameter
+		Resolution calibration parameters.  length 2 array if resolution calibration is of the form
+		R = a + b*chan (default), or length 1 if R = a*sqrt(chan).
 
 
 	Examples
 	--------
+	>>> cb = Calibration()
+	>>> cb.engcal = [0.0, 0.25, 0.001]
+	>>> print(cb.engcal)
+	[0.0 0.3]
+	>>> print(cb.effcal)
+	[0.331 0.158 0.41 0.001 1.476]
+	>>> cb.saveas('test_calib.json')
+	>>> cb = Calibration('test_calib.json')
+	>>> print(cb.engcal)
+	[0.0 0.25 0.001]
 
 	"""
 
