@@ -121,9 +121,10 @@ class DecayChain(object):
 
 		if A0 is not None:
 			if type(A0)==float or type(A0)==int:
-				self.A0 = {self.isotopes[0]:float(A0)}
+				self.A0[self.isotopes[0]] = float(A0)
 			else:
-				self.A0 = {self._filter_name(i):float(A0[i]) for i in A0}
+				for i in A0:
+					self.A0[self._filter_name(i)] = float(A0[i])
 
 
 		if R is not None:
@@ -194,28 +195,40 @@ class DecayChain(object):
 
 
 	def activity(self, isotope, time, units=None, _R_dict=None, _A_dict=None):
-		""" Description
+		"""Activity of an isotope in the chain
 
-		...
+		Computes the activity of a given isotope in the decay chain at a
+		given time.  Units of activity are in Bq.  Units of time must be either
+		the units for the DecayChain (default 's'), or specified by the `units`
+		keyword.
 
 		Parameters
 		----------
 		isotope : str
-			Description of x
+			Isotope for which the activity is calculated.
 
 		time : array_like
-			Description
+			Time to calculate the activity.  Units of time must be the same
+			as the decay chain, or be given by `units`. Note that if R!=0, time=0 is 
+			defined as the end of production time.  Else, if A0!=0, time=0
+			is defined as the time at which the specified activities equaled
+			A0.  t<0 is not allowed. 
 
 		units : str, optional
-			Description
+			Units of time, if different from the units of the decay chain.
 
 		Returns
 		-------
-		np.ndarray
-			Description
+		activity : np.ndarray
+			Activity of the given isotope in Bq.
 
 		Examples
 		--------
+		>>> dc = ci.DecayChain('152EU', A0=3.7E3, units='h')
+		>>> print(dc.activity('152EU', time=0))
+		3700.0
+		>>> print(dc.activity('152EU', time=13.537, units='y'))
+		1849.999906346199
 
 		"""
 
@@ -249,31 +262,39 @@ class DecayChain(object):
 		return A
 		
 	def decays(self, isotope, t_start, t_stop, units=None, _A_dict=None):
-		""" Description
+		"""Number of decays in a given time interval
 
-		...
+		Computes the number of decays from a given isotope in the
+		decay chain in the time interal t_start to t_stop.  The 
+		units of t_start and t_stop must be either the same units
+		as the decay chain, or be specified by the `units` keyword.
 
 		Parameters
 		----------
 		isotope : str
-			Description of x
+			Isotope for which the number of decays is calculated.
 
 		t_start : array_like
-			Description
+			Time of the start of the interval.
 
 		t_stop : array_like
-			Description
+			Time of the end of the interval.
 
 		units : str, optional
-			Description
+			Units of time, if different from the units of the decay chain.
 
 		Returns
 		-------
-		np.ndarray
-			Description
+		decays : np.ndarray
+			Number of decays
 
 		Examples
 		--------
+		>>> dc = ci.DecayChain('152EU', A0=3.7E3, units='h')
+		>>> print(dc.decays('152EU', t_start=1, t_stop=2))
+		13319883.293399204
+		>>> print(dc.decays('152EU', t_start=50, t_stop=50.1, units='y'))
+		900151618.5228329
 
 		"""
 
@@ -289,7 +310,7 @@ class DecayChain(object):
 
 				ip = self.isotopes[chain[i]]
 				A0 = self.A0[ip] if _A_dict is None else _A_dict[ip]
-				A_i = lm[-1]*(self.A0[self.isotopes[chain[i]]]/lm[i])
+				A_i = lm[-1]*(A0/lm[i])
 				B_i = np.prod(lm[i:-1]*BR[i:-1])
 
 				for j in range(i, len(chain)):
@@ -327,23 +348,37 @@ class DecayChain(object):
 			
 		
 	def get_counts(self, spectra, EoB, peak_data=None):
-		""" Description
+		"""Retrieves the number of measured decays
 
-		...
+		Takes the number of measured decays from one of the following: a list of spectra,
+		a file with peak data, or a pandas DataFrame with peak data.
 
 		Parameters
 		----------
 		spectra : list
-			Description of x
+			List of ci.Spectrum objects, or str of spectra filenames.  If str, 
+			peak_data must be specified, and filenames must match exactly.
 		
 		EoB : str or datetime.datetime
-			Description
+			Date/time of end-of-bombardment (t=0).  Must be a datetime object or
+			a string in the format '%m/%d/%Y %H:%M:%S'.  This is used to calculate
+			the decay time for the count.
 
 		peak_data : str or pd.DataFrame, optional
-			Description
+			Either a file path to a file that was created using
+			`ci.Spectrum.saveas()` or a DataFrame with the same 
+			structure as `ci.Spectrum.peaks`.
 
 		Examples
 		--------
+		>>> sp = ci.Spectrum('eu_calib_7cm.Spe')
+		>>> sp.isotopes = ['152EU']
+		>>> sp.saveas('test_spec.json')
+
+		>>> dc = ci.DecayChain('152EU', A0=3.7E3, units='h')
+		>>> dc.get_counts([sp], EoB='01/01/2016 08:39:08')
+		>>> dc.get_counts(['eu_calib_7cm.Spe'], EoB='01/01/2016 08:39:08', peak_data='test_spec.json')
+		>>> print(dc.counts)
 
 		"""
 
@@ -407,23 +442,35 @@ class DecayChain(object):
 		return pd.DataFrame(df)
 		
 	def fit_R(self):
-		""" Description
+		"""Fit the production rate to count data
 
-		...
+		Fits a scalar multiplier to the production rate (as a function of time) for
+		each isotope specified in self.R.  The fit minimizes to the number of
+		measured decays (self.counts) as a function of time, rather than the 
+		activity, because the activity at each time point may be sensitive to
+		the shape of the decay curve.
 
 		Returns
 		-------
-		list
-			Description
+		isotopes: list
+			List of isotopes where R>0.  Same indices as fit. (i.e. isotope[0] corresponds
+			to fit[0] and cov[0][0].)
 
-		np.ndarray
-			Description
+		fit : np.ndarray
+			The fitted time-averaged production rate for each isotope where R>0.
 
-		np.ndarray
-			Description
+		cov : np.ndarray
+			Covariance matrix on the fit.
 
 		Examples
 		--------
+		>>> sp = ci.Spectrum('eu_calib_7cm.Spe')
+		>>> sp.isotopes = ['152EU']
+
+		>>> dc = ci.DecayChain('152EU', R=[[3E5, 36.0]], units='d')
+		>>> dc.get_counts([sp], EoB='01/01/2016 08:39:08')
+		>>> print(dc.fit_R())
+		(array(['152EUg'], dtype=object), array([1291584.51735774]), array([[1.67412376e+09]]))
 
 		"""
 
@@ -431,7 +478,7 @@ class DecayChain(object):
 			raise ValueError('Cannot fit R: R=0.')
 
 		X = []
-		R_isotopes = pd.unique(self.R['isotope'])
+		R_isotopes = [i for i in self.isotopes if i in pd.unique(self.R['isotope'])]
 		time = np.insert(np.unique(self.R['time']), 0, [0.0])
 
 		for ip in R_isotopes:
@@ -454,6 +501,7 @@ class DecayChain(object):
 			df_sub = self.R[self.R['isotope']==ip]
 			self.R.loc[df_sub.index, 'R'] = df_sub['R']*fit[n]
 
+		self.A0 = {i:0.0 for i in self.A0}
 		for n,dt in enumerate(time[1:]-time[:-1]):
 			_R_dict = {p:self.R[self.R['isotope']==p].iloc[n]['R'] for p in pd.unique(self.R['isotope'])}
 			self.A0 = {p:self.activity(p, dt, _R_dict=_R_dict) for p in self.A0}
@@ -463,23 +511,35 @@ class DecayChain(object):
 		return R_isotopes, R_norm, cov*(R_norm/fit)**2
 		
 	def fit_A0(self):
-		""" Description
+		"""Fit the initial activity to count data
 
-		...
+		Fits a scalar multiplier to the initial activity for
+		each isotope specified in self.A0.  The fit minimizes to the number of
+		measured decays (self.counts) as a function of time, rather than the 
+		activity, because the activity at each time point may be sensitive to
+		the shape of the decay curve.
 
 		Returns
 		-------
-		list
-			Description
+		isotopes : list
+			List of isotopes where A0>0.  Same indices as fit. (i.e. isotope[0] corresponds
+			to fit[0] and cov[0][0].)
 
-		np.ndarray
-			Description
+		fit : np.ndarray
+			The initial activity for each isotope where A0>0.
 
-		np.ndarray
-			Description
+		cov : np.ndarray
+			Covariance matrix on the fit.
 
 		Examples
 		--------
+		>>> sp = ci.Spectrum('eu_calib_7cm.Spe')
+		>>> sp.isotopes = ['152EU']
+
+		>>> dc = ci.DecayChain('152EU', A0=3.7E4, units='d')
+		>>> dc.get_counts([sp], EoB='01/01/2016 08:39:08')
+		>>> print(dc.fit_A0())
+		(['152EUg'], array([6501.93665952]), array([[42425.53832341]]))
 
 		"""
 
@@ -487,7 +547,7 @@ class DecayChain(object):
 			raise ValueError('Cannot fit A0 when R!=0.')
 
 		X = []
-		A0_isotopes = [i for i in self.A0]
+		A0_isotopes = [i for i in self.isotopes if i in self.A0]
 		for ip in A0_isotopes:
 			A0 = {p:(self.A0[p] if p==ip else 0.0) for p in self.A0}
 			X.append([self.decays(c['isotope'], c['start'], c['stop'], _A_dict=A0) for n,c in self.counts.iterrows()])
@@ -507,20 +567,23 @@ class DecayChain(object):
 		return A0_isotopes, A_norm, cov*(A_norm/fit)**2
 		
 	def plot(self, time=None, max_plot=None, max_label=10, **kwargs):
-		""" Description
+		"""Plot the activities in the decay chain
 
-		...
+		Plots the activities as a function of time for all radioactive
+		isotopes in the decay chain.  Can plot along a specified time
+		grid, else the time will be inferred from the half-life of the
+		parent isotope, or any count information given to self.counts.
 
 		Parameters
 		----------
 		time : array_like, optional
-			Description of x
+			Time grid along which to plot.  Units must be the same as the decay chain.
 
 		max_plot : int, optional
-			Description
+			Maximum number of isotope activities to plot in the decay chain. Default, None.
 
 		max_label : int, optional
-			Description
+			Maximum number of isotope activities to label in the legend. Default, 10.
 
 		Other Parameters
 		----------------
@@ -531,6 +594,16 @@ class DecayChain(object):
 
 		Examples
 		--------
+		>>> sp = ci.Spectrum('eu_calib_7cm.Spe')
+		>>> sp.isotopes = ['152EU']
+
+		>>> dc = ci.DecayChain('152EU', R=[[3E5, 36.0]], units='d')
+		>>> dc.get_counts([sp], EoB='01/01/2016 08:39:08')
+		>>> dc.fit_R()
+		>>> dc.plot()
+
+		>>> dc = ci.DecayChain('99MO', A0=350E6, units='d')
+		>>> dc.plot()
 
 		"""
 

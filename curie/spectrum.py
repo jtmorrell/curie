@@ -80,11 +80,12 @@ class Spectrum(object):
 
 	Examples
 	--------
-	sp = ci.Spectrum('eu_calib_7cm.Spe')
-	sp.isotopes = ['Eu-152', '40K']
-	sp.cb = 'example_calib.json'
-	sp.fit_config = {'bg':'quadratic', 'xrays':False}
-
+	>>> sp = ci.Spectrum('eu_calib_7cm.Spe')
+	>>> sp.isotopes = ['Eu-152', '40K']
+	>>> sp.cb = 'example_calib.json'
+	>>> sp.fit_config = {'bg':'quadratic', 'xrays':False}
+	>>> sp.saveas('eu_calib_7cm.Chn')
+	>>> sp = ci.Spectrum('eu_calib_7cm.Chn')
 
 	"""
 
@@ -253,17 +254,26 @@ class Spectrum(object):
 		return self
 		
 	def rebin(self, N_bins):
-		""" Description
+		"""Rebin the histogram
 
-		...
+		Rebins the histogram to the closest power of 2 to
+		the given `N_bins`.  Energy and resolution calibrations
+		will be adjusted to match the new bin length. Note N_bins must
+		be less than the current histogram length.
 
 		Parameters
 		----------
 		N_bins : int
-			Description of x
+			Number of desired bins. Rounds to closest power of 2, e.g. 1000 rounds to 1024.
 
 		Examples
 		--------
+		>>> sp = ci.Spectrum('eu_calib_7cm.Spe')
+		>>> print(len(sp.hist))
+		16384
+		>>> sp.rebin(1000)
+		>>> print(len(sp.hist))
+		1024
 
 		"""
 
@@ -281,7 +291,7 @@ class Spectrum(object):
 		self.cb.rescal = ([rc[0]*np.sqrt(r)] if len(rc)==1 else [rc[0], rc[1]*r])
 		
 	def attenuation_correction(self, compounds, x=None, ad=None): # first compound is 'self'
-		""" Description
+		"""Efficiency correction for sample attenuation
 
 		...
 
@@ -298,7 +308,7 @@ class Spectrum(object):
 
 		Returns
 		-------
-		type
+		correction_factor : scipy.interpolate.interp1d
 			Description
 
 		Examples
@@ -325,8 +335,8 @@ class Spectrum(object):
 		return atten_corr
 
 		
-	def geometry_correction(self, distance, r_det, thickness, sample_size, shape='circle', N=1E6):
-		""" Description
+	def geometry_correction(self, distance, r_det, thickness, sample_size, shape='circle', N=1000000):
+		"""Efficiency correction for sample geometry
 
 		...
 
@@ -352,7 +362,7 @@ class Spectrum(object):
 
 		Returns
 		-------
-		type
+		correction_factor : float
 			Description
 
 		Examples
@@ -448,7 +458,7 @@ class Spectrum(object):
 		return X, Y, np.dot(np.linalg.inv(np.dot(X, X.T)), np.dot(X, Y.T).T)
 
 	def auto_calibrate(self, guess=None, peaks=None):
-		""" Description
+		"""Attempt to automatically adjust the energy calibration
 
 		...
 
@@ -733,7 +743,7 @@ class Spectrum(object):
 			return p0, p0['df']
 
 	def fit_peaks(self, gammas=None, **kwargs):
-		""" Description
+		"""Fit the peaks in the spectrum
 
 		...
 
@@ -826,7 +836,7 @@ class Spectrum(object):
 	
 		
 	def saveas(self, filename, replace=False):
-		""" Description
+		"""Save the spectrum or peak information to a file
 
 		...
 
@@ -963,7 +973,7 @@ class Spectrum(object):
 
 		
 	def summarize(self):
-		""" Description
+		"""Summarize the fitted peaks in the spectrum
 
 		...
 
@@ -991,7 +1001,7 @@ class Spectrum(object):
 
 		
 	def plot(self, fit=True, xcalib=True, **kwargs):
-		""" Description
+		"""Plot the spectrum
 
 		...
 

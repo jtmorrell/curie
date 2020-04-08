@@ -176,22 +176,28 @@
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
 		
 <div class="viewcode-block" id="Reaction.interpolate"><a class="viewcode-back" href="../../api/reaction.html#curie.Reaction.interpolate">[docs]</a>	<span class="k">def</span> <span class="nf">interpolate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot; Description</span>
+		<span class="sd">&quot;&quot;&quot;Interpolated cross section</span>
 
-<span class="sd">		...</span>
+<span class="sd">		Linear interpolation of the reaction cross section along the</span>
+<span class="sd">		input energy grid.</span>
 
 <span class="sd">		Parameters</span>
 <span class="sd">		----------</span>
 <span class="sd">		energy : array_like</span>
-<span class="sd">			Description of x</span>
+<span class="sd">			Incident particle energy, in MeV.</span>
 
 <span class="sd">		Returns</span>
 <span class="sd">		-------</span>
 <span class="sd">		cross_section : np.ndarray</span>
-<span class="sd">			Description</span>
+<span class="sd">			Interpolated cross section, in mb.</span>
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>
+<span class="sd">		&gt;&gt;&gt; rx = ci.Reaction(&#39;115IN(n,g)&#39;, &#39;IRDFF&#39;)</span>
+<span class="sd">		&gt;&gt;&gt; print(rx.interpolate(0.5))</span>
+<span class="sd">		161.41656650941306</span>
+<span class="sd">		&gt;&gt;&gt; print(rx.interpolate([0.5, 1.0, 5.0]))</span>
+<span class="sd">		[161.41646651 171.81486757 8.8822]</span>
 
 <span class="sd">		&quot;&quot;&quot;</span> 
 
@@ -200,22 +206,28 @@
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interp</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Reaction.interpolate_unc"><a class="viewcode-back" href="../../api/reaction.html#curie.Reaction.interpolate_unc">[docs]</a>	<span class="k">def</span> <span class="nf">interpolate_unc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot; Description</span>
+		<span class="sd">&quot;&quot;&quot;Uncertainty in interpolated cross section</span>
 
-<span class="sd">		...</span>
+<span class="sd">		Linear interpolation of the uncertainty in the reaction cross section</span>
+<span class="sd">		along the input energy grid, for libraries where uncertainties are provided.</span>
 
 <span class="sd">		Parameters</span>
 <span class="sd">		----------</span>
 <span class="sd">		energy : array_like</span>
-<span class="sd">			Description of x</span>
+<span class="sd">			Incident particle energy, in MeV.</span>
 
 <span class="sd">		Returns</span>
 <span class="sd">		-------</span>
 <span class="sd">		unc_cross_section : np.ndarray</span>
-<span class="sd">			Description</span>
+<span class="sd">			Uncertainty in the interpolated cross section, in mb.</span>
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>
+<span class="sd">		&gt;&gt;&gt; rx = ci.Reaction(&#39;115IN(n,g)&#39;, &#39;IRDFF&#39;)</span>
+<span class="sd">		&gt;&gt;&gt; print(rx.interpolate_unc(0.5))</span>
+<span class="sd">		3.9542683715745546</span>
+<span class="sd">		&gt;&gt;&gt; print(rx.interpolate_unc([0.5, 1.0, 5.0]))</span>
+<span class="sd">		[3.95426837 5.88023936 0.4654]</span>
 
 <span class="sd">		&quot;&quot;&quot;</span> 
 
@@ -224,28 +236,37 @@
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interp_unc</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span></div>
 		
 <div class="viewcode-block" id="Reaction.integrate"><a class="viewcode-back" href="../../api/reaction.html#curie.Reaction.integrate">[docs]</a>	<span class="k">def</span> <span class="nf">integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">flux</span><span class="p">,</span> <span class="n">unc</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot; Description</span>
+		<span class="sd">&quot;&quot;&quot;Reaction flux integral</span>
 
-<span class="sd">		...</span>
+<span class="sd">		Integrate the product of the cross section and flux along the input energy grid.</span>
 
 <span class="sd">		Parameters</span>
 <span class="sd">		----------</span>
 <span class="sd">		energy : array_like</span>
-<span class="sd">			Description of x</span>
+<span class="sd">			Incident particle energy, in MeV.</span>
 
 <span class="sd">		flux : array_like</span>
-<span class="sd">			Description of x</span>
+<span class="sd">			Incident particle flux as a function of the input energy grid.</span>
 
 <span class="sd">		unc : bool, optional</span>
-<span class="sd">			Description of x</span>
+<span class="sd">			If `True`, returns the both the flux integral and the uncertainty. If `False`,</span>
+<span class="sd">			just the flux integral is returned. Default `False`.</span>
 
 <span class="sd">		Returns</span>
 <span class="sd">		-------</span>
-<span class="sd">		xs_integral : np.ndarray</span>
-<span class="sd">			Description</span>
+<span class="sd">		xs_integral : float or tuple</span>
+<span class="sd">			Reaction flux integral if `unc=False` (default), or reaction flux integral</span>
+<span class="sd">			and uncertainty, if `unc=True`.</span>
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>
+<span class="sd">		&gt;&gt;&gt; x = ci.Reaction(&#39;Ni-58(n,p)&#39;)</span>
+<span class="sd">		&gt;&gt;&gt; eng = np.linspace(1, 5, 20)</span>
+<span class="sd">		&gt;&gt;&gt; phi = np.ones(20)</span>
+<span class="sd">		&gt;&gt;&gt; print(rx.integrate(eng, phi))</span>
+<span class="sd">		833.4435915974148</span>
+<span class="sd">		&gt;&gt;&gt; print(rx.integrate(eng, phi, unc=True))</span>
+<span class="sd">		(833.4435915974148, 19.91851943674977)</span>
 
 <span class="sd">		&quot;&quot;&quot;</span>
 
@@ -257,28 +278,38 @@
 		<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><span class="n">E</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">-</span><span class="n">E</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">*</span><span class="p">(</span><span class="n">phisig</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">phisig</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span></div>
 		
 <div class="viewcode-block" id="Reaction.average"><a class="viewcode-back" href="../../api/reaction.html#curie.Reaction.average">[docs]</a>	<span class="k">def</span> <span class="nf">average</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">flux</span><span class="p">,</span> <span class="n">unc</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot; Description</span>
+		<span class="sd">&quot;&quot;&quot;Flux averaged reaction cross section</span>
 
-<span class="sd">		...</span>
+<span class="sd">		Calculates the flux-weighted average reaction cross section, using the</span>
+<span class="sd">		input flux and energy grid.</span>
 
 <span class="sd">		Parameters</span>
 <span class="sd">		----------</span>
 <span class="sd">		energy : array_like</span>
-<span class="sd">			Description of x</span>
+<span class="sd">			Incident particle energy, in MeV.</span>
 
 <span class="sd">		flux : array_like</span>
-<span class="sd">			Description of x</span>
+<span class="sd">			Incident particle flux as a function of the input energy grid.</span>
 
 <span class="sd">		unc : bool, optional</span>
-<span class="sd">			Description of x</span>
+<span class="sd">			If `True`, returns the both the flux average cross section and the uncertainty. If `False`,</span>
+<span class="sd">			just the average cross section is returned. Default `False`.</span>
 
 <span class="sd">		Returns</span>
 <span class="sd">		-------</span>
-<span class="sd">		average_xs : np.ndarray</span>
-<span class="sd">			Description</span>
+<span class="sd">		average_xs : float or tuple</span>
+<span class="sd">			Flux-averaged reaction cross section if `unc=False` (default), or average</span>
+<span class="sd">			and uncertainty, if `unc=True`.</span>
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>
+<span class="sd">		&gt;&gt;&gt; rx = ci.Reaction(&#39;Ni-58(n,p)&#39;)</span>
+<span class="sd">		&gt;&gt;&gt; eng = np.linspace(1, 5, 20)</span>
+<span class="sd">		&gt;&gt;&gt; phi = np.ones(20)</span>
+<span class="sd">		&gt;&gt;&gt; print(rx.average(eng, phi))</span>
+<span class="sd">		208.3608978993537</span>
+<span class="sd">		&gt;&gt;&gt; print(rx.average(eng, phi, unc=True))</span>
+<span class="sd">		(208.3608978993537, 4.979629859187442)</span>
 
 <span class="sd">		&quot;&quot;&quot;</span>
 
@@ -291,20 +322,24 @@
 		<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mf">0.5</span><span class="o">*</span><span class="n">dE</span><span class="o">*</span><span class="p">(</span><span class="n">phisig</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">phisig</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mf">0.5</span><span class="o">*</span><span class="n">dE</span><span class="o">*</span><span class="p">(</span><span class="n">phi</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">phi</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span></div>
 		
 <div class="viewcode-block" id="Reaction.plot"><a class="viewcode-back" href="../../api/reaction.html#curie.Reaction.plot">[docs]</a>	<span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;reaction&#39;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot; Description</span>
+		<span class="sd">&quot;&quot;&quot;Plot the cross section</span>
 
-<span class="sd">		...</span>
+<span class="sd">		Plots the energy differential cross section.</span>
 
 <span class="sd">		Parameters</span>
 <span class="sd">		----------</span>
 <span class="sd">		energy : array_like, optional</span>
-<span class="sd">			Description </span>
+<span class="sd">			Energy grid along which to plot the cross section.  If None, the</span>
+<span class="sd">			energy grid provided by the library will be used. </span>
 
 <span class="sd">		label : str, optional</span>
-<span class="sd">			Description of x</span>
+<span class="sd">			Axes label.  If label=&#39;reaction&#39;, the label will be the reaction name.</span>
+<span class="sd">			If &#39;library&#39;, it will be the name of the cross section library.</span>
+<span class="sd">			If &#39;both&#39;, then the reaction name and library will be given.  If</span>
+<span class="sd">			none of these options, pyplot will be called with `ax.plot(..., label=label)`.</span>
 
 <span class="sd">		title : bool, optional</span>
-<span class="sd">			Description</span>
+<span class="sd">			Display the reaction name as the plot title.  Default, False.</span>
 
 <span class="sd">		Other Parameters</span>
 <span class="sd">		----------------</span>
@@ -315,6 +350,12 @@
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>
+<span class="sd">		&gt;&gt;&gt; rx = ci.Reaction(&#39;115IN(n,g)&#39;)</span>
+<span class="sd">		&gt;&gt;&gt; rx.plot(scale=&#39;loglog&#39;)</span>
+<span class="sd">		&gt;&gt;&gt; rx = ci.Reaction(&#39;35CL(n,p)&#39;)</span>
+<span class="sd">		&gt;&gt;&gt; f, ax = rx.plot(return_plot=True)</span>
+<span class="sd">		&gt;&gt;&gt; rx = ci.Reaction(&#39;35CL(n,el)&#39;)</span>
+<span class="sd">		&gt;&gt;&gt; rx.plot(f=f, ax=ax, scale=&#39;loglog&#39;)</span>
 
 <span class="sd">		&quot;&quot;&quot;</span>
 

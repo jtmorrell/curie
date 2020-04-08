@@ -159,9 +159,10 @@
 
 		<span class="k">if</span> <span class="n">A0</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
 			<span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">A0</span><span class="p">)</span><span class="o">==</span><span class="nb">float</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">A0</span><span class="p">)</span><span class="o">==</span><span class="nb">int</span><span class="p">:</span>
-				<span class="bp">self</span><span class="o">.</span><span class="n">A0</span> <span class="o">=</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">isotopes</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="nb">float</span><span class="p">(</span><span class="n">A0</span><span class="p">)}</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">A0</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">isotopes</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">A0</span><span class="p">)</span>
 			<span class="k">else</span><span class="p">:</span>
-				<span class="bp">self</span><span class="o">.</span><span class="n">A0</span> <span class="o">=</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_filter_name</span><span class="p">(</span><span class="n">i</span><span class="p">):</span><span class="nb">float</span><span class="p">(</span><span class="n">A0</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">A0</span><span class="p">}</span>
+				<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">A0</span><span class="p">:</span>
+					<span class="bp">self</span><span class="o">.</span><span class="n">A0</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_filter_name</span><span class="p">(</span><span class="n">i</span><span class="p">)]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">A0</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
 
 
 		<span class="k">if</span> <span class="n">R</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -232,28 +233,40 @@
 
 
 <div class="viewcode-block" id="DecayChain.activity"><a class="viewcode-back" href="../../api/decaychain.html#curie.DecayChain.activity">[docs]</a>	<span class="k">def</span> <span class="nf">activity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">isotope</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_R_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_A_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot; Description</span>
+		<span class="sd">&quot;&quot;&quot;Activity of an isotope in the chain</span>
 
-<span class="sd">		...</span>
+<span class="sd">		Computes the activity of a given isotope in the decay chain at a</span>
+<span class="sd">		given time.  Units of activity are in Bq.  Units of time must be either</span>
+<span class="sd">		the units for the DecayChain (default &#39;s&#39;), or specified by the `units`</span>
+<span class="sd">		keyword.</span>
 
 <span class="sd">		Parameters</span>
 <span class="sd">		----------</span>
 <span class="sd">		isotope : str</span>
-<span class="sd">			Description of x</span>
+<span class="sd">			Isotope for which the activity is calculated.</span>
 
 <span class="sd">		time : array_like</span>
-<span class="sd">			Description</span>
+<span class="sd">			Time to calculate the activity.  Units of time must be the same</span>
+<span class="sd">			as the decay chain, or be given by `units`. Note that if R!=0, time=0 is </span>
+<span class="sd">			defined as the end of production time.  Else, if A0!=0, time=0</span>
+<span class="sd">			is defined as the time at which the specified activities equaled</span>
+<span class="sd">			A0.  t&lt;0 is not allowed. </span>
 
 <span class="sd">		units : str, optional</span>
-<span class="sd">			Description</span>
+<span class="sd">			Units of time, if different from the units of the decay chain.</span>
 
 <span class="sd">		Returns</span>
 <span class="sd">		-------</span>
-<span class="sd">		np.ndarray</span>
-<span class="sd">			Description</span>
+<span class="sd">		activity : np.ndarray</span>
+<span class="sd">			Activity of the given isotope in Bq.</span>
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>
+<span class="sd">		&gt;&gt;&gt; dc = ci.DecayChain(&#39;152EU&#39;, A0=3.7E3, units=&#39;h&#39;)</span>
+<span class="sd">		&gt;&gt;&gt; print(dc.activity(&#39;152EU&#39;, time=0))</span>
+<span class="sd">		3700.0</span>
+<span class="sd">		&gt;&gt;&gt; print(dc.activity(&#39;152EU&#39;, time=13.537, units=&#39;y&#39;))</span>
+<span class="sd">		1849.999906346199</span>
 
 <span class="sd">		&quot;&quot;&quot;</span>
 
@@ -287,31 +300,39 @@
 		<span class="k">return</span> <span class="n">A</span></div>
 		
 <div class="viewcode-block" id="DecayChain.decays"><a class="viewcode-back" href="../../api/decaychain.html#curie.DecayChain.decays">[docs]</a>	<span class="k">def</span> <span class="nf">decays</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">isotope</span><span class="p">,</span> <span class="n">t_start</span><span class="p">,</span> <span class="n">t_stop</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_A_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot; Description</span>
+		<span class="sd">&quot;&quot;&quot;Number of decays in a given time interval</span>
 
-<span class="sd">		...</span>
+<span class="sd">		Computes the number of decays from a given isotope in the</span>
+<span class="sd">		decay chain in the time interal t_start to t_stop.  The </span>
+<span class="sd">		units of t_start and t_stop must be either the same units</span>
+<span class="sd">		as the decay chain, or be specified by the `units` keyword.</span>
 
 <span class="sd">		Parameters</span>
 <span class="sd">		----------</span>
 <span class="sd">		isotope : str</span>
-<span class="sd">			Description of x</span>
+<span class="sd">			Isotope for which the number of decays is calculated.</span>
 
 <span class="sd">		t_start : array_like</span>
-<span class="sd">			Description</span>
+<span class="sd">			Time of the start of the interval.</span>
 
 <span class="sd">		t_stop : array_like</span>
-<span class="sd">			Description</span>
+<span class="sd">			Time of the end of the interval.</span>
 
 <span class="sd">		units : str, optional</span>
-<span class="sd">			Description</span>
+<span class="sd">			Units of time, if different from the units of the decay chain.</span>
 
 <span class="sd">		Returns</span>
 <span class="sd">		-------</span>
-<span class="sd">		np.ndarray</span>
-<span class="sd">			Description</span>
+<span class="sd">		decays : np.ndarray</span>
+<span class="sd">			Number of decays</span>
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>
+<span class="sd">		&gt;&gt;&gt; dc = ci.DecayChain(&#39;152EU&#39;, A0=3.7E3, units=&#39;h&#39;)</span>
+<span class="sd">		&gt;&gt;&gt; print(dc.decays(&#39;152EU&#39;, t_start=1, t_stop=2))</span>
+<span class="sd">		13319883.293399204</span>
+<span class="sd">		&gt;&gt;&gt; print(dc.decays(&#39;152EU&#39;, t_start=50, t_stop=50.1, units=&#39;y&#39;))</span>
+<span class="sd">		900151618.5228329</span>
 
 <span class="sd">		&quot;&quot;&quot;</span>
 
@@ -327,7 +348,7 @@
 
 				<span class="n">ip</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">isotopes</span><span class="p">[</span><span class="n">chain</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span>
 				<span class="n">A0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">A0</span><span class="p">[</span><span class="n">ip</span><span class="p">]</span> <span class="k">if</span> <span class="n">_A_dict</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">_A_dict</span><span class="p">[</span><span class="n">ip</span><span class="p">]</span>
-				<span class="n">A_i</span> <span class="o">=</span> <span class="n">lm</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A0</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">isotopes</span><span class="p">[</span><span class="n">chain</span><span class="p">[</span><span class="n">i</span><span class="p">]]]</span><span class="o">/</span><span class="n">lm</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+				<span class="n">A_i</span> <span class="o">=</span> <span class="n">lm</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="n">A0</span><span class="o">/</span><span class="n">lm</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
 				<span class="n">B_i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">lm</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">BR</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
 
 				<span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">chain</span><span class="p">)):</span>
@@ -365,23 +386,37 @@
 			
 		
 <div class="viewcode-block" id="DecayChain.get_counts"><a class="viewcode-back" href="../../api/decaychain.html#curie.DecayChain.get_counts">[docs]</a>	<span class="k">def</span> <span class="nf">get_counts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spectra</span><span class="p">,</span> <span class="n">EoB</span><span class="p">,</span> <span class="n">peak_data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot; Description</span>
+		<span class="sd">&quot;&quot;&quot;Retrieves the number of measured decays</span>
 
-<span class="sd">		...</span>
+<span class="sd">		Takes the number of measured decays from one of the following: a list of spectra,</span>
+<span class="sd">		a file with peak data, or a pandas DataFrame with peak data.</span>
 
 <span class="sd">		Parameters</span>
 <span class="sd">		----------</span>
 <span class="sd">		spectra : list</span>
-<span class="sd">			Description of x</span>
+<span class="sd">			List of ci.Spectrum objects, or str of spectra filenames.  If str, </span>
+<span class="sd">			peak_data must be specified, and filenames must match exactly.</span>
 <span class="sd">		</span>
 <span class="sd">		EoB : str or datetime.datetime</span>
-<span class="sd">			Description</span>
+<span class="sd">			Date/time of end-of-bombardment (t=0).  Must be a datetime object or</span>
+<span class="sd">			a string in the format &#39;%m/%d/%Y %H:%M:%S&#39;.  This is used to calculate</span>
+<span class="sd">			the decay time for the count.</span>
 
 <span class="sd">		peak_data : str or pd.DataFrame, optional</span>
-<span class="sd">			Description</span>
+<span class="sd">			Either a file path to a file that was created using</span>
+<span class="sd">			`ci.Spectrum.saveas()` or a DataFrame with the same </span>
+<span class="sd">			structure as `ci.Spectrum.peaks`.</span>
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>
+<span class="sd">		&gt;&gt;&gt; sp = ci.Spectrum(&#39;eu_calib_7cm.Spe&#39;)</span>
+<span class="sd">		&gt;&gt;&gt; sp.isotopes = [&#39;152EU&#39;]</span>
+<span class="sd">		&gt;&gt;&gt; sp.saveas(&#39;test_spec.json&#39;)</span>
+
+<span class="sd">		&gt;&gt;&gt; dc = ci.DecayChain(&#39;152EU&#39;, A0=3.7E3, units=&#39;h&#39;)</span>
+<span class="sd">		&gt;&gt;&gt; dc.get_counts([sp], EoB=&#39;01/01/2016 08:39:08&#39;)</span>
+<span class="sd">		&gt;&gt;&gt; dc.get_counts([&#39;eu_calib_7cm.Spe&#39;], EoB=&#39;01/01/2016 08:39:08&#39;, peak_data=&#39;test_spec.json&#39;)</span>
+<span class="sd">		&gt;&gt;&gt; print(dc.counts)</span>
 
 <span class="sd">		&quot;&quot;&quot;</span>
 
@@ -445,23 +480,35 @@
 		<span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
 		
 <div class="viewcode-block" id="DecayChain.fit_R"><a class="viewcode-back" href="../../api/decaychain.html#curie.DecayChain.fit_R">[docs]</a>	<span class="k">def</span> <span class="nf">fit_R</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot; Description</span>
+		<span class="sd">&quot;&quot;&quot;Fit the production rate to count data</span>
 
-<span class="sd">		...</span>
+<span class="sd">		Fits a scalar multiplier to the production rate (as a function of time) for</span>
+<span class="sd">		each isotope specified in self.R.  The fit minimizes to the number of</span>
+<span class="sd">		measured decays (self.counts) as a function of time, rather than the </span>
+<span class="sd">		activity, because the activity at each time point may be sensitive to</span>
+<span class="sd">		the shape of the decay curve.</span>
 
 <span class="sd">		Returns</span>
 <span class="sd">		-------</span>
-<span class="sd">		list</span>
-<span class="sd">			Description</span>
+<span class="sd">		isotopes: list</span>
+<span class="sd">			List of isotopes where R&gt;0.  Same indices as fit. (i.e. isotope[0] corresponds</span>
+<span class="sd">			to fit[0] and cov[0][0].)</span>
 
-<span class="sd">		np.ndarray</span>
-<span class="sd">			Description</span>
+<span class="sd">		fit : np.ndarray</span>
+<span class="sd">			The fitted time-averaged production rate for each isotope where R&gt;0.</span>
 
-<span class="sd">		np.ndarray</span>
-<span class="sd">			Description</span>
+<span class="sd">		cov : np.ndarray</span>
+<span class="sd">			Covariance matrix on the fit.</span>
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>
+<span class="sd">		&gt;&gt;&gt; sp = ci.Spectrum(&#39;eu_calib_7cm.Spe&#39;)</span>
+<span class="sd">		&gt;&gt;&gt; sp.isotopes = [&#39;152EU&#39;]</span>
+
+<span class="sd">		&gt;&gt;&gt; dc = ci.DecayChain(&#39;152EU&#39;, R=[[3E5, 36.0]], units=&#39;d&#39;)</span>
+<span class="sd">		&gt;&gt;&gt; dc.get_counts([sp], EoB=&#39;01/01/2016 08:39:08&#39;)</span>
+<span class="sd">		&gt;&gt;&gt; print(dc.fit_R())</span>
+<span class="sd">		(array([&#39;152EUg&#39;], dtype=object), array([1291584.51735774]), array([[1.67412376e+09]]))</span>
 
 <span class="sd">		&quot;&quot;&quot;</span>
 
@@ -469,7 +516,7 @@
 			<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Cannot fit R: R=0.&#39;</span><span class="p">)</span>
 
 		<span class="n">X</span> <span class="o">=</span> <span class="p">[]</span>
-		<span class="n">R_isotopes</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">R</span><span class="p">[</span><span class="s1">&#39;isotope&#39;</span><span class="p">])</span>
+		<span class="n">R_isotopes</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">isotopes</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">pd</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">R</span><span class="p">[</span><span class="s1">&#39;isotope&#39;</span><span class="p">])]</span>
 		<span class="n">time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">R</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]),</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">])</span>
 
 		<span class="k">for</span> <span class="n">ip</span> <span class="ow">in</span> <span class="n">R_isotopes</span><span class="p">:</span>
@@ -492,6 +539,7 @@
 			<span class="n">df_sub</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">R</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">R</span><span class="p">[</span><span class="s1">&#39;isotope&#39;</span><span class="p">]</span><span class="o">==</span><span class="n">ip</span><span class="p">]</span>
 			<span class="bp">self</span><span class="o">.</span><span class="n">R</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df_sub</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="s1">&#39;R&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_sub</span><span class="p">[</span><span class="s1">&#39;R&#39;</span><span class="p">]</span><span class="o">*</span><span class="n">fit</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
 
+		<span class="bp">self</span><span class="o">.</span><span class="n">A0</span> <span class="o">=</span> <span class="p">{</span><span class="n">i</span><span class="p">:</span><span class="mf">0.0</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">A0</span><span class="p">}</span>
 		<span class="k">for</span> <span class="n">n</span><span class="p">,</span><span class="n">dt</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">time</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">-</span><span class="n">time</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
 			<span class="n">_R_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">p</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">R</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">R</span><span class="p">[</span><span class="s1">&#39;isotope&#39;</span><span class="p">]</span><span class="o">==</span><span class="n">p</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s1">&#39;R&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pd</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">R</span><span class="p">[</span><span class="s1">&#39;isotope&#39;</span><span class="p">])}</span>
 			<span class="bp">self</span><span class="o">.</span><span class="n">A0</span> <span class="o">=</span> <span class="p">{</span><span class="n">p</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">activity</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">_R_dict</span><span class="o">=</span><span class="n">_R_dict</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">A0</span><span class="p">}</span>
@@ -501,23 +549,35 @@
 		<span class="k">return</span> <span class="n">R_isotopes</span><span class="p">,</span> <span class="n">R_norm</span><span class="p">,</span> <span class="n">cov</span><span class="o">*</span><span class="p">(</span><span class="n">R_norm</span><span class="o">/</span><span class="n">fit</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span></div>
 		
 <div class="viewcode-block" id="DecayChain.fit_A0"><a class="viewcode-back" href="../../api/decaychain.html#curie.DecayChain.fit_A0">[docs]</a>	<span class="k">def</span> <span class="nf">fit_A0</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot; Description</span>
+		<span class="sd">&quot;&quot;&quot;Fit the initial activity to count data</span>
 
-<span class="sd">		...</span>
+<span class="sd">		Fits a scalar multiplier to the initial activity for</span>
+<span class="sd">		each isotope specified in self.A0.  The fit minimizes to the number of</span>
+<span class="sd">		measured decays (self.counts) as a function of time, rather than the </span>
+<span class="sd">		activity, because the activity at each time point may be sensitive to</span>
+<span class="sd">		the shape of the decay curve.</span>
 
 <span class="sd">		Returns</span>
 <span class="sd">		-------</span>
-<span class="sd">		list</span>
-<span class="sd">			Description</span>
+<span class="sd">		isotopes : list</span>
+<span class="sd">			List of isotopes where A0&gt;0.  Same indices as fit. (i.e. isotope[0] corresponds</span>
+<span class="sd">			to fit[0] and cov[0][0].)</span>
 
-<span class="sd">		np.ndarray</span>
-<span class="sd">			Description</span>
+<span class="sd">		fit : np.ndarray</span>
+<span class="sd">			The initial activity for each isotope where A0&gt;0.</span>
 
-<span class="sd">		np.ndarray</span>
-<span class="sd">			Description</span>
+<span class="sd">		cov : np.ndarray</span>
+<span class="sd">			Covariance matrix on the fit.</span>
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>
+<span class="sd">		&gt;&gt;&gt; sp = ci.Spectrum(&#39;eu_calib_7cm.Spe&#39;)</span>
+<span class="sd">		&gt;&gt;&gt; sp.isotopes = [&#39;152EU&#39;]</span>
+
+<span class="sd">		&gt;&gt;&gt; dc = ci.DecayChain(&#39;152EU&#39;, A0=3.7E4, units=&#39;d&#39;)</span>
+<span class="sd">		&gt;&gt;&gt; dc.get_counts([sp], EoB=&#39;01/01/2016 08:39:08&#39;)</span>
+<span class="sd">		&gt;&gt;&gt; print(dc.fit_A0())</span>
+<span class="sd">		([&#39;152EUg&#39;], array([6501.93665952]), array([[42425.53832341]]))</span>
 
 <span class="sd">		&quot;&quot;&quot;</span>
 
@@ -525,7 +585,7 @@
 			<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Cannot fit A0 when R!=0.&#39;</span><span class="p">)</span>
 
 		<span class="n">X</span> <span class="o">=</span> <span class="p">[]</span>
-		<span class="n">A0_isotopes</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">A0</span><span class="p">]</span>
+		<span class="n">A0_isotopes</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">isotopes</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">A0</span><span class="p">]</span>
 		<span class="k">for</span> <span class="n">ip</span> <span class="ow">in</span> <span class="n">A0_isotopes</span><span class="p">:</span>
 			<span class="n">A0</span> <span class="o">=</span> <span class="p">{</span><span class="n">p</span><span class="p">:(</span><span class="bp">self</span><span class="o">.</span><span class="n">A0</span><span class="p">[</span><span class="n">p</span><span class="p">]</span> <span class="k">if</span> <span class="n">p</span><span class="o">==</span><span class="n">ip</span> <span class="k">else</span> <span class="mf">0.0</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">A0</span><span class="p">}</span>
 			<span class="n">X</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">decays</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="s1">&#39;isotope&#39;</span><span class="p">],</span> <span class="n">c</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">],</span> <span class="n">c</span><span class="p">[</span><span class="s1">&#39;stop&#39;</span><span class="p">],</span> <span class="n">_A_dict</span><span class="o">=</span><span class="n">A0</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span><span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">counts</span><span class="o">.</span><span class="n">iterrows</span><span class="p">()])</span>
@@ -545,20 +605,23 @@
 		<span class="k">return</span> <span class="n">A0_isotopes</span><span class="p">,</span> <span class="n">A_norm</span><span class="p">,</span> <span class="n">cov</span><span class="o">*</span><span class="p">(</span><span class="n">A_norm</span><span class="o">/</span><span class="n">fit</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span></div>
 		
 <div class="viewcode-block" id="DecayChain.plot"><a class="viewcode-back" href="../../api/decaychain.html#curie.DecayChain.plot">[docs]</a>	<span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_plot</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_label</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot; Description</span>
+		<span class="sd">&quot;&quot;&quot;Plot the activities in the decay chain</span>
 
-<span class="sd">		...</span>
+<span class="sd">		Plots the activities as a function of time for all radioactive</span>
+<span class="sd">		isotopes in the decay chain.  Can plot along a specified time</span>
+<span class="sd">		grid, else the time will be inferred from the half-life of the</span>
+<span class="sd">		parent isotope, or any count information given to self.counts.</span>
 
 <span class="sd">		Parameters</span>
 <span class="sd">		----------</span>
 <span class="sd">		time : array_like, optional</span>
-<span class="sd">			Description of x</span>
+<span class="sd">			Time grid along which to plot.  Units must be the same as the decay chain.</span>
 
 <span class="sd">		max_plot : int, optional</span>
-<span class="sd">			Description</span>
+<span class="sd">			Maximum number of isotope activities to plot in the decay chain. Default, None.</span>
 
 <span class="sd">		max_label : int, optional</span>
-<span class="sd">			Description</span>
+<span class="sd">			Maximum number of isotope activities to label in the legend. Default, 10.</span>
 
 <span class="sd">		Other Parameters</span>
 <span class="sd">		----------------</span>
@@ -569,6 +632,16 @@
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>
+<span class="sd">		&gt;&gt;&gt; sp = ci.Spectrum(&#39;eu_calib_7cm.Spe&#39;)</span>
+<span class="sd">		&gt;&gt;&gt; sp.isotopes = [&#39;152EU&#39;]</span>
+
+<span class="sd">		&gt;&gt;&gt; dc = ci.DecayChain(&#39;152EU&#39;, R=[[3E5, 36.0]], units=&#39;d&#39;)</span>
+<span class="sd">		&gt;&gt;&gt; dc.get_counts([sp], EoB=&#39;01/01/2016 08:39:08&#39;)</span>
+<span class="sd">		&gt;&gt;&gt; dc.fit_R()</span>
+<span class="sd">		&gt;&gt;&gt; dc.plot()</span>
+
+<span class="sd">		&gt;&gt;&gt; dc = ci.DecayChain(&#39;99MO&#39;, A0=350E6, units=&#39;d&#39;)</span>
+<span class="sd">		&gt;&gt;&gt; dc.plot()</span>
 
 <span class="sd">		&quot;&quot;&quot;</span>
 

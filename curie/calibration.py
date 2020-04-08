@@ -9,6 +9,7 @@ import json
 from scipy.optimize import curve_fit
 
 from .isotope import Isotope
+from .data import _get_connection
 from .plotting import _init_plot, _draw_plot, colormap
 
 
@@ -123,25 +124,39 @@ class Calibration(object):
 
 
 	def eng(self, channel, engcal=None):
-		""" Description
+		"""Energy calibration function
 
-		...
+		Returns the calculated energy given an input array of
+		channel numbers.  The `engcal` can be supplied, or
+		if `engcal=None` the Calibration object's energy
+		calibration is used (cb.engcal).
 
 		Parameters
 		----------
 		channel : array_like
-			Description of x
+			Spectrum channel number.  The maximum channel number should
+			be the length of the spectrum.
 
 		engcal : array_like, optional
-			Description
+			Optional energy calibration. If a length 2 array, calibration
+			will be engcal[0] + engcal[1]*channel.  If length 3, then
+			engcal[0] + engcal[1]*channel + engcal[2]*channel**2
 
 		Returns
 		-------
-		type
-			Description
+		energy: np.ndarray
+			Calibrated energy corresponding to the given channels.
 
 		Examples
 		--------
+		>>> cb = ci.Calibration()
+		>>> print(cb.engcal)
+		[0.  0.3]
+		>>> print(cb.eng(np.arange(10)))
+		[0.  0.3 0.6 0.9 1.2 1.5 1.8 2.1 2.4 2.7]
+		>>> cb.engcal = [0.1, 0.2, 0.003]
+		>>> print(cb.eng(np.arange(10)))
+		[0.1   0.303 0.512 0.727 0.948 1.175 1.408 1.647 1.892 2.143]
 
 		"""
 
@@ -157,25 +172,40 @@ class Calibration(object):
 			return engcal[0] + engcal[1]*channel + engcal[2]*channel**2
 		
 	def eff(self, energy, effcal=None):
-		""" Description
+		"""Efficiency calibration function
 
-		...
+		Returns the calculated (absolute) efficiency given an input array of 
+		energies. The `effcal` can be supplied, or if `effcal=None`, the
+		calibration object's internal efficiency calibration (cb.effcal)
+		is used.
+
+		The functional form of the efficiency used is
+		eff(E) = c[0]*exp(-c[1]*energy**c[2]))) if the effcal is length 3 or
+		eff(E) = c[0]*exp(-c[1]*energy**c[2])))*(1-exp(-c[3]*energy**c[4])) if the
+		effcal is length 5.
 
 		Parameters
 		----------
 		energy : array_like
-			Description of x
+			Peak energy in keV.
 
 		effcal : array_like, optional
-			Description of x
+			Efficiency calibration parameters. length 3 or 5 array, depending on whether the efficiency
+			fit includes a "dead-layer term".
 
 		Returns
 		-------
-		type
-			Description
+		efficiency : np.ndarray
+			Absolute efficiency at the given energies.
 
 		Examples
 		--------
+		>>> cb = ci.Calibration()
+		>>> print(cb.effcal)
+		[3.310e-01 1.580e-01 4.100e-01 1.000e-03 1.476e+00]
+		>>> print(cb.eff(50*np.arange(1,10)))
+		[0.04152215 0.06893742 0.07756411 0.07583971 0.07013108 0.06365222
+		 0.05762826 0.05236502 0.0478359 ]
 
 		"""
 
@@ -191,28 +221,48 @@ class Calibration(object):
 			return effcal[0]*np.exp(-effcal[1]*energy**effcal[2])*(1.0-np.exp(-effcal[3]*energy**effcal[4]))
 		
 	def unc_eff(self, energy, effcal=None, unc_effcal=None):
-		""" Description
+		"""Uncertainty in the efficiency
 
-		...
+		Returns the calculated uncertainty in efficiency for an input
+		array of energies.  If `effcal` or `unc_effcal` are not none,
+		they are used instead of the calibration object's internal
+		values. (cb.unc_effcal)  unc_effcal must be a covariance matrix of the
+		same dimension as effcal.
 
 		Parameters
 		----------
 		energy : array_like
-			Description of x
+			Peak energy in keV.
 
 		effcal : array_like, optional
-			Description of x
+			Efficiency calibration parameters. length 3 or 5 array, depending on whether the efficiency
+			fit includes a "dead-layer term".
 
 		unc_effcal : array_like, optional
-			Description of x
+			Efficiency calibration covariance matrix. shape 3x3 or 5x5, depending on the length of effcal.
 
 		Returns
 		-------
-		type
-			Description
+		unc_efficiency : np.ndarray
+			Absolute uncertainty in efficiency for the given energies.
 
 		Examples
 		--------
+		>>> cb = ci.Calibration()
+		>>> print(cb.effcal)
+		[3.310e-01 1.580e-01 4.100e-01 1.000e-03 1.476e+00]
+		>>> print(cb.unc_effcal)
+		[[ 5.038e-02  3.266e-02 -2.151e-02 -4.869e-05 -7.748e-03]
+		 [ 3.266e-02  2.144e-02 -1.416e-02 -3.416e-05 -4.137e-03]
+		 [-2.151e-02 -1.416e-02  9.367e-03  2.294e-05  2.569e-03]
+		 [-4.869e-05 -3.416e-05  2.294e-05  5.411e-07 -1.165e-04]
+		 [-7.748e-03 -4.137e-03  2.569e-03 -1.165e-04  3.332e-02]]
+		>>> print(cb.eff(50*np.arange(1,10)))
+		[0.04152215 0.06893742 0.07756411 0.07583971 0.07013108 0.06365222
+		 0.05762826 0.05236502 0.0478359 ]
+		>>> print(cb.unc_eff(50*np.arange(1,10)))
+		[0.00453714 0.00795861 0.00705099 0.00514765 0.00453579 0.00433504
+		 0.00394935 0.00347228 0.00304041]
 
 		"""
 
@@ -241,25 +291,34 @@ class Calibration(object):
 		return np.sqrt(var)
 		
 	def res(self, channel, rescal=None):
-		""" Description
+		"""Resolution calibration
 
-		...
+		Calculates the expected 1-sigma peak widths for a given input array
+		of channel numbers.  If `rescal` is given, it is used instead of
+		the calibration object's internal value (cb.rescal).
 
 		Parameters
 		----------
 		channel : array_like
-			Description of x
+			Spectrum channel number.  The maximum channel number should
+			be the length of the spectrum.
 
 		rescal : array_like, optional
-			Description of x
+			Resolution calibration parameters.  length 2 array if resolution calibration is of the form
+			R = a + b*chan (default), or length 1 if R = a*sqrt(chan).
 
 		Returns
 		-------
-		type
-			Description
+		resolution : np.ndarray
+			Calculated 1-sigma width of the peaks given the input channel numbers.
 
 		Examples
 		--------
+		>>> cb = ci.Calibration()
+		>>> print(cb.rescal)
+		[2.e+00 4.e-04]
+		>>> print(cb.res(100*np.arange(1,10)))
+		[2.04 2.08 2.12 2.16 2.2  2.24 2.28 2.32 2.36]
 
 		"""
 
@@ -275,25 +334,35 @@ class Calibration(object):
 			return rescal[0] + rescal[1]*channel
 		
 	def map_channel(self, energy, engcal=None):
-		""" Description
+		"""Energy to channel calibration
 
-		...
+		Calculates the spectrum channel number corresponding to a given
+		energy array.  This should return the inverse of the energy calibration, but
+		as an integer-type channel number.
 
 		Parameters
 		----------
 		energy : array_like
-			Description of x
+			Peak energy in keV
 
 		engcal : array_like, optional
-			Description of x
+			Energy calibration parameters. length 2 or 3 array, depending on whether the calibration
+			is linear or quadratic.
 
 		Returns
 		-------
-		type
-			Description
+		channel : np.ndarray
+			Calculated channel number given the input energy array
 
 		Examples
 		--------
+		>>> cb = ci.Calibration()
+		>>> print(cb.engcal)
+		[0.  0.3]
+		>>> print(cb.map_channel(300))
+		1000
+		>>> print(cb.eng(cb.map_channel(300)))
+		300.0
 
 		"""
 
@@ -309,20 +378,34 @@ class Calibration(object):
 		return np.array(np.rint((energy-engcal[0])/engcal[1]), dtype=np.int32)
 		
 	def calibrate(self, spectra, sources):
-		""" Description
+		"""Generate calibration parameters from spectra
 
-		...
+		Performs an energy, resolution and efficiency calibration on peak fits
+		to a given list of spectra.  Reference activities must be given for the
+		efficiency calibration.  Spectra are allowed to have isotopes that are
+		not in `sources`, but these will not be included in the efficiency calibration.
 
 		Parameters
 		----------
 		spectra : list of sp.Spectrum
-			Description of x
+			List of calibration spectra.  Must have sp.isotopes defined, and matching
+			the isotopes given in `sources`.
 
 		sources : str, list, dict or pd.DataFrame
-			Description
+			Datatype or (if str) file that can be converted into a
+			pandas DataFrame.  Required keys are 'isotope', 'A0' (reference activity),
+			and 'ref_date' (reference date).
 
 		Examples
 		--------
+		>>> sp = ci.Spectrum('eu_calib_7cm.Spe')
+		>>> sp.isotopes = ['152EU']
+
+		>>> cb = ci.Calibration()
+		>>> cb.calibrate([sp], sources=[{'isotope':'152EU', 'A0':3.5E4, 'ref_date':'01/01/2009 12:00:00'}])
+		>>> print(cb.effcal)
+		[4.33742771 2.28579733 0.15337749]
+		>>> cb.plot()
 
 		"""
 
@@ -331,6 +414,8 @@ class Calibration(object):
 				sources = pd.DataFrame(json.loads(open(sources).read()))
 			elif sources.endswith('.csv'):
 				sources = pd.read_csv(sources, header=0).fillna(method='ffill')
+			elif sources.endswith('.db'):
+				sources = pd.read_sql('SELECT * FROM sources', _get_connection(sources))
 		else:
 			sources = pd.DataFrame(sources)
 		sources['ref_date'] = pd.to_datetime(sources['ref_date'], format='%m/%d/%Y %H:%M:%S')
@@ -455,17 +540,31 @@ class Calibration(object):
 
 		
 	def saveas(self, filename):
-		""" Description
+		"""Save the calibration as a .json file
 
-		...
+		Saves the energy, resolution and efficiency calibration to a .json
+		file, which can be recalled by a new calibration object by passing
+		the 'filename' keyword to Calibration() upon construction.
 
 		Parameters
 		----------
 		filename : str
-			Description of x
+			Complete filename to save the calibration. Must end in '.json'.
 
 		Examples
 		--------
+		>>> sp = ci.Spectrum('eu_calib_7cm.Spe')
+		>>> sp.isotopes = ['152EU']
+
+		>>> cb = ci.Calibration()
+		>>> cb.calibrate([sp], sources=[{'isotope':'152EU', 'A0':3.5E4, 'ref_date':'01/01/2009 12:00:00'}])
+		>>> print(cb.effcal)
+		[4.33742771 2.28579733 0.15337749]
+		>>> cb.saveas('example_calib.json')
+
+		>>> cb = ci.Calibration('example_calib.json')
+		>>> print(cb.effcal)
+		[4.33742771 2.28579733 0.15337749]
 
 		"""
 
@@ -488,9 +587,9 @@ class Calibration(object):
 
 		
 	def plot_engcal(self, **kwargs):
-		""" Description
+		"""Plot the energy calibration
 
-		...
+		Draws the energy calibration, with measurements from peak fit data if available.
 
 		Other Parameters
 		----------------
@@ -501,6 +600,12 @@ class Calibration(object):
 
 		Examples
 		--------
+		>>> sp = ci.Spectrum('eu_calib_7cm.Spe')
+		>>> sp.isotopes = ['152EU']
+
+		>>> cb = ci.Calibration()
+		>>> cb.calibrate([sp], sources=[{'isotope':'152EU', 'A0':3.5E4, 'ref_date':'01/01/2009 12:00:00'}])
+		>>> cb.plot_engcal()
 
 		"""
 
@@ -512,6 +617,10 @@ class Calibration(object):
 			x = np.arange(min(d['energy']), max(d['energy']), 0.1)
 			ax.plot(x, self.map_channel(x, d['fit']))
 
+		else:
+			x = np.arange(20, 3000, 0.1)
+			ax.plot(x, self.map_channel(x))
+
 		ax.set_xlabel('Energy (keV)')
 		ax.set_ylabel('ADC Channel')
 		ax.set_title('Energy Calibration')
@@ -519,9 +628,9 @@ class Calibration(object):
 		return _draw_plot(f, ax, **kwargs)
 		
 	def plot_rescal(self, **kwargs):
-		""" Description
+		"""Plot the resolution calibration
 
-		...
+		Draws the resolution calibration, with measurements from peak fit data if available.
 
 		Other Parameters
 		----------------
@@ -532,6 +641,12 @@ class Calibration(object):
 
 		Examples
 		--------
+		>>> sp = ci.Spectrum('eu_calib_7cm.Spe')
+		>>> sp.isotopes = ['152EU']
+
+		>>> cb = ci.Calibration()
+		>>> cb.calibrate([sp], sources=[{'isotope':'152EU', 'A0':3.5E4, 'ref_date':'01/01/2009 12:00:00'}])
+		>>> cb.plot_rescal()
 
 		"""
 
@@ -543,6 +658,10 @@ class Calibration(object):
 			x = np.arange(min(d['channel']), max(d['channel']), 0.1)
 			ax.plot(x, self.res(x, d['fit']))
 
+		else:
+			x = np.arange(0, 2**14, 0.1)
+			ax.plot(x, self.res(x))
+
 		ax.set_xlabel('ADC Channel')
 		ax.set_ylabel('Peak Width')
 		ax.set_title('Resolution Calibration')
@@ -550,9 +669,9 @@ class Calibration(object):
 		return _draw_plot(f, ax, **kwargs)
 		
 	def plot_effcal(self, **kwargs):
-		""" Description
+		"""Plot the efficiency calibration
 
-		...
+		Draws the efficiency calibration, with measurements from peak fit data if available.
 
 		Other Parameters
 		----------------
@@ -563,6 +682,12 @@ class Calibration(object):
 
 		Examples
 		--------
+		>>> sp = ci.Spectrum('eu_calib_7cm.Spe')
+		>>> sp.isotopes = ['152EU']
+
+		>>> cb = ci.Calibration()
+		>>> cb.calibrate([sp], sources=[{'isotope':'152EU', 'A0':3.5E4, 'ref_date':'01/01/2009 12:00:00'}])
+		>>> cb.plot_effcal()
 
 		"""
 		cm = colormap()
@@ -579,6 +704,14 @@ class Calibration(object):
 			high = self.eff(x, d['fit'])+self.unc_eff(x, d['fit'], d['unc'])
 			ax.fill_between(x, low, high, facecolor=cm_light['k'], alpha=0.5)
 
+		else:
+			x = np.arange(20, 3000, 0.1)
+			ax.plot(x, self.eff(x), color=cm['k'])
+			low = self.eff(x)-self.unc_eff(x)
+			high = self.eff(x)+self.unc_eff(x)
+			ax.fill_between(x, low, high, facecolor=cm_light['k'], alpha=0.5)
+
+
 		ax.set_xlabel('Energy (keV)')
 		ax.set_ylabel('Efficiency')
 		ax.set_title('Efficiency Calibration')
@@ -586,9 +719,10 @@ class Calibration(object):
 		return _draw_plot(f, ax, **kwargs)
 		
 	def plot(self, **kwargs):
-		""" Description
+		"""Plots energy, resolution and efficiency calibrations
 
-		...
+		Draws all three of energy, resolution and efficiency calibrations on a 
+		single figure, and shows measured values from peak data, if available.
 
 		Other Parameters
 		----------------
@@ -599,6 +733,12 @@ class Calibration(object):
 
 		Examples
 		--------
+		>>> sp = ci.Spectrum('eu_calib_7cm.Spe')
+		>>> sp.isotopes = ['152EU']
+
+		>>> cb = ci.Calibration()
+		>>> cb.calibrate([sp], sources=[{'isotope':'152EU', 'A0':3.5E4, 'ref_date':'01/01/2009 12:00:00'}])
+		>>> cb.plot()
 
 		"""
 

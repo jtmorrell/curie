@@ -118,11 +118,12 @@
 
 <span class="sd">	Examples</span>
 <span class="sd">	--------</span>
-<span class="sd">	sp = ci.Spectrum(&#39;eu_calib_7cm.Spe&#39;)</span>
-<span class="sd">	sp.isotopes = [&#39;Eu-152&#39;, &#39;40K&#39;]</span>
-<span class="sd">	sp.cb = &#39;example_calib.json&#39;</span>
-<span class="sd">	sp.fit_config = {&#39;bg&#39;:&#39;quadratic&#39;, &#39;xrays&#39;:False}</span>
-
+<span class="sd">	&gt;&gt;&gt; sp = ci.Spectrum(&#39;eu_calib_7cm.Spe&#39;)</span>
+<span class="sd">	&gt;&gt;&gt; sp.isotopes = [&#39;Eu-152&#39;, &#39;40K&#39;]</span>
+<span class="sd">	&gt;&gt;&gt; sp.cb = &#39;example_calib.json&#39;</span>
+<span class="sd">	&gt;&gt;&gt; sp.fit_config = {&#39;bg&#39;:&#39;quadratic&#39;, &#39;xrays&#39;:False}</span>
+<span class="sd">	&gt;&gt;&gt; sp.saveas(&#39;eu_calib_7cm.Chn&#39;)</span>
+<span class="sd">	&gt;&gt;&gt; sp = ci.Spectrum(&#39;eu_calib_7cm.Chn&#39;)</span>
 
 <span class="sd">	&quot;&quot;&quot;</span>
 
@@ -336,7 +337,7 @@
 
 <span class="sd">		Returns</span>
 <span class="sd">		-------</span>
-<span class="sd">		type</span>
+<span class="sd">		correction_factor : scipy.interpolate.interp1d</span>
 <span class="sd">			Description</span>
 
 <span class="sd">		Examples</span>
@@ -363,7 +364,7 @@
 		<span class="k">return</span> <span class="n">atten_corr</span></div>
 
 		
-<div class="viewcode-block" id="Spectrum.geometry_correction"><a class="viewcode-back" href="../../api/spectrum.html#curie.Spectrum.geometry_correction">[docs]</a>	<span class="k">def</span> <span class="nf">geometry_correction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">distance</span><span class="p">,</span> <span class="n">r_det</span><span class="p">,</span> <span class="n">thickness</span><span class="p">,</span> <span class="n">sample_size</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="s1">&#39;circle&#39;</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="mf">1E6</span><span class="p">):</span>
+<div class="viewcode-block" id="Spectrum.geometry_correction"><a class="viewcode-back" href="../../api/spectrum.html#curie.Spectrum.geometry_correction">[docs]</a>	<span class="k">def</span> <span class="nf">geometry_correction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">distance</span><span class="p">,</span> <span class="n">r_det</span><span class="p">,</span> <span class="n">thickness</span><span class="p">,</span> <span class="n">sample_size</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="s1">&#39;circle&#39;</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="mi">1000000</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot; Description</span>
 
 <span class="sd">		...</span>
@@ -390,7 +391,7 @@
 
 <span class="sd">		Returns</span>
 <span class="sd">		-------</span>
-<span class="sd">		type</span>
+<span class="sd">		correction_factor : float</span>
 <span class="sd">			Description</span>
 
 <span class="sd">		Examples</span>

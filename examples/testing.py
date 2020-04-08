@@ -147,6 +147,14 @@ import curie as ci
 # 		{'cm':'Brass','ad':350, 'name':'metal'}]
 
 # st = ci.Stack(stack, compounds={'Brass':{'Cu':-66, 'Zn':-33}}, E0=60.0)
+# st.saveas('example_stack.csv')
+# st.saveas('example_stack.json', filter_name=False)
+# st.saveas('example_stack.db', save_fluxes=False)
+# st.summarize()
+# st.summarize(filter_name=False)
+# st.plot()
+# st.plot(filter_name='salt')
+
 # st = ci.Stack(stack, compounds='example_compounds.json')
 # print st.stack
 # st.saveas('stack_calc.csv')
@@ -161,9 +169,9 @@ import curie as ci
 # st.plot()
 
 
-sp = ci.Spectrum('eu_calib_7cm.Spe')
+# sp = ci.Spectrum('eu_calib_7cm.Spe')
 # sp.isotopes = ['152EU']
-sp.isotopes = ['152EU', '40K']
+# sp.isotopes = ['152EU', '40K']
 # sp.fit_peaks(gammas=[{'energy':1460.8, 'intensity':10.66, 'unc_intensity':0.55}])
 # sp.fit_peaks(gammas=ci.Isotope('40K').gammas(istp_col=True))
 # sp.summarize()
@@ -172,26 +180,90 @@ sp.isotopes = ['152EU', '40K']
 # sp.saveas('test_spec.json')
 # sp.plot()
 
-cb = ci.Calibration()
-cb.calibrate([sp], [{'isotope':'152EU', 'A0':3.7E4, 'ref_date':'01/01/2016 12:00:00'}])
+# cb = ci.Calibration()
+# cb.calibrate([sp], [{'isotope':'152EU', 'A0':3.7E4, 'ref_date':'01/01/2016 12:00:00'}])
 # cb.plot()
-cb.saveas('calib.json')
+# cb.saveas('calib.json')
 # sp.saveas('test_spec.json')
 
 # rx = ci.Reaction('Ra-226(n,2n)Ra-225')
 # rx.plot()
+
+# rx = ci.Reaction('Ni-58(n,p)')
+# eng = np.linspace(1, 5, 20)
+# phi = np.ones(20)
+# print(rx.average(eng, phi))
+# print(rx.average(eng, phi, unc=True))
+
+# rx = ci.Reaction('115IN(n,g)')
+# rx.plot(scale='loglog')
+# rx = ci.Reaction('35CL(n,p)')
+# f,ax = rx.plot(return_plot=True)
+# rx = ci.Reaction('35CL(n,el)')
+# rx.plot(f=f, ax=ax, scale='loglog')
 
 # dc = ci.DecayChain('Ra-225', R=[[1.0, 1.0], [0.5, 1.5], [2.0, 6]], units='d')
 # print dc.R_avg
 # print dc.isotopes
 # dc.plot()
 
+# sp = ci.Spectrum('eu_calib_7cm.Spe')
+# sp.isotopes = ['152EU']
+# sp.saveas('test_spec.json')
+
 # dc = ci.DecayChain('152EU', A0=3.7E3, units='h')
+# dc.get_counts([sp], EoB='01/01/2016 08:39:08')
+# dc.get_counts(['eu_calib_7cm.Spe'], EoB='01/01/2016 08:39:08', peak_data='test_spec.json')
+
+# print dc.decays('152EU', t_start=1, t_stop=2)
+# print dc.decays('152EU', t_start=50, t_stop=50.1, units='y')
+# print dc.activity('152EU', time=0)
+# print dc.activity('152EU', time=13.537, units='y')
 # dc = ci.DecayChain('152EU', R=[[3E5, 36.0]], units='d')
 # dc.get_counts(['eu_calib_7cm.Spe'], EoB='01/01/2016 08:39:08', peak_data='test_spec.json')
 # dc.get_counts([sp], EoB='01/01/2016 08:39:08')
+# dc.fit_R()
 # print dc.fit_R()
 # print dc.R_avg
 # print dc.isotopes
 # print dc.fit_A0()
 # dc.plot()
+
+# dc = ci.DecayChain('99MO', A0=350E6, units='d')
+# dc.plot()
+
+# cb = ci.Calibration()
+# print(cb.engcal)
+# print(cb.eng(np.arange(10)))
+# cb.engcal = [0.1, 0.2, 0.003]
+# print(cb.eng(np.arange(10)))
+
+# cb = ci.Calibration()
+# print(cb.effcal)
+# print(cb.unc_effcal)
+# print(cb.eff(50*np.arange(1,10)))
+# print(cb.unc_eff(50*np.arange(1,10)))
+
+# cb = ci.Calibration()
+# print(cb.rescal)
+# print(cb.res(100*np.arange(1,10)))
+
+# cb = ci.Calibration()
+# print(cb.engcal)
+# print(cb.map_channel(300))
+# print(cb.eng(cb.map_channel(300)))
+
+# sp = ci.Spectrum('eu_calib_7cm.Spe')
+# sp.isotopes = ['152EU']
+
+# cb = ci.Calibration()
+# cb.calibrate([sp], sources=[{'isotope':'152EU', 'A0':3.5E4, 'ref_date':'01/01/2009 12:00:00'}])
+# cb.plot_engcal()
+# cb.plot_rescal()
+# cb.plot_effcal()
+# cb.plot()
+
+sp = ci.Spectrum('eu_calib_7cm.Spe')
+print(len(sp.hist))
+sp.rebin(1000)
+print(len(sp.hist))

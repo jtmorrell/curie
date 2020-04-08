@@ -47,6 +47,7 @@
 <span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">curve_fit</span>
 
 <span class="kn">from</span> <span class="nn">.isotope</span> <span class="kn">import</span> <span class="n">Isotope</span>
+<span class="kn">from</span> <span class="nn">.data</span> <span class="kn">import</span> <span class="n">_get_connection</span>
 <span class="kn">from</span> <span class="nn">.plotting</span> <span class="kn">import</span> <span class="n">_init_plot</span><span class="p">,</span> <span class="n">_draw_plot</span><span class="p">,</span> <span class="n">colormap</span>
 
 
@@ -161,25 +162,39 @@
 
 
 <div class="viewcode-block" id="Calibration.eng"><a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.eng">[docs]</a>	<span class="k">def</span> <span class="nf">eng</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">engcal</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot; Description</span>
+		<span class="sd">&quot;&quot;&quot;Energy calibration function</span>
 
-<span class="sd">		...</span>
+<span class="sd">		Returns the calculated energy given an input array of</span>
+<span class="sd">		channel numbers.  The `engcal` can be supplied, or</span>
+<span class="sd">		if `engcal=None` the Calibration object&#39;s energy</span>
+<span class="sd">		calibration is used (cb.engcal).</span>
 
 <span class="sd">		Parameters</span>
 <span class="sd">		----------</span>
 <span class="sd">		channel : array_like</span>
-<span class="sd">			Description of x</span>
+<span class="sd">			Spectrum channel number.  The maximum channel number should</span>
+<span class="sd">			be the length of the spectrum.</span>
 
 <span class="sd">		engcal : array_like, optional</span>
-<span class="sd">			Description</span>
+<span class="sd">			Optional energy calibration. If a length 2 array, calibration</span>
+<span class="sd">			will be engcal[0] + engcal[1]*channel.  If length 3, then</span>
+<span class="sd">			engcal[0] + engcal[1]*channel + engcal[2]*channel**2</span>
 
 <span class="sd">		Returns</span>
 <span class="sd">		-------</span>
-<span class="sd">		type</span>
-<span class="sd">			Description</span>
+<span class="sd">		energy: np.ndarray</span>
+<span class="sd">			Calibrated energy corresponding to the given channels.</span>
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>
+<span class="sd">		&gt;&gt;&gt; cb = ci.Calibration()</span>
+<span class="sd">		&gt;&gt;&gt; print(cb.engcal)</span>
+<span class="sd">		[0.  0.3]</span>
+<span class="sd">		&gt;&gt;&gt; print(cb.eng(np.arange(10)))</span>
+<span class="sd">		[0.  0.3 0.6 0.9 1.2 1.5 1.8 2.1 2.4 2.7]</span>
+<span class="sd">		&gt;&gt;&gt; cb.engcal = [0.1, 0.2, 0.003]</span>
+<span class="sd">		&gt;&gt;&gt; print(cb.eng(np.arange(10)))</span>
+<span class="sd">		[0.1   0.303 0.512 0.727 0.948 1.175 1.408 1.647 1.892 2.143]</span>
 
 <span class="sd">		&quot;&quot;&quot;</span>
 
@@ -195,25 +210,40 @@
 			<span class="k">return</span> <span class="n">engcal</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">engcal</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">channel</span> <span class="o">+</span> <span class="n">engcal</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="n">channel</span><span class="o">**</span><span class="mi">2</span></div>
 		
 <div class="viewcode-block" id="Calibration.eff"><a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.eff">[docs]</a>	<span class="k">def</span> <span class="nf">eff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">effcal</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot; Description</span>
+		<span class="sd">&quot;&quot;&quot;Efficiency calibration function</span>
 
-<span class="sd">		...</span>
+<span class="sd">		Returns the calculated (absolute) efficiency given an input array of </span>
+<span class="sd">		energies. The `effcal` can be supplied, or if `effcal=None`, the</span>
+<span class="sd">		calibration object&#39;s internal efficiency calibration (cb.effcal)</span>
+<span class="sd">		is used.</span>
+
+<span class="sd">		The functional form of the efficiency used is</span>
+<span class="sd">		eff(E) = c[0]*exp(-c[1]*energy**c[2]))) if the effcal is length 3 or</span>
+<span class="sd">		eff(E) = c[0]*exp(-c[1]*energy**c[2])))*(1-exp(-c[3]*energy**c[4])) if the</span>
+<span class="sd">		effcal is length 5.</span>
 
 <span class="sd">		Parameters</span>
 <span class="sd">		----------</span>
 <span class="sd">		energy : array_like</span>
-<span class="sd">			Description of x</span>
+<span class="sd">			Peak energy in keV.</span>
 
 <span class="sd">		effcal : array_like, optional</span>
-<span class="sd">			Description of x</span>
+<span class="sd">			Efficiency calibration parameters. length 3 or 5 array, depending on whether the efficiency</span>
+<span class="sd">			fit includes a &quot;dead-layer term&quot;.</span>
 
 <span class="sd">		Returns</span>
 <span class="sd">		-------</span>
-<span class="sd">		type</span>
-<span class="sd">			Description</span>
+<span class="sd">		efficiency : np.ndarray</span>
+<span class="sd">			Absolute efficiency at the given energies.</span>
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>
+<span class="sd">		&gt;&gt;&gt; cb = ci.Calibration()</span>
+<span class="sd">		&gt;&gt;&gt; print(cb.effcal)</span>
+<span class="sd">		[3.310e-01 1.580e-01 4.100e-01 1.000e-03 1.476e+00]</span>
+<span class="sd">		&gt;&gt;&gt; print(cb.eff(50*np.arange(1,10)))</span>
+<span class="sd">		[0.04152215 0.06893742 0.07756411 0.07583971 0.07013108 0.06365222</span>
+<span class="sd">		 0.05762826 0.05236502 0.0478359 ]</span>
 
 <span class="sd">		&quot;&quot;&quot;</span>
 
@@ -229,28 +259,48 @@
 			<span class="k">return</span> <span class="n">effcal</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">effcal</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">energy</span><span class="o">**</span><span class="n">effcal</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">effcal</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">*</span><span class="n">energy</span><span class="o">**</span><span class="n">effcal</span><span class="p">[</span><span class="mi">4</span><span class="p">]))</span></div>
 		
 <div class="viewcode-block" id="Calibration.unc_eff"><a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.unc_eff">[docs]</a>	<span class="k">def</span> <span class="nf">unc_eff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">effcal</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unc_effcal</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot; Description</span>
+		<span class="sd">&quot;&quot;&quot;Uncertainty in the efficiency</span>
 
-<span class="sd">		...</span>
+<span class="sd">		Returns the calculated uncertainty in efficiency for an input</span>
+<span class="sd">		array of energies.  If `effcal` or `unc_effcal` are not none,</span>
+<span class="sd">		they are used instead of the calibration object&#39;s internal</span>
+<span class="sd">		values. (cb.unc_effcal)  unc_effcal must be a covariance matrix of the</span>
+<span class="sd">		same dimension as effcal.</span>
 
 <span class="sd">		Parameters</span>
 <span class="sd">		----------</span>
 <span class="sd">		energy : array_like</span>
-<span class="sd">			Description of x</span>
+<span class="sd">			Peak energy in keV.</span>
 
 <span class="sd">		effcal : array_like, optional</span>
-<span class="sd">			Description of x</span>
+<span class="sd">			Efficiency calibration parameters. length 3 or 5 array, depending on whether the efficiency</span>
+<span class="sd">			fit includes a &quot;dead-layer term&quot;.</span>
 
 <span class="sd">		unc_effcal : array_like, optional</span>
-<span class="sd">			Description of x</span>
+<span class="sd">			Efficiency calibration covariance matrix. shape 3x3 or 5x5, depending on the length of effcal.</span>
 
 <span class="sd">		Returns</span>
 <span class="sd">		-------</span>
-<span class="sd">		type</span>
-<span class="sd">			Description</span>
+<span class="sd">		unc_efficiency : np.ndarray</span>
+<span class="sd">			Absolute uncertainty in efficiency for the given energies.</span>
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>
+<span class="sd">		&gt;&gt;&gt; cb = ci.Calibration()</span>
+<span class="sd">		&gt;&gt;&gt; print(cb.effcal)</span>
+<span class="sd">		[3.310e-01 1.580e-01 4.100e-01 1.000e-03 1.476e+00]</span>
+<span class="sd">		&gt;&gt;&gt; print(cb.unc_effcal)</span>
+<span class="sd">		[[ 5.038e-02  3.266e-02 -2.151e-02 -4.869e-05 -7.748e-03]</span>
+<span class="sd">		 [ 3.266e-02  2.144e-02 -1.416e-02 -3.416e-05 -4.137e-03]</span>
+<span class="sd">		 [-2.151e-02 -1.416e-02  9.367e-03  2.294e-05  2.569e-03]</span>
+<span class="sd">		 [-4.869e-05 -3.416e-05  2.294e-05  5.411e-07 -1.165e-04]</span>
+<span class="sd">		 [-7.748e-03 -4.137e-03  2.569e-03 -1.165e-04  3.332e-02]]</span>
+<span class="sd">		&gt;&gt;&gt; print(cb.eff(50*np.arange(1,10)))</span>
+<span class="sd">		[0.04152215 0.06893742 0.07756411 0.07583971 0.07013108 0.06365222</span>
+<span class="sd">		 0.05762826 0.05236502 0.0478359 ]</span>
+<span class="sd">		&gt;&gt;&gt; print(cb.unc_eff(50*np.arange(1,10)))</span>
+<span class="sd">		[0.00453714 0.00795861 0.00705099 0.00514765 0.00453579 0.00433504</span>
+<span class="sd">		 0.00394935 0.00347228 0.00304041]</span>
 
 <span class="sd">		&quot;&quot;&quot;</span>
 
@@ -279,25 +329,34 @@
 		<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">var</span><span class="p">)</span></div>
 		
 <div class="viewcode-block" id="Calibration.res"><a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.res">[docs]</a>	<span class="k">def</span> <span class="nf">res</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">rescal</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot; Description</span>
+		<span class="sd">&quot;&quot;&quot;Resolution calibration</span>
 
-<span class="sd">		...</span>
+<span class="sd">		Calculates the expected 1-sigma peak widths for a given input array</span>
+<span class="sd">		of channel numbers.  If `rescal` is given, it is used instead of</span>
+<span class="sd">		the calibration object&#39;s internal value (cb.rescal).</span>
 
 <span class="sd">		Parameters</span>
 <span class="sd">		----------</span>
 <span class="sd">		channel : array_like</span>
-<span class="sd">			Description of x</span>
+<span class="sd">			Spectrum channel number.  The maximum channel number should</span>
+<span class="sd">			be the length of the spectrum.</span>
 
 <span class="sd">		rescal : array_like, optional</span>
-<span class="sd">			Description of x</span>
+<span class="sd">			Resolution calibration parameters.  length 2 array if resolution calibration is of the form</span>
+<span class="sd">			R = a + b*chan (default), or length 1 if R = a*sqrt(chan).</span>
 
 <span class="sd">		Returns</span>
 <span class="sd">		-------</span>
-<span class="sd">		type</span>
-<span class="sd">			Description</span>
+<span class="sd">		resolution : np.ndarray</span>
+<span class="sd">			Calculated 1-sigma width of the peaks given the input channel numbers.</span>
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>
+<span class="sd">		&gt;&gt;&gt; cb = ci.Calibration()</span>
+<span class="sd">		&gt;&gt;&gt; print(cb.rescal)</span>
+<span class="sd">		[2.e+00 4.e-04]</span>
+<span class="sd">		&gt;&gt;&gt; print(cb.res(100*np.arange(1,10)))</span>
+<span class="sd">		[2.04 2.08 2.12 2.16 2.2  2.24 2.28 2.32 2.36]</span>
 
 <span class="sd">		&quot;&quot;&quot;</span>
 
@@ -313,25 +372,35 @@
 			<span class="k">return</span> <span class="n">rescal</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">rescal</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">channel</span></div>
 		
 <div class="viewcode-block" id="Calibration.map_channel"><a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.map_channel">[docs]</a>	<span class="k">def</span> <span class="nf">map_channel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">engcal</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot; Description</span>
+		<span class="sd">&quot;&quot;&quot;Energy to channel calibration</span>
 
-<span class="sd">		...</span>
+<span class="sd">		Calculates the spectrum channel number corresponding to a given</span>
+<span class="sd">		energy array.  This should return the inverse of the energy calibration, but</span>
+<span class="sd">		as an integer-type channel number.</span>
 
 <span class="sd">		Parameters</span>
 <span class="sd">		----------</span>
 <span class="sd">		energy : array_like</span>
-<span class="sd">			Description of x</span>
+<span class="sd">			Peak energy in keV</span>
 
 <span class="sd">		engcal : array_like, optional</span>
-<span class="sd">			Description of x</span>
+<span class="sd">			Energy calibration parameters. length 2 or 3 array, depending on whether the calibration</span>
+<span class="sd">			is linear or quadratic.</span>
 
 <span class="sd">		Returns</span>
 <span class="sd">		-------</span>
-<span class="sd">		type</span>
-<span class="sd">			Description</span>
+<span class="sd">		channel : np.ndarray</span>
+<span class="sd">			Calculated channel number given the input energy array</span>
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>
+<span class="sd">		&gt;&gt;&gt; cb = ci.Calibration()</span>
+<span class="sd">		&gt;&gt;&gt; print(cb.engcal)</span>
+<span class="sd">		[0.  0.3]</span>
+<span class="sd">		&gt;&gt;&gt; print(cb.map_channel(300))</span>
+<span class="sd">		1000</span>
+<span class="sd">		&gt;&gt;&gt; print(cb.eng(cb.map_channel(300)))</span>
+<span class="sd">		300.0</span>
 
 <span class="sd">		&quot;&quot;&quot;</span>
 
@@ -347,20 +416,34 @@
 		<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">rint</span><span class="p">((</span><span class="n">energy</span><span class="o">-</span><span class="n">engcal</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">/</span><span class="n">engcal</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span></div>
 		
 <div class="viewcode-block" id="Calibration.calibrate"><a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.calibrate">[docs]</a>	<span class="k">def</span> <span class="nf">calibrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spectra</span><span class="p">,</span> <span class="n">sources</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot; Description</span>
+		<span class="sd">&quot;&quot;&quot;Generate calibration parameters from spectra</span>
 
-<span class="sd">		...</span>
+<span class="sd">		Performs an energy, resolution and efficiency calibration on peak fits</span>
+<span class="sd">		to a given list of spectra.  Reference activities must be given for the</span>
+<span class="sd">		efficiency calibration.  Spectra are allowed to have isotopes that are</span>
+<span class="sd">		not in `sources`, but these will not be included in the efficiency calibration.</span>
 
 <span class="sd">		Parameters</span>
 <span class="sd">		----------</span>
 <span class="sd">		spectra : list of sp.Spectrum</span>
-<span class="sd">			Description of x</span>
+<span class="sd">			List of calibration spectra.  Must have sp.isotopes defined, and matching</span>
+<span class="sd">			the isotopes given in `sources`.</span>
 
 <span class="sd">		sources : str, list, dict or pd.DataFrame</span>
-<span class="sd">			Description</span>
+<span class="sd">			Datatype or (if str) file that can be converted into a</span>
+<span class="sd">			pandas DataFrame.  Required keys are &#39;isotope&#39;, &#39;A0&#39; (reference activity),</span>
+<span class="sd">			and &#39;ref_date&#39; (reference date).</span>
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>
+<span class="sd">		&gt;&gt;&gt; sp = ci.Spectrum(&#39;eu_calib_7cm.Spe&#39;)</span>
+<span class="sd">		&gt;&gt;&gt; sp.isotopes = [&#39;152EU&#39;]</span>
+
+<span class="sd">		&gt;&gt;&gt; cb = ci.Calibration()</span>
+<span class="sd">		&gt;&gt;&gt; cb.calibrate([sp], sources=[{&#39;isotope&#39;:&#39;152EU&#39;, &#39;A0&#39;:3.5E4, &#39;ref_date&#39;:&#39;01/01/2009 12:00:00&#39;}])</span>
+<span class="sd">		&gt;&gt;&gt; print(cb.effcal)</span>
+<span class="sd">		[4.33742771 2.28579733 0.15337749]</span>
+<span class="sd">		&gt;&gt;&gt; cb.plot()</span>
 
 <span class="sd">		&quot;&quot;&quot;</span>
 
@@ -369,6 +452,8 @@
 				<span class="n">sources</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">sources</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()))</span>
 			<span class="k">elif</span> <span class="n">sources</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.csv&#39;</span><span class="p">):</span>
 				<span class="n">sources</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">sources</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s1">&#39;ffill&#39;</span><span class="p">)</span>
+			<span class="k">elif</span> <span class="n">sources</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.db&#39;</span><span class="p">):</span>
+				<span class="n">sources</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s1">&#39;SELECT * FROM sources&#39;</span><span class="p">,</span> <span class="n">_get_connection</span><span class="p">(</span><span class="n">sources</span><span class="p">))</span>
 		<span class="k">else</span><span class="p">:</span>
 			<span class="n">sources</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">sources</span><span class="p">)</span>
 		<span class="n">sources</span><span class="p">[</span><span class="s1">&#39;ref_date&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">sources</span><span class="p">[</span><span class="s1">&#39;ref_date&#39;</span><span class="p">],</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;%m/</span><span class="si">%d</span><span class="s1">/%Y %H:%M:%S&#39;</span><span class="p">)</span>
@@ -493,17 +578,31 @@
 
 		
 <div class="viewcode-block" id="Calibration.saveas"><a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.saveas">[docs]</a>	<span class="k">def</span> <span class="nf">saveas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot; Description</span>
+		<span class="sd">&quot;&quot;&quot;Save the calibration as a .json file</span>
 
-<span class="sd">		...</span>
+<span class="sd">		Saves the energy, resolution and efficiency calibration to a .json</span>
+<span class="sd">		file, which can be recalled by a new calibration object by passing</span>
+<span class="sd">		the &#39;filename&#39; keyword to Calibration() upon construction.</span>
 
 <span class="sd">		Parameters</span>
 <span class="sd">		----------</span>
 <span class="sd">		filename : str</span>
-<span class="sd">			Description of x</span>
+<span class="sd">			Complete filename to save the calibration. Must end in &#39;.json&#39;.</span>
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>
+<span class="sd">		&gt;&gt;&gt; sp = ci.Spectrum(&#39;eu_calib_7cm.Spe&#39;)</span>
+<span class="sd">		&gt;&gt;&gt; sp.isotopes = [&#39;152EU&#39;]</span>
+
+<span class="sd">		&gt;&gt;&gt; cb = ci.Calibration()</span>
+<span class="sd">		&gt;&gt;&gt; cb.calibrate([sp], sources=[{&#39;isotope&#39;:&#39;152EU&#39;, &#39;A0&#39;:3.5E4, &#39;ref_date&#39;:&#39;01/01/2009 12:00:00&#39;}])</span>
+<span class="sd">		&gt;&gt;&gt; print(cb.effcal)</span>
+<span class="sd">		[4.33742771 2.28579733 0.15337749]</span>
+<span class="sd">		&gt;&gt;&gt; cb.saveas(&#39;example_calib.json&#39;)</span>
+
+<span class="sd">		&gt;&gt;&gt; cb = ci.Calibration(&#39;example_calib.json&#39;)</span>
+<span class="sd">		&gt;&gt;&gt; print(cb.effcal)</span>
+<span class="sd">		[4.33742771 2.28579733 0.15337749]</span>
 
 <span class="sd">		&quot;&quot;&quot;</span>
 
@@ -526,9 +625,9 @@
 
 		
 <div class="viewcode-block" id="Calibration.plot_engcal"><a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.plot_engcal">[docs]</a>	<span class="k">def</span> <span class="nf">plot_engcal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot; Description</span>
+		<span class="sd">&quot;&quot;&quot;Plot the energy calibration</span>
 
-<span class="sd">		...</span>
+<span class="sd">		Draws the energy calibration, with measurements from peak fit data if available.</span>
 
 <span class="sd">		Other Parameters</span>
 <span class="sd">		----------------</span>
@@ -539,6 +638,12 @@
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>
+<span class="sd">		&gt;&gt;&gt; sp = ci.Spectrum(&#39;eu_calib_7cm.Spe&#39;)</span>
+<span class="sd">		&gt;&gt;&gt; sp.isotopes = [&#39;152EU&#39;]</span>
+
+<span class="sd">		&gt;&gt;&gt; cb = ci.Calibration()</span>
+<span class="sd">		&gt;&gt;&gt; cb.calibrate([sp], sources=[{&#39;isotope&#39;:&#39;152EU&#39;, &#39;A0&#39;:3.5E4, &#39;ref_date&#39;:&#39;01/01/2009 12:00:00&#39;}])</span>
+<span class="sd">		&gt;&gt;&gt; cb.plot_engcal()</span>
 
 <span class="sd">		&quot;&quot;&quot;</span>
 
@@ -550,6 +655,10 @@
 			<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">]),</span> <span class="nb">max</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">]),</span> <span class="mf">0.1</span><span class="p">)</span>
 			<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_channel</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;fit&#39;</span><span class="p">]))</span>
 
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">3000</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
+			<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_channel</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+
 		<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Energy (keV)&#39;</span><span class="p">)</span>
 		<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;ADC Channel&#39;</span><span class="p">)</span>
 		<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Energy Calibration&#39;</span><span class="p">)</span>
@@ -557,9 +666,9 @@
 		<span class="k">return</span> <span class="n">_draw_plot</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 		
 <div class="viewcode-block" id="Calibration.plot_rescal"><a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.plot_rescal">[docs]</a>	<span class="k">def</span> <span class="nf">plot_rescal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot; Description</span>
+		<span class="sd">&quot;&quot;&quot;Plot the resolution calibration</span>
 
-<span class="sd">		...</span>
+<span class="sd">		Draws the resolution calibration, with measurements from peak fit data if available.</span>
 
 <span class="sd">		Other Parameters</span>
 <span class="sd">		----------------</span>
@@ -570,6 +679,12 @@
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>
+<span class="sd">		&gt;&gt;&gt; sp = ci.Spectrum(&#39;eu_calib_7cm.Spe&#39;)</span>
+<span class="sd">		&gt;&gt;&gt; sp.isotopes = [&#39;152EU&#39;]</span>
+
+<span class="sd">		&gt;&gt;&gt; cb = ci.Calibration()</span>
+<span class="sd">		&gt;&gt;&gt; cb.calibrate([sp], sources=[{&#39;isotope&#39;:&#39;152EU&#39;, &#39;A0&#39;:3.5E4, &#39;ref_date&#39;:&#39;01/01/2009 12:00:00&#39;}])</span>
+<span class="sd">		&gt;&gt;&gt; cb.plot_rescal()</span>
 
 <span class="sd">		&quot;&quot;&quot;</span>
 
@@ -581,6 +696,10 @@
 			<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;channel&#39;</span><span class="p">]),</span> <span class="nb">max</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;channel&#39;</span><span class="p">]),</span> <span class="mf">0.1</span><span class="p">)</span>
 			<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">res</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;fit&#39;</span><span class="p">]))</span>
 
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="o">**</span><span class="mi">14</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
+			<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">res</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+
 		<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;ADC Channel&#39;</span><span class="p">)</span>
 		<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Peak Width&#39;</span><span class="p">)</span>
 		<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Resolution Calibration&#39;</span><span class="p">)</span>
@@ -588,9 +707,9 @@
 		<span class="k">return</span> <span class="n">_draw_plot</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 		
 <div class="viewcode-block" id="Calibration.plot_effcal"><a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.plot_effcal">[docs]</a>	<span class="k">def</span> <span class="nf">plot_effcal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot; Description</span>
+		<span class="sd">&quot;&quot;&quot;Plot the efficiency calibration</span>
 
-<span class="sd">		...</span>
+<span class="sd">		Draws the efficiency calibration, with measurements from peak fit data if available.</span>
 
 <span class="sd">		Other Parameters</span>
 <span class="sd">		----------------</span>
@@ -601,6 +720,12 @@
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>
+<span class="sd">		&gt;&gt;&gt; sp = ci.Spectrum(&#39;eu_calib_7cm.Spe&#39;)</span>
+<span class="sd">		&gt;&gt;&gt; sp.isotopes = [&#39;152EU&#39;]</span>
+
+<span class="sd">		&gt;&gt;&gt; cb = ci.Calibration()</span>
+<span class="sd">		&gt;&gt;&gt; cb.calibrate([sp], sources=[{&#39;isotope&#39;:&#39;152EU&#39;, &#39;A0&#39;:3.5E4, &#39;ref_date&#39;:&#39;01/01/2009 12:00:00&#39;}])</span>
+<span class="sd">		&gt;&gt;&gt; cb.plot_effcal()</span>
 
 <span class="sd">		&quot;&quot;&quot;</span>
 		<span class="n">cm</span> <span class="o">=</span> <span class="n">colormap</span><span class="p">()</span>
@@ -617,6 +742,14 @@
 			<span class="n">high</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eff</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;fit&#39;</span><span class="p">])</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">unc_eff</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;fit&#39;</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;unc&#39;</span><span class="p">])</span>
 			<span class="n">ax</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">low</span><span class="p">,</span> <span class="n">high</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="n">cm_light</span><span class="p">[</span><span class="s1">&#39;k&#39;</span><span class="p">],</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
 
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">3000</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
+			<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">eff</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="n">cm</span><span class="p">[</span><span class="s1">&#39;k&#39;</span><span class="p">])</span>
+			<span class="n">low</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eff</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">unc_eff</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+			<span class="n">high</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eff</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">unc_eff</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+			<span class="n">ax</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">low</span><span class="p">,</span> <span class="n">high</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="n">cm_light</span><span class="p">[</span><span class="s1">&#39;k&#39;</span><span class="p">],</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+
+
 		<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Energy (keV)&#39;</span><span class="p">)</span>
 		<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Efficiency&#39;</span><span class="p">)</span>
 		<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Efficiency Calibration&#39;</span><span class="p">)</span>
@@ -624,9 +757,10 @@
 		<span class="k">return</span> <span class="n">_draw_plot</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 		
 <div class="viewcode-block" id="Calibration.plot"><a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.plot">[docs]</a>	<span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot; Description</span>
+		<span class="sd">&quot;&quot;&quot;Plots energy, resolution and efficiency calibrations</span>
 
-<span class="sd">		...</span>
+<span class="sd">		Draws all three of energy, resolution and efficiency calibrations on a </span>
+<span class="sd">		single figure, and shows measured values from peak data, if available.</span>
 
 <span class="sd">		Other Parameters</span>
 <span class="sd">		----------------</span>
@@ -637,6 +771,12 @@
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>
+<span class="sd">		&gt;&gt;&gt; sp = ci.Spectrum(&#39;eu_calib_7cm.Spe&#39;)</span>
+<span class="sd">		&gt;&gt;&gt; sp.isotopes = [&#39;152EU&#39;]</span>
+
+<span class="sd">		&gt;&gt;&gt; cb = ci.Calibration()</span>
+<span class="sd">		&gt;&gt;&gt; cb.calibrate([sp], sources=[{&#39;isotope&#39;:&#39;152EU&#39;, &#39;A0&#39;:3.5E4, &#39;ref_date&#39;:&#39;01/01/2009 12:00:00&#39;}])</span>
+<span class="sd">		&gt;&gt;&gt; cb.plot()</span>
 
 <span class="sd">		&quot;&quot;&quot;</span>
 

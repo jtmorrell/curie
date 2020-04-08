@@ -334,23 +334,43 @@ class Stack(object):
 		return df_NN[match]
 
 	def saveas(self, filename, save_fluxes=True, filter_name=True):
-		""" Description
+		"""Saves the results of the stack calculation
 
-		...
+		Saves the stack design, mean energies, and (optionally) the flux
+		profile for each foil in the stack.  Supported file types are '.csv',
+		'.db' and '.json'.
 
 		Parameters
 		----------
 		filename : str
-			Description of x
+			Name of file to save to.  Supported file types are '.csv',
+			'.db' and '.json'. If `save_fluxes=True`, an additional file
+			will be saved to 'fname_fluxes.ftype'.
 
 		save_fluxes : bool, optional
-			Description
+			If True, an additional file will be saved with the flux profile
+			for each foil in the stack.  The foil must have a 'name' keyword,
+			and can be further filtered with the `filter_name` argument.  If 
+			false, only the stack design and mean energies are saved. Defaut, True.
 
 		filter_name : bool or str, optional
-			Description
+			Applies a filter to the stack and fluxes before saving.  If True, only
+			foils with a 'name' keyword will be saved. If 'False', foils without
+			a 'name' will be saved in the stack design file, but not the fluxes
+			file.  If a str, foils with a 'name' matching a regex search with filter_name
+			are saved.  This applies to both files. Default, True.
 
 		Examples
 		--------
+		>>> stack = [{'cm':'H2O', 'ad':800.0, 'name':'water'},
+				{'cm':'RbCl', 'density':3.0, 't':0.03, 'name':'salt'},
+				{'cm':'Kapton', 't':0.025},
+				{'cm':'Brass','ad':350, 'name':'metal'}]
+
+		>>> st = ci.Stack(stack, compounds={'Brass':{'Cu':-66, 'Zn':-33}}, E0=60.0)
+		>>> st.saveas('example_stack.csv')
+		>>> st.saveas('example_stack.json', filter_name=False)
+		>>> st.saveas('example_stack.db', save_fluxes=False)
 
 		"""
 
@@ -374,26 +394,46 @@ class Stack(object):
 
 		
 	def summarize(self, filter_name=True):
-		""" Description
+		"""Summarize the stack calculation
 
-		...
+		Prints out the mean energies and 1-sigma energy widths of
+		each foil in the stack, or the filtered stack depending
+		on the behavior of `filter_name`.
 
 		Parameters
 		----------
 		filter_name : bool or str, optional
-			Description of x
+			Applies a filter to the stack.  If True, only
+			foils with a 'name' keyword will be included. If 'False', a summary
+			of all foils will be printed.  If a str, foils with a 'name' 
+			matching a regex search with filter_name are included. Default, True.
 
 		Examples
 		--------
+		>>> stack = [{'cm':'H2O', 'ad':800.0, 'name':'water'},
+				{'cm':'RbCl', 'density':3.0, 't':0.03, 'name':'salt'},
+				{'cm':'Kapton', 't':0.025},
+				{'cm':'Brass','ad':350, 'name':'metal'}]
+
+		>>> st = ci.Stack(stack, compounds={'Brass':{'Cu':-66, 'Zn':-33}}, E0=60.0)
+		>>> st.summarize()
+		water: 55.45 +/- 2.94 (MeV)
+		salt: 50.68 +/- 0.69 (MeV)
+		metal: 49.17 +/- 1.21 (MeV)
+		>>> st.summarize(filter_name=False)
+		water: 55.45 +/- 2.94 (MeV)
+		salt: 50.68 +/- 0.69 (MeV)
+		Kapton-1: 50.62 +/- 0.69 (MeV)
+		metal: 49.17 +/- 1.21 (MeV)
 
 		"""
 
 		m = {}
 		for n,sm in self._filter_samples(self.stack, filter_name).iterrows():
-			if sm['name'] is None:
+			if sm['name'] is None or str(sm['name'])=='nan':
 				if sm['compound'] not in m:
 					m[sm['compound']] = 1
-				nm = sm['compound']+'--'+str(m[sm['compound']])
+				nm = sm['compound']+'-'+str(m[sm['compound']])
 				m[sm['compound']] += 1
 
 			else:
@@ -401,15 +441,18 @@ class Stack(object):
 			print(nm+': '+str(round(sm['mu_E'], 2))+' +/- '+str(round(sm['sig_E'], 2))+' (MeV)')
 
 		
-	def plot(self, filter_name=True, **kwargs):
-		""" Description
+	def plot(self, filter_name=None, **kwargs):
+		"""Plots the fluxes for each foil in the stack calculation
 
-		...
+		Plots the flux distribution for each foil in the stack, or
+		the filtered stack depending on the behaviour of `filter_name`.
 
 		Parameters
 		----------
-		filter_name : bool or str, optional
-			Description of x
+		filter_name : str, optional
+			Applies a filter to the fluxes before plotting. If a str, 
+			foils with a 'name' matching a regex search with filter_name
+			are plotted.  Default, None.
 
 		Other Parameters
 		----------------
@@ -420,10 +463,19 @@ class Stack(object):
 
 		Examples
 		--------
+		>>> stack = [{'cm':'H2O', 'ad':800.0, 'name':'water'},
+				{'cm':'RbCl', 'density':3.0, 't':0.03, 'name':'salt'},
+				{'cm':'Kapton', 't':0.025},
+				{'cm':'Brass','ad':350, 'name':'metal'}]
+
+		>>> st = ci.Stack(stack, compounds={'Brass':{'Cu':-66, 'Zn':-33}}, E0=60.0)
+		>>> st.plot()
+		>>> st.plot(filter_name='salt')
 
 		"""
 
 		f,ax = _init_plot(**kwargs)
+		filter_name = True if filter_name is None else filter_name
 		for sm in self._flux_list:
 			if type(filter_name)==str:
 				if not re.search(filter_name, sm['name']):

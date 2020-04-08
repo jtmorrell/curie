@@ -175,28 +175,31 @@ for each foil in the stack (energies in MeV).</p>
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td><a class="reference internal" href="#curie.Stack.plot" title="curie.Stack.plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot</span></code></a>([filter_name])</td>
-<td>Description</td>
+<td>Plots the fluxes for each foil in the stack calculation</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#curie.Stack.saveas" title="curie.Stack.saveas"><code class="xref py py-obj docutils literal notranslate"><span class="pre">saveas</span></code></a>(filename[,&nbsp;save_fluxes,&nbsp;filter_name])</td>
-<td>Description</td>
+<td>Saves the results of the stack calculation</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#curie.Stack.summarize" title="curie.Stack.summarize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">summarize</span></code></a>([filter_name])</td>
-<td>Description</td>
+<td>Summarize the stack calculation</td>
 </tr>
 </tbody>
 </table>
 <dl class="method">
 <dt id="curie.Stack.plot">
-<code class="descname">plot</code><span class="sig-paren">(</span><em>filter_name=True</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/stack.html#Stack.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Stack.plot" title="Permalink to this definition">¶</a></dt>
-<dd><p>Description</p>
-<p>…</p>
+<code class="descname">plot</code><span class="sig-paren">(</span><em>filter_name=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/stack.html#Stack.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Stack.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots the fluxes for each foil in the stack calculation</p>
+<p>Plots the flux distribution for each foil in the stack, or
+the filtered stack depending on the behaviour of <cite>filter_name</cite>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>filter_name</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool or str, optional</span></dt>
-<dd><p class="first last">Description of x</p>
+<dt><strong>filter_name</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
+<dd><p class="first last">Applies a filter to the fluxes before plotting. If a str, 
+foils with a ‘name’ matching a regex search with filter_name
+are plotted.  Default, None.</p>
 </dd>
 </dl>
 </td>
@@ -213,52 +216,112 @@ list of kwargs.</p>
 </tr>
 </tbody>
 </table>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">stack</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;cm&#39;</span><span class="p">:</span><span class="s1">&#39;H2O&#39;</span><span class="p">,</span> <span class="s1">&#39;ad&#39;</span><span class="p">:</span><span class="mf">800.0</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">:</span><span class="s1">&#39;water&#39;</span><span class="p">},</span>
+<span class="go">                {&#39;cm&#39;:&#39;RbCl&#39;, &#39;density&#39;:3.0, &#39;t&#39;:0.03, &#39;name&#39;:&#39;salt&#39;},</span>
+<span class="go">                {&#39;cm&#39;:&#39;Kapton&#39;, &#39;t&#39;:0.025},</span>
+<span class="go">                {&#39;cm&#39;:&#39;Brass&#39;,&#39;ad&#39;:350, &#39;name&#39;:&#39;metal&#39;}]</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">st</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Stack</span><span class="p">(</span><span class="n">stack</span><span class="p">,</span> <span class="n">compounds</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;Brass&#39;</span><span class="p">:{</span><span class="s1">&#39;Cu&#39;</span><span class="p">:</span><span class="o">-</span><span class="mi">66</span><span class="p">,</span> <span class="s1">&#39;Zn&#39;</span><span class="p">:</span><span class="o">-</span><span class="mi">33</span><span class="p">}},</span> <span class="n">E0</span><span class="o">=</span><span class="mf">60.0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">st</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">st</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">filter_name</span><span class="o">=</span><span class="s1">&#39;salt&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="method">
 <dt id="curie.Stack.saveas">
 <code class="descname">saveas</code><span class="sig-paren">(</span><em>filename</em>, <em>save_fluxes=True</em>, <em>filter_name=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/stack.html#Stack.saveas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Stack.saveas" title="Permalink to this definition">¶</a></dt>
-<dd><p>Description</p>
-<p>…</p>
+<dd><p>Saves the results of the stack calculation</p>
+<p>Saves the stack design, mean energies, and (optionally) the flux
+profile for each foil in the stack.  Supported file types are ‘.csv’,
+‘.db’ and ‘.json’.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
 <dt><strong>filename</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
-<dd><p class="first last">Description of x</p>
+<dd><p class="first last">Name of file to save to.  Supported file types are ‘.csv’,
+‘.db’ and ‘.json’. If <cite>save_fluxes=True</cite>, an additional file
+will be saved to ‘fname_fluxes.ftype’.</p>
 </dd>
 <dt><strong>save_fluxes</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
-<dd><p class="first last">Description</p>
+<dd><p class="first last">If True, an additional file will be saved with the flux profile
+for each foil in the stack.  The foil must have a ‘name’ keyword,
+and can be further filtered with the <cite>filter_name</cite> argument.  If 
+false, only the stack design and mean energies are saved. Defaut, True.</p>
 </dd>
 <dt><strong>filter_name</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool or str, optional</span></dt>
-<dd><p class="first last">Description</p>
+<dd><p class="first last">Applies a filter to the stack and fluxes before saving.  If True, only
+foils with a ‘name’ keyword will be saved. If ‘False’, foils without
+a ‘name’ will be saved in the stack design file, but not the fluxes
+file.  If a str, foils with a ‘name’ matching a regex search with filter_name
+are saved.  This applies to both files. Default, True.</p>
 </dd>
 </dl>
 </td>
 </tr>
 </tbody>
 </table>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">stack</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;cm&#39;</span><span class="p">:</span><span class="s1">&#39;H2O&#39;</span><span class="p">,</span> <span class="s1">&#39;ad&#39;</span><span class="p">:</span><span class="mf">800.0</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">:</span><span class="s1">&#39;water&#39;</span><span class="p">},</span>
+<span class="go">                {&#39;cm&#39;:&#39;RbCl&#39;, &#39;density&#39;:3.0, &#39;t&#39;:0.03, &#39;name&#39;:&#39;salt&#39;},</span>
+<span class="go">                {&#39;cm&#39;:&#39;Kapton&#39;, &#39;t&#39;:0.025},</span>
+<span class="go">                {&#39;cm&#39;:&#39;Brass&#39;,&#39;ad&#39;:350, &#39;name&#39;:&#39;metal&#39;}]</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">st</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Stack</span><span class="p">(</span><span class="n">stack</span><span class="p">,</span> <span class="n">compounds</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;Brass&#39;</span><span class="p">:{</span><span class="s1">&#39;Cu&#39;</span><span class="p">:</span><span class="o">-</span><span class="mi">66</span><span class="p">,</span> <span class="s1">&#39;Zn&#39;</span><span class="p">:</span><span class="o">-</span><span class="mi">33</span><span class="p">}},</span> <span class="n">E0</span><span class="o">=</span><span class="mf">60.0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">st</span><span class="o">.</span><span class="n">saveas</span><span class="p">(</span><span class="s1">&#39;example_stack.csv&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">st</span><span class="o">.</span><span class="n">saveas</span><span class="p">(</span><span class="s1">&#39;example_stack.json&#39;</span><span class="p">,</span> <span class="n">filter_name</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">st</span><span class="o">.</span><span class="n">saveas</span><span class="p">(</span><span class="s1">&#39;example_stack.db&#39;</span><span class="p">,</span> <span class="n">save_fluxes</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="method">
 <dt id="curie.Stack.summarize">
 <code class="descname">summarize</code><span class="sig-paren">(</span><em>filter_name=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/stack.html#Stack.summarize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Stack.summarize" title="Permalink to this definition">¶</a></dt>
-<dd><p>Description</p>
-<p>…</p>
+<dd><p>Summarize the stack calculation</p>
+<p>Prints out the mean energies and 1-sigma energy widths of
+each foil in the stack, or the filtered stack depending
+on the behavior of <cite>filter_name</cite>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
 <dt><strong>filter_name</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool or str, optional</span></dt>
-<dd><p class="first last">Description of x</p>
+<dd><p class="first last">Applies a filter to the stack.  If True, only
+foils with a ‘name’ keyword will be included. If ‘False’, a summary
+of all foils will be printed.  If a str, foils with a ‘name’ 
+matching a regex search with filter_name are included. Default, True.</p>
 </dd>
 </dl>
 </td>
 </tr>
 </tbody>
 </table>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">stack</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;cm&#39;</span><span class="p">:</span><span class="s1">&#39;H2O&#39;</span><span class="p">,</span> <span class="s1">&#39;ad&#39;</span><span class="p">:</span><span class="mf">800.0</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">:</span><span class="s1">&#39;water&#39;</span><span class="p">},</span>
+<span class="go">                {&#39;cm&#39;:&#39;RbCl&#39;, &#39;density&#39;:3.0, &#39;t&#39;:0.03, &#39;name&#39;:&#39;salt&#39;},</span>
+<span class="go">                {&#39;cm&#39;:&#39;Kapton&#39;, &#39;t&#39;:0.025},</span>
+<span class="go">                {&#39;cm&#39;:&#39;Brass&#39;,&#39;ad&#39;:350, &#39;name&#39;:&#39;metal&#39;}]</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">st</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Stack</span><span class="p">(</span><span class="n">stack</span><span class="p">,</span> <span class="n">compounds</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;Brass&#39;</span><span class="p">:{</span><span class="s1">&#39;Cu&#39;</span><span class="p">:</span><span class="o">-</span><span class="mi">66</span><span class="p">,</span> <span class="s1">&#39;Zn&#39;</span><span class="p">:</span><span class="o">-</span><span class="mi">33</span><span class="p">}},</span> <span class="n">E0</span><span class="o">=</span><span class="mf">60.0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">st</span><span class="o">.</span><span class="n">summarize</span><span class="p">()</span>
+<span class="go">water: 55.45 +/- 2.94 (MeV)</span>
+<span class="go">salt: 50.68 +/- 0.69 (MeV)</span>
+<span class="go">metal: 49.17 +/- 1.21 (MeV)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">st</span><span class="o">.</span><span class="n">summarize</span><span class="p">(</span><span class="n">filter_name</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="go">water: 55.45 +/- 2.94 (MeV)</span>
+<span class="go">salt: 50.68 +/- 0.69 (MeV)</span>
+<span class="go">Kapton-1: 50.62 +/- 0.69 (MeV)</span>
+<span class="go">metal: 49.17 +/- 1.21 (MeV)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 </dd></dl>

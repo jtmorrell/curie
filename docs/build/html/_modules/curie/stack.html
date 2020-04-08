@@ -372,23 +372,43 @@
 		<span class="k">return</span> <span class="n">df_NN</span><span class="p">[</span><span class="n">match</span><span class="p">]</span>
 
 <div class="viewcode-block" id="Stack.saveas"><a class="viewcode-back" href="../../api/stack.html#curie.Stack.saveas">[docs]</a>	<span class="k">def</span> <span class="nf">saveas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">save_fluxes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">filter_name</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot; Description</span>
+		<span class="sd">&quot;&quot;&quot;Saves the results of the stack calculation</span>
 
-<span class="sd">		...</span>
+<span class="sd">		Saves the stack design, mean energies, and (optionally) the flux</span>
+<span class="sd">		profile for each foil in the stack.  Supported file types are &#39;.csv&#39;,</span>
+<span class="sd">		&#39;.db&#39; and &#39;.json&#39;.</span>
 
 <span class="sd">		Parameters</span>
 <span class="sd">		----------</span>
 <span class="sd">		filename : str</span>
-<span class="sd">			Description of x</span>
+<span class="sd">			Name of file to save to.  Supported file types are &#39;.csv&#39;,</span>
+<span class="sd">			&#39;.db&#39; and &#39;.json&#39;. If `save_fluxes=True`, an additional file</span>
+<span class="sd">			will be saved to &#39;fname_fluxes.ftype&#39;.</span>
 
 <span class="sd">		save_fluxes : bool, optional</span>
-<span class="sd">			Description</span>
+<span class="sd">			If True, an additional file will be saved with the flux profile</span>
+<span class="sd">			for each foil in the stack.  The foil must have a &#39;name&#39; keyword,</span>
+<span class="sd">			and can be further filtered with the `filter_name` argument.  If </span>
+<span class="sd">			false, only the stack design and mean energies are saved. Defaut, True.</span>
 
 <span class="sd">		filter_name : bool or str, optional</span>
-<span class="sd">			Description</span>
+<span class="sd">			Applies a filter to the stack and fluxes before saving.  If True, only</span>
+<span class="sd">			foils with a &#39;name&#39; keyword will be saved. If &#39;False&#39;, foils without</span>
+<span class="sd">			a &#39;name&#39; will be saved in the stack design file, but not the fluxes</span>
+<span class="sd">			file.  If a str, foils with a &#39;name&#39; matching a regex search with filter_name</span>
+<span class="sd">			are saved.  This applies to both files. Default, True.</span>
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>
+<span class="sd">		&gt;&gt;&gt; stack = [{&#39;cm&#39;:&#39;H2O&#39;, &#39;ad&#39;:800.0, &#39;name&#39;:&#39;water&#39;},</span>
+<span class="sd">				{&#39;cm&#39;:&#39;RbCl&#39;, &#39;density&#39;:3.0, &#39;t&#39;:0.03, &#39;name&#39;:&#39;salt&#39;},</span>
+<span class="sd">				{&#39;cm&#39;:&#39;Kapton&#39;, &#39;t&#39;:0.025},</span>
+<span class="sd">				{&#39;cm&#39;:&#39;Brass&#39;,&#39;ad&#39;:350, &#39;name&#39;:&#39;metal&#39;}]</span>
+
+<span class="sd">		&gt;&gt;&gt; st = ci.Stack(stack, compounds={&#39;Brass&#39;:{&#39;Cu&#39;:-66, &#39;Zn&#39;:-33}}, E0=60.0)</span>
+<span class="sd">		&gt;&gt;&gt; st.saveas(&#39;example_stack.csv&#39;)</span>
+<span class="sd">		&gt;&gt;&gt; st.saveas(&#39;example_stack.json&#39;, filter_name=False)</span>
+<span class="sd">		&gt;&gt;&gt; st.saveas(&#39;example_stack.db&#39;, save_fluxes=False)</span>
 
 <span class="sd">		&quot;&quot;&quot;</span>
 
@@ -412,26 +432,46 @@
 
 		
 <div class="viewcode-block" id="Stack.summarize"><a class="viewcode-back" href="../../api/stack.html#curie.Stack.summarize">[docs]</a>	<span class="k">def</span> <span class="nf">summarize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filter_name</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot; Description</span>
+		<span class="sd">&quot;&quot;&quot;Summarize the stack calculation</span>
 
-<span class="sd">		...</span>
+<span class="sd">		Prints out the mean energies and 1-sigma energy widths of</span>
+<span class="sd">		each foil in the stack, or the filtered stack depending</span>
+<span class="sd">		on the behavior of `filter_name`.</span>
 
 <span class="sd">		Parameters</span>
 <span class="sd">		----------</span>
 <span class="sd">		filter_name : bool or str, optional</span>
-<span class="sd">			Description of x</span>
+<span class="sd">			Applies a filter to the stack.  If True, only</span>
+<span class="sd">			foils with a &#39;name&#39; keyword will be included. If &#39;False&#39;, a summary</span>
+<span class="sd">			of all foils will be printed.  If a str, foils with a &#39;name&#39; </span>
+<span class="sd">			matching a regex search with filter_name are included. Default, True.</span>
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>
+<span class="sd">		&gt;&gt;&gt; stack = [{&#39;cm&#39;:&#39;H2O&#39;, &#39;ad&#39;:800.0, &#39;name&#39;:&#39;water&#39;},</span>
+<span class="sd">				{&#39;cm&#39;:&#39;RbCl&#39;, &#39;density&#39;:3.0, &#39;t&#39;:0.03, &#39;name&#39;:&#39;salt&#39;},</span>
+<span class="sd">				{&#39;cm&#39;:&#39;Kapton&#39;, &#39;t&#39;:0.025},</span>
+<span class="sd">				{&#39;cm&#39;:&#39;Brass&#39;,&#39;ad&#39;:350, &#39;name&#39;:&#39;metal&#39;}]</span>
+
+<span class="sd">		&gt;&gt;&gt; st = ci.Stack(stack, compounds={&#39;Brass&#39;:{&#39;Cu&#39;:-66, &#39;Zn&#39;:-33}}, E0=60.0)</span>
+<span class="sd">		&gt;&gt;&gt; st.summarize()</span>
+<span class="sd">		water: 55.45 +/- 2.94 (MeV)</span>
+<span class="sd">		salt: 50.68 +/- 0.69 (MeV)</span>
+<span class="sd">		metal: 49.17 +/- 1.21 (MeV)</span>
+<span class="sd">		&gt;&gt;&gt; st.summarize(filter_name=False)</span>
+<span class="sd">		water: 55.45 +/- 2.94 (MeV)</span>
+<span class="sd">		salt: 50.68 +/- 0.69 (MeV)</span>
+<span class="sd">		Kapton-1: 50.62 +/- 0.69 (MeV)</span>
+<span class="sd">		metal: 49.17 +/- 1.21 (MeV)</span>
 
 <span class="sd">		&quot;&quot;&quot;</span>
 
 		<span class="n">m</span> <span class="o">=</span> <span class="p">{}</span>
 		<span class="k">for</span> <span class="n">n</span><span class="p">,</span><span class="n">sm</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filter_samples</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stack</span><span class="p">,</span> <span class="n">filter_name</span><span class="p">)</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
-			<span class="k">if</span> <span class="n">sm</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="k">if</span> <span class="n">sm</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">str</span><span class="p">(</span><span class="n">sm</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">])</span><span class="o">==</span><span class="s1">&#39;nan&#39;</span><span class="p">:</span>
 				<span class="k">if</span> <span class="n">sm</span><span class="p">[</span><span class="s1">&#39;compound&#39;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">m</span><span class="p">:</span>
 					<span class="n">m</span><span class="p">[</span><span class="n">sm</span><span class="p">[</span><span class="s1">&#39;compound&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">1</span>
-				<span class="n">nm</span> <span class="o">=</span> <span class="n">sm</span><span class="p">[</span><span class="s1">&#39;compound&#39;</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;--&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="n">sm</span><span class="p">[</span><span class="s1">&#39;compound&#39;</span><span class="p">]])</span>
+				<span class="n">nm</span> <span class="o">=</span> <span class="n">sm</span><span class="p">[</span><span class="s1">&#39;compound&#39;</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;-&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="n">sm</span><span class="p">[</span><span class="s1">&#39;compound&#39;</span><span class="p">]])</span>
 				<span class="n">m</span><span class="p">[</span><span class="n">sm</span><span class="p">[</span><span class="s1">&#39;compound&#39;</span><span class="p">]]</span> <span class="o">+=</span> <span class="mi">1</span>
 
 			<span class="k">else</span><span class="p">:</span>
@@ -439,15 +479,18 @@
 			<span class="nb">print</span><span class="p">(</span><span class="n">nm</span><span class="o">+</span><span class="s1">&#39;: &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">sm</span><span class="p">[</span><span class="s1">&#39;mu_E&#39;</span><span class="p">],</span> <span class="mi">2</span><span class="p">))</span><span class="o">+</span><span class="s1">&#39; +/- &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">sm</span><span class="p">[</span><span class="s1">&#39;sig_E&#39;</span><span class="p">],</span> <span class="mi">2</span><span class="p">))</span><span class="o">+</span><span class="s1">&#39; (MeV)&#39;</span><span class="p">)</span></div>
 
 		
-<div class="viewcode-block" id="Stack.plot"><a class="viewcode-back" href="../../api/stack.html#curie.Stack.plot">[docs]</a>	<span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filter_name</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot; Description</span>
+<div class="viewcode-block" id="Stack.plot"><a class="viewcode-back" href="../../api/stack.html#curie.Stack.plot">[docs]</a>	<span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filter_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Plots the fluxes for each foil in the stack calculation</span>
 
-<span class="sd">		...</span>
+<span class="sd">		Plots the flux distribution for each foil in the stack, or</span>
+<span class="sd">		the filtered stack depending on the behaviour of `filter_name`.</span>
 
 <span class="sd">		Parameters</span>
 <span class="sd">		----------</span>
-<span class="sd">		filter_name : bool or str, optional</span>
-<span class="sd">			Description of x</span>
+<span class="sd">		filter_name : str, optional</span>
+<span class="sd">			Applies a filter to the fluxes before plotting. If a str, </span>
+<span class="sd">			foils with a &#39;name&#39; matching a regex search with filter_name</span>
+<span class="sd">			are plotted.  Default, None.</span>
 
 <span class="sd">		Other Parameters</span>
 <span class="sd">		----------------</span>
@@ -458,10 +501,19 @@
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>
+<span class="sd">		&gt;&gt;&gt; stack = [{&#39;cm&#39;:&#39;H2O&#39;, &#39;ad&#39;:800.0, &#39;name&#39;:&#39;water&#39;},</span>
+<span class="sd">				{&#39;cm&#39;:&#39;RbCl&#39;, &#39;density&#39;:3.0, &#39;t&#39;:0.03, &#39;name&#39;:&#39;salt&#39;},</span>
+<span class="sd">				{&#39;cm&#39;:&#39;Kapton&#39;, &#39;t&#39;:0.025},</span>
+<span class="sd">				{&#39;cm&#39;:&#39;Brass&#39;,&#39;ad&#39;:350, &#39;name&#39;:&#39;metal&#39;}]</span>
+
+<span class="sd">		&gt;&gt;&gt; st = ci.Stack(stack, compounds={&#39;Brass&#39;:{&#39;Cu&#39;:-66, &#39;Zn&#39;:-33}}, E0=60.0)</span>
+<span class="sd">		&gt;&gt;&gt; st.plot()</span>
+<span class="sd">		&gt;&gt;&gt; st.plot(filter_name=&#39;salt&#39;)</span>
 
 <span class="sd">		&quot;&quot;&quot;</span>
 
 		<span class="n">f</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">_init_plot</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+		<span class="n">filter_name</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">filter_name</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">filter_name</span>
 		<span class="k">for</span> <span class="n">sm</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flux_list</span><span class="p">:</span>
 			<span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">filter_name</span><span class="p">)</span><span class="o">==</span><span class="nb">str</span><span class="p">:</span>
 				<span class="k">if</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">filter_name</span><span class="p">,</span> <span class="n">sm</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]):</span>

@@ -138,22 +138,28 @@ class Reaction(object):
 		return self.name
 		
 	def interpolate(self, energy):
-		""" Description
+		"""Interpolated cross section
 
-		...
+		Linear interpolation of the reaction cross section along the
+		input energy grid.
 
 		Parameters
 		----------
 		energy : array_like
-			Description of x
+			Incident particle energy, in MeV.
 
 		Returns
 		-------
 		cross_section : np.ndarray
-			Description
+			Interpolated cross section, in mb.
 
 		Examples
 		--------
+		>>> rx = ci.Reaction('115IN(n,g)', 'IRDFF')
+		>>> print(rx.interpolate(0.5))
+		161.41656650941306
+		>>> print(rx.interpolate([0.5, 1.0, 5.0]))
+		[161.41646651 171.81486757 8.8822]
 
 		""" 
 
@@ -162,22 +168,28 @@ class Reaction(object):
 		return self._interp(energy)
 
 	def interpolate_unc(self, energy):
-		""" Description
+		"""Uncertainty in interpolated cross section
 
-		...
+		Linear interpolation of the uncertainty in the reaction cross section
+		along the input energy grid, for libraries where uncertainties are provided.
 
 		Parameters
 		----------
 		energy : array_like
-			Description of x
+			Incident particle energy, in MeV.
 
 		Returns
 		-------
 		unc_cross_section : np.ndarray
-			Description
+			Uncertainty in the interpolated cross section, in mb.
 
 		Examples
 		--------
+		>>> rx = ci.Reaction('115IN(n,g)', 'IRDFF')
+		>>> print(rx.interpolate_unc(0.5))
+		3.9542683715745546
+		>>> print(rx.interpolate_unc([0.5, 1.0, 5.0]))
+		[3.95426837 5.88023936 0.4654]
 
 		""" 
 
@@ -186,28 +198,37 @@ class Reaction(object):
 		return self._interp_unc(energy)
 		
 	def integrate(self, energy, flux, unc=False):
-		""" Description
+		"""Reaction flux integral
 
-		...
+		Integrate the product of the cross section and flux along the input energy grid.
 
 		Parameters
 		----------
 		energy : array_like
-			Description of x
+			Incident particle energy, in MeV.
 
 		flux : array_like
-			Description of x
+			Incident particle flux as a function of the input energy grid.
 
 		unc : bool, optional
-			Description of x
+			If `True`, returns the both the flux integral and the uncertainty. If `False`,
+			just the flux integral is returned. Default `False`.
 
 		Returns
 		-------
-		xs_integral : np.ndarray
-			Description
+		xs_integral : float or tuple
+			Reaction flux integral if `unc=False` (default), or reaction flux integral
+			and uncertainty, if `unc=True`.
 
 		Examples
 		--------
+		>>> x = ci.Reaction('Ni-58(n,p)')
+		>>> eng = np.linspace(1, 5, 20)
+		>>> phi = np.ones(20)
+		>>> print(rx.integrate(eng, phi))
+		833.4435915974148
+		>>> print(rx.integrate(eng, phi, unc=True))
+		(833.4435915974148, 19.91851943674977)
 
 		"""
 
@@ -219,28 +240,38 @@ class Reaction(object):
 		return np.sum(0.5*(E[1:]-E[:-1])*(phisig[:-1]+phisig[1:]))
 		
 	def average(self, energy, flux, unc=False):
-		""" Description
+		"""Flux averaged reaction cross section
 
-		...
+		Calculates the flux-weighted average reaction cross section, using the
+		input flux and energy grid.
 
 		Parameters
 		----------
 		energy : array_like
-			Description of x
+			Incident particle energy, in MeV.
 
 		flux : array_like
-			Description of x
+			Incident particle flux as a function of the input energy grid.
 
 		unc : bool, optional
-			Description of x
+			If `True`, returns the both the flux average cross section and the uncertainty. If `False`,
+			just the average cross section is returned. Default `False`.
 
 		Returns
 		-------
-		average_xs : np.ndarray
-			Description
+		average_xs : float or tuple
+			Flux-averaged reaction cross section if `unc=False` (default), or average
+			and uncertainty, if `unc=True`.
 
 		Examples
 		--------
+		>>> rx = ci.Reaction('Ni-58(n,p)')
+		>>> eng = np.linspace(1, 5, 20)
+		>>> phi = np.ones(20)
+		>>> print(rx.average(eng, phi))
+		208.3608978993537
+		>>> print(rx.average(eng, phi, unc=True))
+		(208.3608978993537, 4.979629859187442)
 
 		"""
 
@@ -253,20 +284,24 @@ class Reaction(object):
 		return np.sum(0.5*dE*(phisig[:-1]+phisig[1:]))/np.sum(0.5*dE*(phi[:-1]+phi[1:]))
 		
 	def plot(self, energy=None, label='reaction', title=False, **kwargs):
-		""" Description
+		"""Plot the cross section
 
-		...
+		Plots the energy differential cross section.
 
 		Parameters
 		----------
 		energy : array_like, optional
-			Description 
+			Energy grid along which to plot the cross section.  If None, the
+			energy grid provided by the library will be used. 
 
 		label : str, optional
-			Description of x
+			Axes label.  If label='reaction', the label will be the reaction name.
+			If 'library', it will be the name of the cross section library.
+			If 'both', then the reaction name and library will be given.  If
+			none of these options, pyplot will be called with `ax.plot(..., label=label)`.
 
 		title : bool, optional
-			Description
+			Display the reaction name as the plot title.  Default, False.
 
 		Other Parameters
 		----------------
@@ -277,6 +312,12 @@ class Reaction(object):
 
 		Examples
 		--------
+		>>> rx = ci.Reaction('115IN(n,g)')
+		>>> rx.plot(scale='loglog')
+		>>> rx = ci.Reaction('35CL(n,p)')
+		>>> f, ax = rx.plot(return_plot=True)
+		>>> rx = ci.Reaction('35CL(n,el)')
+		>>> rx.plot(f=f, ax=ax, scale='loglog')
 
 		"""
 

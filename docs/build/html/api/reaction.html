@@ -126,160 +126,207 @@ name of the library.</p>
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td><a class="reference internal" href="#curie.Reaction.average" title="curie.Reaction.average"><code class="xref py py-obj docutils literal notranslate"><span class="pre">average</span></code></a>(energy,&nbsp;flux[,&nbsp;unc])</td>
-<td>Description</td>
+<td>Flux averaged reaction cross section</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#curie.Reaction.integrate" title="curie.Reaction.integrate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">integrate</span></code></a>(energy,&nbsp;flux[,&nbsp;unc])</td>
-<td>Description</td>
+<td>Reaction flux integral</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#curie.Reaction.interpolate" title="curie.Reaction.interpolate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">interpolate</span></code></a>(energy)</td>
-<td>Description</td>
+<td>Interpolated cross section</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#curie.Reaction.interpolate_unc" title="curie.Reaction.interpolate_unc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">interpolate_unc</span></code></a>(energy)</td>
-<td>Description</td>
+<td>Uncertainty in interpolated cross section</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#curie.Reaction.plot" title="curie.Reaction.plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot</span></code></a>([energy,&nbsp;label,&nbsp;title])</td>
-<td>Description</td>
+<td>Plot the cross section</td>
 </tr>
 </tbody>
 </table>
 <dl class="method">
 <dt id="curie.Reaction.average">
 <code class="descname">average</code><span class="sig-paren">(</span><em>energy</em>, <em>flux</em>, <em>unc=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/reaction.html#Reaction.average"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Reaction.average" title="Permalink to this definition">¶</a></dt>
-<dd><p>Description</p>
-<p>…</p>
+<dd><p>Flux averaged reaction cross section</p>
+<p>Calculates the flux-weighted average reaction cross section, using the
+input flux and energy grid.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
 <dt><strong>energy</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
-<dd><p class="first last">Description of x</p>
+<dd><p class="first last">Incident particle energy, in MeV.</p>
 </dd>
 <dt><strong>flux</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
-<dd><p class="first last">Description of x</p>
+<dd><p class="first last">Incident particle flux as a function of the input energy grid.</p>
 </dd>
 <dt><strong>unc</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
-<dd><p class="first last">Description of x</p>
+<dd><p class="first last">If <cite>True</cite>, returns the both the flux average cross section and the uncertainty. If <cite>False</cite>,
+just the average cross section is returned. Default <cite>False</cite>.</p>
 </dd>
 </dl>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>average_xs</strong> <span class="classifier-delimiter">:</span> <span class="classifier">np.ndarray</span></dt>
-<dd><p class="first last">Description</p>
+<dt><strong>average_xs</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float or tuple</span></dt>
+<dd><p class="first last">Flux-averaged reaction cross section if <cite>unc=False</cite> (default), or average
+and uncertainty, if <cite>unc=True</cite>.</p>
 </dd>
 </dl>
 </td>
 </tr>
 </tbody>
 </table>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rx</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Reaction</span><span class="p">(</span><span class="s1">&#39;Ni-58(n,p)&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">eng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">phi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">rx</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">eng</span><span class="p">,</span> <span class="n">phi</span><span class="p">))</span>
+<span class="go">208.3608978993537</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">rx</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">eng</span><span class="p">,</span> <span class="n">phi</span><span class="p">,</span> <span class="n">unc</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+<span class="go">(208.3608978993537, 4.979629859187442)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="method">
 <dt id="curie.Reaction.integrate">
 <code class="descname">integrate</code><span class="sig-paren">(</span><em>energy</em>, <em>flux</em>, <em>unc=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/reaction.html#Reaction.integrate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Reaction.integrate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Description</p>
-<p>…</p>
+<dd><p>Reaction flux integral</p>
+<p>Integrate the product of the cross section and flux along the input energy grid.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
 <dt><strong>energy</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
-<dd><p class="first last">Description of x</p>
+<dd><p class="first last">Incident particle energy, in MeV.</p>
 </dd>
 <dt><strong>flux</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
-<dd><p class="first last">Description of x</p>
+<dd><p class="first last">Incident particle flux as a function of the input energy grid.</p>
 </dd>
 <dt><strong>unc</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
-<dd><p class="first last">Description of x</p>
+<dd><p class="first last">If <cite>True</cite>, returns the both the flux integral and the uncertainty. If <cite>False</cite>,
+just the flux integral is returned. Default <cite>False</cite>.</p>
 </dd>
 </dl>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>xs_integral</strong> <span class="classifier-delimiter">:</span> <span class="classifier">np.ndarray</span></dt>
-<dd><p class="first last">Description</p>
+<dt><strong>xs_integral</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float or tuple</span></dt>
+<dd><p class="first last">Reaction flux integral if <cite>unc=False</cite> (default), or reaction flux integral
+and uncertainty, if <cite>unc=True</cite>.</p>
 </dd>
 </dl>
 </td>
 </tr>
 </tbody>
 </table>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Reaction</span><span class="p">(</span><span class="s1">&#39;Ni-58(n,p)&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">eng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">phi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">rx</span><span class="o">.</span><span class="n">integrate</span><span class="p">(</span><span class="n">eng</span><span class="p">,</span> <span class="n">phi</span><span class="p">))</span>
+<span class="go">833.4435915974148</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">rx</span><span class="o">.</span><span class="n">integrate</span><span class="p">(</span><span class="n">eng</span><span class="p">,</span> <span class="n">phi</span><span class="p">,</span> <span class="n">unc</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+<span class="go">(833.4435915974148, 19.91851943674977)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="method">
 <dt id="curie.Reaction.interpolate">
 <code class="descname">interpolate</code><span class="sig-paren">(</span><em>energy</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/reaction.html#Reaction.interpolate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Reaction.interpolate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Description</p>
-<p>…</p>
+<dd><p>Interpolated cross section</p>
+<p>Linear interpolation of the reaction cross section along the
+input energy grid.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
 <dt><strong>energy</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
-<dd><p class="first last">Description of x</p>
+<dd><p class="first last">Incident particle energy, in MeV.</p>
 </dd>
 </dl>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
 <dt><strong>cross_section</strong> <span class="classifier-delimiter">:</span> <span class="classifier">np.ndarray</span></dt>
-<dd><p class="first last">Description</p>
+<dd><p class="first last">Interpolated cross section, in mb.</p>
 </dd>
 </dl>
 </td>
 </tr>
 </tbody>
 </table>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rx</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Reaction</span><span class="p">(</span><span class="s1">&#39;115IN(n,g)&#39;</span><span class="p">,</span> <span class="s1">&#39;IRDFF&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">rx</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="mf">0.5</span><span class="p">))</span>
+<span class="go">161.41656650941306</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">rx</span><span class="o">.</span><span class="n">interpolate</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">]))</span>
+<span class="go">[161.41646651 171.81486757 8.8822]</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="method">
 <dt id="curie.Reaction.interpolate_unc">
 <code class="descname">interpolate_unc</code><span class="sig-paren">(</span><em>energy</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/reaction.html#Reaction.interpolate_unc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Reaction.interpolate_unc" title="Permalink to this definition">¶</a></dt>
-<dd><p>Description</p>
-<p>…</p>
+<dd><p>Uncertainty in interpolated cross section</p>
+<p>Linear interpolation of the uncertainty in the reaction cross section
+along the input energy grid, for libraries where uncertainties are provided.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
 <dt><strong>energy</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
-<dd><p class="first last">Description of x</p>
+<dd><p class="first last">Incident particle energy, in MeV.</p>
 </dd>
 </dl>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
 <dt><strong>unc_cross_section</strong> <span class="classifier-delimiter">:</span> <span class="classifier">np.ndarray</span></dt>
-<dd><p class="first last">Description</p>
+<dd><p class="first last">Uncertainty in the interpolated cross section, in mb.</p>
 </dd>
 </dl>
 </td>
 </tr>
 </tbody>
 </table>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rx</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Reaction</span><span class="p">(</span><span class="s1">&#39;115IN(n,g)&#39;</span><span class="p">,</span> <span class="s1">&#39;IRDFF&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">rx</span><span class="o">.</span><span class="n">interpolate_unc</span><span class="p">(</span><span class="mf">0.5</span><span class="p">))</span>
+<span class="go">3.9542683715745546</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">rx</span><span class="o">.</span><span class="n">interpolate_unc</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">]))</span>
+<span class="go">[3.95426837 5.88023936 0.4654]</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="method">
 <dt id="curie.Reaction.plot">
 <code class="descname">plot</code><span class="sig-paren">(</span><em>energy=None</em>, <em>label='reaction'</em>, <em>title=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/reaction.html#Reaction.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Reaction.plot" title="Permalink to this definition">¶</a></dt>
-<dd><p>Description</p>
-<p>…</p>
+<dd><p>Plot the cross section</p>
+<p>Plots the energy differential cross section.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
 <dt><strong>energy</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like, optional</span></dt>
-<dd><p class="first last">Description</p>
+<dd><p class="first last">Energy grid along which to plot the cross section.  If None, the
+energy grid provided by the library will be used.</p>
 </dd>
 <dt><strong>label</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
-<dd><p class="first last">Description of x</p>
+<dd><p class="first last">Axes label.  If label=’reaction’, the label will be the reaction name.
+If ‘library’, it will be the name of the cross section library.
+If ‘both’, then the reaction name and library will be given.  If
+none of these options, pyplot will be called with <cite>ax.plot(…, label=label)</cite>.</p>
 </dd>
 <dt><strong>title</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
-<dd><p class="first last">Description</p>
+<dd><p class="first last">Display the reaction name as the plot title.  Default, False.</p>
 </dd>
 </dl>
 </td>
@@ -296,6 +343,15 @@ list of kwargs.</p>
 </tr>
 </tbody>
 </table>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rx</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Reaction</span><span class="p">(</span><span class="s1">&#39;115IN(n,g)&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rx</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="s1">&#39;loglog&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rx</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Reaction</span><span class="p">(</span><span class="s1">&#39;35CL(n,p)&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">f</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">rx</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">return_plot</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rx</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Reaction</span><span class="p">(</span><span class="s1">&#39;35CL(n,el)&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rx</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">f</span><span class="o">=</span><span class="n">f</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="s1">&#39;loglog&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 </dd></dl>
