@@ -101,8 +101,8 @@ class Spectrum(object):
 
 		self._fit_config = {'snip_adj':1.0, 'R':0.1, 'alpha':0.9,
 							'step':0.00, 'bg':'snip', 'skew_fit':False,
-							'step_fit':False, 'SNR_min':4.0, 'A_max':10.0,
-							'mu_max':1.5, 'sig_max':1.5, 'xrays':False,
+							'step_fit':False, 'SNR_min':4.0, 'A_bound':1.0,
+							'mu_bound':1.0, 'sig_bound':1.0, 'xrays':False,
 							'pk_width':7.5, 'E_min':75.0, 'I_min':0.05,
 							'dE_511':3.5, 'multi_max':8}
 		if 'fit_config' in kwargs:
@@ -293,26 +293,55 @@ class Spectrum(object):
 	def attenuation_correction(self, compounds, x=None, ad=None): # first compound is 'self'
 		"""Efficiency correction for sample attenuation
 
-		...
+		Corrects the efficiency used in calculating observed decays from each peak for
+		sample attenuation.  A list of compounds (and their areal densities) is given,
+		and a correction factor as a function of energy is determined using the
+		photon attenuation data from XCOM.  The first compound in the list is assumed
+		to be the radiogenic sample (the "self"), and the other compounds are presumed
+		between the detector and sample.  If it is desired to neglect self-attenuation,
+		specify the thickness of the first compound to be zero.  Either thickness in units
+		of centimeters must be given for each compound, or the areal density in
+		units of g/cm^2.  Note that calling `sp.attenuation_correction()` will modify
+		the efficiencies/decays in the peak fits, but it also returns the correction
+		factor function used to do so.
 
 		Parameters
 		----------
 		compounds : list of str or ci.Compound
-			Description of x
+			List of compounds to correct for.  The first compound is assumed to be
+			the radiogenic sample ("self"), the following compounds are assumed to
+			be between the source and detector.  If str, the compounds must be either
+			a natural element, or be included in `ci.COMPOUND_LIST`.  They can also
+			be a ci.Compound object.
 
 		x : list of float
-			Description
+			List of the thicknesses (in cm) of each compound to be corrected for.
+			len(x) must be the same as len(compounds).
+			If a density other than the density of the corresponding compound is
+			desired, use the `ad` keyword.  Only one of `x` or `ad` should be given,
+			but at least one is required.
 
 		ad : list of float
-			Description
+			List of the areal densities (in g/cm^2) of each compound to be corrected
+			for.  len(ad) must be the same as len(compounds).  Only one of `x` or `ad`
+			should be given, but at least one is required.
 
 		Returns
 		-------
 		correction_factor : scipy.interpolate.interp1d
-			Description
+			Interpolation function that gives the correction factor
+			as a function of energy, in keV.  Correction factor should
+			be multiplied with the efficiency.  
 
 		Examples
 		--------
+		sp = ci.Spectrum('eu_calib_7cm.Spe')
+		>>> print(sp.attenuation_correction(['Fe', ci.Compound('H2O', density=1.0)], x=[0.1, 0.5])(100*np.arange(1, 10)))
+		[0.79614452 0.88215107 0.90281046 0.91410313 0.92187566 0.92780998
+		 0.93217524 0.9365405  0.93969564]
+		>>> print(sp.attenuation_correction(['La', ci.Compound('Kapton', density=12.0)], ad=[0.1, 0.5])(100*np.arange(1, 10)))
+		[0.82705455 0.92060463 0.93878407 0.94717435 0.95248909 0.95638036
+		 0.95914978 0.9619192  0.96387558]
 
 		"""
 
@@ -324,7 +353,6 @@ class Spectrum(object):
 		ad = np.asarray(ad)
 
 		mu_0 = cm_ls[0].mu(energy)
-		# atten = (1.0-(ad[0]*mu_0+1.0)*np.exp(-ad[0]*mu_0))/ad[0]**2
 		atten = (1.0-np.exp(-ad[0]*mu_0))/(ad[0]*mu_0)
 
 		for n,cm in enumerate(cm_ls[1:]):
@@ -338,35 +366,60 @@ class Spectrum(object):
 	def geometry_correction(self, distance, r_det, thickness, sample_size, shape='circle', N=1000000):
 		"""Efficiency correction for sample geometry
 
-		...
+		Correction to the efficiency for non-point source geometries.
+		The correction factor is a multiplier to the efficiency, that corrects
+		for a sample that was efficiency calibrated using a point source, but
+		that is not a point source itself.  Note that the input sizes do not need
+		units, but they are assumed to all be in the same units system (e.g. they
+		are all in cm, or inches).  Also, like the attenuation_correction, the
+		correction factor is automatically applied to the peak data, but it
+		is returned by the function as well.
 
 		Parameters
 		----------
 		distance : float
-			Description of x
+			Distance from the front of the sample to the detector.
+			Units must be consistent with other inputs.
 
 		r_det : float
-			Description of x
+			Radius of the detector. Units must be consistent with
+			other inputs.
 
 		thickness : float
-			Description of x
+			Thickness of the sample, in the same units as the
+			other inputs.
 
 		sample_size : float
-			Description of x
+			Characteristic sample dimensions (in same units).  If
+			shape is circle, this is sample radius.  If square, it
+			is side length.  If rectangle, sample_size must be
+			a length 2 tuple/array/list, corresponding to
+			the x and y dimensions of the rectangle.
 
 		shape : str, optional
-			Description of x
+			Shape of the sample. Options are 'circle' (default),
+			'square' and 'rectangle'.
 
 		N : int, optional
-			Description of x
+			Number of particles to use in Monte-Carlo solid angle
+			calculation.  Default is 1E6.  If the sampling error
+			in the correction factor is greater than 1 percent,
+			a warning will be given to increase N.
 
 		Returns
 		-------
 		correction_factor : float
-			Description
+			Geometry correction factor, to be multiplied with the efficiency.
 
 		Examples
 		--------
+		sp = ci.Spectrum('eu_calib_7cm.Spe')
+		>>> print(sp.geometry_correction(distance=4, r_det=5, thickness=0.1, sample_size=2, shape='square'))
+		0.9744182633801829
+		>>> print(sp.geometry_correction(distance=30, r_det=5, thickness=10, sample_size=1))
+		0.7586316490264302
+		>>> print(sp.geometry_correction(distance=4, r_det=5, thickness=0.1, sample_size=(2,1.5), shape='rectangle'))
+		0.9784496516955806
 
 		"""
 
@@ -460,18 +513,57 @@ class Spectrum(object):
 	def auto_calibrate(self, guess=None, peaks=None):
 		"""Attempt to automatically adjust the energy calibration
 
-		...
+		Uses a genetic forward fitting algorithm to attempt to automatically
+		adjust the energy calibration in cases where the peak centroids are
+		significantly mis-calibrated.  The algorithm requires a list of 
+		isotopes in the spectrum, so self.isotopes cannot be None.  Also,
+		the feature will only make small adjustments to the calibration,
+		so if the current calibration is greater than 0.5 percent off, 
+		either a guess or a list of peak locations must be given
 
 		Parameters
 		----------
-		guess : array_like
-			Description of x
+		guess : array_like, optional
+			Guess parameters for the energy calibration. Must be a 
+			length 2 or 3 array.  If None, the energy calibration
+			from self.cb.engcal will be used.
 
-		peaks : array_like
-			Description
+		peaks : array_like, optional
+			List of peak locations.  Must be a 2-d array of format [[channel, energy], ...]
 
 		Examples
 		--------
+		>>> sp = ci.Spectrum('eu_calib_7cm.Spe')
+		>>> print(sp.cb.engcal)
+		[3.3973e-01 1.8297e-01 5.5683e-09]
+		>>> sp.cb.engcal = [0.3, 0.184]
+		>>> sp.isotopes = ['152EU']
+		>>> sp.plot()
+
+		>>> sp = ci.Spectrum('eu_calib_7cm.Spe')
+		>>> sp.cb.engcal = [0.3, 0.1835]
+		>>> sp.isotopes = ['152EU']
+		>>> sp.auto_calibrate()
+		>>> print(sp.cb.engcal)
+		[0.3        0.18281362 0.        ]
+		>>> sp.plot()
+
+		>>> sp = ci.Spectrum('eu_calib_7cm.Spe')
+		>>> sp.cb.engcal = [0.3, 0.1]
+		>>> sp.isotopes = ['152EU']
+		>>> sp.auto_calibrate(peaks=[[664, 121.8]])
+		>>> print(sp.cb.engcal)
+		[0.         0.18289791 0.        ]
+		>>> sp.plot()
+
+		>>> sp = ci.Spectrum('eu_calib_7cm.Spe')
+		>>> sp.cb.engcal = [0.3, 0.1]
+		>>> sp.isotopes = ['152EU']
+		>>> sp.auto_calibrate(guess=[0.3, 0.1835])
+		>>> print(sp.cb.engcal)
+		[0.3        0.18281398 0.        ]
+		>>> sp.plot()
+
 
 		"""
 
@@ -482,6 +574,8 @@ class Spectrum(object):
 
 		if peaks is not None:
 			peaks = np.asarray(peaks, dtype=np.float64)
+			if len(peaks.shape)==1:
+				peaks = np.array([peaks.tolist()])
 			if len(peaks)==1:
 				guess = [0.0, peaks[0][1]/peaks[0][0]]
 			else:
@@ -618,6 +712,7 @@ class Spectrum(object):
 			gm[-1]['intensity'] = gm[-1]['intensity']*1E-2
 			gm[-1]['unc_intensity'] = gm[-1]['unc_intensity']*1E-2
 
+
 		X, Y, B = self._forward_fit()
 		L = len(self.hist)
 		chan = np.arange(L)
@@ -670,7 +765,7 @@ class Spectrum(object):
 				p['bounds'][1] += [i+100*unc[n][n] for n,i in enumerate(p['p0'])]
 
 			R, alpha, step = self.fit_config['R'], self.fit_config['alpha'], self.fit_config['step']
-			bA, bm, bs = self.fit_config['A_max'], self.fit_config['mu_max'], self.fit_config['sig_max']
+			bA, bm, bs = 10.0*self.fit_config['A_bound'], 1.5*self.fit_config['mu_bound'], 1.5*self.fit_config['sig_bound']
 			for n,rw in multi.iterrows():
 				p['p0'] += [rw['A'], rw['idx'], rw['sig']]
 				p['bounds'][0] += [0.0, rw['idx']-bm*rw['sig'], rw['sig']/bs]
@@ -745,73 +840,111 @@ class Spectrum(object):
 	def fit_peaks(self, gammas=None, **kwargs):
 		"""Fit the peaks in the spectrum
 
-		...
+		Fits a multiplet of peaks, with configurable parameters, to the spectrum.
+		The list of gammas can either be generated automatically by setting the
+		`Spectrum.isotopes` attribute, or by using the 'gammas' keyword, which
+		adds to any gammas generated from the isotopes attribute.  This function is
+		called once when any of the following happen: the `Spectrum.peaks` property is
+		accessed, the `Spectrum.saveas()` method is called, or the `Spectrum.summarize()`
+		or `Spectrum.plot()` methods are called.  The peaks are then saved, and won't be
+		re-fit unless `Spectrum.fit_peaks()` (this method) is called explicitly.  This
+		is important if parameters such as the calibration, isotopes, or fit_config are changed
+		after the peaks are generated the first time.
 
 		Parameters
 		----------
 		gammas : list, dict or pd.DataFrame, optional
-			Description of x
+			Manual entry for specifying peaks in the spectrum. 'gammas' must be an
+			object that can be converted into a pandas DataFrame, with the keywords
+			'energy', 'intensity', 'unc_intensity' and optionally 'isotope'.
 
 		Other Parameters
 		----------------
-		snip_adj : float
-			Description. Default 1.0.
-
-		R : float
-			Description. Default 0.1.
-
-		alpha : float
-			Description. Default 0.9.
-
-		step : float
-			Description. Default 0.0.
-
-		bg : str
-			Description. Default 'snip'.
-
-		skew_fit : bool
-			Description. Default False.
-
-		step_fit : bool
-			Description. Default False.
-
-		SNR_min : float
-			Description. Default 4.0.
-
-		A_max : float
-			Description. Default 10.0.
-
-		mu_max : float
-			Description. Default 1.5.
-
-		sig_max : float
-			Description. Default 1.5.
-
 		xrays : bool
-			Description. Default False.
-
-		pk_width : float
-			Description. Default 7.5.
+			Whether peak fits should include x-rays, as given by Nudat2. Default False.
 
 		E_min : float
-			Description. Default 75.0.
+			Minimum peak energy to fit, in keV. Default 75.0.
 
 		I_min : float
-			Description. Default 0.05
+			Minimum peak intensity to fit, in percent. Default 0.05
 
 		dE_511 : float
-			Description. Default 3.5
+			Gammas that are fewer than dE_511 keV from the 511 keV
+			annihilation peak are excluded from the fit. Default 3.5
+
+		bg : str
+			Type of background fit to use. Options are 'constant', 'linear',
+			'quadratic' or 'snip'. Default 'snip'.  The 'snip' algorithm interpolates 
+			the background under the peaks using the detector resolution, and the
+			assumption that the background is smoothly varying.  Will fail for
+			peaks that are on top of quickly varying features such as the electron
+			backscatter peak, but has the benefit of removing a free parameter from
+			the fit.
+
+		skew_fit : bool
+			If skew_fit is True, the fit parameters include the skewed gaussian component,
+			otherwise only the gaussian parameters are fit. Default False.  The skewed gaussian is 
+			characterized by the parameters R and alpha, and has the functional
+			form R*A*exp((x-mu)/(alpha*sig))*erfc((x-mu)/(sqrt(2)*sig)+1.0/(sqrt(2)*alpha))
+			where A, mu and sigma are the amplitude, centroid and width of the gaussian
+			peak function.  Note that unless R and alpha are explicitly set to zero, they
+			will be included in the peak function.  skew_fit only specifies whether or not
+			their values are to be fit for each peak.
+
+		step_fit : bool
+			If step_fit is True, a step function is added to the background fit,
+			which arises from compton scattering. Default False. The functional
+			form of the step function is step*A*erfc((x-mu)/(sqrt(2)*sig)), where
+			A, mu and sigma are the amplitude, centroid and width of the gaussian peak.
+			Similar to skew_fit, unless step is explicitly set to zero (it is by default),
+			a step component is included in every peak.  step_fit only specifies whether or
+			not the value of this parameter is fit for every peak.
+
+		R : float
+			Expected value of R (amplitude of skewed component of gaussian). Default 0.1.
+
+		alpha : float
+			Expected value of alpha (width of skewed component of gaussian). Default 0.9.
+
+		step : float
+			Expected value of step (amplitude of compton background). Default 0.0.
+
+		pk_width : float
+			Number of peak standard deviations (width) to include in the spectrum data passed to
+			the curve fit function. Default 7.5.  Should be wide enough such that several background
+			channels not in the peak can be included in the fit.  If too wide, multiplets may
+			begin to overlap.
+
+		snip_adj : float
+			Multiplier for parameters in the snip background calculation. Default 1.0.
+
+		SNR_min : float
+			Minimum acceptable peak amplitude to noise (sqrt(background)) ratio. Default 4.0.
+
+		A_bound : float
+			Multiplier for the bounds on the fit parameter A (peak amplitude). Default 1.0.
+
+		mu_bound : float
+			Multiplier for the bounds on the fit parameter mu (peak centroid). Default 1.0.
+
+		sig_bound : float
+			Multiplier for the bounds on the fit parameter sig (peak width). Default 1.0.
 
 		multi_max : int
-			Description. Default 8.
+			Maximum number of peaks allowed in a multiplet. Default 8.
 
 		Returns
 		-------
 		peaks : pd.DataFrame
-			Description
+			Table of peaks that were successfully fit.
 
 		Examples
 		--------
+		>>> sp = ci.Spectrum('eu_calib_7cm.Spe')
+		>>> sp.isotopes = ['152EU']
+		>>> print(sp.fit_peaks(SNR_min=5, dE_511=12))
+		>>> print(sp.fit_peaks(bg='quadratic'))
 
 		"""
 
@@ -838,18 +971,31 @@ class Spectrum(object):
 	def saveas(self, filename, replace=False):
 		"""Save the spectrum or peak information to a file
 
-		...
+		If the file type is one of '.png', '.pdf', '.svg' or another graphical
+		file type, a plot of the spectrum will be saved.  If it is one of the supported
+		spectra formats, '.Spe', '.Chn' or '.spe', the spectrum will be converted and saved.  Note
+		that only '.Spe' and '.Chn' can be read by ci.Spectrum.  If the file type is one of
+		'.csv', '.db' or '.json', the peak data will be saved.  All three can be read by the
+		ci.DecayChain.get_counts method.
 
 		Parameters
 		----------
 		filename : str
-			Description of x
+			Name of the file to save to. Supported file types are '.png', '.pdf', '.eps', '.pgf', '.ps',
+			'.raw', '.rgba', '.svg', '.svgz', '.Spe', '.Chn', '.spe', '.csv', '.json', and '.db'.
 
 		replace : bool, optional
-			Description
+			If True, when saving to one of the three supported peak data file types, any existing file
+			will be completely overwritten. If False, then only peak data that matches the spectrum
+			name will be overwritten. Default, False.
 
 		Examples
 		--------
+		>>> sp = ci.Spectrum('eu_calib_7cm.Spe')
+		>>> sp.isotopes = ['152EU']
+		>>> sp.saveas('test_plot.png')
+		>>> sp.saveas('eu_calib.Chn')
+		>>> sp.saveas('peak_data.csv')
 
 		"""
 
@@ -975,10 +1121,23 @@ class Spectrum(object):
 	def summarize(self):
 		"""Summarize the fitted peaks in the spectrum
 
-		...
+		Prints a summary of the observed counts in each peak, the
+		number of decays of the given isotope it corresponds to, and an 
+		estimate of the activity of the isotope.
 
 		Examples
 		--------
+		>>> sp = ci.Spectrum('eu_calib_7cm.Spe')
+		>>> sp.isotopes = ['152EU']
+		>>> sp.summarize()
+		152EU - 121.7817 keV (I = 28.53%)
+		---------------------------------
+		counts: 498785 +/- 3195
+		decays: 2.515e+07 +/- 2.702e+06
+		activity (Bq): 1.025e+04 +/- 1.101e+03
+		activity (uCi): 2.770e-01 +/- 2.976e-02
+		chi2/dof: 21.923
+		...
 
 		"""
 
@@ -1003,15 +1162,20 @@ class Spectrum(object):
 	def plot(self, fit=True, xcalib=True, **kwargs):
 		"""Plot the spectrum
 
-		...
+		Draws a plot of the spectrum, and any successful peak fits.  Peaks
+		are colored by isotope, and a dashed grey line is drawn over multiplets
+		to help evaluate goodness of fit.
 
 		Parameters
 		----------
 		fit : bool, optional
-			Description of x
+			If True, include peak fits. Else, only the spectrum is drawn. Default, True.
 
 		xcalib : bool, optional
-			Description
+			If True, the x-axis is the calibrated energy in keV. If False, it is the 
+			ADC channel number.  This may help locate peaks to give the 
+			`Spectrum.auto_calibrate()` function if the energy calibration is poor.
+			Default, True.
 
 		Other Parameters
 		----------------
@@ -1022,6 +1186,11 @@ class Spectrum(object):
 
 		Examples
 		--------
+		>>> sp = ci.Spectrum('eu_calib_7cm.Spe')
+		>>> sp.isotopes = ['152EU']
+		>>> sp.plot()
+		>>> sp.plot(xcalib=False)
+		>>> sp.plot(style='poster')
 
 		"""
 

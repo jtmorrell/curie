@@ -263,7 +263,50 @@ import curie as ci
 # cb.plot_effcal()
 # cb.plot()
 
+# sp = ci.Spectrum('eu_calib_7cm.Spe')
+# print(sp.attenuation_correction(['Fe', ci.Compound('H2O', density=1.0)], x=[0.1, 0.5])(100*np.arange(1,10)))
+# print(sp.attenuation_correction(['La', ci.Compound('Kapton', density=12.0)], ad=[0.1, 0.5])(100*np.arange(1,10)))
+
+# sp = ci.Spectrum('eu_calib_7cm.Spe')
+# print(sp.geometry_correction(distance=4, r_det=5, thickness=0.1, sample_size=2, shape='square'))
+# print(sp.geometry_correction(distance=30, r_det=5, thickness=10, sample_size=1))
+# print(sp.geometry_correction(distance=4, r_det=5, thickness=0.1, sample_size=(2,1.5), shape='rectangle'))
+
+# sp = ci.Spectrum('eu_calib_7cm.Spe')
+# print(sp.cb.engcal)
+# sp.cb.engcal = [0.3, 0.184]
+# sp.isotopes = ['152EU']
+# sp.plot()
+
+# sp = ci.Spectrum('eu_calib_7cm.Spe')
+# sp.cb.engcal = [0.3, 0.1835]
+# sp.isotopes = ['152EU']
+# sp.auto_calibrate()
+# print(sp.cb.engcal)
+# sp.plot()
+
+# sp = ci.Spectrum('eu_calib_7cm.Spe')
+# sp.cb.engcal = [0.3, 0.1]
+# sp.isotopes = ['152EU']
+# sp.auto_calibrate(peaks=[[664, 121.8]])
+# print(sp.cb.engcal)
+# sp.plot()
+
+# sp = ci.Spectrum('eu_calib_7cm.Spe')
+# sp.cb.engcal = [0.3, 0.1]
+# sp.isotopes = ['152EU']
+# sp.auto_calibrate(guess=[0.3, 0.1835])
+# print(sp.cb.engcal)
+# sp.plot()
+
 sp = ci.Spectrum('eu_calib_7cm.Spe')
-print(len(sp.hist))
-sp.rebin(1000)
-print(len(sp.hist))
+sp.isotopes = ['152EU']
+sp.plot()
+sp.plot(xcalib=False)
+sp.plot(style='poster')
+# sp.summarize()
+# sp.saveas('test_plot.png')
+# sp.saveas('eu_calib.Chn')
+# sp.saveas('peak_data.csv')
+# print(sp.fit_peaks(SNR_min=5, dE_511=12))
+# print(sp.fit_peaks(bg='quadratic'))
