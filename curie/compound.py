@@ -148,16 +148,19 @@ class Compound(object):
 			elif type(weights)==str:
 				if weights.endswith('.json'):
 					weights = pd.read_json(weights, orient='records').fillna(method='ffill')
+					weights.columns = map(str.lower, map(str, weights.columns))
 					if 'compound' in weights.columns:
 						weights = weights[weights['compound']==self.name]
 
 				elif weights.endswith('.csv'):
 					weights = pd.read_csv(weights, header=0).fillna(method='ffill')
+					weights.columns = map(str.lower, map(str, weights.columns))
 					if 'compound' in weights.columns:
 						weights = weights[weights['compound']==self.name]
 
 				elif weights.endswith('.db'):
-					weights = pd.read_sql('SELECT * FROM weights WHERE compound={}'.format(self.name), _get_connection(weights))
+					weights = pd.read_sql('SELECT * FROM compounds WHERE compound={}'.format(self.name), _get_connection(weights))
+					weights.columns = map(str.lower, map(str, weights.columns))
 					if 'compound' in weights.columns:
 						weights = weights[weights['compound']==self.name]
 
@@ -171,6 +174,7 @@ class Compound(object):
 						self._set_weights(elements, mass_weights=np.abs(wts))
 
 			if type(weights)==pd.DataFrame:
+				weights.columns = map(str.lower, map(str, weights.columns))
 				if 'density' in weights.columns:
 					self.density = weights['density'].iloc[0]
 

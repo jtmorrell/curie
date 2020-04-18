@@ -375,7 +375,7 @@
 				<span class="n">unc_xs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">unc_xs</span>
 		<span class="k">else</span><span class="p">:</span>
 			<span class="n">eng</span><span class="p">,</span> <span class="n">xs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">energy</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span>
-			<span class="n">ux</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">intepolate_unc</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span>
+			<span class="n">ux</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">interpolate_unc</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span>
 			<span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">ux</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">):</span>
 				<span class="n">unc_xs</span> <span class="o">=</span> <span class="n">ux</span>
 

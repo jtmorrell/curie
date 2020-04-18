@@ -140,7 +140,11 @@ class DecayChain(object):
 					self.R['isotope'] = self.isotopes[0]
 
 			elif type(R)==dict:
-				self.R = pd.DataFrame(R)
+				self.R = pd.DataFrame({'isotope':[], 'R':[], 'time':[]})
+				for ip in R:
+					rate = np.array(R[ip])
+					rt = pd.DataFrame({'isotope':self._filter_name(ip),'R':rate[:,0],'time':rate[:,1]})
+					self.R = pd.concat([self.R, rt], ignore_index=True).reset_index(drop=True)
 
 			elif type(R)==list or type(R)==np.ndarray:
 				R = np.asarray(R)
@@ -343,8 +347,20 @@ class DecayChain(object):
 											'unc_counts':N_c[:,3]})
 
 			else:
-				self._counts = pd.DataFrame(N_c)
-				self._counts['isotope'] = [self._filter_name(i) for i in self._counts['isotope']]
+				self._counts = pd.DataFrame({'isotope':[],'start':[],'stop':[],'counts':[],'unc_counts':[]})
+				for ip in N_c:
+					ct = np.array(N_c[ip])
+					if len(ct.shape)==1:
+						ct = np.array([ct])
+					ct = pd.DataFrame({'isotope':self._filter_name(ip),
+										'start':ct[:,0],
+										'stop':ct[:,1],
+										'counts':ct[:,2],
+										'unc_counts':ct[:,3]})
+					self._counts = pd.concat([self._counts, ct], ignore_index=True).reset_index(drop=True)
+
+			self._counts['activity'] = [p['counts']*self.activity(p['isotope'], p['start'])/self.decays(p['isotope'], p['start'], p['stop']) for n,p in self._counts.iterrows()]
+			self._counts['unc_activity'] = self._counts['unc_counts']*self.counts['activity']/self._counts['counts']
 			
 		
 	def get_counts(self, spectra, EoB, peak_data=None):
@@ -429,8 +445,6 @@ class DecayChain(object):
 			counts.append(pd.DataFrame({'isotope':df['isotope'], 'start':start, 'stop':stop, 'counts':df['decays'], 'unc_counts':df['unc_decays']}))
 
 		self.counts = pd.concat(counts, sort=True, ignore_index=True).sort_values(by=['start']).reset_index(drop=True)
-		self.counts['activity'] = [p['counts']*self.activity(p['isotope'], p['start'])/self.decays(p['isotope'], p['start'], p['stop']) for n,p in self.counts.iterrows()]
-		self.counts['unc_activity'] = self.counts['unc_counts']*self.counts['activity']/self.counts['counts']
 
 
 	@property	

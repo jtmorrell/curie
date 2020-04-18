@@ -40,7 +40,7 @@ with open("README.md", "r") as fh:
 
 setup(name='curie',
 	  version='0.0.1',
-	  description='Nuclear Physics Analysis Tools (NPAT) is a library written in python to assist in analysis of the physics of nuclear reactions and spectroscopy.',
+	  description='Curie is a python toolkit to aid in the analysis of experimental nuclear data.',
 	  long_description=long_description,
 	  long_description_content_type="text/markdown",
 	  url='https://github.com/jtmorrell/curie',

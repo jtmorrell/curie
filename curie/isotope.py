@@ -190,7 +190,7 @@ class Isotope(object):
 		if type(self.A)==int:
 			self.N = self.A-self.Z
 
-		self.TeX = r'$^{'+str(self.A)+self.isomer+r'}$'+self.element
+		self.TeX = r'$^{'+str(self.A)+(self.isomer if self.isomer!='g' else '')+r'}$'+self.element
 
 
 	def __str__(self):

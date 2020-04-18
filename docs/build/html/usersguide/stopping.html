@@ -18,8 +18,8 @@
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="6. Detailed Examples" href="examples.html" />
-    <link rel="prev" title="4. Isotopes &amp; Reactions" href="isotopes.html" /> 
+    <link rel="next" title="6. Troubleshooting" href="troubleshoot.html" />
+    <link rel="prev" title="4. Reactions" href="reactions.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -28,10 +28,10 @@
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="examples.html" title="6. Detailed Examples"
+          <a href="troubleshoot.html" title="6. Troubleshooting"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="isotopes.html" title="4. Isotopes &amp; Reactions"
+          <a href="reactions.html" title="4. Reactions"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">Curie 0.0.1 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">User’s Guide</a> &#187;</li> 
@@ -46,6 +46,117 @@
   <div class="section" id="stopping-power-calculations">
 <span id="stopping"></span><h1>5. Stopping Power Calculations<a class="headerlink" href="#stopping-power-calculations" title="Permalink to this headline">¶</a></h1>
 <p>Welcome to the Curie user’s guide!  This section is under construction.  See <a class="reference internal" href="getting_started.html#getting-started"><span class="std std-ref">Getting Started</span></a> for more info.</p>
+<p>Compound examples:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">el</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s1">&#39;Hf&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">el</span><span class="o">.</span><span class="n">mass</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">el</span><span class="o">.</span><span class="n">density</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">el</span><span class="o">.</span><span class="n">isotopes</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">el</span><span class="o">.</span><span class="n">abundances</span><span class="p">)</span>
+<span class="n">f</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">el</span><span class="o">.</span><span class="n">plot_mass_coeff</span><span class="p">(</span><span class="n">return_plot</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">el</span><span class="o">.</span><span class="n">plot_mass_coeff_en</span><span class="p">(</span><span class="n">energy</span><span class="o">=</span><span class="mf">10.0</span><span class="o">**</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mf">0.01</span><span class="p">)),</span> <span class="n">f</span><span class="o">=</span><span class="n">f</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+<span class="n">el</span><span class="o">.</span><span class="n">plot_mass_coeff_en</span><span class="p">()</span>
+
+<span class="n">el</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s1">&#39;Fe&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">el</span><span class="o">.</span><span class="n">attenuation</span><span class="p">(</span><span class="mi">511</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mf">0.3</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">el</span><span class="o">.</span><span class="n">attenuation</span><span class="p">(</span><span class="mi">300</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="mi">8</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">el</span><span class="o">.</span><span class="n">S</span><span class="p">(</span><span class="mf">20.0</span><span class="p">,</span> <span class="n">particle</span><span class="o">=</span><span class="s1">&#39;Ca-40&#39;</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">el</span><span class="o">.</span><span class="n">S</span><span class="p">(</span><span class="mf">60.0</span><span class="p">))</span>
+<span class="n">el</span><span class="o">.</span><span class="n">plot_S</span><span class="p">(</span><span class="n">particle</span><span class="o">=</span><span class="s1">&#39;40CA&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">el</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="mf">60.0</span><span class="p">))</span>
+<span class="n">el</span><span class="o">.</span><span class="n">plot_range</span><span class="p">()</span>
+<span class="n">el</span><span class="o">.</span><span class="n">plot_mass_coeff</span><span class="p">()</span>
+<span class="n">el</span><span class="o">.</span><span class="n">plot_mass_coeff</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s1">&#39;poster&#39;</span><span class="p">)</span>
+<span class="n">ci</span><span class="o">.</span><span class="n">set_style</span><span class="p">()</span>
+
+<span class="n">el</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s1">&#39;La&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">el</span><span class="o">.</span><span class="n">S</span><span class="p">(</span><span class="mf">60.0</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">el</span><span class="o">.</span><span class="n">S</span><span class="p">(</span><span class="mf">55.0</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="mf">1E-3</span><span class="p">))</span> <span class="c1">### S in MeV/(mg/cm^2)</span>
+
+<span class="n">el</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s1">&#39;Fe&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">el</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="mf">60.0</span><span class="p">))</span>
+<span class="n">el</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s1">&#39;U&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">el</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="mf">60.0</span><span class="p">))</span>
+
+<span class="n">el</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s1">&#39;Hg&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">el</span><span class="o">.</span><span class="n">mu</span><span class="p">(</span><span class="mi">200</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">el</span><span class="o">.</span><span class="n">mu_en</span><span class="p">(</span><span class="mi">200</span><span class="p">))</span>
+
+<span class="n">cm</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Compound</span><span class="p">(</span><span class="s1">&#39;Silicone&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">cm</span><span class="o">.</span><span class="n">weights</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;H2C3.2RbHeCe4Pb&#39;</span><span class="p">,</span><span class="s1">&#39;H2O&#39;</span><span class="p">,</span><span class="s1">&#39;NHO2&#39;</span><span class="p">,</span><span class="s1">&#39;H2.5O1.5&#39;</span><span class="p">,</span><span class="s1">&#39;SrCO3&#39;</span><span class="p">]:</span>
+        <span class="n">cm</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Compound</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">cm</span><span class="o">.</span><span class="n">weights</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Silicone&#39;</span> <span class="ow">in</span> <span class="n">ci</span><span class="o">.</span><span class="n">COMPOUND_LIST</span><span class="p">)</span>
+<span class="n">cm</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Compound</span><span class="p">(</span><span class="s1">&#39;Silicone&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">cm</span><span class="o">.</span><span class="n">elements</span><span class="p">)))</span>
+<span class="n">cm</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Compound</span><span class="p">(</span><span class="s1">&#39;H2O&#39;</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">cm</span><span class="o">.</span><span class="n">mu</span><span class="p">(</span><span class="mi">200</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">cm</span><span class="o">.</span><span class="n">mu_en</span><span class="p">(</span><span class="mi">200</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">cm</span><span class="o">.</span><span class="n">weights</span><span class="p">)</span>
+
+
+<span class="n">cm</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Compound</span><span class="p">(</span><span class="s1">&#39;SS_316&#39;</span><span class="p">)</span> <span class="c1"># preset compound for 316 Stainless</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">cm</span><span class="o">.</span><span class="n">attenuation</span><span class="p">(</span><span class="mi">511</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mf">0.3</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">cm</span><span class="o">.</span><span class="n">attenuation</span><span class="p">(</span><span class="mi">300</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="mf">5.0</span><span class="p">))</span>
+
+<span class="n">cm</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Compound</span><span class="p">(</span><span class="s1">&#39;Fe&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">cm</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="mf">60.0</span><span class="p">))</span>
+<span class="n">cm</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Compound</span><span class="p">(</span><span class="s1">&#39;SS_316&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">cm</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="mf">60.0</span><span class="p">))</span>
+
+<span class="n">cm</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Compound</span><span class="p">(</span><span class="s1">&#39;Brass&#39;</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;Zn&#39;</span><span class="p">:</span><span class="o">-</span><span class="mi">33</span><span class="p">,</span><span class="s1">&#39;Cu&#39;</span><span class="p">:</span><span class="o">-</span><span class="mi">66</span><span class="p">})</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">cm</span><span class="o">.</span><span class="n">weights</span><span class="p">)</span>
+<span class="n">cm</span><span class="o">.</span><span class="n">saveas</span><span class="p">(</span><span class="s1">&#39;compounds.csv&#39;</span><span class="p">)</span>
+
+<span class="n">cm</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Compound</span><span class="p">(</span><span class="s1">&#39;Bronze&#39;</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;Cu&#39;</span><span class="p">:</span><span class="o">-</span><span class="mi">80</span><span class="p">,</span> <span class="s1">&#39;Sn&#39;</span><span class="p">:</span><span class="o">-</span><span class="mi">20</span><span class="p">},</span> <span class="n">density</span><span class="o">=</span><span class="mf">8.9</span><span class="p">)</span>
+<span class="n">f</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">plot_range</span><span class="p">(</span><span class="n">return_plot</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">cm</span><span class="o">.</span><span class="n">plot_range</span><span class="p">(</span><span class="n">particle</span><span class="o">=</span><span class="s1">&#39;d&#39;</span><span class="p">,</span> <span class="n">f</span><span class="o">=</span><span class="n">f</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+
+<span class="n">cm</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Compound</span><span class="p">(</span><span class="s1">&#39;Bronze&#39;</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="s1">&#39;example_compounds.json&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">cm</span><span class="o">.</span><span class="n">weights</span><span class="p">)</span>
+<span class="n">cm</span><span class="o">.</span><span class="n">saveas</span><span class="p">(</span><span class="s1">&#39;compounds.csv&#39;</span><span class="p">)</span>
+
+<span class="n">cm</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Compound</span><span class="p">(</span><span class="s1">&#39;Bronze&#39;</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="s1">&#39;example_compounds.csv&#39;</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="mf">8.9</span><span class="p">)</span>
+<span class="n">cm</span><span class="o">.</span><span class="n">plot_mass_coeff</span><span class="p">()</span>
+<span class="n">cm</span><span class="o">.</span><span class="n">plot_S</span><span class="p">()</span>
+<span class="n">cm</span><span class="o">.</span><span class="n">plot_range</span><span class="p">()</span>
+
+<span class="n">cm</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Compound</span><span class="p">(</span><span class="s1">&#39;SrCO3&#39;</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="mf">3.5</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">cm</span><span class="o">.</span><span class="n">S</span><span class="p">(</span><span class="mf">60.0</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">cm</span><span class="o">.</span><span class="n">S</span><span class="p">(</span><span class="mf">55.0</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="mf">1E-3</span><span class="p">))</span> <span class="c1">### S in MeV/(mg/cm^2)</span>
+</pre></div>
+</div>
+<p>Stack examples:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">stack</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;cm&#39;</span><span class="p">:</span><span class="s1">&#39;H2O&#39;</span><span class="p">,</span> <span class="s1">&#39;ad&#39;</span><span class="p">:</span><span class="mf">800.0</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">:</span><span class="s1">&#39;water&#39;</span><span class="p">},</span>
+                <span class="p">{</span><span class="s1">&#39;cm&#39;</span><span class="p">:</span><span class="s1">&#39;RbCl&#39;</span><span class="p">,</span> <span class="s1">&#39;density&#39;</span><span class="p">:</span><span class="mf">3.0</span><span class="p">,</span> <span class="s1">&#39;t&#39;</span><span class="p">:</span><span class="mf">0.03</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">:</span><span class="s1">&#39;salt&#39;</span><span class="p">},</span>
+                <span class="p">{</span><span class="s1">&#39;cm&#39;</span><span class="p">:</span><span class="s1">&#39;Kapton&#39;</span><span class="p">,</span> <span class="s1">&#39;t&#39;</span><span class="p">:</span><span class="mf">0.025</span><span class="p">},</span>
+                <span class="p">{</span><span class="s1">&#39;cm&#39;</span><span class="p">:</span><span class="s1">&#39;Brass&#39;</span><span class="p">,</span><span class="s1">&#39;ad&#39;</span><span class="p">:</span><span class="mi">350</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">:</span><span class="s1">&#39;metal&#39;</span><span class="p">}]</span>
+
+<span class="n">st</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Stack</span><span class="p">(</span><span class="n">stack</span><span class="p">,</span> <span class="n">compounds</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;Brass&#39;</span><span class="p">:{</span><span class="s1">&#39;Cu&#39;</span><span class="p">:</span><span class="o">-</span><span class="mi">66</span><span class="p">,</span> <span class="s1">&#39;Zn&#39;</span><span class="p">:</span><span class="o">-</span><span class="mi">33</span><span class="p">}},</span> <span class="n">E0</span><span class="o">=</span><span class="mf">60.0</span><span class="p">)</span>
+<span class="n">st</span><span class="o">.</span><span class="n">saveas</span><span class="p">(</span><span class="s1">&#39;example_stack.csv&#39;</span><span class="p">)</span>
+<span class="n">st</span><span class="o">.</span><span class="n">saveas</span><span class="p">(</span><span class="s1">&#39;example_stack.json&#39;</span><span class="p">,</span> <span class="n">filter_name</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">st</span><span class="o">.</span><span class="n">saveas</span><span class="p">(</span><span class="s1">&#39;example_stack.db&#39;</span><span class="p">,</span> <span class="n">save_fluxes</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">st</span><span class="o">.</span><span class="n">summarize</span><span class="p">()</span>
+<span class="n">st</span><span class="o">.</span><span class="n">summarize</span><span class="p">(</span><span class="n">filter_name</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">st</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+<span class="n">st</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">filter_name</span><span class="o">=</span><span class="s1">&#39;salt&#39;</span><span class="p">)</span>
+
+<span class="n">st</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Stack</span><span class="p">(</span><span class="n">stack</span><span class="p">,</span> <span class="n">compounds</span><span class="o">=</span><span class="s1">&#39;example_compounds.json&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">st</span><span class="o">.</span><span class="n">stack</span><span class="p">)</span>
+<span class="n">st</span><span class="o">.</span><span class="n">saveas</span><span class="p">(</span><span class="s1">&#39;stack_calc.csv&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">st</span><span class="o">.</span><span class="n">fluxes</span><span class="p">)</span>
+<span class="n">st</span><span class="o">.</span><span class="n">saveas</span><span class="p">(</span><span class="s1">&#39;test.csv&#39;</span><span class="p">)</span>
+<span class="n">st</span><span class="o">.</span><span class="n">saveas</span><span class="p">(</span><span class="s1">&#39;test.db&#39;</span><span class="p">)</span>
+<span class="n">st</span><span class="o">.</span><span class="n">summarize</span><span class="p">()</span>
+<span class="n">st</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+
+<span class="n">st</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Stack</span><span class="p">(</span><span class="s1">&#39;test_stack.csv&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">st</span><span class="o">.</span><span class="n">stack</span><span class="p">)</span>
+<span class="n">st</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+</pre></div>
+</div>
 </div>
 
 
@@ -55,11 +166,11 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
   <h4>Previous topic</h4>
-  <p class="topless"><a href="isotopes.html"
-                        title="previous chapter">4. Isotopes &amp; Reactions</a></p>
+  <p class="topless"><a href="reactions.html"
+                        title="previous chapter">4. Reactions</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="examples.html"
-                        title="next chapter">6. Detailed Examples</a></p>
+  <p class="topless"><a href="troubleshoot.html"
+                        title="next chapter">6. Troubleshooting</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -90,10 +201,10 @@
           <a href="../genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="examples.html" title="6. Detailed Examples"
+          <a href="troubleshoot.html" title="6. Troubleshooting"
              >next</a> |</li>
         <li class="right" >
-          <a href="isotopes.html" title="4. Isotopes &amp; Reactions"
+          <a href="reactions.html" title="4. Reactions"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">Curie 0.0.1 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" >User’s Guide</a> &#187;</li> 

@@ -3,24 +3,25 @@
 Welcome to Curie's documentation!
 =================================
 
-Curie is a python toolkit to aid in the analysis of experimental nuclear data.  
+Curie is a python toolkit to aid in the analysis of experimental nuclear data.  Its name is inspired by Marie Curie, who developed the theory of radioactivity.
 
-The primary application for Curie is activation analysis, with specific utilities developed for stacked-target, charged-particle activation analysis.
-However, the convenient python interface to nuclear decay data and a range of cross section libraries makes Curie more generally useful in the nuclear sciences.
+The primary application for Curie is (gamma-ray) activation analysis, with specific utilities developed for the charged-particle stacked-target activation technique.
+Curie also comes with access to a number of nuclear structure, and nuclear reactions databases.  It also has methods for accessing atomic properties,
+such as attenuation coefficients and charged particle stopping powers.
 
 --------
 Features
 --------
 
-Curie features the following classes to aid in data analysis:
+Curie's features are primarily class based.  Here are a few examples:
 
-* Spectrum - Peak fitting for HPGe detector data.
-* Calibration - Energy & efficiency calibration tool (for HPGe detectors).
-* Ziegler - Stacked-target energy loss characterization.
-* DecayChain - General purpose Bateman equation solver.
-* Isotope - Isotopic and decay data.
-* Reaction - Cross sections from multiple libraries.
-* Library - Tool for searching and retrieving cross sections from multiple libraries.
+* Spectrum - Peak fitting for HPGe detector data
+* Calibration - Energy & efficiency calibration tool (for HPGe detectors)
+* Stack - Stacked-target energy loss characterization
+* DecayChain - General purpose Bateman equation solver
+* Isotope - Isotopic mass and decay data
+* Reaction - Cross sections from multiple libraries
+* Library - Tool for searching and retrieving cross sections from multiple libraries
 
 --------
 Contents
@@ -31,7 +32,6 @@ Contents
    
    quickinstall
    usersguide/index
-   methods
    api/index
    license
 

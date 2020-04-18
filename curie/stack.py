@@ -217,22 +217,26 @@ class Stack(object):
 			compounds = kwargs['compounds']
 			if type(compounds)==str:
 				if compounds.endswith('.json'):
-					js = json.loads(open(compounds).read())
-					cms = [i for i in js]
-					self.compounds = {cm:Compound(cm, weights=js[cm]) for cm in cms}
+					df = pd.read_json(compounds, orient='records').fillna(method='ffill')
+					df.columns = map(str.lower, map(str, df.columns))
+					cms = [str(i) for i in pd.unique(df['compound'])]
+					self.compounds = {cm:Compound(cm, weights=df[df['compound']==cm]) for cm in cms}
 
 				elif compounds.endswith('.csv'):
-					df = pd.read_csv(filename, header=0).fillna(method='ffill')
+					df = pd.read_csv(compounds, header=0).fillna(method='ffill')
+					df.columns = map(str.lower, map(str, df.columns))
 					cms = [str(i) for i in pd.unique(df['compound'])]
 					self.compounds = {cm:Compound(cm, weights=df[df['compound']==cm]) for cm in cms}
 
 				elif compounds.endswith('.db'):
-					df = pd.read_sql('SELECT * FROM compounds', _get_connection(filename))
+					df = pd.read_sql('SELECT * FROM compounds', _get_connection(compounds))
+					df.columns = map(str.lower, map(str, df.columns))
 					cms = [str(i) for i in pd.unique(df['compound'])]
 					self.compounds = {cm:Compound(cm, weights=df[df['compound']==cm]) for cm in cms}
 
 
 			elif type(compounds)==pd.DataFrame:
+				compounds.columns = map(str.lower, map(str, compounds.columns))
 				cms = [str(i) for i in pd.unique(compounds['compound'])]
 				self.compounds = {cm:Compound(cm, weights=compounds[compounds['compound']==cm]) for cm in cms}
 

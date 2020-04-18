@@ -1,12 +1,28 @@
-.. _stopping:
+import curie as ci
+import numpy as np
 
-===========================
-Stopping Power Calculations
-===========================
+def basic_examples():
+	el = ci.Element('Fe')
+	print(el.S(20.0))
+	print(el.S(20.0, particle='a'))
+	el.plot_S()
 
-Welcome to the Curie user's guide!  This section is under construction.  See :ref:`getting_started` for more info.
 
-Compound examples::
+	stack = stack=[{'compound':'Ni', 'name':'Ni01', 'thickness':0.025},  # Thickness only (mm)
+				{'compound':'Kapton', 'thickness':0.05},				# No name - will not be tallied
+				{'compound':'Ti', 'name':'Ti01', 'thickness':1.025},  # Very thick: should see straggle
+				{'compound':'Inconel','ad':1.0,'name':'test'},
+				{'compound':'SrCO3', 'name':'SrCO3', 'area':0.785, 'mass':4.8E-3}]
+
+	st = ci.Stack(stack, E0=45, particle='d', compounds=[{'Inconel':{'Fe':33, 'Ni':55}}])
+	st.summarize()
+	st.plot()
+
+	### Import stack design from .csv file
+	st = ci.Stack('test_stack.csv', particle='a', E0=70, min_steps=20, accuracy=1E-4)
+	st.plot()
+
+def extended_examples():
 
 	el = ci.Element('Hf')
 	print(el.mass)
@@ -89,8 +105,6 @@ Compound examples::
 	print(cm.S(55.0, density=1E-3)) ### S in MeV/(mg/cm^2)
 
 
-Stack examples::
-
 	stack = [{'cm':'H2O', 'ad':800.0, 'name':'water'},
 			{'cm':'RbCl', 'density':3.0, 't':0.03, 'name':'salt'},
 			{'cm':'Kapton', 't':0.025},
@@ -117,3 +131,6 @@ Stack examples::
 	st = ci.Stack('test_stack.csv')
 	print(st.stack)
 	st.plot()
+
+basic_examples()
+extended_examples()

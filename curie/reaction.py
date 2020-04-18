@@ -337,7 +337,7 @@ class Reaction(object):
 				unc_xs = self.unc_xs
 		else:
 			eng, xs = np.asarray(energy), self.interpolate(energy)
-			ux = self.intepolate_unc(energy)
+			ux = self.interpolate_unc(energy)
 			if np.any(ux>0):
 				unc_xs = ux
 

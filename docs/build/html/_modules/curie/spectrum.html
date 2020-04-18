@@ -249,9 +249,22 @@
 
 	<span class="nd">@fit_config</span><span class="o">.</span><span class="n">setter</span>
 	<span class="k">def</span> <span class="nf">fit_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_fit_config</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_peaks</span> <span class="o">=</span> <span class="kc">None</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_fits</span> <span class="o">=</span> <span class="kc">None</span>
 		<span class="k">for</span> <span class="n">nm</span> <span class="ow">in</span> <span class="n">_fit_config</span><span class="p">:</span>
 			<span class="bp">self</span><span class="o">.</span><span class="n">_fit_config</span><span class="p">[</span><span class="n">nm</span><span class="p">]</span> <span class="o">=</span> <span class="n">_fit_config</span><span class="p">[</span><span class="n">nm</span><span class="p">]</span>
 
+	<span class="nd">@property</span>
+	<span class="k">def</span> <span class="nf">isotopes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_isotopes</span>
+
+	<span class="nd">@isotopes</span><span class="o">.</span><span class="n">setter</span>
+	<span class="k">def</span> <span class="nf">isotopes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_isotopes</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_gmls</span> <span class="o">=</span> <span class="kc">None</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_peaks</span> <span class="o">=</span> <span class="kc">None</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_fits</span> <span class="o">=</span> <span class="kc">None</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_isotopes</span> <span class="o">=</span> <span class="n">_isotopes</span>
+	
 
 	<span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span>
@@ -373,7 +386,7 @@
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>
-<span class="sd">		sp = ci.Spectrum(&#39;eu_calib_7cm.Spe&#39;)</span>
+<span class="sd">		&gt;&gt;&gt; sp = ci.Spectrum(&#39;eu_calib_7cm.Spe&#39;)</span>
 <span class="sd">		&gt;&gt;&gt; print(sp.attenuation_correction([&#39;Fe&#39;, ci.Compound(&#39;H2O&#39;, density=1.0)], x=[0.1, 0.5])(100*np.arange(1, 10)))</span>
 <span class="sd">		[0.79614452 0.88215107 0.90281046 0.91410313 0.92187566 0.92780998</span>
 <span class="sd">		 0.93217524 0.9365405  0.93969564]</span>
@@ -451,7 +464,7 @@
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>
-<span class="sd">		sp = ci.Spectrum(&#39;eu_calib_7cm.Spe&#39;)</span>
+<span class="sd">		&gt;&gt;&gt; sp = ci.Spectrum(&#39;eu_calib_7cm.Spe&#39;)</span>
 <span class="sd">		&gt;&gt;&gt; print(sp.geometry_correction(distance=4, r_det=5, thickness=0.1, sample_size=2, shape=&#39;square&#39;))</span>
 <span class="sd">		0.9744182633801829</span>
 <span class="sd">		&gt;&gt;&gt; print(sp.geometry_correction(distance=30, r_det=5, thickness=10, sample_size=1))</span>
@@ -632,8 +645,8 @@
 		<span class="bp">self</span><span class="o">.</span><span class="n">cb</span><span class="o">.</span><span class="n">engcal</span> <span class="o">=</span> <span class="p">[</span><span class="n">guess</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">differential_evolution</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="p">[(</span><span class="mf">0.995</span><span class="o">*</span><span class="n">guess</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mf">1.005</span><span class="o">*</span><span class="n">guess</span><span class="p">[</span><span class="mi">1</span><span class="p">])])</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">guess</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span></div>
 
 
-	<span class="k">def</span> <span class="nf">_gammas</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gmls</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+	<span class="k">def</span> <span class="nf">_gammas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_force</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gmls</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">_force</span><span class="p">:</span>
 			<span class="n">itps</span><span class="p">,</span> <span class="n">gm</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
 			<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">isotopes</span><span class="p">:</span>
 				<span class="n">g</span> <span class="o">=</span> <span class="n">Isotope</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">gammas</span><span class="p">(</span><span class="n">I_lim</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fit_config</span><span class="p">[</span><span class="s1">&#39;I_min&#39;</span><span class="p">],</span> <span class="n">E_lim</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fit_config</span><span class="p">[</span><span class="s1">&#39;E_min&#39;</span><span class="p">],</span> <span class="n">dE_511</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fit_config</span><span class="p">[</span><span class="s1">&#39;dE_511&#39;</span><span class="p">])</span>
@@ -742,7 +755,7 @@
 
 	<span class="k">def</span> <span class="nf">_get_p0</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gammas</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 		<span class="c1">### gammas must at least have energy, intensity, unc_intensity (isotope optional)</span>
-		<span class="n">istp</span><span class="p">,</span> <span class="n">gm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gammas</span><span class="p">()</span>
+		<span class="n">istp</span><span class="p">,</span> <span class="n">gm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gammas</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
 		<span class="k">for</span> <span class="n">n</span><span class="p">,</span><span class="n">i</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">istp</span><span class="p">):</span>
 			<span class="n">gm</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s1">&#39;isotope&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span>
 		<span class="k">if</span> <span class="n">gammas</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -754,6 +767,9 @@
 		<span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">B</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_forward_fit</span><span class="p">()</span>
 		<span class="n">L</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hist</span><span class="p">)</span>
 		<span class="n">chan</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">L</span><span class="p">)</span>
+
+		<span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">gm</span><span class="p">):</span>
+			<span class="k">return</span> <span class="p">[]</span>
 
 		<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">gm</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 		<span class="n">df</span><span class="p">[</span><span class="s1">&#39;idx&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cb</span><span class="o">.</span><span class="n">map_channel</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">])</span>
@@ -894,7 +910,8 @@
 <span class="sd">		gammas : list, dict or pd.DataFrame, optional</span>
 <span class="sd">			Manual entry for specifying peaks in the spectrum. &#39;gammas&#39; must be an</span>
 <span class="sd">			object that can be converted into a pandas DataFrame, with the keywords</span>
-<span class="sd">			&#39;energy&#39;, &#39;intensity&#39;, &#39;unc_intensity&#39; and optionally &#39;isotope&#39;.</span>
+<span class="sd">			&#39;energy&#39;, &#39;intensity&#39;, &#39;unc_intensity&#39; and optionally &#39;isotope&#39;.  Units</span>
+<span class="sd">			of intensity should be percent, units of energy should be keV.</span>
 
 <span class="sd">		Other Parameters</span>
 <span class="sd">		----------------</span>

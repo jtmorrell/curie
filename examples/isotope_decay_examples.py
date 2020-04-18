@@ -1,13 +1,38 @@
-.. _isotopes:
+import curie as ci
 
-=======================
-Isotopes & Decay Chains
-=======================
+def decay_examples():
+	### 225RA decay chain, units of days, 9.0/day production rate, for 0.5 days
+	dc = ci.DecayChain('225RA', units='d', R={'225RA':[[9, 0.5],[2, 1.5],[5,4.5]]})
+	dc.plot()
 
-Welcome to the Curie user's guide!  This section is under construction.  See :ref:`getting_started` for more info.
+	### Measured counts: [start_time (d), stop_time (d), decays, unc_decays]
+	### Times relative to t=0 i.e. EoB time
+	dc.counts = {'225AC':[[5.0, 5.1, 6E5, 2E4],
+						  [6.0, 6.1, 7E5, 3E4]],
+				'221FR':[5.5, 5.6, 6E5, 2E4]}
+
+	### Find the scaled production rate that gives us these counts
+	dc.fit_R()
+	### Only plot the 5 most active isotopes in the decay chain
+	dc.plot(N_plot=5)
 
 
-Isotope examples::
+def isotope_examples():
+	i = ci.Isotope('60CO')
+	i = ci.Isotope('Co-60')  # equivalent
+	### Get LaTeX formatted name
+	print(i.TeX)
+	### Get isotope mass in amu
+	print(i.mass)
+	### Get half life in optimum units
+	print(i.half_life(i.optimum_units(), unc=True), i.optimum_units())
+	### Print DataFrame of the decay gammas
+	print(i.gammas())
+	### Print dose rate of 80 mCi at 30 cm
+	print(i.dose_rate(activity=80*3.7E7, distance=30.0))
+
+
+def extended_examples():
 
 	ip = ci.Isotope('115INm')
 	ip = ci.Isotope('Cu-67')
@@ -53,8 +78,6 @@ Isotope examples::
 
 
 
-Decay Chain examples::
-
 	dc = ci.DecayChain('Ra-225', R=[[1.0, 1.0], [0.5, 1.5], [2.0, 6]], units='d')
 	print(dc.R_avg)
 	print(dc.isotopes)
@@ -86,3 +109,7 @@ Decay Chain examples::
 
 	dc = ci.DecayChain('99MO', A0=350E6, units='d')
 	dc.plot()
+
+isotope_examples()
+decay_examples()
+extended_examples()

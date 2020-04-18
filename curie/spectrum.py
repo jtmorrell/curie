@@ -211,9 +211,22 @@ class Spectrum(object):
 
 	@fit_config.setter
 	def fit_config(self, _fit_config):
+		self._peaks = None
+		self._fits = None
 		for nm in _fit_config:
 			self._fit_config[nm] = _fit_config[nm]
 
+	@property
+	def isotopes(self):
+		return self._isotopes
+
+	@isotopes.setter
+	def isotopes(self, _isotopes):
+		self._gmls = None
+		self._peaks = None
+		self._fits = None
+		self._isotopes = _isotopes
+	
 
 	def __str__(self):
 		return self.filename
@@ -335,7 +348,7 @@ class Spectrum(object):
 
 		Examples
 		--------
-		sp = ci.Spectrum('eu_calib_7cm.Spe')
+		>>> sp = ci.Spectrum('eu_calib_7cm.Spe')
 		>>> print(sp.attenuation_correction(['Fe', ci.Compound('H2O', density=1.0)], x=[0.1, 0.5])(100*np.arange(1, 10)))
 		[0.79614452 0.88215107 0.90281046 0.91410313 0.92187566 0.92780998
 		 0.93217524 0.9365405  0.93969564]
@@ -413,7 +426,7 @@ class Spectrum(object):
 
 		Examples
 		--------
-		sp = ci.Spectrum('eu_calib_7cm.Spe')
+		>>> sp = ci.Spectrum('eu_calib_7cm.Spe')
 		>>> print(sp.geometry_correction(distance=4, r_det=5, thickness=0.1, sample_size=2, shape='square'))
 		0.9744182633801829
 		>>> print(sp.geometry_correction(distance=30, r_det=5, thickness=10, sample_size=1))
@@ -594,8 +607,8 @@ class Spectrum(object):
 		self.cb.engcal = [guess[0], differential_evolution(obj, [(0.995*guess[1], 1.005*guess[1])]).x[0], guess[2]]
 
 
-	def _gammas(self):
-		if self._gmls is None:
+	def _gammas(self, _force=False):
+		if self._gmls is None or _force:
 			itps, gm = [], []
 			for i in self.isotopes:
 				g = Isotope(i).gammas(I_lim=self.fit_config['I_min'], E_lim=self.fit_config['E_min'], dE_511=self.fit_config['dE_511'])
@@ -704,7 +717,7 @@ class Spectrum(object):
 
 	def _get_p0(self, gammas=None):
 		### gammas must at least have energy, intensity, unc_intensity (isotope optional)
-		istp, gm = self._gammas()
+		istp, gm = self._gammas(True)
 		for n,i in enumerate(istp):
 			gm[n]['isotope'] = i
 		if gammas is not None:
@@ -716,6 +729,9 @@ class Spectrum(object):
 		X, Y, B = self._forward_fit()
 		L = len(self.hist)
 		chan = np.arange(L)
+
+		if not len(gm):
+			return []
 
 		df = pd.concat(gm, sort=True, ignore_index=True).sort_values(by=['energy']).reset_index(drop=True)
 		df['idx'] = self.cb.map_channel(df['energy'])
@@ -856,7 +872,8 @@ class Spectrum(object):
 		gammas : list, dict or pd.DataFrame, optional
 			Manual entry for specifying peaks in the spectrum. 'gammas' must be an
 			object that can be converted into a pandas DataFrame, with the keywords
-			'energy', 'intensity', 'unc_intensity' and optionally 'isotope'.
+			'energy', 'intensity', 'unc_intensity' and optionally 'isotope'.  Units
+			of intensity should be percent, units of energy should be keV.
 
 		Other Parameters
 		----------------

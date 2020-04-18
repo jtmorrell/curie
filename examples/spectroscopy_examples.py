@@ -1,14 +1,60 @@
-.. _spectroscopy:
+import curie as ci
+import numpy as np
 
-============
-Spectroscopy
-============
+def basic_examples():
+	### Load and plot a spectrum
+	sp = ci.Spectrum('eu_calib_7cm.Spe')
+	sp.plot()
 
-Welcome to the Curie user's guide!  This section is under construction.  See :ref:`getting_started` for more info.
+	### Fit Europium Spectrum
+	sp.isotopes = ['152EU']
+	sp.plot()
+
+	### Perform an efficiency calibration
+	cb = ci.Calibration()
+	cb.calibrate([sp], sources=[{'isotope':'152EU', 'A0':3.7E4, 'ref_date':'01/01/2009 12:00:00'}])
+
+	### Save calibration
+	cb.saveas('eu_calib.json')
+
+	### This calibration can be re-loaded
+	cb = ci.Calibration('eu_calib.json')
+	### And manually assigned to any spectrum
+	sp.cb = cb
+	sp.cb.plot()
+
+	### Print out peaks
+	sp.summarize()
+
+	### Save peak information
+	sp.saveas('test.csv', replace=True)
+	### Save as .Chn format
+	sp.saveas('eu_calib_7cm.Chn')
+
+	### Plot ADC channels instead of energy
+	sp.plot(xcalib=False)
+
+	### Pick out a few peaks for manual calibration
+	cb_data = [[664.5, 121.8],
+				[1338.5, 244.7],
+				[1882.5, 344.3],
+				[2428, 444],
+				[7698, 1408]]
+
+	sp.auto_calibrate(peaks=cb_data)
 
 
-Spectroscopy examples::
+	# ### Custom peaks
+	sp.fit_peaks(gammas=[{'energy':1460.82, 'intensity':0.1066, 'unc_intensity':0.0017, 'isotope':'40K'}])
+	sp.summarize()
+	sp.plot()
 
+	# ### More options with fits
+	sp.fit_config = {'xrays':True, 'E_min':20.0, 'bg':'quadratic'}
+	### Save and show the plot
+	sp.plot(saveas='europium.png')
+
+def extended_examples():
 	sp = ci.Spectrum('eu_calib_7cm.Spe')
 	sp.isotopes = ['152EU']
 	sp.isotopes = ['152EU', '40K']
@@ -105,3 +151,7 @@ Spectroscopy examples::
 	sp.saveas('peak_data.csv')
 	print(sp.fit_peaks(SNR_min=5, dE_511=12))
 	print(sp.fit_peaks(bg='quadratic'))
+
+
+basic_examples()
+extended_examples()
