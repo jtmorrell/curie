@@ -4,10 +4,11 @@
 Isotopes & Decay Chains
 =======================
 
-Welcome to the Curie user's guide!  This section is under construction.  See :ref:`getting_started` for more info.
+Curie provides access to isotopic masses and decay data, which is a collection from the NNDC's Nudat2, the wallet cards,
+the atomic mass evaluation, and ENDF (for decay branching ratios and some half-lives).  This is provided by the `Isotope`
+class.  For a complete list of methods and attributes, see the Curie :ref:`api`.
 
-
-Isotope examples::
+Examples::
 
 	ip = ci.Isotope('115INm')
 	ip = ci.Isotope('Cu-67')
@@ -52,8 +53,13 @@ Isotope examples::
 	print(ip.dose_rate(activity=3.7E10, units='R/hr'))
 
 
+Curie also has a general-purpose implementation of the Batemann equations for a radioactive decay chain.
+The `DecayChain` class can calculate the activity of any isotope in a decay chain for a specified initial
+activity, or production rate.  The decay chain is a collection of all isotopes originating from a "parent"
+radionuclide.  The class is also capable of fitting a production rate or initial activity to a set
+of observed decays, or retrieving these from gamma-ray spectra.
 
-Decay Chain examples::
+Examples::
 
 	dc = ci.DecayChain('Ra-225', R=[[1.0, 1.0], [0.5, 1.5], [2.0, 6]], units='d')
 	print(dc.R_avg)

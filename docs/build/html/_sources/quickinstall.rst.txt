@@ -32,5 +32,5 @@ Curie should download about 1GB of nuclear data during setup, however if this do
 
 If this fails, you can alternatively download curie as a .zip file from `dropbox`_ and unzip it into the appropriate site-packages directory.  If you're unsure where that is, the following `StackExchange`_ is a useful reference.
 
-.. _dropbox: https://www.dropbox.com/s/iohu07ing4e1b9r/curie.zip?dl=1
+.. _dropbox: https://www.dropbox.com/s/c50m86p555tfs4h/curie.zip?dl=1
 .. _StackExchange: https://stackoverflow.com/questions/122327/how-do-i-find-the-location-of-my-python-site-packages-directory/12950101

@@ -4,9 +4,11 @@
 Stopping Power Calculations
 ===========================
 
-Welcome to the Curie user's guide!  This section is under construction.  See :ref:`getting_started` for more info.
+Curie can be used to calculate stopping powers using the Anderson-Ziegler formalism, and to retrieve photon
+mass-attenuation coefficients, for any element up to Z=92, or any compound of elements.  The element
+and compound classes can be used to directly calculate/retrieve these quantities.
 
-Compound examples::
+Examples::
 
 	el = ci.Element('Hf')
 	print(el.mass)
@@ -89,7 +91,11 @@ Compound examples::
 	print(cm.S(55.0, density=1E-3)) ### S in MeV/(mg/cm^2)
 
 
-Stack examples::
+Additionally, Curie can be used to determine the flux profile of particles through a "stack" of
+material, that can be composed of either elements or compounds.  The transport calculation is done
+using a predictor-corrector Monte Carlo method.  For more details, see the Curie :ref:`api`.
+
+Examples::
 
 	stack = [{'cm':'H2O', 'ad':800.0, 'name':'water'},
 			{'cm':'RbCl', 'density':3.0, 't':0.03, 'name':'salt'},

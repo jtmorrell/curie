@@ -4,10 +4,12 @@
 Spectroscopy
 ============
 
-Welcome to the Curie user's guide!  This section is under construction.  See :ref:`getting_started` for more info.
+Curie has two classes for analyzing high-purity germanium (HPGe) data, the `Spectrum` class, which performs
+peak fitting, and the `Calibration` class, which generates an energy, efficiency and resolution calibration
+which are needed to accurately fit peaks and determine activities.  See the Curie :ref:`api` for more details
+on the methods and attributes of these classes.
 
-
-Spectroscopy examples::
+Examples::
 
 	sp = ci.Spectrum('eu_calib_7cm.Spe')
 	sp.isotopes = ['152EU']

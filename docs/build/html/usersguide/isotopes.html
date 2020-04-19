@@ -45,8 +45,10 @@
             
   <div class="section" id="isotopes-decay-chains">
 <span id="isotopes"></span><h1>3. Isotopes &amp; Decay Chains<a class="headerlink" href="#isotopes-decay-chains" title="Permalink to this headline">¶</a></h1>
-<p>Welcome to the Curie user’s guide!  This section is under construction.  See <a class="reference internal" href="getting_started.html#getting-started"><span class="std std-ref">Getting Started</span></a> for more info.</p>
-<p>Isotope examples:</p>
+<p>Curie provides access to isotopic masses and decay data, which is a collection from the NNDC’s Nudat2, the wallet cards,
+the atomic mass evaluation, and ENDF (for decay branching ratios and some half-lives).  This is provided by the <cite>Isotope</cite>
+class.  For a complete list of methods and attributes, see the Curie <a class="reference internal" href="../api/index.html#api"><span class="std std-ref">API</span></a>.</p>
+<p>Examples:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ip</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Isotope</span><span class="p">(</span><span class="s1">&#39;115INm&#39;</span><span class="p">)</span>
 <span class="n">ip</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Isotope</span><span class="p">(</span><span class="s1">&#39;Cu-67&#39;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">ip</span><span class="o">.</span><span class="n">dose_rate</span><span class="p">(</span><span class="n">units</span><span class="o">=</span><span class="s1">&#39;mR/h&#39;</span><span class="p">))</span>
@@ -90,7 +92,12 @@
 <span class="nb">print</span><span class="p">(</span><span class="n">ip</span><span class="o">.</span><span class="n">dose_rate</span><span class="p">(</span><span class="n">activity</span><span class="o">=</span><span class="mf">3.7E10</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;R/hr&#39;</span><span class="p">))</span>
 </pre></div>
 </div>
-<p>Decay Chain examples:</p>
+<p>Curie also has a general-purpose implementation of the Batemann equations for a radioactive decay chain.
+The <cite>DecayChain</cite> class can calculate the activity of any isotope in a decay chain for a specified initial
+activity, or production rate.  The decay chain is a collection of all isotopes originating from a “parent”
+radionuclide.  The class is also capable of fitting a production rate or initial activity to a set
+of observed decays, or retrieving these from gamma-ray spectra.</p>
+<p>Examples:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">dc</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">DecayChain</span><span class="p">(</span><span class="s1">&#39;Ra-225&#39;</span><span class="p">,</span> <span class="n">R</span><span class="o">=</span><span class="p">[[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">],</span> <span class="p">[</span><span class="mf">2.0</span><span class="p">,</span> <span class="mi">6</span><span class="p">]],</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;d&#39;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">dc</span><span class="o">.</span><span class="n">R_avg</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">dc</span><span class="o">.</span><span class="n">isotopes</span><span class="p">)</span>

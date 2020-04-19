@@ -4,11 +4,15 @@
 Reactions
 =========
 
-Welcome to the Curie user's guide!  This section is under construction.  See :ref:`getting_started` for more info.
+Curie provides access to the following evaluated nuclear reaction libraries: ENDF/B-VII.1, TENDL-2015, IRDFF-II,
+and the IAEA Medical Monitor reaction library.  The `Library` class gives access to the libraries for searching 
+and retrieving reactions.  The `Reaction` class gives access to data and methods for a specific reaction.  Some 
+methods include the flux-average cross section, the integral of the cross section and the flux, a plotting method,
+and interpolation.  See the :ref:`api` for more details.
 
-Reaction examples::
+Examples::
 
-	rx = ci.Reaction('Ra-226(n,2n)Ra-225')
+	rx = ci.Reaction('Ra-226(n,2n)Ra-225', 'endf')
 	rx.plot()
 
 	rx = ci.Reaction('Ni-58(n,p)')

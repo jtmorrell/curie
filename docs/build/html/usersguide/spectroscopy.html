@@ -45,8 +45,11 @@
             
   <div class="section" id="spectroscopy">
 <span id="id1"></span><h1>2. Spectroscopy<a class="headerlink" href="#spectroscopy" title="Permalink to this headline">¶</a></h1>
-<p>Welcome to the Curie user’s guide!  This section is under construction.  See <a class="reference internal" href="getting_started.html#getting-started"><span class="std std-ref">Getting Started</span></a> for more info.</p>
-<p>Spectroscopy examples:</p>
+<p>Curie has two classes for analyzing high-purity germanium (HPGe) data, the <cite>Spectrum</cite> class, which performs
+peak fitting, and the <cite>Calibration</cite> class, which generates an energy, efficiency and resolution calibration
+which are needed to accurately fit peaks and determine activities.  See the Curie <a class="reference internal" href="../api/index.html#api"><span class="std std-ref">API</span></a> for more details
+on the methods and attributes of these classes.</p>
+<p>Examples:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sp</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Spectrum</span><span class="p">(</span><span class="s1">&#39;eu_calib_7cm.Spe&#39;</span><span class="p">)</span>
 <span class="n">sp</span><span class="o">.</span><span class="n">isotopes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;152EU&#39;</span><span class="p">]</span>
 <span class="n">sp</span><span class="o">.</span><span class="n">isotopes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;152EU&#39;</span><span class="p">,</span> <span class="s1">&#39;40K&#39;</span><span class="p">]</span>

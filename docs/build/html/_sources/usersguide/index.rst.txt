@@ -17,4 +17,3 @@ The :ref:`getting_started` page gives a brief overview of each available class. 
     isotopes
     reactions
     stopping
-    troubleshoot

@@ -18,7 +18,7 @@
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="6. Troubleshooting" href="troubleshoot.html" />
+    <link rel="next" title="API" href="../api/index.html" />
     <link rel="prev" title="4. Reactions" href="reactions.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
@@ -28,7 +28,7 @@
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="troubleshoot.html" title="6. Troubleshooting"
+          <a href="../api/index.html" title="API"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="reactions.html" title="4. Reactions"
@@ -45,8 +45,10 @@
             
   <div class="section" id="stopping-power-calculations">
 <span id="stopping"></span><h1>5. Stopping Power Calculations<a class="headerlink" href="#stopping-power-calculations" title="Permalink to this headline">¶</a></h1>
-<p>Welcome to the Curie user’s guide!  This section is under construction.  See <a class="reference internal" href="getting_started.html#getting-started"><span class="std std-ref">Getting Started</span></a> for more info.</p>
-<p>Compound examples:</p>
+<p>Curie can be used to calculate stopping powers using the Anderson-Ziegler formalism, and to retrieve photon
+mass-attenuation coefficients, for any element up to Z=92, or any compound of elements.  The element
+and compound classes can be used to directly calculate/retrieve these quantities.</p>
+<p>Examples:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">el</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s1">&#39;Hf&#39;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">el</span><span class="o">.</span><span class="n">mass</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">el</span><span class="o">.</span><span class="n">density</span><span class="p">)</span>
@@ -128,7 +130,10 @@
 <span class="nb">print</span><span class="p">(</span><span class="n">cm</span><span class="o">.</span><span class="n">S</span><span class="p">(</span><span class="mf">55.0</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="mf">1E-3</span><span class="p">))</span> <span class="c1">### S in MeV/(mg/cm^2)</span>
 </pre></div>
 </div>
-<p>Stack examples:</p>
+<p>Additionally, Curie can be used to determine the flux profile of particles through a “stack” of
+material, that can be composed of either elements or compounds.  The transport calculation is done
+using a predictor-corrector Monte Carlo method.  For more details, see the Curie <a class="reference internal" href="../api/index.html#api"><span class="std std-ref">API</span></a>.</p>
+<p>Examples:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">stack</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;cm&#39;</span><span class="p">:</span><span class="s1">&#39;H2O&#39;</span><span class="p">,</span> <span class="s1">&#39;ad&#39;</span><span class="p">:</span><span class="mf">800.0</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">:</span><span class="s1">&#39;water&#39;</span><span class="p">},</span>
                 <span class="p">{</span><span class="s1">&#39;cm&#39;</span><span class="p">:</span><span class="s1">&#39;RbCl&#39;</span><span class="p">,</span> <span class="s1">&#39;density&#39;</span><span class="p">:</span><span class="mf">3.0</span><span class="p">,</span> <span class="s1">&#39;t&#39;</span><span class="p">:</span><span class="mf">0.03</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">:</span><span class="s1">&#39;salt&#39;</span><span class="p">},</span>
                 <span class="p">{</span><span class="s1">&#39;cm&#39;</span><span class="p">:</span><span class="s1">&#39;Kapton&#39;</span><span class="p">,</span> <span class="s1">&#39;t&#39;</span><span class="p">:</span><span class="mf">0.025</span><span class="p">},</span>
@@ -169,8 +174,8 @@
   <p class="topless"><a href="reactions.html"
                         title="previous chapter">4. Reactions</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="troubleshoot.html"
-                        title="next chapter">6. Troubleshooting</a></p>
+  <p class="topless"><a href="../api/index.html"
+                        title="next chapter">API</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -201,7 +206,7 @@
           <a href="../genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="troubleshoot.html" title="6. Troubleshooting"
+          <a href="../api/index.html" title="API"
              >next</a> |</li>
         <li class="right" >
           <a href="reactions.html" title="4. Reactions"
