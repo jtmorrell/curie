@@ -2,10 +2,14 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from setuptools import setup, find_packages
 import os
-from distutils.core import setup
-from distutils.command.install import install as _install
+try:
+	from setuptools import setup, find_packages
+	from setuptools.command.install import install as _install
+except:
+	from distutils.core import setup
+	from distutils.command.install import install as _install
+
 
 
 def _post_install(loc):
