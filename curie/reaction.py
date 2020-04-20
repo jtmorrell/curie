@@ -120,13 +120,17 @@ class Reaction(object):
 		self._interp = None
 		self._interp_unc = None
 
-		if 'nat' not in self.target:
-			tg = Isotope(self.target).TeX
-		else:
-			tg = r'$^{nat}$'+self.target[3:].title()
-		prd = Isotope(self.product).TeX if self.product else ''
+		try:
+			if 'nat' not in self.target:
+				tg = Isotope(self.target).TeX
+			else:
+				tg = r'$^{nat}$'+self.target[3:].title()
+			prd = Isotope(self.product).TeX if self.product else ''
 
-		self.TeX = '{0}({1},{2}){3}'.format(tg, self.incident, self.outgoing, prd)
+			self.TeX = '{0}({1},{2}){3}'.format(tg, self.incident, self.outgoing, prd)
+
+		except:
+			self.TeX = reaction_name
 
 	def _check(self, err=False):
 		c = len(self.library.search(*self._rx))==1

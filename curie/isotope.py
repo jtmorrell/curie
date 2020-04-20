@@ -136,6 +136,8 @@ class Isotope(object):
 
 			self.decay_products = {}
 			for mode in str(df['decay_mode'][0]).split(','):
+				if len(mode.split(':'))!=3:
+					continue
 				dcy, itp, br = tuple(mode.split(':'))
 				br = float(br)
 				if itp=='SFY':
