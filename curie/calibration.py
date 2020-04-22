@@ -471,7 +471,7 @@ class Calibration(object):
 					self._calib_data['rescal']['width'].append(sig)
 					self._calib_data['rescal']['unc_width'].append(unc_sig)
 
-					src = sources[sources['isotope']==pk['isotope']]
+					src = sources[sources['isotope']==pk['isotope']].reset_index(drop=True)
 					rd, A0 = src.loc[0, 'ref_date'], src.loc[0, 'A0']
 					unc_A0 = src.loc[0, 'unc_A0'] if 'unc_A0' in src.columns else 0.0
 					td = (sp.start_time-rd).total_seconds()
