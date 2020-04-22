@@ -512,8 +512,8 @@ class Spectrum(object):
 		for n,ip in enumerate(itps):
 			idx = self.cb.map_channel(gm[n]['energy'], engcal)
 			sig = self.cb.res(idx)
-			A_norm = self.cb.eff(gm[n]['energy'])*gm[n]['intensity']/sig
-			whr = np.where(((idx+W*sig)<L)&((idx-W*sig)>0))[0]
+			A_norm = self.cb.eff(gm[n]['energy'])*gm[n]['intensity'].to_numpy()/sig
+			whr = np.where(((idx+1.5*W*sig)<L)&((idx-1.5*W*sig)>0))[0]
 			idx, sig, A_norm = idx[whr], sig[whr], A_norm[whr]
 
 			l, h = np.array(idx-W*sig, dtype=np.int32), np.array(idx+W*sig, dtype=np.int32)
@@ -738,6 +738,7 @@ class Spectrum(object):
 		df['sig'] = self.cb.res(df['idx'])
 		df['l'] = np.array(df['idx']-self.fit_config['pk_width']*df['sig'], dtype=np.int32)
 		df['h'] = np.array(df['idx']+self.fit_config['pk_width']*df['sig'], dtype=np.int32)
+		df = df[(df['l']>0)&(df['h']<L)].reset_index(drop=True)
 		df['A'] = (self.hist-self._snip)[df['idx']]
 
 		for n,i in enumerate(istp):
@@ -745,7 +746,7 @@ class Spectrum(object):
 			df.loc[df_sub.index, 'A'] = B[n]*self.cb.eff(df_sub['energy'])*df_sub['intensity']/df_sub['sig']
 
 		df['SNR'] = df['A']/np.sqrt(self._snip[df['idx']])
-		df = df[(df['SNR']>self.fit_config['SNR_min'])&(df['l']>0)&(df['h']<L)].reset_index(drop=True)
+		df = df[(df['SNR']>self.fit_config['SNR_min'])].reset_index(drop=True)
 
 		if len(df)==0:
 			return []
@@ -1223,6 +1224,9 @@ class Spectrum(object):
 
 		lbs = []
 		if fit:
+			# if self.peaks is not None:
+			# 	if len(self.peaks)>0:
+					
 			cm, cl = colormap(), colormap(aslist=True)
 			sub, itp, N_sub = self._split_fits()
 			
@@ -1251,7 +1255,7 @@ class Spectrum(object):
 						lbs.append(lb)
 
 					ax.plot(erange, np.where(pk_fit>0.1, pk_fit, 0.1), lw=1.4, color=c, label=lb, ls=ls[int(n/len(cl))%len(ls)])
-					
+							
 		
 		if xcalib:
 			ax.set_xlabel('Energy (keV)')

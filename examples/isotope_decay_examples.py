@@ -110,6 +110,6 @@ def extended_examples():
 	dc = ci.DecayChain('99MO', A0=350E6, units='d')
 	dc.plot()
 
-isotope_examples()
+# isotope_examples()
 decay_examples()
-extended_examples()
+# extended_examples()

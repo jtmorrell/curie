@@ -427,6 +427,18 @@ class Calibration(object):
 		src_itps = sources['isotope'].to_list()
 		lm = {ip:Isotope(ip).dc for ip in src_itps}
 		unc_lm = {ip:Isotope(ip).decay_const(unc=True)[1] for ip in src_itps}
+
+		specs = []
+		for n,sp in enumerate(spectra):
+			if type(sp)==str:
+				from .spectrum import Spectrum
+				spec = Spectrum(sp)
+				spec.isotopes = sources['isotope'].to_list()
+				specs.append(spec)
+			else:
+				specs.append(sp)
+		spectra = specs
+
 		for sp in spectra:
 			if sp._fits is None:
 				sp.fit_peaks()
@@ -482,17 +494,23 @@ class Calibration(object):
 				self._calib_data[ctyp][cvar] = np.array(self._calib_data[ctyp][cvar])
 
 		x, y, yerr = self._calib_data['engcal']['channel'], self._calib_data['engcal']['energy'], self.eng(self._calib_data['engcal']['unc_channel'])
+		idx = np.where((0.25*y>yerr)&(yerr>0.0)&(np.isfinite(yerr)))
+		x, y, yerr = x[idx], y[idx], yerr[idx]
 		fn = lambda x, *A: self.eng(x, A)
 		fit, unc = curve_fit(fn, x, y, sigma=yerr, p0=spectra[0].cb.engcal)
+		self._calib_data['engcal']['channel'], self._calib_data['engcal']['energy'], self._calib_data['engcal']['unc_channel'] = x, y, yerr
 		self._calib_data['engcal']['fit'], self._calib_data['engcal']['unc'] = fit, unc
 
 		x, y, yerr = self._calib_data['rescal']['channel'], self._calib_data['rescal']['width'], self._calib_data['rescal']['unc_width']
+		idx = np.where((0.25*y>yerr)&(yerr>0.0)&(np.isfinite(yerr)))
+		x, y, yerr = x[idx], y[idx], yerr[idx]
 		fn = lambda x, *A: self.res(x, A)
 		fit, unc = curve_fit(fn, x, y, sigma=yerr, p0=spectra[0].cb.rescal)
+		self._calib_data['rescal']['channel'], self._calib_data['rescal']['width'], self._calib_data['rescal']['unc_width'] = x, y, yerr
 		self._calib_data['rescal']['fit'], self._calib_data['rescal']['unc'] = fit, unc
 
 		x, y, yerr = self._calib_data['effcal']['energy'], self._calib_data['effcal']['efficiency'], self._calib_data['effcal']['unc_efficiency']
-		idx = np.where((y>yerr)&(yerr>0.0)&(np.isfinite(yerr)))
+		idx = np.where((0.25*y>yerr)&(yerr>0.0)&(np.isfinite(yerr)))
 		x, y, yerr = x[idx], y[idx], yerr[idx]
 		fn = lambda x, *A: self.eff(x, A)
 
