@@ -110,14 +110,13 @@
 <span class="sd">		Time-averaged production rate for each isotope where R&gt;0.  This will be</span>
 <span class="sd">		modified if `fit_R()` is called.</span>
 
-
 <span class="sd">	Examples</span>
 <span class="sd">	--------</span>
 <span class="sd">	&gt;&gt;&gt; dc = ci.DecayChain(&#39;Ra-225&#39;, R=[[1.0, 1.0], [0.5, 1.5], [2.0, 6]], units=&#39;d&#39;)</span>
 <span class="sd">	&gt;&gt;&gt; print(dc.isotopes)</span>
 <span class="sd">	[&#39;225RAg&#39;, &#39;225ACg&#39;, &#39;221FRg&#39;, &#39;217ATg&#39;, &#39;213BIg&#39;, &#39;217RNg&#39;, &#39;209TLg&#39;, &#39;213POg&#39;, &#39;209PBg&#39;, &#39;209BIg&#39;]</span>
 <span class="sd">	&gt;&gt;&gt; print(dc.R_avg)</span>
-<span class="sd">      R_avg isotope</span>
+<span class="sd">          R_avg isotope</span>
 <span class="sd">	0  1.708333  225RAg</span>
 
 <span class="sd">	&gt;&gt;&gt; dc = ci.DecayChain(&#39;152EU&#39;, A0=3.7E3, units=&#39;h&#39;)</span>

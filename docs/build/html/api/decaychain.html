@@ -41,23 +41,20 @@
 <dt id="curie.DecayChain">
 <em class="property">class </em><code class="descclassname">curie.</code><code class="descname">DecayChain</code><span class="sig-paren">(</span><em>parent_isotope</em>, <em>R=None</em>, <em>A0=None</em>, <em>units='s'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/decay_chain.html#DecayChain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.DecayChain" title="Permalink to this definition">¶</a></dt>
 <dd><p>Radioactive Decay Chain</p>
-<blockquote>
-<div>Uses the Bateman equations to calculate the activities and number of decays
+<p>Uses the Bateman equations to calculate the activities and number of decays
 from a radioactive decay chain as a function of time, both in production
 and decay.  Also, initial isotope activities and production rates can
 be fit to observed count data, or directly fit to HPGe spectra using the
-<cite>get_counts()</cite> function.</div></blockquote>
+<cite>get_counts()</cite> function.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
 <dt><strong>parent_isotope</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
-<dd><blockquote class="first">
-<div><p>Parent isotope in the chain.</p>
-</div></blockquote>
-<dl class="last docutils">
-<dt>R <span class="classifier-delimiter">:</span> <span class="classifier">array_like, dict, str or pd.DataFrame</span></dt>
+<dd><p class="first last">Parent isotope in the chain.</p>
+</dd>
+<dt><strong>R</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like, dict, str or pd.DataFrame</span></dt>
 <dd><p class="first">Production rate for each isotope in the decay chain as a function of time.
 If a Nx2 np.ndarray, element n gives the production rate R_n up until
 time t_n for the parent isotope. E.g. If the production rate of the parent
@@ -70,59 +67,57 @@ path to a file where the same data is provided.  Supported file types are
 .csv, .json and .db files, where .json files must be in the ‘records’ format,
 and .db files must have a table named ‘R’.</p>
 </dd>
-<dt>A0 <span class="classifier-delimiter">:</span> <span class="classifier">float or dict</span></dt>
+<dt><strong>A0</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float or dict</span></dt>
 <dd><p class="first last">Initial activity.  If a float, the initial activity of the parent isotope.
 If a dict, the keys are the isotopes for which the values represent the
 initial activity.</p>
 </dd>
-<dt>units <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
+<dt><strong>units</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
 <dd><p class="first last">Units of time for the chain. Options are ‘ns’, ‘us’, ‘ms’, ‘s’, ‘m’, ‘h’, 
 ‘d’, ‘y’, ‘ky’, ‘My’, ‘Gy’.  Default is ‘s’.</p>
-</dd>
-</dl>
 </dd>
 </dl>
 </td>
 </tr>
 </tbody>
 </table>
-<dl class="docutils">
-<dt>R_avg isotope</dt>
-<dd><p class="first">0  1.708333  225RAg</p>
-<div class="last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dc</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">DecayChain</span><span class="p">(</span><span class="s1">&#39;152EU&#39;</span><span class="p">,</span> <span class="n">A0</span><span class="o">=</span><span class="mf">3.7E3</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;h&#39;</span><span class="p">)</span>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dc</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">DecayChain</span><span class="p">(</span><span class="s1">&#39;Ra-225&#39;</span><span class="p">,</span> <span class="n">R</span><span class="o">=</span><span class="p">[[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">],</span> <span class="p">[</span><span class="mf">2.0</span><span class="p">,</span> <span class="mi">6</span><span class="p">]],</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;d&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">dc</span><span class="o">.</span><span class="n">isotopes</span><span class="p">)</span>
+<span class="go">[&#39;225RAg&#39;, &#39;225ACg&#39;, &#39;221FRg&#39;, &#39;217ATg&#39;, &#39;213BIg&#39;, &#39;217RNg&#39;, &#39;209TLg&#39;, &#39;213POg&#39;, &#39;209PBg&#39;, &#39;209BIg&#39;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">dc</span><span class="o">.</span><span class="n">R_avg</span><span class="p">)</span>
+<span class="go">  R_avg isotope</span>
+<span class="go">0  1.708333  225RAg</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dc</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">DecayChain</span><span class="p">(</span><span class="s1">&#39;152EU&#39;</span><span class="p">,</span> <span class="n">A0</span><span class="o">=</span><span class="mf">3.7E3</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;h&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ci</span><span class="o">.</span><span class="n">isotopes</span><span class="p">)</span>
 <span class="go">[&#39;152EUg&#39;, &#39;152GDg&#39;, &#39;152SMg&#39;]</span>
 </pre></div>
 </div>
-</dd>
-</dl>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
 <dt><strong>R</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pd.DataFrame</span></dt>
-<dd><blockquote class="first">
-<div><p>Production rate as a function of time, for each isotope in the chain. This
+<dd><p class="first last">Production rate as a function of time, for each isotope in the chain. This
 will be modified if <cite>fit_R()</cite> is called.</p>
-</div></blockquote>
-<dl class="last docutils">
-<dt>A0 <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
+</dd>
+<dt><strong>A0</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
 <dd><p class="first last">Initial activity of each isotope in the chain.</p>
 </dd>
-<dt>isotopes <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
+<dt><strong>isotopes</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
 <dd><p class="first last">List of isotopes in the decay chain.</p>
 </dd>
-<dt>counts <span class="classifier-delimiter">:</span> <span class="classifier">pd.DataFrame</span></dt>
+<dt><strong>counts</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pd.DataFrame</span></dt>
 <dd><p class="first last">Observed counts from isotopes in the decay chain, which can be used
 to determine the initial activities or average production rates using
 the <cite>fit_R()</cite> or <cite>fit_A0()</cite> functions.</p>
 </dd>
-<dt>R_avg <span class="classifier-delimiter">:</span> <span class="classifier">pd.DataFrame</span></dt>
+<dt><strong>R_avg</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pd.DataFrame</span></dt>
 <dd><p class="first last">Time-averaged production rate for each isotope where R&gt;0.  This will be
 modified if <cite>fit_R()</cite> is called.</p>
-</dd>
-</dl>
 </dd>
 </dl>
 </td>
