@@ -611,7 +611,7 @@ class Spectrum(object):
 		if self._gmls is None or _force:
 			itps, gm = [], []
 			for i in self.isotopes:
-				g = Isotope(i).gammas(I_lim=self.fit_config['I_min'], E_lim=self.fit_config['E_min'], dE_511=self.fit_config['dE_511'])
+				g = Isotope(i).gammas(I_lim=self.fit_config['I_min'], E_lim=self.fit_config['E_min'], dE_511=self.fit_config['dE_511'], xrays=self.fit_config['xrays'])
 				g['intensity'] = g['intensity']*1E-2
 				g['unc_intensity'] = g['unc_intensity']*1E-2
 				if len(g):
