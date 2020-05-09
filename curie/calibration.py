@@ -510,7 +510,7 @@ class Calibration(object):
 		self._calib_data['rescal']['fit'], self._calib_data['rescal']['unc'] = fit, unc
 
 		x, y, yerr = self._calib_data['effcal']['energy'], self._calib_data['effcal']['efficiency'], self._calib_data['effcal']['unc_efficiency']
-		idx = np.where((0.25*y>yerr)&(yerr>0.0)&(np.isfinite(yerr)))
+		idx = np.where((0.33*y>yerr)&(yerr>0.0)&(np.isfinite(yerr)))
 		x, y, yerr = x[idx], y[idx], yerr[idx]
 		fn = lambda x, *A: self.eff(x, A)
 
@@ -536,7 +536,7 @@ class Calibration(object):
 		else:
 			fit, unc = curve_fit(fn, x, y, sigma=yerr, p0=p0[:3], bounds=(bounds[0][:3], bounds[1][:3]))
 
-		idx = np.where((fn(x, *fit)-y)**2/yerr**2 < 10.0)
+		idx = np.where((self.eff(x, fit)-y)**2/yerr**2 < 10.0)
 		x, y, yerr = x[idx], y[idx], yerr[idx]
 		self._calib_data['effcal']['energy'], self._calib_data['effcal']['efficiency'], self._calib_data['effcal']['unc_efficiency'] = x, y, yerr
 

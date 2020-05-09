@@ -296,6 +296,8 @@ class Spectrum(object):
 
 		r = int(round(L/float(N_bins)))
 		self.hist = np.sum(self.hist.reshape((int(L/r), r)), axis=1)
+		self._snip = self._snip_bg()
+		self._snip_interp = interp1d(np.arange(len(self.hist)), self._snip, bounds_error=False, fill_value=0.0)
 
 		ec = self.cb.engcal
 		self.cb.engcal = [ec[0], ec[1]*r]+([ec[2]*r**2] if len(ec)==3 else [])

@@ -5,6 +5,7 @@ from __future__ import print_function
 import numpy as np
 import pandas as pd
 import datetime as dtm
+pd.options.mode.chained_assignment = None
 
 from scipy.optimize import curve_fit
 
@@ -135,6 +136,11 @@ class DecayChain(object):
 				elif R.endswith('.db'):
 					self.R = pd.read_sql('SELECT * FROM R', _get_connection(R))
 
+				if 'isotope' not in self.R.columns.to_list():
+					self.R['isotope'] = self.isotopes[0]
+
+			elif type(R)==pd.DataFrame:
+				self.R = R.copy(deep=True)
 				if 'isotope' not in self.R.columns.to_list():
 					self.R['isotope'] = self.isotopes[0]
 
@@ -335,7 +341,7 @@ class DecayChain(object):
 	def counts(self, N_c):
 		if N_c is not None:
 			if type(N_c)==pd.DataFrame:
-				self._counts = N_c
+				self._counts = N_c.copy(deep=True)
 
 			elif type(N_c)!=dict:
 				N_c = np.asarray(N_c)
@@ -370,9 +376,11 @@ class DecayChain(object):
 
 		Parameters
 		----------
-		spectra : list
-			List of ci.Spectrum objects, or str of spectra filenames.  If str, 
-			peak_data must be specified, and filenames must match exactly.
+		spectra : list or str
+			List of ci.Spectrum objects, or str of spectra filenames.  If list of str, 
+			peak_data **must** be specified.  In this case the filenames must be
+			an exact match of the filenames in `peak_data`.  If spectra is a str,
+			it is assumed to be a regex match for the filenames in `peak_data`.
 		
 		EoB : str or datetime.datetime
 			Date/time of end-of-bombardment (t=0).  Must be a datetime object or
@@ -413,16 +421,23 @@ class DecayChain(object):
 			else:
 				peak_data = pd.DataFrame(peak_data)
 
+
+		if type(spectra)==str and peak_data is not None:
+			df = peak_data['filename']
+			spectra = list(set(map(str, df[df.str.contains(spectra)].to_list())))
+
+
 		for sp in spectra:
 			if type(sp)==str:
 				if peak_data is not None:
+
 					df = peak_data[peak_data['filename']==sp]
 					df['isotope'] = [self._filter_name(i) for i in df['isotope']]
 					df = df[df['isotope'].isin(self.isotopes)]
 
 					if len(df):
 						start_time = df.iloc[0]['start_time']
-						if type(start_time)==str:
+						if type(start_time)==str or type(start_time)==unicode:
 							start_time = dtm.datetime.strptime(start_time, '%m/%d/%Y %H:%M:%S')
 						start = (start_time-EoB).total_seconds()*self._r_lm('s')
 						stop = start+(df.iloc[0]['real_time']*self._r_lm('s'))
@@ -519,8 +534,12 @@ class DecayChain(object):
 			_R_dict = {p:self.R[self.R['isotope']==p].iloc[n]['R'] for p in pd.unique(self.R['isotope'])}
 			self.A0 = {p:self.activity(p, dt, _R_dict=_R_dict) for p in self.A0}
 
+		self.counts = self.counts
+
 		R_avg = self.R_avg
 		R_norm = np.array([R_avg[R_avg['isotope']==i]['R_avg'].to_numpy()[0] for i in R_isotopes])
+		if not np.any(np.isfinite(np.diag(cov))):
+			cov = np.ones(cov.shape)*((np.average(dY/Y))*fit)**2
 		return R_isotopes, R_norm, cov*(R_norm/fit)**2
 		
 	def fit_A0(self):
@@ -575,6 +594,8 @@ class DecayChain(object):
 
 		for n,ip in enumerate(A0_isotopes):
 			self.A0[ip] *= fit[n]
+
+		self.counts = self.counts
 
 		A_norm = np.array([self.A0[i] for i in A0_isotopes])
 		return A0_isotopes, A_norm, cov*(A_norm/fit)**2
@@ -664,7 +685,7 @@ class DecayChain(object):
 					df = self.counts[self.counts['isotope']==istp]
 					if len(df):
 						x, y, yerr = df['start'].to_numpy(), df['activity'].to_numpy(), df['unc_activity'].to_numpy()
-						idx = np.where((0.3*y>yerr)&(yerr>0.0)&(np.isfinite(yerr))&((self.activity(istp, x)-y)**2/yerr**2<10.0))
+						idx = np.where((0.4*y>yerr)&(yerr>0.0)&(np.isfinite(yerr))&((self.activity(istp, x)-y)**2/yerr**2<10.0))
 						x, y, yerr = x[idx], y[idx], yerr[idx]
 					
 						ax.errorbar(x, y*mult, yerr=yerr*mult, ls='None', marker='o', color=line.get_color(), label=None)

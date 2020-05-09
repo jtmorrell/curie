@@ -341,9 +341,11 @@ a file with peak data, or a pandas DataFrame with peak data.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>spectra</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
-<dd><p class="first last">List of ci.Spectrum objects, or str of spectra filenames.  If str, 
-peak_data must be specified, and filenames must match exactly.</p>
+<dt><strong>spectra</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list or str</span></dt>
+<dd><p class="first last">List of ci.Spectrum objects, or str of spectra filenames.  If list of str, 
+peak_data <strong>must</strong> be specified.  In this case the filenames must be
+an exact match of the filenames in <cite>peak_data</cite>.  If spectra is a str,
+it is assumed to be a regex match for the filenames in <cite>peak_data</cite>.</p>
 </dd>
 <dt><strong>EoB</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str or datetime.datetime</span></dt>
 <dd><p class="first last">Date/time of end-of-bombardment (t=0).  Must be a datetime object or
