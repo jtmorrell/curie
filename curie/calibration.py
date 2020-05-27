@@ -389,7 +389,7 @@ class Calibration(object):
 	def res(self, channel, rescal=None):
 		"""Resolution calibration
 
-		Calculates the expected 1-_SIGMA peak widths for a given input array
+		Calculates the expected 1-sigma peak widths for a given input array
 		of channel numbers.  If `rescal` is given, it is used instead of
 		the calibration object's internal value (cb.rescal).
 
@@ -406,7 +406,7 @@ class Calibration(object):
 		Returns
 		-------
 		resolution : np.ndarray
-			Calculated 1-_SIGMA width of the peaks given the input channel numbers.
+			Calculated 1-sigma width of the peaks given the input channel numbers.
 
 		Examples
 		--------
@@ -516,10 +516,6 @@ class Calibration(object):
 			sources = pd.DataFrame(sources)
 		sources['ref_date'] = pd.to_datetime(sources['ref_date'], format='%m/%d/%Y %H:%M:%S')
 
-		self._calib_data = {'engcal':{'channel':[], 'energy':[], 'unc_channel':[]},
-							'rescal':{'channel':[], 'width':[], 'unc_width':[]},
-							'effcal':{'energy':[], 'efficiency':[], 'unc_efficiency':[]}}
-
 		src_itps = sources['isotope'].to_list()
 		lm = {ip:Isotope(ip).dc for ip in src_itps}
 		unc_lm = {ip:Isotope(ip).decay_const(unc=True)[1] for ip in src_itps}
@@ -535,16 +531,15 @@ class Calibration(object):
 				specs.append(sp)
 		spectra = specs
 
+		cb_dat = []
 		for sp in spectra:
 			if sp._fits is None:
 				sp.fit_peaks()
 
-			cfg = sp.fit_config
-			ix = -1
+			cfg, ix = sp.fit_config, -1
 
 			for ft in sp._fits:
-				f = ft['fit']
-				u = ft['unc']
+				f, u = ft['fit'], ft['unc']
 				B = {'snip':0, 'constant':1, 'linear':2, 'quadratic':3}[cfg['bg'].lower()]
 				L = 3+2*int(cfg['skew_fit'])+int(cfg['step_fit'])
 
@@ -555,17 +550,9 @@ class Calibration(object):
 						continue
 
 					j = B+n*L+1
-					_MU, sig = f[j], f[j+1]
-					unc__MU, unc_sig = np.sqrt(u[j][j]), np.sqrt(u[j+1][j+1])
+					mu, sig = f[j], f[j+1]
+					unc_mu, unc_sig = np.sqrt(u[j][j]), np.sqrt(u[j+1][j+1])
 					eng = pk['energy']
-
-					self._calib_data['engcal']['channel'].append(_MU)
-					self._calib_data['engcal']['energy'].append(eng)
-					self._calib_data['engcal']['unc_channel'].append(unc__MU)
-
-					self._calib_data['rescal']['channel'].append(_MU)
-					self._calib_data['rescal']['width'].append(sig)
-					self._calib_data['rescal']['unc_width'].append(unc_sig)
 
 					src = sources[sources['isotope']==pk['isotope']].reset_index(drop=True)
 					rd, A0 = src.loc[0, 'ref_date'], src.loc[0, 'A0']
@@ -581,29 +568,29 @@ class Calibration(object):
 					eff = pk['counts']*dc/(corr*(1.0-np.exp(-dc*sp.real_time))*np.exp(-dc*td)*pk['intensity']*A0*(sp.live_time/sp.real_time))
 					unc_eff = eff*np.sqrt((pk['unc_counts']/pk['counts'])**2+(pk['unc_intensity']/pk['intensity'])**2+(unc_lm[pk['isotope']]/dc)**2+(unc_A0/A0)**2)
 
-					self._calib_data['effcal']['energy'].append(eng)
-					self._calib_data['effcal']['efficiency'].append(eff)
-					self._calib_data['effcal']['unc_efficiency'].append(unc_eff)
+					cb_dat.append([mu, eng, unc_mu, sig, unc_sig, eff, unc_eff])
 
-		for ctyp in self._calib_data:
-			for cvar in self._calib_data[ctyp]:
-				self._calib_data[ctyp][cvar] = np.array(self._calib_data[ctyp][cvar])
+		cb_dat = np.array(cb_dat)
+		self._calib_data = {'engcal':{'channel':cb_dat[:,0], 'energy':cb_dat[:,1], 'unc_channel':cb_dat[:,2]},
+							'rescal':{'channel':cb_dat[:,0], 'width':cb_dat[:,3], 'unc_width':cb_dat[:,4]},
+							'effcal':{'energy':cb_dat[:,1], 'efficiency':cb_dat[:,5], 'unc_efficiency':cb_dat[:,6]}}
 
 		x, y, yerr = self._calib_data['engcal']['channel'], self._calib_data['engcal']['energy'], self.eng(self._calib_data['engcal']['unc_channel'])
 		idx = np.where((0.25*y>yerr)&(yerr>0.0)&(np.isfinite(yerr)))
 		x, y, yerr = x[idx], y[idx], yerr[idx]
 		fn = lambda x, *A: self.eng(x, A)
-		fit, unc = curve_fit(fn, x, y, _SIGMA=yerr, p0=spectra[0].cb.engcal)
-		self._calib_data['engcal']['channel'], self._calib_data['engcal']['energy'], self._calib_data['engcal']['unc_channel'] = x, y, yerr
-		self._calib_data['engcal']['fit'], self._calib_data['engcal']['unc'] = fit, unc
+		fit, unc = curve_fit(fn, x, y, sigma=yerr, p0=spectra[0].cb.engcal)
+		self._calib_data['engcal'] = {'channel':x, 'energy':y, 'unc_channel':yerr, 'fit':fit, 'unc':unc}
+		self.engcal = fit
 
 		x, y, yerr = self._calib_data['rescal']['channel'], self._calib_data['rescal']['width'], self._calib_data['rescal']['unc_width']
-		idx = np.where((0.25*y>yerr)&(yerr>0.0)&(np.isfinite(yerr)))
+		idx = np.where((0.33*y>yerr)&(yerr>0.0)&(np.isfinite(yerr)))
 		x, y, yerr = x[idx], y[idx], yerr[idx]
 		fn = lambda x, *A: self.res(x, A)
-		fit, unc = curve_fit(fn, x, y, _SIGMA=yerr, p0=spectra[0].cb.rescal)
-		self._calib_data['rescal']['channel'], self._calib_data['rescal']['width'], self._calib_data['rescal']['unc_width'] = x, y, yerr
-		self._calib_data['rescal']['fit'], self._calib_data['rescal']['unc'] = fit, unc
+		fit, unc = curve_fit(fn, x, y, sigma=yerr, p0=spectra[0].cb.rescal)
+		idx = np.where((self.res(x, fit)-y)**2/yerr**2 < 10.0)
+		self._calib_data['rescal'] = {'channel':x[idx], 'width':y[idx], 'unc_width':yerr[idx], 'fit':fit, 'unc':unc}
+		self.rescal = fit
 
 		x, y, yerr = self._calib_data['effcal']['energy'], self._calib_data['effcal']['efficiency'], self._calib_data['effcal']['unc_efficiency']
 		idx = np.where((0.33*y>yerr)&(yerr>0.0)&(np.isfinite(yerr)))
@@ -617,8 +604,8 @@ class Calibration(object):
 
 		if any([sp.fit_config['xrays'] for sp in spectra]):
 			try:
-				fit5, unc5 = curve_fit(fn, x, y, _SIGMA=yerr, p0=p0[:5], bounds=(bounds[0][:5], bounds[1][:5]))
-				fit7, unc7 = curve_fit(fn, x, y, _SIGMA=yerr, p0=fit5.tolist()+p0[5:], bounds=bounds)
+				fit5, unc5 = curve_fit(fn, x, y, sigma=yerr, p0=p0[:5], bounds=(bounds[0][:5], bounds[1][:5]))
+				fit7, unc7 = curve_fit(fn, x, y, sigma=yerr, p0=fit5.tolist()+p0[5:], bounds=bounds)
 				
 				chi7 = np.sum((y-self.eff(x, fit7))**2/yerr**2)
 				chi5 = np.sum((y-self.eff(x, fit5))**2/yerr**2)
@@ -627,21 +614,15 @@ class Calibration(object):
 				chi5 = chi5 if chi5>1.0 else 1.0/chi5
 				fit, unc = (fit5, unc5) if chi5<=chi7 else (fit7, unc7)
 			except:
-				fit, unc = curve_fit(fn, x, y, _SIGMA=yerr, p0=p0[:5], bounds=(bounds[0][:5], bounds[1][:5]))
+				fit, unc = curve_fit(fn, x, y, sigma=yerr, p0=p0[:5], bounds=(bounds[0][:5], bounds[1][:5]))
 
 		else:
-			fit, unc = curve_fit(fn, x, y, _SIGMA=yerr, p0=p0[:5], bounds=(bounds[0][:5], bounds[1][:5]))
+			fit, unc = curve_fit(fn, x, y, sigma=yerr, p0=p0[:5], bounds=(bounds[0][:5], bounds[1][:5]))
 
 		idx = np.where((self.eff(x, fit)-y)**2/yerr**2 < 10.0)
-		x, y, yerr = x[idx], y[idx], yerr[idx]
-		self._calib_data['effcal']['energy'], self._calib_data['effcal']['efficiency'], self._calib_data['effcal']['unc_efficiency'] = x, y, yerr
-
-		self._calib_data['effcal']['fit'], self._calib_data['effcal']['unc'] = fit, unc
-
-		self.engcal = self._calib_data['engcal']['fit']
-		self.rescal = self._calib_data['rescal']['fit']
-		self.effcal = self._calib_data['effcal']['fit']
-		self.unc_effcal = self._calib_data['effcal']['unc']
+		self._calib_data['effcal'] = {'energy':x[idx], 'efficiency':y[idx], 'unc_efficiency':yerr[idx], 'fit':fit, 'unc':unc}
+		self.effcal = fit
+		self.unc_effcal = unc
 
 		for sp in spectra:
 			sp.cb.engcal = self._calib_data['engcal']['fit']
