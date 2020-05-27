@@ -66,7 +66,7 @@ needing to re-perform the calibration fits.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">cb</span><span class="o">.</span><span class="n">engcal</span><span class="p">)</span>
 <span class="go">[0.0 0.3]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">cb</span><span class="o">.</span><span class="n">effcal</span><span class="p">)</span>
-<span class="go">[0.331 0.158 0.41 0.001 1.476]</span>
+<span class="go">[0.02 8.3 2.1 1.66 0.4]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">cb</span><span class="o">.</span><span class="n">saveas</span><span class="p">(</span><span class="s1">&#39;test_calib.json&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">cb</span> <span class="o">=</span> <span class="n">Calibration</span><span class="p">(</span><span class="s1">&#39;test_calib.json&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">cb</span><span class="o">.</span><span class="n">engcal</span><span class="p">)</span>
@@ -145,7 +145,7 @@ R = a + b*chan (default), or length 1 if R = a*sqrt(chan).</p>
 <code class="descname">calibrate</code><span class="sig-paren">(</span><em>spectra</em>, <em>sources</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration.calibrate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Calibration.calibrate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate calibration parameters from spectra</p>
 <p>Performs an energy, resolution and efficiency calibration on peak fits
-to a given list of spectra.  Reference activities must be given for the
+to a given list of spectra.  Reference activities _MUst be given for the
 efficiency calibration.  Spectra are allowed to have isotopes that are
 not in <cite>sources</cite>, but these will not be included in the efficiency calibration.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -189,10 +189,11 @@ and ‘ref_date’ (reference date).</p>
 energies. The <cite>effcal</cite> can be supplied, or if <cite>effcal=None</cite>, the
 calibration object’s internal efficiency calibration (cb.effcal)
 is used.</p>
-<p>The functional form of the efficiency used is
-eff(E) = c[0]*exp(-c[1]*energy**c[2]))) if the effcal is length 3 or
-eff(E) = c[0]*exp(-c[1]*energy**c[2])))*(1-exp(-c[3]*energy**c[4])) if the
-effcal is length 5.</p>
+<p>The functional form of the efficiency used is a modified version of the
+semi-empirical formula proposed by Vidmar (2001):
+eff(E) = c[0]*(1.0-exp(-mu(eng)*c[1]))*(tau(eng)+sigma(eng)*(1.0-exp(-(mu(eng)*c[3])**c[2]))*c[4])/mu(eng) if the effcal is length 5 or
+eff(E) = c[0]*exp(-mu_w(eng)*c[5])*exp(-mu(eng)*c[6])*(1.0-exp(-mu(eng)*c[1]))*(tau(eng)+sigma(eng)*(1.0-exp(-(mu(eng)*c[3])**c[2]))*c[4])/mu(eng)
+if the effcal is length 7.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -202,8 +203,8 @@ effcal is length 5.</p>
 <dd><p class="first last">Peak energy in keV.</p>
 </dd>
 <dt><strong>effcal</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like, optional</span></dt>
-<dd><p class="first last">Efficiency calibration parameters. length 3 or 5 array, depending on whether the efficiency
-fit includes a “dead-layer term”.</p>
+<dd><p class="first last">Efficiency calibration parameters. length 5 or 7 array, depending on whether the efficiency
+fit includes the low-energy components.</p>
 </dd>
 </dl>
 </td>
@@ -220,7 +221,7 @@ fit includes a “dead-layer term”.</p>
 <p class="rubric">Examples</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cb</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Calibration</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">cb</span><span class="o">.</span><span class="n">effcal</span><span class="p">)</span>
-<span class="go">[3.310e-01 1.580e-01 4.100e-01 1.000e-03 1.476e+00]</span>
+<span class="go">[0.02 8.3 2.1 1.66 0.4]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">cb</span><span class="o">.</span><span class="n">eff</span><span class="p">(</span><span class="mi">50</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">10</span><span class="p">)))</span>
 <span class="go">[0.04152215 0.06893742 0.07756411 0.07583971 0.07013108 0.06365222</span>
 <span class="go"> 0.05762826 0.05236502 0.0478359 ]</span>
@@ -242,7 +243,7 @@ calibration is used (cb.engcal).</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
 <dt><strong>channel</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
-<dd><p class="first last">Spectrum channel number.  The maximum channel number should
+<dd><p class="first last">Spectrum channel number.  The maxi_MUm channel number should
 be the length of the spectrum.</p>
 </dd>
 <dt><strong>engcal</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like, optional</span></dt>
@@ -455,7 +456,7 @@ list of kwargs.</p>
 <dt id="curie.Calibration.res">
 <code class="descname">res</code><span class="sig-paren">(</span><em>channel</em>, <em>rescal=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration.res"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Calibration.res" title="Permalink to this definition">¶</a></dt>
 <dd><p>Resolution calibration</p>
-<p>Calculates the expected 1-sigma peak widths for a given input array
+<p>Calculates the expected 1-_SIGMA peak widths for a given input array
 of channel numbers.  If <cite>rescal</cite> is given, it is used instead of
 the calibration object’s internal value (cb.rescal).</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -464,7 +465,7 @@ the calibration object’s internal value (cb.rescal).</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
 <dt><strong>channel</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
-<dd><p class="first last">Spectrum channel number.  The maximum channel number should
+<dd><p class="first last">Spectrum channel number.  The maxi_MUm channel number should
 be the length of the spectrum.</p>
 </dd>
 <dt><strong>rescal</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like, optional</span></dt>
@@ -476,7 +477,7 @@ R = a + b*chan (default), or length 1 if R = a*sqrt(chan).</p>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
 <dt><strong>resolution</strong> <span class="classifier-delimiter">:</span> <span class="classifier">np.ndarray</span></dt>
-<dd><p class="first last">Calculated 1-sigma width of the peaks given the input channel numbers.</p>
+<dd><p class="first last">Calculated 1-_SIGMA width of the peaks given the input channel numbers.</p>
 </dd>
 </dl>
 </td>
@@ -539,7 +540,7 @@ the ‘filename’ keyword to Calibration() upon construction.</p>
 <p>Returns the calculated uncertainty in efficiency for an input
 array of energies.  If <cite>effcal</cite> or <cite>unc_effcal</cite> are not none,
 they are used instead of the calibration object’s internal
-values. (cb.unc_effcal)  unc_effcal must be a covariance matrix of the
+values. (cb.unc_effcal)  unc_effcal _MUst be a covariance matrix of the
 same dimension as effcal.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -550,11 +551,11 @@ same dimension as effcal.</p>
 <dd><p class="first last">Peak energy in keV.</p>
 </dd>
 <dt><strong>effcal</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like, optional</span></dt>
-<dd><p class="first last">Efficiency calibration parameters. length 3 or 5 array, depending on whether the efficiency
-fit includes a “dead-layer term”.</p>
+<dd><p class="first last">Efficiency calibration parameters. length 5 or 7 array, depending on whether the efficiency
+fit includes the low-energy components.</p>
 </dd>
 <dt><strong>unc_effcal</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like, optional</span></dt>
-<dd><p class="first last">Efficiency calibration covariance matrix. shape 3x3 or 5x5, depending on the length of effcal.</p>
+<dd><p class="first last">Efficiency calibration covariance matrix. shape 5x5 or 7x7, depending on the length of effcal.</p>
 </dd>
 </dl>
 </td>
@@ -571,7 +572,7 @@ fit includes a “dead-layer term”.</p>
 <p class="rubric">Examples</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cb</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Calibration</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">cb</span><span class="o">.</span><span class="n">effcal</span><span class="p">)</span>
-<span class="go">[3.310e-01 1.580e-01 4.100e-01 1.000e-03 1.476e+00]</span>
+<span class="go">[0.02 8.3 2.1 1.66 0.4]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">cb</span><span class="o">.</span><span class="n">unc_effcal</span><span class="p">)</span>
 <span class="go">[[ 5.038e-02  3.266e-02 -2.151e-02 -4.869e-05 -7.748e-03]</span>
 <span class="go"> [ 3.266e-02  2.144e-02 -1.416e-02 -3.416e-05 -4.137e-03]</span>

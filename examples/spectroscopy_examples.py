@@ -19,6 +19,7 @@ def basic_examples():
 
 	### This calibration can be re-loaded
 	cb = ci.Calibration('eu_calib.json')
+	
 	### And manually assigned to any spectrum
 	sp.cb = cb
 	sp.cb.plot()

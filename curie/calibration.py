@@ -7,10 +7,91 @@ import pandas as pd
 import json
 
 from scipy.optimize import curve_fit
+from scipy.interpolate import interp1d
 
 from .isotope import Isotope
 from .data import _get_connection
 from .plotting import _init_plot, _draw_plot, colormap
+
+
+
+
+_MU_Be = [[1.000000e+00, 1.117770e+03],
+		 [1.500000e+00, 3.324450e+02],
+		 [2.000000e+00, 1.381950e+02],
+		 [3.000000e+00, 3.934950e+01],
+		 [4.000000e+00, 1.606725e+01],
+		 [5.000000e+00, 8.082650e+00],
+		 [6.000000e+00, 4.676800e+00],
+		 [8.000000e+00, 2.079400e+00],
+		 [1.000000e+01, 1.196210e+00],
+		 [1.500000e+01, 5.679500e-01],
+		 [2.000000e+01, 4.164350e-01],
+		 [3.000000e+01, 3.315200e-01],
+		 [4.000000e+01, 3.034000e-01],
+		 [5.000000e+01, 2.874900e-01],
+		 [6.000000e+01, 2.762050e-01],
+		 [8.000000e+01, 2.591850e-01],
+		 [1.000000e+02, 2.456800e-01],
+		 [1.500000e+02, 2.201500e-01],
+		 [2.000000e+02, 2.014650e-01],
+		 [3.000000e+02, 1.750655e-01],
+		 [4.000000e+02, 1.567320e-01],
+		 [5.000000e+02, 1.431715e-01],
+		 [6.000000e+02, 1.323675e-01],
+		 [8.000000e+02, 1.162910e-01],
+		 [1.000000e+03, 1.045620e-01],
+		 [1.022000e+03, 1.034335e-01],
+		 [1.250000e+03, 9.349900e-02],
+		 [1.500000e+03, 8.506300e-02],
+		 [2.000000e+03, 7.285300e-02],
+		 [2.044000e+03, 7.198350e-02],
+		 [3.000000e+03, 5.805300e-02],
+		 [4.000000e+03, 4.928400e-02],
+		 [5.000000e+03, 4.341950e-02],
+		 [6.000000e+03, 3.923850e-02],
+		 [7.000000e+03, 3.609350e-02],
+		 [8.000000e+03, 3.365150e-02],
+		 [9.000000e+03, 3.170900e-02],
+		 [1.000000e+04, 3.009950e-02]]
+
+
+_MU_Ge = [[1.1100000e+01, 1.0465018e+03, 4.0529322e-01, 1.0550186e+03],
+		 [1.5000000e+01, 4.8119920e+02, 4.8167827e-01, 4.8694804e+02],
+		 [2.0000000e+01, 2.2058512e+02, 5.4667210e-01, 2.2473706e+02],
+		 [3.0000000e+01, 7.1062050e+01, 6.1800030e-01, 7.3723550e+01],
+		 [4.0000000e+01, 3.1102289e+01, 6.5100290e-01, 3.3034538e+01],
+		 [5.0000000e+01, 1.6203212e+01, 6.6431040e-01, 1.7752205e+01],
+		 [6.0000000e+01, 9.4483250e+00, 6.6750420e-01, 1.0768429e+01],
+		 [8.0000000e+01, 4.0002345e+00, 6.5951970e-01, 5.0573823e+00],
+		 [1.0000000e+02, 2.0413705e+00, 6.4408300e-01, 2.9542650e+00],
+		 [1.5000000e+02, 5.9883750e-01, 5.9883750e-01, 1.3259593e+00],
+		 [2.0000000e+02, 2.5188436e-01, 5.5785040e-01, 8.8415030e-01],
+		 [3.0000000e+02, 7.6491510e-02, 4.9136613e-01, 6.0203130e-01],
+		 [4.0000000e+02, 3.4131076e-02, 4.4282037e-01, 4.9647621e-01],
+		 [5.0000000e+02, 1.8848743e-02, 4.0561260e-01, 4.3712476e-01],
+		 [6.0000000e+02, 1.1912874e-02, 3.7596349e-01, 3.9666996e-01],
+		 [8.0000000e+02, 6.0895120e-03, 3.3098414e-01, 3.4205598e-01],
+		 [1.0000000e+03, 3.7899760e-03, 2.9787508e-01, 3.0484821e-01],
+		 [1.0220000e+03, 3.6015418e-03, 2.9473451e-01, 3.0138826e-01],
+		 [1.2500000e+03, 2.4336756e-03, 2.6657584e-01, 2.7152623e-01],
+		 [1.5000000e+03, 1.7517993e-03, 2.4235619e-01, 2.4789211e-01],
+		 [2.0000000e+03, 1.0757783e-03, 2.0690501e-01, 2.1749778e-01],
+		 [2.0440000e+03, 1.0390496e-03, 2.0434997e-01, 2.1552827e-01],
+		 [3.0000000e+03, 5.8020700e-04, 1.6288380e-01, 1.8758252e-01],
+		 [4.0000000e+03, 3.8905807e-04, 1.3584296e-01, 1.7432825e-01],
+		 [5.0000000e+03, 2.9031642e-04, 1.1731892e-01, 1.6810034e-01],
+		 [6.0000000e+03, 2.3069882e-04, 1.0369204e-01, 1.6538561e-01],
+		 [7.0000000e+03, 1.9093601e-04, 9.3258960e-02, 1.6474685e-01],
+		 [8.0000000e+03, 1.6267088e-04, 8.4848620e-02, 1.6522592e-01],
+		 [9.0000000e+03, 1.4164503e-04, 7.8035180e-02, 1.6639698e-01],
+		 [1.0000000e+04, 1.2535665e-04, 7.2286340e-02, 1.6799388e-01]]
+
+_MU_Be, _MU_Ge = np.array(_MU_Be), np.array(_MU_Ge)
+_MU_W = lambda E_keV: np.exp(interp1d(np.log(_MU_Be[:,0]), np.log(_MU_Be[:,1]), bounds_error=False, fill_value='extrapolate', kind='quadratic')(np.log(E_keV)))
+_TAU = lambda E_keV: np.exp(interp1d(np.log(_MU_Ge[:,0]), np.log(_MU_Ge[:,1]), bounds_error=False, fill_value='extrapolate', kind='quadratic')(np.log(E_keV)))
+_SIGMA = lambda E_keV: np.exp(interp1d(np.log(_MU_Ge[:,0]), np.log(_MU_Ge[:,2]), bounds_error=False, fill_value='extrapolate', kind='quadratic')(np.log(E_keV)))
+_MU = lambda E_keV: np.exp(interp1d(np.log(_MU_Ge[:,0]), np.log(_MU_Ge[:,3]), bounds_error=False, fill_value='extrapolate', kind='quadratic')(np.log(E_keV)))
 
 
 class Calibration(object):
@@ -53,7 +134,7 @@ class Calibration(object):
 	>>> print(cb.engcal)
 	[0.0 0.3]
 	>>> print(cb.effcal)
-	[0.331 0.158 0.41 0.001 1.476]
+	[0.02 8.3 2.1 1.66 0.4]
 	>>> cb.saveas('test_calib.json')
 	>>> cb = Calibration('test_calib.json')
 	>>> print(cb.engcal)
@@ -63,12 +144,22 @@ class Calibration(object):
 
 	def __init__(self, filename=None):
 		self._engcal = np.array([0.0, 0.3])
-		self._effcal = np.array([0.331, 0.158, 0.410, 0.001, 1.476])
-		self._unc_effcal = np.array([[ 5.038e-02,  3.266e-02, -2.151e-02, -4.869e-05, -7.748e-03],
-									 [ 3.266e-02,  2.144e-02, -1.416e-02, -3.416e-05, -4.137e-03],
-									 [-2.151e-02, -1.416e-02,  9.367e-03,  2.294e-05,  2.569e-03],
-									 [-4.869e-05, -3.416e-05,  2.294e-05,  5.411e-07, -1.165e-04],
-									 [-7.748e-03, -4.137e-03,  2.569e-03, -1.165e-04,  3.332e-02]])
+		self._effcal = np.array([1.87867638e-02, 8.82671055e+01, 2.09673703e+00, 1.66193806e+00,
+								 3.90089610e-01, 3.79361265e+00, 1.24058591e-02])
+		self._unc_effcal = np.array([[ 1.58657336e-05, -8.87692037e-17,  3.38230753e-04,  2.29975399e-04,
+									  -2.52612161e-04,  3.15625462e-03, -3.28997933e-06],
+									 [-8.87692037e-17,  4.96869464e-28, -1.88956043e-15, -1.27662324e-15,
+									   1.40932100e-15, -1.76678605e-14,  1.84808443e-17],
+									 [ 3.38230753e-04, -1.88956043e-15,  7.87574389e-03,  5.80822792e-03,
+									  -5.65223905e-03,  6.70142358e-02, -6.81029068e-05],
+									 [ 2.29975399e-04, -1.27662324e-15,  5.80822792e-03,  4.99639027e-03,
+									  -4.20485186e-03,  4.51280328e-02, -4.29072666e-05],
+									 [-2.52612161e-04,  1.40932100e-15, -5.65223905e-03, -4.20485186e-03,
+									   4.20699447e-03, -5.00275244e-02,  5.06228293e-05],
+									 [ 3.15625462e-03, -1.76678605e-14,  6.70142358e-02,  4.51280328e-02,
+									  -5.00275244e-02,  6.28286136e-01, -6.57808573e-04],
+									 [-3.28997933e-06,  1.84808443e-17, -6.81029068e-05, -4.29072666e-05,
+									   5.06228293e-05, -6.57808573e-04,  7.23950095e-07]])
 		self._rescal = np.array([2.0, 4E-4])
 		self._calib_data = {}
 
@@ -134,7 +225,7 @@ class Calibration(object):
 		Parameters
 		----------
 		channel : array_like
-			Spectrum channel number.  The maximum channel number should
+			Spectrum channel number.  The maxi_MUm channel number should
 			be the length of the spectrum.
 
 		engcal : array_like, optional
@@ -179,10 +270,11 @@ class Calibration(object):
 		calibration object's internal efficiency calibration (cb.effcal)
 		is used.
 
-		The functional form of the efficiency used is
-		eff(E) = c[0]*exp(-c[1]*energy**c[2]))) if the effcal is length 3 or
-		eff(E) = c[0]*exp(-c[1]*energy**c[2])))*(1-exp(-c[3]*energy**c[4])) if the
-		effcal is length 5.
+		The functional form of the efficiency used is a modified version of the
+		semi-empirical formula proposed by Vidmar (2001):
+		eff(E) = c[0]*(1.0-exp(-mu(eng)*c[1]))*(tau(eng)+sigma(eng)*(1.0-exp(-(mu(eng)*c[3])**c[2]))*c[4])/mu(eng) if the effcal is length 5 or
+		eff(E) = c[0]*exp(-mu_w(eng)*c[5])*exp(-mu(eng)*c[6])*(1.0-exp(-mu(eng)*c[1]))*(tau(eng)+sigma(eng)*(1.0-exp(-(mu(eng)*c[3])**c[2]))*c[4])/mu(eng)
+		if the effcal is length 7.
 
 		Parameters
 		----------
@@ -190,8 +282,8 @@ class Calibration(object):
 			Peak energy in keV.
 
 		effcal : array_like, optional
-			Efficiency calibration parameters. length 3 or 5 array, depending on whether the efficiency
-			fit includes a "dead-layer term".
+			Efficiency calibration parameters. length 5 or 7 array, depending on whether the efficiency
+			fit includes the low-energy components.
 
 		Returns
 		-------
@@ -202,7 +294,7 @@ class Calibration(object):
 		--------
 		>>> cb = ci.Calibration()
 		>>> print(cb.effcal)
-		[3.310e-01 1.580e-01 4.100e-01 1.000e-03 1.476e+00]
+		[0.02 8.3 2.1 1.66 0.4]
 		>>> print(cb.eff(50*np.arange(1,10)))
 		[0.04152215 0.06893742 0.07756411 0.07583971 0.07013108 0.06365222
 		 0.05762826 0.05236502 0.0478359 ]
@@ -214,11 +306,15 @@ class Calibration(object):
 		if effcal is None:
 			effcal = self.effcal
 
-		if len(effcal)==3:
-			return effcal[0]*np.exp(-effcal[1]*energy**effcal[2])
 
-		elif len(effcal)==5:
-			return effcal[0]*np.exp(-effcal[1]*energy**effcal[2])*(1.0-np.exp(-effcal[3]*energy**effcal[4]))
+		if len(effcal)==5:
+			sa, l, alpha, l0, kappa = tuple(effcal)
+			return sa*(1.0-np.exp(-_MU(energy)*l))*(_TAU(energy)+_SIGMA(energy)*(1.0-np.exp(-(_MU(energy)*l0)**alpha))*kappa)/_MU(energy)
+
+		else:
+			sa, l, alpha, l0, kappa, w, d = tuple(effcal)
+			return sa*np.exp(-_MU_W(energy)*w)*np.exp(-_MU(energy)*d)*(1.0-np.exp(-_MU(energy)*l))*(_TAU(energy)+_SIGMA(energy)*(1.0-np.exp(-(_MU(energy)*l0)**alpha))*kappa)/_MU(energy)
+
 		
 	def unc_eff(self, energy, effcal=None, unc_effcal=None):
 		"""Uncertainty in the efficiency
@@ -226,7 +322,7 @@ class Calibration(object):
 		Returns the calculated uncertainty in efficiency for an input
 		array of energies.  If `effcal` or `unc_effcal` are not none,
 		they are used instead of the calibration object's internal
-		values. (cb.unc_effcal)  unc_effcal must be a covariance matrix of the
+		values. (cb.unc_effcal)  unc_effcal _MUst be a covariance matrix of the
 		same dimension as effcal.
 
 		Parameters
@@ -235,11 +331,11 @@ class Calibration(object):
 			Peak energy in keV.
 
 		effcal : array_like, optional
-			Efficiency calibration parameters. length 3 or 5 array, depending on whether the efficiency
-			fit includes a "dead-layer term".
+			Efficiency calibration parameters. length 5 or 7 array, depending on whether the efficiency
+			fit includes the low-energy components.
 
 		unc_effcal : array_like, optional
-			Efficiency calibration covariance matrix. shape 3x3 or 5x5, depending on the length of effcal.
+			Efficiency calibration covariance matrix. shape 5x5 or 7x7, depending on the length of effcal.
 
 		Returns
 		-------
@@ -250,7 +346,7 @@ class Calibration(object):
 		--------
 		>>> cb = ci.Calibration()
 		>>> print(cb.effcal)
-		[3.310e-01 1.580e-01 4.100e-01 1.000e-03 1.476e+00]
+		[0.02 8.3 2.1 1.66 0.4]
 		>>> print(cb.unc_effcal)
 		[[ 5.038e-02  3.266e-02 -2.151e-02 -4.869e-05 -7.748e-03]
 		 [ 3.266e-02  2.144e-02 -1.416e-02 -3.416e-05 -4.137e-03]
@@ -271,7 +367,7 @@ class Calibration(object):
 		if effcal is None or unc_effcal is None:
 			effcal, unc_effcal = self.effcal, self.unc_effcal
 
-		eps = 1E-8
+		eps = np.abs(1E-4*effcal)
 		var = np.zeros(len(energy)) if energy.shape else 0.0
 
 		for n in range(len(effcal)):
@@ -281,10 +377,10 @@ class Calibration(object):
 					return np.inf*(var+1.0)
 
 				c_n, c_m = np.copy(effcal), np.copy(effcal)
-				c_n[n], c_m[m] = c_n[n]+eps, c_m[m]+eps
+				c_n[n], c_m[m] = c_n[n]+eps[n], c_m[m]+eps[m]
 
-				par_n = (self.eff(energy, c_n)-self.eff(energy, effcal))/eps
-				par_m = (self.eff(energy, c_m)-self.eff(energy, effcal))/eps
+				par_n = (self.eff(energy, c_n)-self.eff(energy, effcal))/eps[n]
+				par_m = (self.eff(energy, c_m)-self.eff(energy, effcal))/eps[m]
 
 				var += unc_effcal[n][m]*par_n*par_m*(2.0 if n!=m else 1.0)
 
@@ -293,14 +389,14 @@ class Calibration(object):
 	def res(self, channel, rescal=None):
 		"""Resolution calibration
 
-		Calculates the expected 1-sigma peak widths for a given input array
+		Calculates the expected 1-_SIGMA peak widths for a given input array
 		of channel numbers.  If `rescal` is given, it is used instead of
 		the calibration object's internal value (cb.rescal).
 
 		Parameters
 		----------
 		channel : array_like
-			Spectrum channel number.  The maximum channel number should
+			Spectrum channel number.  The maxi_MUm channel number should
 			be the length of the spectrum.
 
 		rescal : array_like, optional
@@ -310,7 +406,7 @@ class Calibration(object):
 		Returns
 		-------
 		resolution : np.ndarray
-			Calculated 1-sigma width of the peaks given the input channel numbers.
+			Calculated 1-_SIGMA width of the peaks given the input channel numbers.
 
 		Examples
 		--------
@@ -381,7 +477,7 @@ class Calibration(object):
 		"""Generate calibration parameters from spectra
 
 		Performs an energy, resolution and efficiency calibration on peak fits
-		to a given list of spectra.  Reference activities must be given for the
+		to a given list of spectra.  Reference activities _MUst be given for the
 		efficiency calibration.  Spectra are allowed to have isotopes that are
 		not in `sources`, but these will not be included in the efficiency calibration.
 
@@ -459,15 +555,15 @@ class Calibration(object):
 						continue
 
 					j = B+n*L+1
-					mu, sig = f[j], f[j+1]
-					unc_mu, unc_sig = np.sqrt(u[j][j]), np.sqrt(u[j+1][j+1])
+					_MU, sig = f[j], f[j+1]
+					unc__MU, unc_sig = np.sqrt(u[j][j]), np.sqrt(u[j+1][j+1])
 					eng = pk['energy']
 
-					self._calib_data['engcal']['channel'].append(mu)
+					self._calib_data['engcal']['channel'].append(_MU)
 					self._calib_data['engcal']['energy'].append(eng)
-					self._calib_data['engcal']['unc_channel'].append(unc_mu)
+					self._calib_data['engcal']['unc_channel'].append(unc__MU)
 
-					self._calib_data['rescal']['channel'].append(mu)
+					self._calib_data['rescal']['channel'].append(_MU)
 					self._calib_data['rescal']['width'].append(sig)
 					self._calib_data['rescal']['unc_width'].append(unc_sig)
 
@@ -497,7 +593,7 @@ class Calibration(object):
 		idx = np.where((0.25*y>yerr)&(yerr>0.0)&(np.isfinite(yerr)))
 		x, y, yerr = x[idx], y[idx], yerr[idx]
 		fn = lambda x, *A: self.eng(x, A)
-		fit, unc = curve_fit(fn, x, y, sigma=yerr, p0=spectra[0].cb.engcal)
+		fit, unc = curve_fit(fn, x, y, _SIGMA=yerr, p0=spectra[0].cb.engcal)
 		self._calib_data['engcal']['channel'], self._calib_data['engcal']['energy'], self._calib_data['engcal']['unc_channel'] = x, y, yerr
 		self._calib_data['engcal']['fit'], self._calib_data['engcal']['unc'] = fit, unc
 
@@ -505,7 +601,7 @@ class Calibration(object):
 		idx = np.where((0.25*y>yerr)&(yerr>0.0)&(np.isfinite(yerr)))
 		x, y, yerr = x[idx], y[idx], yerr[idx]
 		fn = lambda x, *A: self.res(x, A)
-		fit, unc = curve_fit(fn, x, y, sigma=yerr, p0=spectra[0].cb.rescal)
+		fit, unc = curve_fit(fn, x, y, _SIGMA=yerr, p0=spectra[0].cb.rescal)
 		self._calib_data['rescal']['channel'], self._calib_data['rescal']['width'], self._calib_data['rescal']['unc_width'] = x, y, yerr
 		self._calib_data['rescal']['fit'], self._calib_data['rescal']['unc'] = fit, unc
 
@@ -515,26 +611,26 @@ class Calibration(object):
 		fn = lambda x, *A: self.eff(x, A)
 
 		p0 = spectra[0].cb.effcal
-		p0 = p0.tolist() if len(p0)==5 else p0.tolist()+[0.001, 1.476]
-		p0[0] = max([min([p0[0]*np.average(y/self.eff(x, p0), weights=(self.eff(x, p0)/yerr)**2),99.9]),0.001])
-		bounds = ([0.0, 0.0, -1.0, 0.0, -2.0], [100.0, 3.0, 3.0, 0.5, 3.0])
+		p0 = p0.tolist() if len(p0)==7 else p0.tolist()+[0.5, 0.001]
+		p0[0] = max([min([p0[0]*np.average(y/self.eff(x, p0), weights=(self.eff(x, p0)/yerr)**2),4.99]),0.0001])
+		bounds = ([0.0, 0.0, 0.1, 0.0, 0.0, 0.001, 1E-12], [5, 100, 5, 50, 5, 5, 0.1])
 
 		if any([sp.fit_config['xrays'] for sp in spectra]):
 			try:
-				fit3, unc3 = curve_fit(fn, x, y, sigma=yerr, p0=p0[:3], bounds=(bounds[0][:3], bounds[1][:3]))
-				fit5, unc5 = curve_fit(fn, x, y, sigma=yerr, p0=fit3.tolist()+p0[3:], bounds=bounds)
+				fit5, unc5 = curve_fit(fn, x, y, _SIGMA=yerr, p0=p0[:5], bounds=(bounds[0][:5], bounds[1][:5]))
+				fit7, unc7 = curve_fit(fn, x, y, _SIGMA=yerr, p0=fit5.tolist()+p0[5:], bounds=bounds)
 				
+				chi7 = np.sum((y-self.eff(x, fit7))**2/yerr**2)
 				chi5 = np.sum((y-self.eff(x, fit5))**2/yerr**2)
-				chi3 = np.sum((y-self.eff(x, fit3))**2/yerr**2)
 				## Invert to find which is closer to one
+				chi7 = chi7 if chi7>1.0 else 1.0/chi7
 				chi5 = chi5 if chi5>1.0 else 1.0/chi5
-				chi3 = chi3 if chi3>1.0 else 1.0/chi3
-				fit, unc = (fit3, unc3) if chi3<=chi5 else (fit5, unc5)
+				fit, unc = (fit5, unc5) if chi5<=chi7 else (fit7, unc7)
 			except:
-				fit, unc = curve_fit(fn, x, y, sigma=yerr, p0=p0[:3], bounds=(bounds[0][:3], bounds[1][:3]))
+				fit, unc = curve_fit(fn, x, y, _SIGMA=yerr, p0=p0[:5], bounds=(bounds[0][:5], bounds[1][:5]))
 
 		else:
-			fit, unc = curve_fit(fn, x, y, sigma=yerr, p0=p0[:3], bounds=(bounds[0][:3], bounds[1][:3]))
+			fit, unc = curve_fit(fn, x, y, _SIGMA=yerr, p0=p0[:5], bounds=(bounds[0][:5], bounds[1][:5]))
 
 		idx = np.where((self.eff(x, fit)-y)**2/yerr**2 < 10.0)
 		x, y, yerr = x[idx], y[idx], yerr[idx]
@@ -641,7 +737,6 @@ class Calibration(object):
 
 		ax.set_xlabel('Energy (keV)')
 		ax.set_ylabel('ADC Channel')
-		ax.set_title('Energy Calibration')
 
 		return _draw_plot(f, ax, **kwargs)
 		
@@ -682,7 +777,6 @@ class Calibration(object):
 
 		ax.set_xlabel('ADC Channel')
 		ax.set_ylabel('Peak Width')
-		ax.set_title('Resolution Calibration')
 
 		return _draw_plot(f, ax, **kwargs)
 		
@@ -729,10 +823,8 @@ class Calibration(object):
 			high = self.eff(x)+self.unc_eff(x)
 			ax.fill_between(x, low, high, facecolor=cm_light['k'], alpha=0.5)
 
-
 		ax.set_xlabel('Energy (keV)')
-		ax.set_ylabel('Efficiency')
-		ax.set_title('Efficiency Calibration')
+		ax.set_ylabel('Efficiency (abs.)')
 
 		return _draw_plot(f, ax, **kwargs)
 		
@@ -764,8 +856,11 @@ class Calibration(object):
 		f, ax = _init_plot(_N_plots=3, figsize=(12.8, 4.8), **kwargs)
 
 		f, ax[0] = self.plot_engcal(f=f, ax=ax[0], show=False, return_plot=True)
+		ax[0].set_title('Energy Calibration')
 		f, ax[1] = self.plot_rescal(f=f, ax=ax[1], show=False, return_plot=True)
+		ax[1].set_title('Resolution Calibration')
 		f, ax[2] = self.plot_effcal(f=f, ax=ax[2], show=False, return_plot=True)
+		ax[2].set_title('Efficiency Calibration')
 
 		return _draw_plot(f, ax, **kwargs)
 		
