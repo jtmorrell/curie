@@ -119,7 +119,10 @@ class Isotope(object):
 			self.abundance = float(df['abundance'][0])
 		else:
 			self.abundance = 0.0
-		self.Delta = float(df['Delta'][0])
+		if df['Delta'][0] is not None:
+			self.Delta = float(df['Delta'][0])
+		else:
+			self.Delta = None
 
 		if self.abundance>0.0:
 			self.unc_abundance = float(df['unc_abundance'][0])

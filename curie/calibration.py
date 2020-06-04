@@ -367,7 +367,7 @@ class Calibration(object):
 		if effcal is None or unc_effcal is None:
 			effcal, unc_effcal = self.effcal, self.unc_effcal
 
-		eps = np.abs(1E-4*effcal)
+		eps = np.abs(1E-2*effcal)
 		var = np.zeros(len(energy)) if energy.shape else 0.0
 
 		for n in range(len(effcal)):

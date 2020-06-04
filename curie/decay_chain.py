@@ -32,7 +32,7 @@ class DecayChain(object):
 		Production rate for each isotope in the decay chain as a function of time.
 		If a Nx2 np.ndarray, element n gives the production rate R_n up until
 		time t_n for the parent isotope. E.g. If the production rate of the parent
-		is 2 for 1 hour, and 1 for 3 hours, the array will be [[2, 1], [1, 4]].  
+		is 2 for 1 hour, and 1 for 3 hours, the array will be [[2, 1], [1, 3]].  
 
 		If R is a dict, it specifies the production rate for multiple isotopes, 
 		where the keys are the isotopes and the values are type np.ndarray.
@@ -685,8 +685,12 @@ class DecayChain(object):
 					df = self.counts[self.counts['isotope']==istp]
 					if len(df):
 						x, y, yerr = df['start'].to_numpy(), df['activity'].to_numpy(), df['unc_activity'].to_numpy()
-						idx = np.where((0.4*y>yerr)&(yerr>0.0)&(np.isfinite(yerr))&((self.activity(istp, x)-y)**2/yerr**2<10.0))
-						x, y, yerr = x[idx], y[idx], yerr[idx]
+						idx = np.where((0.4*y>yerr)&(yerr>0.0)&(np.isfinite(yerr)))
+						if len(x[idx]>0):
+							x, y, yerr = x[idx], y[idx], yerr[idx]
+						idx = np.where((self.activity(istp, x)-y)**2/yerr**2<10.0)
+						if len(x[idx]>0):
+							x, y, yerr = x[idx], y[idx], yerr[idx]
 					
 						ax.errorbar(x, y*mult, yerr=yerr*mult, ls='None', marker='o', color=line.get_color(), label=None)
 
