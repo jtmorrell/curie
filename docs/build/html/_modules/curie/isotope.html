@@ -157,7 +157,10 @@
 			<span class="bp">self</span><span class="o">.</span><span class="n">abundance</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;abundance&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
 		<span class="k">else</span><span class="p">:</span>
 			<span class="bp">self</span><span class="o">.</span><span class="n">abundance</span> <span class="o">=</span> <span class="mf">0.0</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">Delta</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;Delta&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+		<span class="k">if</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;Delta&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">Delta</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;Delta&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">Delta</span> <span class="o">=</span> <span class="kc">None</span>
 
 		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">abundance</span><span class="o">&gt;</span><span class="mf">0.0</span><span class="p">:</span>
 			<span class="bp">self</span><span class="o">.</span><span class="n">unc_abundance</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;unc_abundance&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>

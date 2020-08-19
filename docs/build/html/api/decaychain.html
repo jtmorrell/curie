@@ -58,7 +58,7 @@ be fit to observed count data, or directly fit to HPGe spectra using the
 <dd><p class="first">Production rate for each isotope in the decay chain as a function of time.
 If a Nx2 np.ndarray, element n gives the production rate R_n up until
 time t_n for the parent isotope. E.g. If the production rate of the parent
-is 2 for 1 hour, and 1 for 3 hours, the array will be [[2, 1], [1, 4]].</p>
+is 2 for 1 hour, and 1 for 3 hours, the array will be [[2, 1], [1, 3]].</p>
 <p>If R is a dict, it specifies the production rate for multiple isotopes, 
 where the keys are the isotopes and the values are type np.ndarray.</p>
 <p class="last">If R is a pd.DataFrame, it must have columns ‘R’ and ‘time’, and optionally ‘isotope’

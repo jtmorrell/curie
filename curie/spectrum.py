@@ -249,6 +249,8 @@ class Spectrum(object):
 			if len(self.cb.engcal)==len(other.cb.engcal):
 				if len(np.where(self.cb.engcal==other.cb.engcal)[0])==len(self.cb.engcal):
 					self.hist += other.hist
+					self._snip = self._snip_bg()
+					self._snip_interp = interp1d(np.arange(len(self.hist)), self._snip, bounds_error=False, fill_value=0.0)
 					return self
 
 		other_bins = other.cb.eng(np.arange(-0.5, len(other.hist)+0.5, 1.0))
@@ -263,6 +265,8 @@ class Spectrum(object):
 			e_grid = np.array([np.linspace(edges[0][n], edges[1][n], num=10) for n in range(len(edges[0]))])
 		N = np.asarray(np.trapz(f(e_grid), e_grid, axis=1), dtype=np.int64)
 		self.hist += np.random.poisson(N)
+		self._snip = self._snip_bg()
+		self._snip_interp = interp1d(np.arange(len(self.hist)), self._snip, bounds_error=False, fill_value=0.0)
 
 		return self
 		

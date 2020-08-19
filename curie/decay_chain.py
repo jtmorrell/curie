@@ -117,7 +117,7 @@ class DecayChain(object):
 						if not stable_chain[-1]:
 							self.A0[self.isotopes[-1]] = 0.0
 		self._chain = np.array(self._chain, dtype=object)
-
+		self._branches = self._generate_branches()
 
 		if A0 is not None:
 			if type(A0)==float or type(A0)==int:
@@ -171,19 +171,57 @@ class DecayChain(object):
 	def _index(self, istp):
 		return self.isotopes.index(self._filter_name(istp))
 
+	def _generate_branches(self):
+		daughters = {i:[] for i in range(len(self._chain))}
+		for i,pars in enumerate(self._chain[1:,2]):
+			for p in pars:
+				daughters[p].append(i+1)
+
+		branches = [[0]]
+		stable_chain = [len(daughters[br[-1]])==0 for br in branches]
+		while not all(stable_chain):
+			for par in list(set([b[-1] for b in branches])):
+				ds = daughters[par]
+				if len(ds)==0:
+					continue
+				if len(ds)>1:
+					to_dup = [br for br in branches if br[-1]==par]
+					for m in range(len(ds)-1):
+						for b in to_dup:
+							branches.append(b+[ds[m+1]])
+					for br in branches:
+						if br[-1]==par:
+							br.append(ds[0])
+				else:
+					for br in branches:
+						if br[-1]==par:
+							br.append(ds[0])
+			stable_chain = [len(daughters[br[-1]])==0 for br in branches]
+
+		br_ratios = []
+		for br in branches:
+			r = []
+			for n,i in enumerate(br[:-1]):
+				r.append(self._chain[br[n+1]][1][self._chain[br[n+1]][2].index(i)])
+			br_ratios.append(r+[0.0])
+
+		return branches, br_ratios
+
 	def _get_branches(self, istp):
 		if self._filter_name(istp) not in self.isotopes:
 			return [], []
 
 		m = self._index(istp)
-		BR = [[0.0]]+[[r] for r in self._chain[m,1]]
-		CH = [[m]]+[[n] for n in self._chain[m,2]]
+		branches, br_ratios = [], []
 
-		while not all([c[-1]==0 for c in CH]):
-			BR = [BR[n]+[i] for n,c in enumerate(CH) for i in self._chain[c[-1],1]]
-			CH = [c+[i] for c in CH for i in self._chain[c[-1],2]]
-
-		return [np.array(r)[::-1] for r in BR], [np.array(c)[::-1] for c in CH]
+		for n,br in enumerate(self._branches[0]):
+			if m in br:
+				k = br.index(m)
+				new_br = np.array(br[:k+1])
+				if not any([np.array_equal(b, new_br) for b in branches]):
+					branches.append(new_br)
+					br_ratios.append(np.array(self._branches[1][n][:k] + [0.0]))
+		return br_ratios, branches
 
 	def _r_lm(self, units=None, r_half_conv=False):
 		if units is None:
