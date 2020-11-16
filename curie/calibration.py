@@ -600,7 +600,7 @@ class Calibration(object):
 		p0 = spectra[0].cb.effcal
 		p0 = p0.tolist() if len(p0)==7 else p0.tolist()+[0.5, 0.001]
 		p0[0] = max([min([p0[0]*np.average(y/self.eff(x, p0), weights=(self.eff(x, p0)/yerr)**2),4.99]),0.0001])
-		bounds = ([0.0, 0.0, 0.1, 0.0, 0.0, 0.001, 1E-12], [5, 100, 5, 50, 5, 5, 0.1])
+		bounds = ([0.0, 0.0, 0.1, 0.0, 0.0, 0.001, 1E-12], [12, 100, 6, 50, 6, 6, 0.2])
 
 		if any([sp.fit_config['xrays'] for sp in spectra]):
 			try:

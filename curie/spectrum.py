@@ -89,7 +89,7 @@ class Spectrum(object):
 
 	"""
 
-	def __init__(self, filename, **kwargs):
+	def __init__(self, filename=None, **kwargs):
 		self.filename = filename
 		if 'cb' in kwargs:
 			if type(kwargs['cb']==str):
@@ -107,6 +107,7 @@ class Spectrum(object):
 							'dE_511':3.5, 'multi_max':8}
 		if 'fit_config' in kwargs:
 			self.fit_config = kwargs['fit_config']
+		self._ortec_metadata = {}
 
 		if filename is not None:
 			if os.path.exists(filename):
@@ -126,6 +127,7 @@ class Spectrum(object):
 			self.isotopes = kwargs['isotopes']
 		else:
 			self.isotopes = []
+
 		self._peaks = None
 		self._fits = None
 		self._geom_corr = 1.0
@@ -133,8 +135,8 @@ class Spectrum(object):
 
 		self._gmls = None
 
+
 	def _read_Spe(self, filename):
-		self._ortec_metadata = {}
 
 		with open(filename) as f:
 			ln = f.readline()
@@ -156,7 +158,6 @@ class Spectrum(object):
 		self.cb.engcal = list(map(float, self._ortec_metadata['MCA_CAL'][-1].split(' ')[:-1]))
 
 	def _read_Chn(self, filename):
-		self._ortec_metadata = {}
 
 		with open(filename, 'rb') as f:
 			det_no = np.frombuffer(f.read(6), dtype='i2')[1]

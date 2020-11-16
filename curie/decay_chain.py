@@ -493,8 +493,8 @@ class DecayChain(object):
 				if len(df):
 					start = (sp.start_time-EoB).total_seconds()*self._r_lm('s')
 					stop = start+(sp.real_time*self._r_lm('s'))
-
-			counts.append(pd.DataFrame({'isotope':df['isotope'], 'start':start, 'stop':stop, 'counts':df['decays'], 'unc_counts':df['unc_decays']}))
+			if len(df):
+				counts.append(pd.DataFrame({'isotope':df['isotope'], 'start':start, 'stop':stop, 'counts':df['decays'], 'unc_counts':df['unc_decays']}))
 
 		self.counts = pd.concat(counts, sort=True, ignore_index=True).sort_values(by=['start']).reset_index(drop=True)
 
@@ -638,7 +638,7 @@ class DecayChain(object):
 		A_norm = np.array([self.A0[i] for i in A0_isotopes])
 		return A0_isotopes, A_norm, cov*(A_norm/fit)**2
 		
-	def plot(self, time=None, max_plot=None, max_label=10, **kwargs):
+	def plot(self, time=None, max_plot=10, max_label=10, **kwargs):
 		"""Plot the activities in the decay chain
 
 		Plots the activities as a function of time for all radioactive
@@ -652,7 +652,7 @@ class DecayChain(object):
 			Time grid along which to plot.  Units must be the same as the decay chain.
 
 		max_plot : int, optional
-			Maximum number of isotope activities to plot in the decay chain. Default, None.
+			Maximum number of isotope activities to plot in the decay chain. Default, 10.
 
 		max_label : int, optional
 			Maximum number of isotope activities to label in the legend. Default, 10.
@@ -723,12 +723,12 @@ class DecayChain(object):
 					df = self.counts[self.counts['isotope']==istp]
 					if len(df):
 						x, y, yerr = df['start'].to_numpy(), df['activity'].to_numpy(), df['unc_activity'].to_numpy()
-						idx = np.where((0.4*y>yerr)&(yerr>0.0)&(np.isfinite(yerr)))
-						if len(x[idx]>0):
-							x, y, yerr = x[idx], y[idx], yerr[idx]
-						idx = np.where((self.activity(istp, x)-y)**2/yerr**2<10.0)
-						if len(x[idx]>0):
-							x, y, yerr = x[idx], y[idx], yerr[idx]
+						# idx = np.where((0.4*y>yerr)&(yerr>0.0)&(np.isfinite(yerr)))
+						# if len(x[idx]>0):
+						# 	x, y, yerr = x[idx], y[idx], yerr[idx]
+						# idx = np.where((self.activity(istp, x)-y)**2/yerr**2<10.0)
+						# if len(x[idx]>0):
+						# 	x, y, yerr = x[idx], y[idx], yerr[idx]
 					
 						ax.errorbar(x, y*mult, yerr=yerr*mult, ls='None', marker='o', color=line.get_color(), label=None)
 
