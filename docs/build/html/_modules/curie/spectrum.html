@@ -127,7 +127,7 @@
 
 <span class="sd">	&quot;&quot;&quot;</span>
 
-	<span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+	<span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span>
 		<span class="k">if</span> <span class="s1">&#39;cb&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
 			<span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;cb&#39;</span><span class="p">]</span><span class="o">==</span><span class="nb">str</span><span class="p">):</span>
@@ -145,6 +145,7 @@
 							<span class="s1">&#39;dE_511&#39;</span><span class="p">:</span><span class="mf">3.5</span><span class="p">,</span> <span class="s1">&#39;multi_max&#39;</span><span class="p">:</span><span class="mi">8</span><span class="p">}</span>
 		<span class="k">if</span> <span class="s1">&#39;fit_config&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
 			<span class="bp">self</span><span class="o">.</span><span class="n">fit_config</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;fit_config&#39;</span><span class="p">]</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_ortec_metadata</span> <span class="o">=</span> <span class="p">{}</span>
 
 		<span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
 			<span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
@@ -164,6 +165,7 @@
 			<span class="bp">self</span><span class="o">.</span><span class="n">isotopes</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;isotopes&#39;</span><span class="p">]</span>
 		<span class="k">else</span><span class="p">:</span>
 			<span class="bp">self</span><span class="o">.</span><span class="n">isotopes</span> <span class="o">=</span> <span class="p">[]</span>
+
 		<span class="bp">self</span><span class="o">.</span><span class="n">_peaks</span> <span class="o">=</span> <span class="kc">None</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_fits</span> <span class="o">=</span> <span class="kc">None</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_geom_corr</span> <span class="o">=</span> <span class="mf">1.0</span>
@@ -171,8 +173,8 @@
 
 		<span class="bp">self</span><span class="o">.</span><span class="n">_gmls</span> <span class="o">=</span> <span class="kc">None</span>
 
+
 	<span class="k">def</span> <span class="nf">_read_Spe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">_ortec_metadata</span> <span class="o">=</span> <span class="p">{}</span>
 
 		<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
 			<span class="n">ln</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
@@ -194,7 +196,6 @@
 		<span class="bp">self</span><span class="o">.</span><span class="n">cb</span><span class="o">.</span><span class="n">engcal</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ortec_metadata</span><span class="p">[</span><span class="s1">&#39;MCA_CAL&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
 
 	<span class="k">def</span> <span class="nf">_read_Chn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">_ortec_metadata</span> <span class="o">=</span> <span class="p">{}</span>
 
 		<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
 			<span class="n">det_no</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">6</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;i2&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>

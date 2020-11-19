@@ -663,7 +663,7 @@ class Isotope(object):
 			Source distance in cm. Default is 30.0
 
 		units : str, optional
-			Desired units of dose rate. Format: `dose/time` where dose is one of R, Sv, Gy, with
+			Desired units of dose rate. Format: `dose/time` where dose is one of R (Roentgen), Sv, Gy, with
 			the Si prefixes u, m, k, and M supported, and time is in the same format described under
 			the `Isotope.half_life()` function. E.g. mR/hr, uSv/m, kGy/y. Default is 'R/hr'
 
@@ -707,13 +707,13 @@ class Isotope(object):
 		bp = self.beta_plus()
 		el = self.electrons()
 
-		dose['gammas'] = 1.4042E-12*np.sum(gm['energy']*gm['intensity'])*activity/distance**2
+		dose['gammas'] = 3.9005E-16*np.sum(gm['energy']*gm['intensity'])*activity/distance**2
 
-		dose['alphas'] = 5.2087E-14*np.sum([al['intensity'][n]*e/alpha_range(e) for n,e in enumerate(al['energy'].to_numpy())])*activity/distance**2
+		dose['alphas'] = 1.45367E-14*np.sum([al['intensity'][n]*e/alpha_range(e) for n,e in enumerate(al['energy'].to_numpy())])*activity/distance**2
 
-		dose['beta_minus'] = 5.2087E-14*np.sum([bm['intensity'][n]*e/e_range(e) for n,e in enumerate(bm['mean_energy'].to_numpy())])*activity/distance**2
-		dose['beta_plus'] = 5.2087E-14*np.sum([bp['intensity'][n]*e/pos_range(e) for n,e in enumerate(bp['mean_energy'].to_numpy())])*activity/distance**2
-		dose['electrons'] = 5.2087E-14*np.sum([el['intensity'][n]*e/e_range(e) for n,e in enumerate(el['energy'].to_numpy())])*activity/distance**2
+		dose['beta_minus'] = 1.45367E-14*np.sum([bm['intensity'][n]*e/e_range(e) for n,e in enumerate(bm['mean_energy'].to_numpy())])*activity/distance**2
+		dose['beta_plus'] = 1.45367E-14*np.sum([bp['intensity'][n]*e/pos_range(e) for n,e in enumerate(bp['mean_energy'].to_numpy())])*activity/distance**2
+		dose['electrons'] = 1.45367E-14*np.sum([el['intensity'][n]*e/e_range(e) for n,e in enumerate(el['energy'].to_numpy())])*activity/distance**2
 		
 
 		d_unit,t_unit = tuple(units.split('/'))
@@ -731,7 +731,7 @@ class Isotope(object):
 					'My':31557.6E9, 'Gy':31557.6E12}[t_unit]
 
 		d_conv = {'R':1.0,'mR':1E3,'kR':1E-3,'uR':1E6,'MR':1E-6,
-					'Gy':9.5E-3,'mGy':9.5,'kGy':9.5E-6,'uGy':9.5E3,'MGy':9.5E-9}[d_unit]
+					'Gy':8.77E-3,'mGy':8.77,'kGy':8.77E-6,'uGy':8.77E3,'MGy':8.77E-9}[d_unit]
 
 		dose = {i:d_conv*t_conv*dose[i] for i in ['gammas','alphas','beta_minus','beta_plus','electrons']}
 		dose['total'] = sum([dose[i] for i in ['gammas','alphas','beta_minus','beta_plus','electrons']])

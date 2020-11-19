@@ -399,7 +399,7 @@ class Element(object):
 		energy = np.asarray(energy, dtype=np.float64)
 		
 		dE = np.max(energy)/1E3
-		E_min = min((np.min(energy), 1.0))
+		E_min = min((np.min(energy), 1E-3))
 		E_grid = np.arange(E_min, np.max(energy)+dE, dE)
 
 		S = self.S(E_grid, particle=particle, density=density)
