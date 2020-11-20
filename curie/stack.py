@@ -337,6 +337,49 @@ class Stack(object):
 		match = [bool(re.search(name, nm)) for nm in df_NN['name']]
 		return df_NN[match]
 
+	def get_flux(self, sample_name):
+		"""Returns the computed energy grid and flux for a given sample
+
+		Units of energy are in MeV, and the flux is a relative flux (normalized to 1).
+		Note that sample_name must be an exact match with the 'name' property in the
+		stack specification.
+
+		Parameters
+		----------
+		sample_name : str
+			Name of the sample for which to return the flux.  Must be an exact
+			match for an element in the stack.
+
+		Returns
+		-------
+		energy : np.ndarray
+			Energy grid in MeV.
+
+		flux : np.ndarray
+			Relative flux in the sample, along the energy grid.
+
+		Examples
+		--------
+		>>> stack = [{'cm':'H2O', 'ad':800.0, 'name':'water'},
+				{'cm':'RbCl', 'density':3.0, 't':0.03, 'name':'salt'},
+				{'cm':'Kapton', 't':0.025},
+				{'cm':'Brass','ad':350, 'name':'metal'}]
+
+		>>> st = ci.Stack(stack, compounds={'Brass':{'Cu':-66, 'Zn':-33}}, E0=60.0)
+		>>> print(st.get_flux('water'))
+		(array([47.95, 48.05, 48.15, 48.25, 48.35, 48.45, 48.55, 48.65, 48.75,
+       	48.85, 48.95, 49.05, 49.15...
+       	>>> rx = ci.Reaction('16O(p,x)16F')
+       	>>> print(rx.average(*st.get_flux('water')))
+       	1.495163043176288
+
+		"""
+
+		df = self._filter_samples(self.fluxes, sample_name)
+		match = [sample_name==nm for nm in df['name']]
+		df = df[match]
+		return df['energy'].to_numpy(), df['flux'].to_numpy()
+
 	def saveas(self, filename, save_fluxes=True, filter_name=True):
 		"""Saves the results of the stack calculation
 
