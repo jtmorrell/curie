@@ -638,7 +638,7 @@ class DecayChain(object):
 		A_norm = np.array([self.A0[i] for i in A0_isotopes])
 		return A0_isotopes, A_norm, cov*(A_norm/fit)**2
 		
-	def plot(self, time=None, max_plot=10, max_label=10, **kwargs):
+	def plot(self, time=None, max_plot=10, max_label=10, max_plot_error=0.4, max_plot_chi2=10, **kwargs):
 		"""Plot the activities in the decay chain
 
 		Plots the activities as a function of time for all radioactive
@@ -656,6 +656,14 @@ class DecayChain(object):
 
 		max_label : int, optional
 			Maximum number of isotope activities to label in the legend. Default, 10.
+
+		max_plot_error : float, optional
+			The maximum relative error of a count point to include on the plot. E.g. 0.25=25%
+			(ony points with less than 25% error will be shown). Default, 0.4.
+
+		max_plot_chi2 : float or int, optional
+			Maximum chi^2 of a count point to include on the plot. Only points with a chi^2
+			less than this value will be shown. Default, 10.
 
 		Other Parameters
 		----------------
@@ -723,12 +731,12 @@ class DecayChain(object):
 					df = self.counts[self.counts['isotope']==istp]
 					if len(df):
 						x, y, yerr = df['start'].to_numpy(), df['activity'].to_numpy(), df['unc_activity'].to_numpy()
-						# idx = np.where((0.4*y>yerr)&(yerr>0.0)&(np.isfinite(yerr)))
-						# if len(x[idx]>0):
-						# 	x, y, yerr = x[idx], y[idx], yerr[idx]
-						# idx = np.where((self.activity(istp, x)-y)**2/yerr**2<10.0)
-						# if len(x[idx]>0):
-						# 	x, y, yerr = x[idx], y[idx], yerr[idx]
+						idx = np.where((max_plot_error*y>yerr)&(yerr>0.0)&(np.isfinite(yerr)))
+						if len(x[idx]>0):
+							x, y, yerr = x[idx], y[idx], yerr[idx]
+						idx = np.where((self.activity(istp, x)-y)**2/yerr**2<max_plot_chi2)
+						if len(x[idx]>0):
+							x, y, yerr = x[idx], y[idx], yerr[idx]
 					
 						ax.errorbar(x, y*mult, yerr=yerr*mult, ls='None', marker='o', color=line.get_color(), label=None)
 

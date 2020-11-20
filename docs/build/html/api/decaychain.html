@@ -146,7 +146,7 @@ modified if <cite>fit_R()</cite> is called.</p>
 <tr class="row-odd"><td><a class="reference internal" href="#curie.DecayChain.get_counts" title="curie.DecayChain.get_counts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_counts</span></code></a>(spectra,&nbsp;EoB[,&nbsp;peak_data])</td>
 <td>Retrieves the number of measured decays</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#curie.DecayChain.plot" title="curie.DecayChain.plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot</span></code></a>([time,&nbsp;max_plot,&nbsp;max_label])</td>
+<tr class="row-even"><td><a class="reference internal" href="#curie.DecayChain.plot" title="curie.DecayChain.plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot</span></code></a>([time,&nbsp;max_plot,&nbsp;max_label,&nbsp;…])</td>
 <td>Plot the activities in the decay chain</td>
 </tr>
 </tbody>
@@ -378,7 +378,7 @@ structure as <cite>ci.Spectrum.peaks</cite>.</p>
 
 <dl class="method">
 <dt id="curie.DecayChain.plot">
-<code class="descname">plot</code><span class="sig-paren">(</span><em>time=None</em>, <em>max_plot=10</em>, <em>max_label=10</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/decay_chain.html#DecayChain.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.DecayChain.plot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plot</code><span class="sig-paren">(</span><em>time=None</em>, <em>max_plot=10</em>, <em>max_label=10</em>, <em>max_plot_error=0.4</em>, <em>max_plot_chi2=10</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/decay_chain.html#DecayChain.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.DecayChain.plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the activities in the decay chain</p>
 <p>Plots the activities as a function of time for all radioactive
 isotopes in the decay chain.  Can plot along a specified time
@@ -397,6 +397,14 @@ parent isotope, or any count information given to self.counts.</p>
 </dd>
 <dt><strong>max_label</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, optional</span></dt>
 <dd><p class="first last">Maximum number of isotope activities to label in the legend. Default, 10.</p>
+</dd>
+<dt><strong>max_plot_error</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float, optional</span></dt>
+<dd><p class="first last">The maximum relative error of a count point to include on the plot. E.g. 0.25=25%
+(ony points with less than 25% error will be shown). Default, 0.4.</p>
+</dd>
+<dt><strong>max_plot_chi2</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float or int, optional</span></dt>
+<dd><p class="first last">Maximum chi^2 of a count point to include on the plot. Only points with a chi^2
+less than this value will be shown. Default, 10.</p>
 </dd>
 </dl>
 </td>
