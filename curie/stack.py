@@ -338,7 +338,7 @@ class Stack(object):
 		return df_NN[match]
 
 	def get_flux(self, sample_name):
-		"""Returns the computed energy grid and flux for a given sample
+		"""Returns the computed energy grid and flux for a sample
 
 		Units of energy are in MeV, and the flux is a relative flux (normalized to 1).
 		Note that sample_name must be an exact match with the 'name' property in the

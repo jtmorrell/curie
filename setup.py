@@ -19,7 +19,7 @@ def _post_install(loc):
 		os.mkdir(path(''))
 
 	for fl in ['wwd6b1gk2ge5tgt/decay.db','tkndjqs036piojm/endf.db','zkoi6t2jicc9yqs/tendl.db','x2vfjr7uv7ffex5/tendl_d_rp.db','n0jjc0dv61j9of9/tendl_n_rp.db',
-				'ib2a5lrhiwkcro5/tendl_p_rp.db','kq07684wtp890v5/ziegler.db','lzn8zs6y8zu3v0s/iaea_monitors.db','34sgcvt8n57b0aw/IRDFF.db']:
+				'ib2a5lrhiwkcro5/tendl_p_rp.db','6jy0lns3vfun5vi/ziegler.db','lzn8zs6y8zu3v0s/iaea_monitors.db','34sgcvt8n57b0aw/IRDFF.db']:
 		fnm = fl.split('/')[1]
 		if not os.path.isfile(path(fnm)):
 			try:
@@ -43,7 +43,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(name='curie',
-	  version='0.0.12',
+	  version='0.0.13',
 	  description='Curie is a python toolkit to aid in the analysis of experimental nuclear data.',
 	  long_description=long_description,
 	  long_description_content_type="text/markdown",
