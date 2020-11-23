@@ -352,11 +352,8 @@ class Stack(object):
 
 		Returns
 		-------
-		energy : np.ndarray
-			Energy grid in MeV.
-
-		flux : np.ndarray
-			Relative flux in the sample, along the energy grid.
+		(energy, flux) : tuple(np.ndarray, np.ndarray)
+			Energy grid in MeV, and relative flux in the sample, along the energy grid.
 
 		Examples
 		--------
@@ -367,10 +364,10 @@ class Stack(object):
 		>>> st = ci.Stack(stack, compounds={'Brass':{'Cu':-66, 'Zn':-33}}, E0=60.0)
 		>>> print(st.get_flux('water'))
 		(array([47.95, 48.05, 48.15, 48.25, 48.35, 48.45, 48.55, 48.65, 48.75,
-       	48.85, 48.95, 49.05, 49.15...
-       	>>> rx = ci.Reaction('16O(p,x)16F')
-       	>>> print(rx.average(*st.get_flux('water')))
-       	1.495163043176288
+		48.85, 48.95, 49.05, 49.15...
+		>>> rx = ci.Reaction('16O(p,x)16F')
+		>>> print(rx.average(*st.get_flux('water')))
+		1.495163043176288
 
 		"""
 

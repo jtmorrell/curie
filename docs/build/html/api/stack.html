@@ -192,10 +192,9 @@ for each foil in the stack (energies in MeV).</p>
 <dt id="curie.Stack.get_flux">
 <code class="descname">get_flux</code><span class="sig-paren">(</span><em>sample_name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/stack.html#Stack.get_flux"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Stack.get_flux" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the computed energy grid and flux for a sample</p>
-<blockquote>
-<div>Units of energy are in MeV, and the flux is a relative flux (normalized to 1).
+<p>Units of energy are in MeV, and the flux is a relative flux (normalized to 1).
 Note that sample_name must be an exact match with the ‘name’ property in the
-stack specification.</div></blockquote>
+stack specification.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -209,25 +208,28 @@ match for an element in the stack.</p>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>energy</strong> <span class="classifier-delimiter">:</span> <span class="classifier">np.ndarray</span></dt>
-<dd><blockquote class="first">
-<div><p>Energy grid in MeV.</p>
-</div></blockquote>
-<dl class="last docutils">
-<dt>flux <span class="classifier-delimiter">:</span> <span class="classifier">np.ndarray</span></dt>
-<dd><p class="first last">Relative flux in the sample, along the energy grid.</p>
-</dd>
-</dl>
+<dt><strong>(energy, flux)</strong> <span class="classifier-delimiter">:</span> <span class="classifier">tuple(np.ndarray, np.ndarray)</span></dt>
+<dd><p class="first last">Energy grid in MeV, and relative flux in the sample, along the energy grid.</p>
 </dd>
 </dl>
 </td>
 </tr>
 </tbody>
 </table>
-<p>48.85, 48.95, 49.05, 49.15…
-&gt;&gt;&gt; rx = ci.Reaction(‘16O(p,x)16F’)
-&gt;&gt;&gt; print(rx.average(<a href="#id2"><span class="problematic" id="id3">*</span></a>st.get_flux(‘water’)))
-1.495163043176288</p>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">stack</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;cm&#39;</span><span class="p">:</span><span class="s1">&#39;H2O&#39;</span><span class="p">,</span> <span class="s1">&#39;ad&#39;</span><span class="p">:</span><span class="mf">800.0</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">:</span><span class="s1">&#39;water&#39;</span><span class="p">},</span>
+<span class="go">                {&#39;cm&#39;:&#39;RbCl&#39;, &#39;density&#39;:3.0, &#39;t&#39;:0.03, &#39;name&#39;:&#39;salt&#39;},</span>
+<span class="go">                {&#39;cm&#39;:&#39;Kapton&#39;, &#39;t&#39;:0.025},</span>
+<span class="go">                {&#39;cm&#39;:&#39;Brass&#39;,&#39;ad&#39;:350, &#39;name&#39;:&#39;metal&#39;}]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">st</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Stack</span><span class="p">(</span><span class="n">stack</span><span class="p">,</span> <span class="n">compounds</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;Brass&#39;</span><span class="p">:{</span><span class="s1">&#39;Cu&#39;</span><span class="p">:</span><span class="o">-</span><span class="mi">66</span><span class="p">,</span> <span class="s1">&#39;Zn&#39;</span><span class="p">:</span><span class="o">-</span><span class="mi">33</span><span class="p">}},</span> <span class="n">E0</span><span class="o">=</span><span class="mf">60.0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">st</span><span class="o">.</span><span class="n">get_flux</span><span class="p">(</span><span class="s1">&#39;water&#39;</span><span class="p">))</span>
+<span class="go">(array([47.95, 48.05, 48.15, 48.25, 48.35, 48.45, 48.55, 48.65, 48.75,</span>
+<span class="go">48.85, 48.95, 49.05, 49.15...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rx</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Reaction</span><span class="p">(</span><span class="s1">&#39;16O(p,x)16F&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">rx</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="o">*</span><span class="n">st</span><span class="o">.</span><span class="n">get_flux</span><span class="p">(</span><span class="s1">&#39;water&#39;</span><span class="p">)))</span>
+<span class="go">1.495163043176288</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="method">
