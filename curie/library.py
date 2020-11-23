@@ -134,7 +134,7 @@ class Library(object):
 			if incident is not None:
 				if incident!='n':
 					return []
-			q = [(i+'%' if not n%2 else i) for n,i in enumerate([target, outgoing, product]) if i]
+			q = [('%'+i+'%' if not n%2 else i) for n,i in enumerate([target, outgoing, product]) if i]
 			ss += ' WHERE ' if len(q) else ''
 			ss += ' AND '.join([i for i in [('target LIKE ?' if target else ''),('outgoing=?' if outgoing else ''),('product LIKE ?' if product else '')] if i])
 			reacs = [r.to_list() for n,r in pd.read_sql(ss, self._con, params=tuple(q)).iterrows()]
@@ -152,14 +152,14 @@ class Library(object):
 						print('WARNING: Product isomeric state not specified, ground state assumed.')
 						self._warn = False
 
-			q = [i+'%' for i in [target, product] if i]
+			q = ['%'+i+'%' for i in [target, product] if i]
 			ss += ' WHERE ' if len(q) else ''
 			ss += ' AND '.join([i for i in [('target LIKE ?' if target else ''),('product LIKE ?' if product else '')] if i])
 			reacs = [r.to_list() for n,r in pd.read_sql(ss, self._con, params=tuple(q)).iterrows()]
 			fmt = '{0}('+self.db_name.split('_')[1]+',x){1}'
 
 		elif self.db_name=='iaea_medical':
-			q = [(i+'%' if n in [0,3] else i) for n,i in enumerate([target, incident, outgoing, product]) if i]
+			q = [('%'+i+'%' if n in [0,3] else i) for n,i in enumerate([target, incident, outgoing, product]) if i]
 			ss += ' WHERE ' if len(q) else ''
 			ss += ' AND '.join([i for i in [('target LIKE ?' if target else ''),('incident=?' if incident else ''),('outgoing=?' if outgoing else ''),('product LIKE ?' if product else '')] if i])
 			reacs = [r.to_list() for n,r in pd.read_sql(ss, self._con, params=tuple(q)).iterrows()]
@@ -246,5 +246,5 @@ class Library(object):
 			if incident is None:
 				raise ValueError('Incident particle must be specified.')
 			table = {'n':'neutron','p':'proton','d':'deuteron','h':'helion','a':'alpha','g':'gamma'}[incident]
-			return pd.read_sql('SELECT energy,cross_section,unc_cross_section FROM {0} WHERE target LIKE {1} AND product={2}'.format(table, '%'+target+'%', labels[0]), self._con).to_numpy()
+			return pd.read_sql('SELECT energy,cross_section,unc_cross_section FROM {0} WHERE target LIKE ? AND product=?'.format(table), self._con, params=('%'+target+'%', labels[0])).to_numpy()
 		
