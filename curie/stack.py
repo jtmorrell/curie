@@ -364,7 +364,6 @@ class Stack(object):
 				{'cm':'RbCl', 'density':3.0, 't':0.03, 'name':'salt'},
 				{'cm':'Kapton', 't':0.025},
 				{'cm':'Brass','ad':350, 'name':'metal'}]
-
 		>>> st = ci.Stack(stack, compounds={'Brass':{'Cu':-66, 'Zn':-33}}, E0=60.0)
 		>>> print(st.get_flux('water'))
 		(array([47.95, 48.05, 48.15, 48.25, 48.35, 48.45, 48.55, 48.65, 48.75,

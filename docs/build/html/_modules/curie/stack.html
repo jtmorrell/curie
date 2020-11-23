@@ -376,7 +376,7 @@
 		<span class="k">return</span> <span class="n">df_NN</span><span class="p">[</span><span class="n">match</span><span class="p">]</span>
 
 <div class="viewcode-block" id="Stack.get_flux"><a class="viewcode-back" href="../../api/stack.html#curie.Stack.get_flux">[docs]</a>	<span class="k">def</span> <span class="nf">get_flux</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample_name</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;Returns the computed energy grid and flux for a given sample</span>
+		<span class="sd">&quot;&quot;&quot;Returns the computed energy grid and flux for a sample</span>
 
 <span class="sd">		Units of energy are in MeV, and the flux is a relative flux (normalized to 1).</span>
 <span class="sd">		Note that sample_name must be an exact match with the &#39;name&#39; property in the</span>
@@ -402,7 +402,6 @@
 <span class="sd">				{&#39;cm&#39;:&#39;RbCl&#39;, &#39;density&#39;:3.0, &#39;t&#39;:0.03, &#39;name&#39;:&#39;salt&#39;},</span>
 <span class="sd">				{&#39;cm&#39;:&#39;Kapton&#39;, &#39;t&#39;:0.025},</span>
 <span class="sd">				{&#39;cm&#39;:&#39;Brass&#39;,&#39;ad&#39;:350, &#39;name&#39;:&#39;metal&#39;}]</span>
-
 <span class="sd">		&gt;&gt;&gt; st = ci.Stack(stack, compounds={&#39;Brass&#39;:{&#39;Cu&#39;:-66, &#39;Zn&#39;:-33}}, E0=60.0)</span>
 <span class="sd">		&gt;&gt;&gt; print(st.get_flux(&#39;water&#39;))</span>
 <span class="sd">		(array([47.95, 48.05, 48.15, 48.25, 48.35, 48.45, 48.55, 48.65, 48.75,</span>
