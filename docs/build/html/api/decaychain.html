@@ -39,7 +39,7 @@
 <span id="decaychain"></span><h1>Decay Chain<a class="headerlink" href="#decay-chain" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="curie.DecayChain">
-<em class="property">class </em><code class="descclassname">curie.</code><code class="descname">DecayChain</code><span class="sig-paren">(</span><em>parent_isotope</em>, <em>R=None</em>, <em>A0=None</em>, <em>units='s'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/decay_chain.html#DecayChain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.DecayChain" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">curie.</code><code class="descname">DecayChain</code><span class="sig-paren">(</span><em>parent_isotope</em>, <em>R=None</em>, <em>A0=None</em>, <em>units='s'</em>, <em>timestamp=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/decay_chain.html#DecayChain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.DecayChain" title="Permalink to this definition">¶</a></dt>
 <dd><p>Radioactive Decay Chain</p>
 <p>Uses the Bateman equations to calculate the activities and number of decays
 from a radioactive decay chain as a function of time, both in production
@@ -58,14 +58,18 @@ be fit to observed count data, or directly fit to HPGe spectra using the
 <dd><p class="first">Production rate for each isotope in the decay chain as a function of time.
 If a Nx2 np.ndarray, element n gives the production rate R_n up until
 time t_n for the parent isotope. E.g. If the production rate of the parent
-is 2 for 1 hour, and 1 for 3 hours, the array will be [[2, 1], [1, 3]].</p>
+is 5 for 1 hour, and 8 for 3 hours, the array will be [[5, 1], [8, 4]].  If
+instead time intervals are preferred to a monotonically increasing grid
+of timestamps, set ‘timestamp=False’.  In this case the production rate array
+will be [[5, 1], [8, 3]]. (R=5 for 1 hour, R=8 for 3 hours).</p>
 <p>If R is a dict, it specifies the production rate for multiple isotopes, 
 where the keys are the isotopes and the values are type np.ndarray.</p>
 <p class="last">If R is a pd.DataFrame, it must have columns ‘R’ and ‘time’, and optionally ‘isotope’
 if R&gt;0 for any isotopes other than the parent.  If R is a str, it must be a 
 path to a file where the same data is provided.  Supported file types are
 .csv, .json and .db files, where .json files must be in the ‘records’ format,
-and .db files must have a table named ‘R’.</p>
+and .db files must have a table named ‘R’.  Also, each isotope must have
+the same time grid, for both timestamp=True and timestamp=False.</p>
 </dd>
 <dt><strong>A0</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float or dict</span></dt>
 <dd><p class="first last">Initial activity.  If a float, the initial activity of the parent isotope.
@@ -75,6 +79,11 @@ initial activity.</p>
 <dt><strong>units</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
 <dd><p class="first last">Units of time for the chain. Options are ‘ns’, ‘us’, ‘ms’, ‘s’, ‘m’, ‘h’, 
 ‘d’, ‘y’, ‘ky’, ‘My’, ‘Gy’.  Default is ‘s’.</p>
+</dd>
+<dt><strong>timestamp</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
+<dd><p class="first last">Determines if the ‘time’ variable in R is to be read as a timestamp-like grid,
+i.e. in monotonically increasing order, or as a series of time intervals.
+Default is <cite>True</cite>.</p>
 </dd>
 </dl>
 </td>

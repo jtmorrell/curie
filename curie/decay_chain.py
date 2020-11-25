@@ -32,7 +32,10 @@ class DecayChain(object):
 		Production rate for each isotope in the decay chain as a function of time.
 		If a Nx2 np.ndarray, element n gives the production rate R_n up until
 		time t_n for the parent isotope. E.g. If the production rate of the parent
-		is 2 for 1 hour, and 1 for 3 hours, the array will be [[2, 1], [1, 3]].  
+		is 5 for 1 hour, and 8 for 3 hours, the array will be [[5, 1], [8, 4]].  If
+		instead time intervals are preferred to a monotonically increasing grid
+		of timestamps, set 'timestamp=False'.  In this case the production rate array
+		will be [[5, 1], [8, 3]]. (R=5 for 1 hour, R=8 for 3 hours).
 
 		If R is a dict, it specifies the production rate for multiple isotopes, 
 		where the keys are the isotopes and the values are type np.ndarray.
@@ -41,7 +44,8 @@ class DecayChain(object):
 		if R>0 for any isotopes other than the parent.  If R is a str, it must be a 
 		path to a file where the same data is provided.  Supported file types are
 		.csv, .json and .db files, where .json files must be in the 'records' format,
-		and .db files must have a table named 'R'.
+		and .db files must have a table named 'R'.  Also, each isotope must have
+		the same time grid, for both timestamp=True and timestamp=False.
 
 	A0 : float or dict
 		Initial activity.  If a float, the initial activity of the parent isotope.
@@ -51,6 +55,11 @@ class DecayChain(object):
 	units : str, optional
 		Units of time for the chain. Options are 'ns', 'us', 'ms', 's', 'm', 'h', 
 		'd', 'y', 'ky', 'My', 'Gy'.  Default is 's'.
+
+	timestamp : bool, optional
+		Determines if the 'time' variable in R is to be read as a timestamp-like grid,
+		i.e. in monotonically increasing order, or as a series of time intervals.
+		Default is `True`.
 
 	Attributes
 	----------
@@ -88,7 +97,7 @@ class DecayChain(object):
 
 	"""
 
-	def __init__(self, parent_isotope, R=None, A0=None, units='s'):
+	def __init__(self, parent_isotope, R=None, A0=None, units='s', timestamp=True):
 		if units.lower() in ['hr','min','yr','sec']:
 			units = {'hr':'h','min':'m','yr':'y','sec':'s'}[units.lower()]
 		self.units = units
@@ -156,6 +165,10 @@ class DecayChain(object):
 				self.R = pd.DataFrame({'isotope':self.isotopes[0], 'R':R[:,0], 'time':R[:,1]})
 
 			self.R['isotope'] = [self._filter_name(i) for i in self.R['isotope']]
+
+			if not timestamp:
+				for ip in pd.unique(self.R['isotope']):
+					self.R.loc[self.R['isotope']==ip,'time'] = np.cumsum(self.R.loc[self.R['isotope']==ip,'time'])
 
 			time = np.insert(np.unique(self.R['time']), 0, [0.0])
 			for n,dt in enumerate(time[1:]-time[:-1]):

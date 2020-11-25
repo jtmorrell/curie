@@ -70,7 +70,10 @@
 <span class="sd">		Production rate for each isotope in the decay chain as a function of time.</span>
 <span class="sd">		If a Nx2 np.ndarray, element n gives the production rate R_n up until</span>
 <span class="sd">		time t_n for the parent isotope. E.g. If the production rate of the parent</span>
-<span class="sd">		is 2 for 1 hour, and 1 for 3 hours, the array will be [[2, 1], [1, 3]].  </span>
+<span class="sd">		is 5 for 1 hour, and 8 for 3 hours, the array will be [[5, 1], [8, 4]].  If</span>
+<span class="sd">		instead time intervals are preferred to a monotonically increasing grid</span>
+<span class="sd">		of timestamps, set &#39;timestamp=False&#39;.  In this case the production rate array</span>
+<span class="sd">		will be [[5, 1], [8, 3]]. (R=5 for 1 hour, R=8 for 3 hours).</span>
 
 <span class="sd">		If R is a dict, it specifies the production rate for multiple isotopes, </span>
 <span class="sd">		where the keys are the isotopes and the values are type np.ndarray.</span>
@@ -79,7 +82,8 @@
 <span class="sd">		if R&gt;0 for any isotopes other than the parent.  If R is a str, it must be a </span>
 <span class="sd">		path to a file where the same data is provided.  Supported file types are</span>
 <span class="sd">		.csv, .json and .db files, where .json files must be in the &#39;records&#39; format,</span>
-<span class="sd">		and .db files must have a table named &#39;R&#39;.</span>
+<span class="sd">		and .db files must have a table named &#39;R&#39;.  Also, each isotope must have</span>
+<span class="sd">		the same time grid, for both timestamp=True and timestamp=False.</span>
 
 <span class="sd">	A0 : float or dict</span>
 <span class="sd">		Initial activity.  If a float, the initial activity of the parent isotope.</span>
@@ -89,6 +93,11 @@
 <span class="sd">	units : str, optional</span>
 <span class="sd">		Units of time for the chain. Options are &#39;ns&#39;, &#39;us&#39;, &#39;ms&#39;, &#39;s&#39;, &#39;m&#39;, &#39;h&#39;, </span>
 <span class="sd">		&#39;d&#39;, &#39;y&#39;, &#39;ky&#39;, &#39;My&#39;, &#39;Gy&#39;.  Default is &#39;s&#39;.</span>
+
+<span class="sd">	timestamp : bool, optional</span>
+<span class="sd">		Determines if the &#39;time&#39; variable in R is to be read as a timestamp-like grid,</span>
+<span class="sd">		i.e. in monotonically increasing order, or as a series of time intervals.</span>
+<span class="sd">		Default is `True`.</span>
 
 <span class="sd">	Attributes</span>
 <span class="sd">	----------</span>
@@ -126,7 +135,7 @@
 
 <span class="sd">	&quot;&quot;&quot;</span>
 
-	<span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent_isotope</span><span class="p">,</span> <span class="n">R</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">A0</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;s&#39;</span><span class="p">):</span>
+	<span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent_isotope</span><span class="p">,</span> <span class="n">R</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">A0</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="n">timestamp</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 		<span class="k">if</span> <span class="n">units</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;hr&#39;</span><span class="p">,</span><span class="s1">&#39;min&#39;</span><span class="p">,</span><span class="s1">&#39;yr&#39;</span><span class="p">,</span><span class="s1">&#39;sec&#39;</span><span class="p">]:</span>
 			<span class="n">units</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;hr&#39;</span><span class="p">:</span><span class="s1">&#39;h&#39;</span><span class="p">,</span><span class="s1">&#39;min&#39;</span><span class="p">:</span><span class="s1">&#39;m&#39;</span><span class="p">,</span><span class="s1">&#39;yr&#39;</span><span class="p">:</span><span class="s1">&#39;y&#39;</span><span class="p">,</span><span class="s1">&#39;sec&#39;</span><span class="p">:</span><span class="s1">&#39;s&#39;</span><span class="p">}[</span><span class="n">units</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="n">units</span>
@@ -194,6 +203,10 @@
 				<span class="bp">self</span><span class="o">.</span><span class="n">R</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;isotope&#39;</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">isotopes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;R&#39;</span><span class="p">:</span><span class="n">R</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;time&#39;</span><span class="p">:</span><span class="n">R</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]})</span>
 
 			<span class="bp">self</span><span class="o">.</span><span class="n">R</span><span class="p">[</span><span class="s1">&#39;isotope&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_filter_name</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">R</span><span class="p">[</span><span class="s1">&#39;isotope&#39;</span><span class="p">]]</span>
+
+			<span class="k">if</span> <span class="ow">not</span> <span class="n">timestamp</span><span class="p">:</span>
+				<span class="k">for</span> <span class="n">ip</span> <span class="ow">in</span> <span class="n">pd</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">R</span><span class="p">[</span><span class="s1">&#39;isotope&#39;</span><span class="p">]):</span>
+					<span class="bp">self</span><span class="o">.</span><span class="n">R</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">R</span><span class="p">[</span><span class="s1">&#39;isotope&#39;</span><span class="p">]</span><span class="o">==</span><span class="n">ip</span><span class="p">,</span><span class="s1">&#39;time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">R</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">R</span><span class="p">[</span><span class="s1">&#39;isotope&#39;</span><span class="p">]</span><span class="o">==</span><span class="n">ip</span><span class="p">,</span><span class="s1">&#39;time&#39;</span><span class="p">])</span>
 
 			<span class="n">time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">R</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]),</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">])</span>
 			<span class="k">for</span> <span class="n">n</span><span class="p">,</span><span class="n">dt</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">time</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">-</span><span class="n">time</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
