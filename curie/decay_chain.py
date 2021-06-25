@@ -295,15 +295,22 @@ class DecayChain(object):
 		time = np.asarray(time)
 		A = np.zeros(len(time)) if time.shape else np.array(0.0)
 
+		finished = []
 		for m,(BR, chain) in enumerate(zip(*self._get_branches(isotope))):
 			lm = self._r_lm(units)*self._chain[chain, 0]
 			L = len(chain)
 			for i in range(L):
-				if i==L-1 and m>0:
+				sub = ''.join(map(str, chain[i:]))
+				if sub in finished:
 					continue
+				finished.append(sub)
+				# if i==L-1 and m>0: # only add A0 of end isotope once
+					# continue
 
 				ip = self.isotopes[chain[i]]
 				A0 = self.A0[ip] if _A_dict is None else _A_dict[ip]
+				if A0==0.0 and _R_dict is None:
+					continue
 				A_i = lm[-1]*(A0/lm[i])
 				
 				B_i = np.prod(lm[i:-1]*BR[i:-1])

@@ -168,8 +168,16 @@ class Reaction(object):
 		""" 
 
 		if self._interp is None:
-			self._interp = interp1d(self.eng, self.xs, bounds_error=False, fill_value=0.0)
-		return self._interp(energy)
+			kind = 'linear'
+			i = 0
+			if self.library.name.lower().startswith('tendl'):
+				kind = 'quadratic'
+				ix = np.where(self.xs>0)[0]
+				if len(ix)>0:
+					i = max((ix[0]-1, 0))
+			self._interp = interp1d(self.eng[i:], self.xs[i:], bounds_error=False, fill_value=0.0, kind=kind)
+		_interp = self._interp(energy)
+		return np.where(_interp>0, _interp, 0.0)
 
 	def interpolate_unc(self, energy):
 		"""Uncertainty in interpolated cross section
@@ -336,9 +344,13 @@ class Reaction(object):
 
 		unc_xs = None
 		if energy is None:
-			eng, xs = self.eng, self.xs
-			if np.any(self.unc_xs>0):
-				unc_xs = self.unc_xs
+			if self.library.name.lower().startswith('tendl'):
+				eng = np.linspace(min(self.eng), max(self.eng), 801)
+				xs = self.interpolate(eng)
+			else:
+				eng, xs = self.eng, self.xs
+				if np.any(self.unc_xs>0):
+					unc_xs = self.unc_xs
 		else:
 			eng, xs = np.asarray(energy), self.interpolate(energy)
 			ux = self.interpolate_unc(energy)
@@ -348,6 +360,12 @@ class Reaction(object):
 		line, = ax.plot(eng, xs, label=label)
 		if unc_xs is not None:
 			ax.fill_between(eng, xs+unc_xs, xs-unc_xs, facecolor=line.get_color(), alpha=0.5)
+
+		if self.library.name.lower().startswith('tendl'):
+			wh = np.where((self.eng>=min(eng))&(self.eng<=max(eng)))
+			elib = self.eng[wh]
+			xslib = self.xs[wh]
+			ax.plot(elib, xslib, ls='None', marker='o', color=line.get_color())
 
 		ax.set_xlabel('Incident Energy (MeV)')
 		ax.set_ylabel('Cross Section (mb)')
