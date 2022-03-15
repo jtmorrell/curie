@@ -579,8 +579,12 @@ class DecayChain(object):
 		Y = self.counts['counts'].to_numpy()
 		dY = self.counts['unc_counts'].to_numpy()
 
+		
+		wh = np.array([np.all(x>0) for x in X.T])
+		p0 = np.average(Y[wh]/X[:,wh], axis=1)
+		p0 = np.where((p0>0)&(np.isfinite(p0)), p0, 1.0)
+
 		func = lambda X_f, *R_f: np.dot(np.asarray(R_f), X_f)
-		p0 = np.ones(len(X))
 		fit, cov = curve_fit(func, X, Y, sigma=dY, p0=p0, bounds=(0.0*p0, np.inf*p0))
 
 		for n,ip in enumerate(R_isotopes):
@@ -720,7 +724,7 @@ class DecayChain(object):
 			max_plot = len(self.isotopes)
 
 		ordr = int(np.floor(np.log10(np.average(self.activity(self.isotopes[0], time)))/3.0))
-		lb_or = {-4:'p',-3:'n',-2:r'$\mu$',-1:'m',0:'',1:'k',2:'M',3:'G',4:'T'}[ordr]
+		lb_or = {-5:'f',-4:'p',-3:'n',-2:r'$\mu$',-1:'m',0:'',1:'k',2:'M',3:'G',4:'T',5:'E'}[ordr]
 		mult = 10**(-3*ordr)
 
 		if self.R is not None:

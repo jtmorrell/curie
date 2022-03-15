@@ -169,13 +169,17 @@ class Reaction(object):
 
 		if self._interp is None:
 			kind = 'linear'
+			fv = 'extrapolate'
 			i = 0
 			if self.library.name.lower().startswith('tendl'):
 				kind = 'quadratic'
+				fv = 0.0
 				ix = np.where(self.xs>0)[0]
 				if len(ix)>0:
 					i = max((ix[0]-1, 0))
-			self._interp = interp1d(self.eng[i:], self.xs[i:], bounds_error=False, fill_value=0.0, kind=kind)
+					if len(self.xs)-i<5:
+						kind = 'linear'
+			self._interp = interp1d(self.eng[i:], self.xs[i:], bounds_error=False, fill_value=fv, kind=kind)
 		_interp = self._interp(energy)
 		return np.where(_interp>0, _interp, 0.0)
 

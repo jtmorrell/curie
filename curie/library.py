@@ -152,7 +152,7 @@ class Library(object):
 						print('WARNING: Product isomeric state not specified, ground state assumed.')
 						self._warn = False
 
-			q = ['%'+i+'%' for i in [target, product] if i]
+			q = [i+'%' for i in [target, product] if i]
 			ss += ' WHERE ' if len(q) else ''
 			ss += ' AND '.join([i for i in [('target LIKE ?' if target else ''),('product LIKE ?' if product else '')] if i])
 			reacs = [r.to_list() for n,r in pd.read_sql(ss, self._con, params=tuple(q)).iterrows()]
