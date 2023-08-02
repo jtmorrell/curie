@@ -1,20 +1,17 @@
+<!DOCTYPE html>
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html lang="en">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
     <title>4. Reactions &#8212; Curie 0.0.15 documentation</title>
-    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b76e3c8a" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css?v=89b800e6" />
     
-    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=8810cfe0"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -34,7 +31,8 @@
           <a href="isotopes.html" title="3. Isotopes &amp; Decay Chains"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">Curie 0.0.15 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">User’s Guide</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">User’s Guide</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href=""><span class="section-number">4. </span>Reactions</a></li> 
       </ul>
     </div>  
 
@@ -43,8 +41,8 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="reactions">
-<span id="id1"></span><h1>4. Reactions<a class="headerlink" href="#reactions" title="Permalink to this headline">¶</a></h1>
+  <section id="reactions">
+<span id="id1"></span><h1><span class="section-number">4. </span>Reactions<a class="headerlink" href="#reactions" title="Permalink to this heading">¶</a></h1>
 <p>Curie provides access to the following evaluated nuclear reaction libraries: ENDF/B-VII.1, TENDL-2015, IRDFF-II,
 and the IAEA Medical Monitor reaction library.  The <cite>Library</cite> class gives access to the libraries for searching
 and retrieving reactions.  The <cite>Reaction</cite> class gives access to data and methods for a specific reaction.  Some
@@ -68,20 +66,25 @@ and interpolation.  See the <a class="reference internal" href="../api/index.htm
 <span class="n">rx</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">f</span><span class="o">=</span><span class="n">f</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="s1">&#39;loglog&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
+</section>
 
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="isotopes.html"
-                        title="previous chapter">3. Isotopes &amp; Decay Chains</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="stopping.html"
-                        title="next chapter">5. Stopping Power Calculations</a></p>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="isotopes.html"
+                          title="previous chapter"><span class="section-number">3. </span>Isotopes &amp; Decay Chains</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="stopping.html"
+                          title="next chapter"><span class="section-number">5. </span>Stopping Power Calculations</a></p>
+  </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -90,17 +93,15 @@ and interpolation.  See the <a class="reference internal" href="../api/index.htm
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -118,12 +119,13 @@ and interpolation.  See the <a class="reference internal" href="../api/index.htm
           <a href="isotopes.html" title="3. Isotopes &amp; Decay Chains"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">Curie 0.0.15 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="index.html" >User’s Guide</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="index.html" >User’s Guide</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href=""><span class="section-number">4. </span>Reactions</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2020, Jonathan Morrell.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.3.
+    &#169; Copyright 2020, Jonathan Morrell.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
     </div>
   </body>
 </html>

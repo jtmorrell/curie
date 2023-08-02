@@ -303,12 +303,13 @@ class Spectrum(object):
 		self.hist = np.sum(self.hist.reshape((int(L/r), r)), axis=1)
 		self._snip = self._snip_bg()
 		self._snip_interp = interp1d(np.arange(len(self.hist)), self._snip, bounds_error=False, fill_value=0.0)
-
+		
+		r = float(r)
 		ec = self.cb.engcal
 		self.cb.engcal = [ec[0], ec[1]*r]+([ec[2]*r**2] if len(ec)==3 else [])
 
 		rc = self.cb.rescal
-		self.cb.rescal = ([rc[0]*np.sqrt(r)] if len(rc)==1 else [rc[0], rc[1]*r])
+		self.cb.rescal = ([rc[0]/np.sqrt(r)] if len(rc)==1 else [rc[0]/r, rc[1]])
 		
 	def attenuation_correction(self, compounds, x=None, ad=None): # first compound is 'self'
 		"""Efficiency correction for sample attenuation
@@ -717,21 +718,25 @@ class Spectrum(object):
 		else:
 			if self.fit_config['step_fit']:
 				for n in range(int((len(args)-b)/4)):
-					peak += self._peak(x,*(args[4*n+b:4*n+b+3]+(R, alpha)+(args[4*n+3+b])))
+					peak += self._peak(x,*(args[4*n+b:4*n+b+3]+(R, alpha)+(args[4*n+3+b],)))
 			else:
 				for n in range(int((len(args)-b)/3)):
 					peak += self._peak(x,*(args[3*n+b:3*n+b+3]+(R,alpha,step)))
 		return peak
 
 	def _get_p0(self, gammas=None):
-		### gammas must at least have energy, intensity, unc_intensity (isotope optional)
+		### gammas must at least have energy, intensity, unc_intensity, isotope
 		istp, gm = self._gammas(True)
 		for n,i in enumerate(istp):
 			gm[n]['isotope'] = i
 		if gammas is not None:
-			gm += [pd.DataFrame(gammas)]
-			gm[-1]['intensity'] = gm[-1]['intensity']*1E-2
-			gm[-1]['unc_intensity'] = gm[-1]['unc_intensity']*1E-2
+			gm_df = pd.DataFrame(gammas)
+			gm_df['intensity'] *= 1E-2
+			gm_df['unc_intensity'] *= 1E-2
+			for i in list(set(gammas['isotope'].to_list())):
+				istp += [i]
+				gm += [gm_df[gm_df['isotope']==i]]
+			self._gmls = (istp, [g.drop(columns='isotope') for g in gm])
 
 
 		X, Y, B = self._forward_fit()
@@ -801,7 +806,7 @@ class Spectrum(object):
 					p['bounds'][0] += [0.0,0.5]
 					p['bounds'][1] += [1.0, max((2.5, alpha))]
 
-				if self.fit_config['skew_fit']:
+				if self.fit_config['step_fit']:
 					p['p0'] += [step]
 					p['bounds'][0] += [0.0]
 					p['bounds'][1] += [0.1]

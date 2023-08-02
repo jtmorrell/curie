@@ -1,23 +1,22 @@
+<!DOCTYPE html>
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html lang="en">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
     <title>Library &#8212; Curie 0.0.15 documentation</title>
-    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b76e3c8a" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css?v=89b800e6" />
     
-    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=8810cfe0"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
     
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" /> 
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Reaction" href="reaction.html" />
+    <link rel="prev" title="Stack" href="stack.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -25,8 +24,15 @@
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="reaction.html" title="Reaction"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="stack.html" title="Stack"
+             accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">Curie 0.0.15 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">API</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">API</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Library</a></li> 
       </ul>
     </div>  
 
@@ -35,11 +41,11 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="library">
-<span id="id1"></span><h1>Library<a class="headerlink" href="#library" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
-<dt id="curie.Library">
-<em class="property">class </em><code class="descclassname">curie.</code><code class="descname">Library</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/library.html#Library"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Library" title="Permalink to this definition">¶</a></dt>
+  <section id="library">
+<span id="id1"></span><h1>Library<a class="headerlink" href="#library" title="Permalink to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="curie.Library">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">curie.</span></span><span class="sig-name descname"><span class="pre">Library</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/library.html#Library"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Library" title="Permalink to this definition">¶</a></dt>
 <dd><p>Library of nuclear reaction data</p>
 <p>Provides a means of searching and retrieving data from various nuclear reaction
 libraries.  The currently available libraries are ENDF/B-VII.1, TENDL-2015, IRDFF-II,
@@ -49,23 +55,18 @@ or by the residual product (rp), in TENDL and partially IRDFF.  For charged part
 all libraries (TENDL, IAEA) are categorized by the residual product.  As such, TENDL
 is split into separate libraries based on incident particle, and by exclusive reaction
 type or residual product.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>name</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
-<dd><p class="first last">The name of the library.  For exclusive neutron reactions, use ‘endf’, ‘tendl’, 
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>name</strong><span class="classifier">str</span></dt><dd><p>The name of the library.  For exclusive neutron reactions, use ‘endf’, ‘tendl’, 
 or ‘irdff’.  For residual product neutron reactions, use ‘tendl_n’ or ‘irdff’.  Use
 ‘tendl_p’ for proton reactions, ‘tendl_d’ for deuteron reactions, or ‘iaea’ for either.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">lb</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Library</span><span class="p">(</span><span class="s1">&#39;tendl_n&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">lb</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Library</span><span class="p">(</span><span class="s1">&#39;tendl_n&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">lb</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 <span class="go">TENDL-2015</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">lb</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Library</span><span class="p">(</span><span class="s1">&#39;endf&#39;</span><span class="p">)</span>
@@ -74,64 +75,51 @@ or ‘irdff’.  For residual product neutron reactions, use ‘tendl_n’ or �
 </pre></div>
 </div>
 <p class="rubric">Methods</p>
-<table border="1" class="longtable docutils">
-<colgroup>
-<col width="10%" />
-<col width="90%" />
-</colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#curie.Library.retrieve" title="curie.Library.retrieve"><code class="xref py py-obj docutils literal notranslate"><span class="pre">retrieve</span></code></a>([target,&nbsp;incident,&nbsp;outgoing,&nbsp;product])</td>
-<td>Pull reaction data from the library</td>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#curie.Library.retrieve" title="curie.Library.retrieve"><code class="xref py py-obj docutils literal notranslate"><span class="pre">retrieve</span></code></a>([target, incident, outgoing, product])</p></td>
+<td><p>Pull reaction data from the library</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#curie.Library.search" title="curie.Library.search"><code class="xref py py-obj docutils literal notranslate"><span class="pre">search</span></code></a>([target,&nbsp;incident,&nbsp;outgoing,&nbsp;…])</td>
-<td>Searches the library for reactions</td>
+<tr class="row-even"><td><p><a class="reference internal" href="#curie.Library.search" title="curie.Library.search"><code class="xref py py-obj docutils literal notranslate"><span class="pre">search</span></code></a>([target, incident, outgoing, ...])</p></td>
+<td><p>Searches the library for reactions</p></td>
 </tr>
 </tbody>
 </table>
-<dl class="method">
-<dt id="curie.Library.retrieve">
-<code class="descname">retrieve</code><span class="sig-paren">(</span><em>target=None</em>, <em>incident=None</em>, <em>outgoing=None</em>, <em>product=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/library.html#Library.retrieve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Library.retrieve" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="curie.Library.retrieve">
+<span class="sig-name descname"><span class="pre">retrieve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">incident</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outgoing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">product</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/library.html#Library.retrieve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Library.retrieve" title="Permalink to this definition">¶</a></dt>
 <dd><p>Pull reaction data from the library</p>
 <p>Returns a numpy ndarray containing the reaction energy grid (in MeV),
 the cross section (in mb), and for IRDFF and IAEA, the uncertainty in the 
 cross section (mb).  The arguments are the same as for <cite>Library.search()</cite>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>target</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
-<dd><p class="first last">The target nucleus.  Some libraries support natural elements, e.g. ‘natEl’.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>target</strong><span class="classifier">str, optional</span></dt><dd><p>The target nucleus.  Some libraries support natural elements, e.g. ‘natEl’.</p>
 </dd>
-<dt><strong>incident</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
-<dd><p class="first last">Incident particle.  Must be one of ‘n’, ‘p’ or ‘d’.  Only needed for IAEA
+<dt><strong>incident</strong><span class="classifier">str, optional</span></dt><dd><p>Incident particle.  Must be one of ‘n’, ‘p’ or ‘d’.  Only needed for IAEA
 library with multiple incident projectiles optional.</p>
 </dd>
-<dt><strong>outgoing</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
-<dd><p class="first last">Outgoing particle, or reaction shorthand.  E.g. ‘2n’, ‘d’, ‘f’, ‘inl’, ‘x’.
+<dt><strong>outgoing</strong><span class="classifier">str, optional</span></dt><dd><p>Outgoing particle, or reaction shorthand.  E.g. ‘2n’, ‘d’, ‘f’, ‘inl’, ‘x’.
 Does not need to be specified for TENDL residual product libraries.</p>
 </dd>
-<dt><strong>product</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
-<dd><p class="first last">The product isotope.  Not required for some exclusive reactions, e.g. 
+<dt><strong>product</strong><span class="classifier">str, optional</span></dt><dd><p>The product isotope.  Not required for some exclusive reactions, e.g. 
 ‘115IN(n,g)116IN’ is the same as ‘115IN(n,g)’, but not the same as
 ‘115IN(n,g)116INm1’.</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>reaction</strong> <span class="classifier-delimiter">:</span> <span class="classifier">np.ndarray</span></dt>
-<dd><p class="first last">Numpy ndarray containing the reaction data. Energy is in MeV, cross section
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>reaction</strong><span class="classifier">np.ndarray</span></dt><dd><p>Numpy ndarray containing the reaction data. Energy is in MeV, cross section
 is in mb.  The first column is energy, the second column is cross section, and
 if the library provides uncertainties in cross section this will be in the third column.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">lb</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Library</span><span class="p">(</span><span class="s1">&#39;endf&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">lb</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Library</span><span class="p">(</span><span class="s1">&#39;endf&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">lb</span><span class="o">.</span><span class="n">retrieve</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s1">&#39;226RA&#39;</span><span class="p">,</span> <span class="n">product</span><span class="o">=</span><span class="s1">&#39;225RA&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">8</span><span class="p">:])</span>
 <span class="go">[[18.5      11.97908 ]</span>
 <span class="go"> [18.75     10.30011 ]</span>
@@ -145,49 +133,40 @@ if the library provides uncertainties in cross section this will be in the third
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="curie.Library.search">
-<code class="descname">search</code><span class="sig-paren">(</span><em>target=None</em>, <em>incident=None</em>, <em>outgoing=None</em>, <em>product=None</em>, <em>_label=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/library.html#Library.search"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Library.search" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="curie.Library.search">
+<span class="sig-name descname"><span class="pre">search</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">incident</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outgoing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">product</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/library.html#Library.search"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Library.search" title="Permalink to this definition">¶</a></dt>
 <dd><p>Searches the library for reactions</p>
 <p>Returns a list of reactions that match the specified target, incident
 or outgoing projectile, or product.  Any combination of arguments can
 be specified, but at least one must be specified.  Note that if the library
 is a TENDL residual-product library, outgoing does not need to be specified.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>target</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
-<dd><p class="first last">The target nucleus.  Some libraries support natural elements, e.g. ‘natEl’.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>target</strong><span class="classifier">str, optional</span></dt><dd><p>The target nucleus.  Some libraries support natural elements, e.g. ‘natEl’.</p>
 </dd>
-<dt><strong>incident</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
-<dd><p class="first last">Incident particle.  Must be one of ‘n’, ‘p’ or ‘d’.  Only needed for IAEA
+<dt><strong>incident</strong><span class="classifier">str, optional</span></dt><dd><p>Incident particle.  Must be one of ‘n’, ‘p’ or ‘d’.  Only needed for IAEA
 library with multiple incident projectiles optional.</p>
 </dd>
-<dt><strong>outgoing</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
-<dd><p class="first last">Outgoing particle, or reaction shorthand.  E.g. ‘2n’, ‘d’, ‘f’, ‘inl’, ‘x’.
+<dt><strong>outgoing</strong><span class="classifier">str, optional</span></dt><dd><p>Outgoing particle, or reaction shorthand.  E.g. ‘2n’, ‘d’, ‘f’, ‘inl’, ‘x’.
 Does not need to be specified for TENDL residual product libraries.</p>
 </dd>
-<dt><strong>product</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
-<dd><p class="first last">The product isotope.  Not required for some exclusive reactions, e.g. 
+<dt><strong>product</strong><span class="classifier">str, optional</span></dt><dd><p>The product isotope.  Not required for some exclusive reactions, e.g. 
 ‘115IN(n,g)116IN’ is the same as ‘115IN(n,g)’, but not the same as
 ‘115IN(n,g)116INm1’.</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>available_reactions</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of str (reaction names)</span></dt>
-<dd><p class="first last">Reactions that were found in the libary matching the search criteria.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>available_reactions</strong><span class="classifier">list of str (reaction names)</span></dt><dd><p>Reactions that were found in the libary matching the search criteria.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">lb</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Library</span><span class="p">(</span><span class="s1">&#39;tendl_p&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">lb</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Library</span><span class="p">(</span><span class="s1">&#39;tendl_p&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">lb</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s1">&#39;Sr-86&#39;</span><span class="p">,</span> <span class="n">product</span><span class="o">=</span><span class="s1">&#39;Y-86g&#39;</span><span class="p">))</span>
 <span class="go">[&#39;86SR(p,x)86Yg&#39;]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">lb</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Library</span><span class="p">(</span><span class="s1">&#39;endf&#39;</span><span class="p">)</span>
@@ -199,14 +178,39 @@ Does not need to be specified for TENDL residual product libraries.</p>
 
 </dd></dl>
 
-</div>
+</section>
 
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="../index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">Library</a><ul>
+<li><a class="reference internal" href="#curie.Library"><code class="docutils literal notranslate"><span class="pre">Library</span></code></a><ul>
+<li><a class="reference internal" href="#curie.Library.retrieve"><code class="docutils literal notranslate"><span class="pre">Library.retrieve()</span></code></a></li>
+<li><a class="reference internal" href="#curie.Library.search"><code class="docutils literal notranslate"><span class="pre">Library.search()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="stack.html"
+                          title="previous chapter">Stack</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="reaction.html"
+                          title="next chapter">Reaction</a></p>
+  </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -215,17 +219,15 @@ Does not need to be specified for TENDL residual product libraries.</p>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -236,13 +238,20 @@ Does not need to be specified for TENDL residual product libraries.</p>
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              >index</a></li>
+        <li class="right" >
+          <a href="reaction.html" title="Reaction"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="stack.html" title="Stack"
+             >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">Curie 0.0.15 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="index.html" >API</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="index.html" >API</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Library</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2020, Jonathan Morrell.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.3.
+    &#169; Copyright 2020, Jonathan Morrell.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
     </div>
   </body>
 </html>

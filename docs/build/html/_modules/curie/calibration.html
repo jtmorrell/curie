@@ -1,20 +1,16 @@
+<!DOCTYPE html>
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html lang="en">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>curie.calibration &#8212; Curie 0.0.15 documentation</title>
-    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b76e3c8a" />
+    <link rel="stylesheet" type="text/css" href="../../_static/classic.css?v=89b800e6" />
     
-    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=8810cfe0"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=4825356b"></script>
     
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -26,7 +22,8 @@
           <a href="../../genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="nav-item nav-item-0"><a href="../../index.html">Curie 0.0.15 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">curie.calibration</a></li> 
       </ul>
     </div>  
 
@@ -133,7 +130,7 @@
 
 
 <div class="viewcode-block" id="Calibration"><a class="viewcode-back" href="../../api/calibration.html#curie.Calibration">[docs]</a><span class="k">class</span> <span class="nc">Calibration</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-	<span class="sd">&quot;&quot;&quot;Calibration for HPGe spectra</span>
+<span class="w">	</span><span class="sd">&quot;&quot;&quot;Calibration for HPGe spectra</span>
 
 <span class="sd">	Provides methods for calculating and fitting energy, efficiency and resolution</span>
 <span class="sd">	calibrations for HPGe spectra.  Each Spectrum class contains a Calibration, </span>
@@ -253,7 +250,7 @@
 
 
 <div class="viewcode-block" id="Calibration.eng"><a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.eng">[docs]</a>	<span class="k">def</span> <span class="nf">eng</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">engcal</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;Energy calibration function</span>
+<span class="w">		</span><span class="sd">&quot;&quot;&quot;Energy calibration function</span>
 
 <span class="sd">		Returns the calculated energy given an input array of</span>
 <span class="sd">		channel numbers.  The `engcal` can be supplied, or</span>
@@ -301,7 +298,7 @@
 			<span class="k">return</span> <span class="n">engcal</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">engcal</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">channel</span> <span class="o">+</span> <span class="n">engcal</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="n">channel</span><span class="o">**</span><span class="mi">2</span></div>
 		
 <div class="viewcode-block" id="Calibration.eff"><a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.eff">[docs]</a>	<span class="k">def</span> <span class="nf">eff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">effcal</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;Efficiency calibration function</span>
+<span class="w">		</span><span class="sd">&quot;&quot;&quot;Efficiency calibration function</span>
 
 <span class="sd">		Returns the calculated (absolute) efficiency given an input array of </span>
 <span class="sd">		energies. The `effcal` can be supplied, or if `effcal=None`, the</span>
@@ -355,7 +352,7 @@
 
 		
 <div class="viewcode-block" id="Calibration.unc_eff"><a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.unc_eff">[docs]</a>	<span class="k">def</span> <span class="nf">unc_eff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">effcal</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unc_effcal</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;Uncertainty in the efficiency</span>
+<span class="w">		</span><span class="sd">&quot;&quot;&quot;Uncertainty in the efficiency</span>
 
 <span class="sd">		Returns the calculated uncertainty in efficiency for an input</span>
 <span class="sd">		array of energies.  If `effcal` or `unc_effcal` are not none,</span>
@@ -425,7 +422,7 @@
 		<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">var</span><span class="p">)</span></div>
 		
 <div class="viewcode-block" id="Calibration.res"><a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.res">[docs]</a>	<span class="k">def</span> <span class="nf">res</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">rescal</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;Resolution calibration</span>
+<span class="w">		</span><span class="sd">&quot;&quot;&quot;Resolution calibration</span>
 
 <span class="sd">		Calculates the expected 1-sigma peak widths for a given input array</span>
 <span class="sd">		of channel numbers.  If `rescal` is given, it is used instead of</span>
@@ -468,7 +465,7 @@
 			<span class="k">return</span> <span class="n">rescal</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">rescal</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">channel</span></div>
 		
 <div class="viewcode-block" id="Calibration.map_channel"><a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.map_channel">[docs]</a>	<span class="k">def</span> <span class="nf">map_channel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">engcal</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;Energy to channel calibration</span>
+<span class="w">		</span><span class="sd">&quot;&quot;&quot;Energy to channel calibration</span>
 
 <span class="sd">		Calculates the spectrum channel number corresponding to a given</span>
 <span class="sd">		energy array.  This should return the inverse of the energy calibration, but</span>
@@ -512,7 +509,7 @@
 		<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">rint</span><span class="p">((</span><span class="n">energy</span><span class="o">-</span><span class="n">engcal</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">/</span><span class="n">engcal</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span></div>
 		
 <div class="viewcode-block" id="Calibration.calibrate"><a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.calibrate">[docs]</a>	<span class="k">def</span> <span class="nf">calibrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spectra</span><span class="p">,</span> <span class="n">sources</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;Generate calibration parameters from spectra</span>
+<span class="w">		</span><span class="sd">&quot;&quot;&quot;Generate calibration parameters from spectra</span>
 
 <span class="sd">		Performs an energy, resolution and efficiency calibration on peak fits</span>
 <span class="sd">		to a given list of spectra.  Reference activities _MUst be given for the</span>
@@ -551,6 +548,8 @@
 			<span class="k">elif</span> <span class="n">sources</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.db&#39;</span><span class="p">):</span>
 				<span class="n">sources</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s1">&#39;SELECT * FROM sources&#39;</span><span class="p">,</span> <span class="n">_get_connection</span><span class="p">(</span><span class="n">sources</span><span class="p">))</span>
 		<span class="k">else</span><span class="p">:</span>
+			<span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">sources</span><span class="p">[</span><span class="s1">&#39;A0&#39;</span><span class="p">])</span><span class="o">==</span><span class="nb">float</span><span class="p">:</span>
+				<span class="n">sources</span><span class="p">[</span><span class="s1">&#39;A0&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">sources</span><span class="p">[</span><span class="s1">&#39;A0&#39;</span><span class="p">]]</span>
 			<span class="n">sources</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">sources</span><span class="p">)</span>
 		<span class="n">sources</span><span class="p">[</span><span class="s1">&#39;ref_date&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">sources</span><span class="p">[</span><span class="s1">&#39;ref_date&#39;</span><span class="p">],</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;%m/</span><span class="si">%d</span><span class="s1">/%Y %H:%M:%S&#39;</span><span class="p">)</span>
 
@@ -673,7 +672,7 @@
 
 		
 <div class="viewcode-block" id="Calibration.saveas"><a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.saveas">[docs]</a>	<span class="k">def</span> <span class="nf">saveas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;Save the calibration as a .json file</span>
+<span class="w">		</span><span class="sd">&quot;&quot;&quot;Save the calibration as a .json file</span>
 
 <span class="sd">		Saves the energy, resolution and efficiency calibration to a .json</span>
 <span class="sd">		file, which can be recalled by a new calibration object by passing</span>
@@ -720,7 +719,7 @@
 
 		
 <div class="viewcode-block" id="Calibration.plot_engcal"><a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.plot_engcal">[docs]</a>	<span class="k">def</span> <span class="nf">plot_engcal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;Plot the energy calibration</span>
+<span class="w">		</span><span class="sd">&quot;&quot;&quot;Plot the energy calibration</span>
 
 <span class="sd">		Draws the energy calibration, with measurements from peak fit data if available.</span>
 
@@ -760,7 +759,7 @@
 		<span class="k">return</span> <span class="n">_draw_plot</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 		
 <div class="viewcode-block" id="Calibration.plot_rescal"><a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.plot_rescal">[docs]</a>	<span class="k">def</span> <span class="nf">plot_rescal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;Plot the resolution calibration</span>
+<span class="w">		</span><span class="sd">&quot;&quot;&quot;Plot the resolution calibration</span>
 
 <span class="sd">		Draws the resolution calibration, with measurements from peak fit data if available.</span>
 
@@ -800,7 +799,7 @@
 		<span class="k">return</span> <span class="n">_draw_plot</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 		
 <div class="viewcode-block" id="Calibration.plot_effcal"><a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.plot_effcal">[docs]</a>	<span class="k">def</span> <span class="nf">plot_effcal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;Plot the efficiency calibration</span>
+<span class="w">		</span><span class="sd">&quot;&quot;&quot;Plot the efficiency calibration</span>
 
 <span class="sd">		Draws the efficiency calibration, with measurements from peak fit data if available.</span>
 
@@ -848,7 +847,7 @@
 		<span class="k">return</span> <span class="n">_draw_plot</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 		
 <div class="viewcode-block" id="Calibration.plot"><a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.plot">[docs]</a>	<span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;Plots energy, resolution and efficiency calibrations</span>
+<span class="w">		</span><span class="sd">&quot;&quot;&quot;Plots energy, resolution and efficiency calibrations</span>
 
 <span class="sd">		Draws all three of energy, resolution and efficiency calibrations on a </span>
 <span class="sd">		single figure, and shows measured values from peak data, if available.</span>
@@ -886,23 +885,22 @@
 
 </pre></div>
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -914,12 +912,13 @@
           <a href="../../genindex.html" title="General Index"
              >index</a></li>
         <li class="nav-item nav-item-0"><a href="../../index.html">Curie 0.0.15 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">curie.calibration</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2020, Jonathan Morrell.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.3.
+    &#169; Copyright 2020, Jonathan Morrell.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
     </div>
   </body>
 </html>

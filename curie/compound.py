@@ -16,6 +16,8 @@ from .element import ELEMENTS, Element
 
 COMPOUND_LIST = list(map(str, pd.read_sql('SELECT compound FROM compounds', _get_connection('ziegler'))['compound']))
 
+
+
 class Compound(object):
 	"""Data and properties of atomic compounds
 

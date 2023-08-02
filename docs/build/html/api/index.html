@@ -1,20 +1,17 @@
+<!DOCTYPE html>
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html lang="en">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
     <title>API &#8212; Curie 0.0.15 documentation</title>
-    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b76e3c8a" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css?v=89b800e6" />
     
-    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=8810cfe0"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -33,7 +30,8 @@
         <li class="right" >
           <a href="../usersguide/stopping.html" title="5. Stopping Power Calculations"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">Curie 0.0.15 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">Curie 0.0.15 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">API</a></li> 
       </ul>
     </div>  
 
@@ -42,44 +40,137 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="api">
-<span id="id1"></span><h1>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h1>
+  <section id="api">
+<span id="id1"></span><h1>API<a class="headerlink" href="#api" title="Permalink to this heading">¶</a></h1>
 <p>Welcome to the Curie API!  Detailed information about Curie’s fuctions, classes and class methods can be obtained following the links below.</p>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="isotope.html">Isotope</a><ul class="simple">
+<li class="toctree-l1"><a class="reference internal" href="isotope.html">Isotope</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="isotope.html#curie.Isotope"><code class="docutils literal notranslate"><span class="pre">Isotope</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="isotope.html#curie.Isotope.alphas"><code class="docutils literal notranslate"><span class="pre">Isotope.alphas()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="isotope.html#curie.Isotope.beta_minus"><code class="docutils literal notranslate"><span class="pre">Isotope.beta_minus()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="isotope.html#curie.Isotope.beta_plus"><code class="docutils literal notranslate"><span class="pre">Isotope.beta_plus()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="isotope.html#curie.Isotope.decay_const"><code class="docutils literal notranslate"><span class="pre">Isotope.decay_const()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="isotope.html#curie.Isotope.dose_rate"><code class="docutils literal notranslate"><span class="pre">Isotope.dose_rate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="isotope.html#curie.Isotope.electrons"><code class="docutils literal notranslate"><span class="pre">Isotope.electrons()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="isotope.html#curie.Isotope.gammas"><code class="docutils literal notranslate"><span class="pre">Isotope.gammas()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="isotope.html#curie.Isotope.get_NFY"><code class="docutils literal notranslate"><span class="pre">Isotope.get_NFY()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="isotope.html#curie.Isotope.get_SFY"><code class="docutils literal notranslate"><span class="pre">Isotope.get_SFY()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="isotope.html#curie.Isotope.half_life"><code class="docutils literal notranslate"><span class="pre">Isotope.half_life()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="isotope.html#curie.Isotope.optimum_units"><code class="docutils literal notranslate"><span class="pre">Isotope.optimum_units()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="element.html">Element</a><ul class="simple">
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="compound.html">Compound</a><ul class="simple">
+<li class="toctree-l1"><a class="reference internal" href="element.html">Element</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="element.html#curie.Element"><code class="docutils literal notranslate"><span class="pre">Element</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="element.html#curie.Element.S"><code class="docutils literal notranslate"><span class="pre">Element.S()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="element.html#curie.Element.attenuation"><code class="docutils literal notranslate"><span class="pre">Element.attenuation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="element.html#curie.Element.mu"><code class="docutils literal notranslate"><span class="pre">Element.mu()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="element.html#curie.Element.mu_en"><code class="docutils literal notranslate"><span class="pre">Element.mu_en()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="element.html#curie.Element.plot_S"><code class="docutils literal notranslate"><span class="pre">Element.plot_S()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="element.html#curie.Element.plot_mass_coeff"><code class="docutils literal notranslate"><span class="pre">Element.plot_mass_coeff()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="element.html#curie.Element.plot_mass_coeff_en"><code class="docutils literal notranslate"><span class="pre">Element.plot_mass_coeff_en()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="element.html#curie.Element.plot_range"><code class="docutils literal notranslate"><span class="pre">Element.plot_range()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="element.html#curie.Element.range"><code class="docutils literal notranslate"><span class="pre">Element.range()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="stack.html">Stack</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="compound.html">Compound</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="compound.html#curie.Compound"><code class="docutils literal notranslate"><span class="pre">Compound</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="compound.html#curie.Compound.S"><code class="docutils literal notranslate"><span class="pre">Compound.S()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="compound.html#curie.Compound.attenuation"><code class="docutils literal notranslate"><span class="pre">Compound.attenuation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="compound.html#curie.Compound.mu"><code class="docutils literal notranslate"><span class="pre">Compound.mu()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="compound.html#curie.Compound.mu_en"><code class="docutils literal notranslate"><span class="pre">Compound.mu_en()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="compound.html#curie.Compound.plot_S"><code class="docutils literal notranslate"><span class="pre">Compound.plot_S()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="compound.html#curie.Compound.plot_mass_coeff"><code class="docutils literal notranslate"><span class="pre">Compound.plot_mass_coeff()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="compound.html#curie.Compound.plot_mass_coeff_en"><code class="docutils literal notranslate"><span class="pre">Compound.plot_mass_coeff_en()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="compound.html#curie.Compound.plot_range"><code class="docutils literal notranslate"><span class="pre">Compound.plot_range()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="compound.html#curie.Compound.range"><code class="docutils literal notranslate"><span class="pre">Compound.range()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="compound.html#curie.Compound.saveas"><code class="docutils literal notranslate"><span class="pre">Compound.saveas()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="stack.html">Stack</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="stack.html#curie.Stack"><code class="docutils literal notranslate"><span class="pre">Stack</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="stack.html#curie.Stack.get_flux"><code class="docutils literal notranslate"><span class="pre">Stack.get_flux()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="stack.html#curie.Stack.plot"><code class="docutils literal notranslate"><span class="pre">Stack.plot()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="stack.html#curie.Stack.saveas"><code class="docutils literal notranslate"><span class="pre">Stack.saveas()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="stack.html#curie.Stack.summarize"><code class="docutils literal notranslate"><span class="pre">Stack.summarize()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
 </div>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="library.html">Library</a><ul class="simple">
+<li class="toctree-l1"><a class="reference internal" href="library.html">Library</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="library.html#curie.Library"><code class="docutils literal notranslate"><span class="pre">Library</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="library.html#curie.Library.retrieve"><code class="docutils literal notranslate"><span class="pre">Library.retrieve()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="library.html#curie.Library.search"><code class="docutils literal notranslate"><span class="pre">Library.search()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="reaction.html">Reaction</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="reaction.html">Reaction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="reaction.html#curie.Reaction"><code class="docutils literal notranslate"><span class="pre">Reaction</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="reaction.html#curie.Reaction.average"><code class="docutils literal notranslate"><span class="pre">Reaction.average()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reaction.html#curie.Reaction.integrate"><code class="docutils literal notranslate"><span class="pre">Reaction.integrate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reaction.html#curie.Reaction.interpolate"><code class="docutils literal notranslate"><span class="pre">Reaction.interpolate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reaction.html#curie.Reaction.interpolate_unc"><code class="docutils literal notranslate"><span class="pre">Reaction.interpolate_unc()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reaction.html#curie.Reaction.plot"><code class="docutils literal notranslate"><span class="pre">Reaction.plot()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
 </div>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="calibration.html">Calibration</a><ul class="simple">
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">Calibration</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="calibration.html#curie.Calibration"><code class="docutils literal notranslate"><span class="pre">Calibration</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="calibration.html#curie.Calibration.calibrate"><code class="docutils literal notranslate"><span class="pre">Calibration.calibrate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="calibration.html#curie.Calibration.eff"><code class="docutils literal notranslate"><span class="pre">Calibration.eff()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="calibration.html#curie.Calibration.eng"><code class="docutils literal notranslate"><span class="pre">Calibration.eng()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="calibration.html#curie.Calibration.map_channel"><code class="docutils literal notranslate"><span class="pre">Calibration.map_channel()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="calibration.html#curie.Calibration.plot"><code class="docutils literal notranslate"><span class="pre">Calibration.plot()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="calibration.html#curie.Calibration.plot_effcal"><code class="docutils literal notranslate"><span class="pre">Calibration.plot_effcal()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="calibration.html#curie.Calibration.plot_engcal"><code class="docutils literal notranslate"><span class="pre">Calibration.plot_engcal()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="calibration.html#curie.Calibration.plot_rescal"><code class="docutils literal notranslate"><span class="pre">Calibration.plot_rescal()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="calibration.html#curie.Calibration.res"><code class="docutils literal notranslate"><span class="pre">Calibration.res()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="calibration.html#curie.Calibration.saveas"><code class="docutils literal notranslate"><span class="pre">Calibration.saveas()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="calibration.html#curie.Calibration.unc_eff"><code class="docutils literal notranslate"><span class="pre">Calibration.unc_eff()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="spectrum.html">Spectrum</a><ul class="simple">
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="decaychain.html">Decay Chain</a><ul class="simple">
+<li class="toctree-l1"><a class="reference internal" href="spectrum.html">Spectrum</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="spectrum.html#curie.Spectrum"><code class="docutils literal notranslate"><span class="pre">Spectrum</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="spectrum.html#curie.Spectrum.attenuation_correction"><code class="docutils literal notranslate"><span class="pre">Spectrum.attenuation_correction()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="spectrum.html#curie.Spectrum.auto_calibrate"><code class="docutils literal notranslate"><span class="pre">Spectrum.auto_calibrate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="spectrum.html#curie.Spectrum.fit_peaks"><code class="docutils literal notranslate"><span class="pre">Spectrum.fit_peaks()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="spectrum.html#curie.Spectrum.geometry_correction"><code class="docutils literal notranslate"><span class="pre">Spectrum.geometry_correction()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="spectrum.html#curie.Spectrum.plot"><code class="docutils literal notranslate"><span class="pre">Spectrum.plot()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="spectrum.html#curie.Spectrum.rebin"><code class="docutils literal notranslate"><span class="pre">Spectrum.rebin()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="spectrum.html#curie.Spectrum.saveas"><code class="docutils literal notranslate"><span class="pre">Spectrum.saveas()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="spectrum.html#curie.Spectrum.summarize"><code class="docutils literal notranslate"><span class="pre">Spectrum.summarize()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="decaychain.html">Decay Chain</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="decaychain.html#curie.DecayChain"><code class="docutils literal notranslate"><span class="pre">DecayChain</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="decaychain.html#curie.DecayChain.activity"><code class="docutils literal notranslate"><span class="pre">DecayChain.activity()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="decaychain.html#curie.DecayChain.decays"><code class="docutils literal notranslate"><span class="pre">DecayChain.decays()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="decaychain.html#curie.DecayChain.fit_A0"><code class="docutils literal notranslate"><span class="pre">DecayChain.fit_A0()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="decaychain.html#curie.DecayChain.fit_R"><code class="docutils literal notranslate"><span class="pre">DecayChain.fit_R()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="decaychain.html#curie.DecayChain.get_counts"><code class="docutils literal notranslate"><span class="pre">DecayChain.get_counts()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="decaychain.html#curie.DecayChain.plot"><code class="docutils literal notranslate"><span class="pre">DecayChain.plot()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -90,20 +181,25 @@
 <li class="toctree-l1"><a class="reference internal" href="plotter.html">Plotting</a></li>
 </ul>
 </div>
-</div>
+</section>
 
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="../usersguide/stopping.html"
-                        title="previous chapter">5. Stopping Power Calculations</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="isotope.html"
-                        title="next chapter">Isotope</a></p>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="../usersguide/stopping.html"
+                          title="previous chapter"><span class="section-number">5. </span>Stopping Power Calculations</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="isotope.html"
+                          title="next chapter">Isotope</a></p>
+  </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -112,17 +208,15 @@
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -139,12 +233,13 @@
         <li class="right" >
           <a href="../usersguide/stopping.html" title="5. Stopping Power Calculations"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">Curie 0.0.15 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">Curie 0.0.15 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">API</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2020, Jonathan Morrell.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.3.
+    &#169; Copyright 2020, Jonathan Morrell.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
     </div>
   </body>
 </html>

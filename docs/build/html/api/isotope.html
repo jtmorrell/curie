@@ -1,23 +1,21 @@
+<!DOCTYPE html>
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html lang="en">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
     <title>Isotope &#8212; Curie 0.0.15 documentation</title>
-    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b76e3c8a" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css?v=89b800e6" />
     
-    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=8810cfe0"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Element" href="element.html" />
     <link rel="prev" title="API" href="index.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
@@ -27,10 +25,14 @@
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
+          <a href="element.html" title="Element"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
           <a href="index.html" title="API"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">Curie 0.0.15 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">API</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">API</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Isotope</a></li> 
       </ul>
     </div>  
 
@@ -39,185 +41,149 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="isotope">
-<span id="id1"></span><h1>Isotope<a class="headerlink" href="#isotope" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
-<dt id="curie.Isotope">
-<em class="property">class </em><code class="descclassname">curie.</code><code class="descname">Isotope</code><span class="sig-paren">(</span><em>isotope</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/isotope.html#Isotope"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Isotope" title="Permalink to this definition">¶</a></dt>
+  <section id="isotope">
+<span id="id1"></span><h1>Isotope<a class="headerlink" href="#isotope" title="Permalink to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="curie.Isotope">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">curie.</span></span><span class="sig-name descname"><span class="pre">Isotope</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">isotope</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/isotope.html#Isotope"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Isotope" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieve isotopic structure and decay data</p>
 <p>The Isotope class provides isotope specific nuclear data, such as masses,
 abundances, half-lives, decay data and fission yields.  The main data souces 
 are NuDat 2.0, ENDF/B-VII.0 and the nuclear wallet cards.  Where conflicts
 were found preference was given to NuDat, then ENDF, then wallet cards.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>isotope</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
-<dd><p class="first last">Name of the isotope/isomer.  For element El of mass AAA, and (optionally)
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>isotope</strong><span class="classifier">str</span></dt><dd><p>Name of the isotope/isomer.  For element El of mass AAA, and (optionally)
 isomeric state m# (where # is an integer starting with 1 for the first isomer)
 or g for ground state, the name must be formatted as either AAAELm# or El-AAAm#
 or EL-AAAm#. If the isomeric state isn’t specified, the ground state is assumed,
 and if just m is given, the first isomer is assumed.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ip</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Isotope</span><span class="p">(</span><span class="s1">&#39;115INm&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ip</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Isotope</span><span class="p">(</span><span class="s1">&#39;115INm&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ip</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Isotope</span><span class="p">(</span><span class="s1">&#39;Co-60&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ip</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Isotope</span><span class="p">(</span><span class="s1">&#39;58NI&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ip</span><span class="o">.</span><span class="n">abundance</span><span class="p">)</span>
 <span class="go">68.077</span>
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ip</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Isotope</span><span class="p">(</span><span class="s1">&#39;135CEm&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ip</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Isotope</span><span class="p">(</span><span class="s1">&#39;135CEm&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ip</span><span class="o">.</span><span class="n">dc</span><span class="p">)</span>
 <span class="go">0.03465735902799726</span>
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ip</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Isotope</span><span class="p">(</span><span class="s1">&#39;235U&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ip</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Isotope</span><span class="p">(</span><span class="s1">&#39;235U&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ip</span><span class="o">.</span><span class="n">half_life</span><span class="p">(</span><span class="s1">&#39;My&#39;</span><span class="p">))</span>
 <span class="go">703.798767967</span>
 </pre></div>
 </div>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>element</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
-<dd><p class="first last">Elemental symbol, e.g. Xe, Ar, Kr</p>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>element</strong><span class="classifier">str</span></dt><dd><p>Elemental symbol, e.g. Xe, Ar, Kr</p>
 </dd>
-<dt><strong>A</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
-<dd><p class="first last">Mass number A of isotope</p>
+<dt><strong>A</strong><span class="classifier">int</span></dt><dd><p>Mass number A of isotope</p>
 </dd>
-<dt><strong>isomer</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
-<dd><p class="first last">Isomeric state, e.g. g, m1, m2</p>
+<dt><strong>isomer</strong><span class="classifier">str</span></dt><dd><p>Isomeric state, e.g. g, m1, m2</p>
 </dd>
-<dt><strong>name</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
-<dd><p class="first last">Formatted isotope name</p>
+<dt><strong>name</strong><span class="classifier">str</span></dt><dd><p>Formatted isotope name</p>
 </dd>
-<dt><strong>E_level</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">Energy level of the state, in MeV</p>
+<dt><strong>E_level</strong><span class="classifier">float</span></dt><dd><p>Energy level of the state, in MeV</p>
 </dd>
-<dt><strong>J_pi</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
-<dd><p class="first last">Spin and partiy of the state</p>
+<dt><strong>J_pi</strong><span class="classifier">str</span></dt><dd><p>Spin and partiy of the state</p>
 </dd>
-<dt><strong>Z</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
-<dd><p class="first last">Atomic number Z of the isotope</p>
+<dt><strong>Z</strong><span class="classifier">int</span></dt><dd><p>Atomic number Z of the isotope</p>
 </dd>
-<dt><strong>N</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
-<dd><p class="first last">Neutron number N of the isotope</p>
+<dt><strong>N</strong><span class="classifier">int</span></dt><dd><p>Neutron number N of the isotope</p>
 </dd>
-<dt><strong>dc</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">Isotope decay constant in units of 1/seconds</p>
+<dt><strong>dc</strong><span class="classifier">float</span></dt><dd><p>Isotope decay constant in units of 1/seconds</p>
 </dd>
-<dt><strong>stable</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
-<dd><p class="first last"><cite>True</cite> if isotope is stable</p>
+<dt><strong>stable</strong><span class="classifier">bool</span></dt><dd><p><cite>True</cite> if isotope is stable</p>
 </dd>
-<dt><strong>mass</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">Atomic mass of the isotope in amu</p>
+<dt><strong>mass</strong><span class="classifier">float</span></dt><dd><p>Atomic mass of the isotope in amu</p>
 </dd>
-<dt><strong>abundance</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">Natural abundance in percent.</p>
+<dt><strong>abundance</strong><span class="classifier">float</span></dt><dd><p>Natural abundance in percent.</p>
 </dd>
-<dt><strong>unc_abundance</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">Uncertainty in natural abundance in percent.</p>
+<dt><strong>unc_abundance</strong><span class="classifier">float</span></dt><dd><p>Uncertainty in natural abundance in percent.</p>
 </dd>
-<dt><strong>Delta</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">Mass excess of the isotope in MeV</p>
+<dt><strong>Delta</strong><span class="classifier">float</span></dt><dd><p>Mass excess of the isotope in MeV</p>
 </dd>
-<dt><strong>decay_products</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
-<dd><p class="first last">Dictionary of decay products and their absolute branching ratios as <cite>{‘istp’:BR}</cite></p>
+<dt><strong>decay_products</strong><span class="classifier">dict</span></dt><dd><p>Dictionary of decay products and their absolute branching ratios as <cite>{‘istp’:BR}</cite></p>
 </dd>
-<dt><strong>TeX</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
-<dd><p class="first last">LaTeX formatted isotope name</p>
+<dt><strong>TeX</strong><span class="classifier">str</span></dt><dd><p>LaTeX formatted isotope name</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Methods</p>
-<table border="1" class="longtable docutils">
-<colgroup>
-<col width="10%" />
-<col width="90%" />
-</colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#curie.Isotope.alphas" title="curie.Isotope.alphas"><code class="xref py py-obj docutils literal notranslate"><span class="pre">alphas</span></code></a>([I_lim,&nbsp;E_lim])</td>
-<td>Alpha-particles emitted by the decay of the isotope</td>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#curie.Isotope.alphas" title="curie.Isotope.alphas"><code class="xref py py-obj docutils literal notranslate"><span class="pre">alphas</span></code></a>([I_lim, E_lim])</p></td>
+<td><p>Alpha-particles emitted by the decay of the isotope</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#curie.Isotope.beta_minus" title="curie.Isotope.beta_minus"><code class="xref py py-obj docutils literal notranslate"><span class="pre">beta_minus</span></code></a>([I_lim,&nbsp;Endpoint_lim])</td>
-<td>Electrons from beta-minus decay</td>
+<tr class="row-even"><td><p><a class="reference internal" href="#curie.Isotope.beta_minus" title="curie.Isotope.beta_minus"><code class="xref py py-obj docutils literal notranslate"><span class="pre">beta_minus</span></code></a>([I_lim, Endpoint_lim])</p></td>
+<td><p>Electrons from beta-minus decay</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#curie.Isotope.beta_plus" title="curie.Isotope.beta_plus"><code class="xref py py-obj docutils literal notranslate"><span class="pre">beta_plus</span></code></a>([I_lim,&nbsp;Endpoint_lim])</td>
-<td>Positrons from beta-plus decay</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#curie.Isotope.beta_plus" title="curie.Isotope.beta_plus"><code class="xref py py-obj docutils literal notranslate"><span class="pre">beta_plus</span></code></a>([I_lim, Endpoint_lim])</p></td>
+<td><p>Positrons from beta-plus decay</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#curie.Isotope.decay_const" title="curie.Isotope.decay_const"><code class="xref py py-obj docutils literal notranslate"><span class="pre">decay_const</span></code></a>([units,&nbsp;unc])</td>
-<td>Decay constant of isotope</td>
+<tr class="row-even"><td><p><a class="reference internal" href="#curie.Isotope.decay_const" title="curie.Isotope.decay_const"><code class="xref py py-obj docutils literal notranslate"><span class="pre">decay_const</span></code></a>([units, unc])</p></td>
+<td><p>Decay constant of isotope</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#curie.Isotope.dose_rate" title="curie.Isotope.dose_rate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dose_rate</span></code></a>([activity,&nbsp;distance,&nbsp;units])</td>
-<td>Dose-rate from a point source of the isotope</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#curie.Isotope.dose_rate" title="curie.Isotope.dose_rate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dose_rate</span></code></a>([activity, distance, units])</p></td>
+<td><p>Dose-rate from a point source of the isotope</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#curie.Isotope.electrons" title="curie.Isotope.electrons"><code class="xref py py-obj docutils literal notranslate"><span class="pre">electrons</span></code></a>([I_lim,&nbsp;E_lim,&nbsp;CE_only,&nbsp;Auger_only])</td>
-<td>Electrons (conversion and Auger) emitted by the decay of the isotope</td>
+<tr class="row-even"><td><p><a class="reference internal" href="#curie.Isotope.electrons" title="curie.Isotope.electrons"><code class="xref py py-obj docutils literal notranslate"><span class="pre">electrons</span></code></a>([I_lim, E_lim, CE_only, Auger_only])</p></td>
+<td><p>Electrons (conversion and Auger) emitted by the decay of the isotope</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#curie.Isotope.gammas" title="curie.Isotope.gammas"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gammas</span></code></a>([I_lim,&nbsp;E_lim,&nbsp;xrays,&nbsp;dE_511,&nbsp;istp_col])</td>
-<td>Gamma-rays emitted by the decay of the isotope</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#curie.Isotope.gammas" title="curie.Isotope.gammas"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gammas</span></code></a>([I_lim, E_lim, xrays, dE_511, istp_col])</p></td>
+<td><p>Gamma-rays emitted by the decay of the isotope</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#curie.Isotope.get_NFY" title="curie.Isotope.get_NFY"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_NFY</span></code></a>(E)</td>
-<td>Neutron induced fission yields</td>
+<tr class="row-even"><td><p><a class="reference internal" href="#curie.Isotope.get_NFY" title="curie.Isotope.get_NFY"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_NFY</span></code></a>(E)</p></td>
+<td><p>Neutron induced fission yields</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#curie.Isotope.get_SFY" title="curie.Isotope.get_SFY"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_SFY</span></code></a>()</td>
-<td>Spontaneous fission yields</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#curie.Isotope.get_SFY" title="curie.Isotope.get_SFY"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_SFY</span></code></a>()</p></td>
+<td><p>Spontaneous fission yields</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#curie.Isotope.half_life" title="curie.Isotope.half_life"><code class="xref py py-obj docutils literal notranslate"><span class="pre">half_life</span></code></a>([units,&nbsp;unc])</td>
-<td>Half-life of isotope</td>
+<tr class="row-even"><td><p><a class="reference internal" href="#curie.Isotope.half_life" title="curie.Isotope.half_life"><code class="xref py py-obj docutils literal notranslate"><span class="pre">half_life</span></code></a>([units, unc])</p></td>
+<td><p>Half-life of isotope</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#curie.Isotope.optimum_units" title="curie.Isotope.optimum_units"><code class="xref py py-obj docutils literal notranslate"><span class="pre">optimum_units</span></code></a>()</td>
-<td>Appropriate units for half-life</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#curie.Isotope.optimum_units" title="curie.Isotope.optimum_units"><code class="xref py py-obj docutils literal notranslate"><span class="pre">optimum_units</span></code></a>()</p></td>
+<td><p>Appropriate units for half-life</p></td>
 </tr>
 </tbody>
 </table>
-<dl class="method">
-<dt id="curie.Isotope.alphas">
-<code class="descname">alphas</code><span class="sig-paren">(</span><em>I_lim=None</em>, <em>E_lim=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/isotope.html#Isotope.alphas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Isotope.alphas" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="curie.Isotope.alphas">
+<span class="sig-name descname"><span class="pre">alphas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">I_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">E_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/isotope.html#Isotope.alphas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Isotope.alphas" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alpha-particles emitted by the decay of the isotope</p>
 <p>Returns a DataFrame of alpha-particle energies, intensities and intensity-uncertainties
 based on an optional set of selection critieria.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>I_lim</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float or 2-tuple of floats, optional</span></dt>
-<dd><p class="first last">Limits on the intensity of the alphas, in percent.  If a single float
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>I_lim</strong><span class="classifier">float or 2-tuple of floats, optional</span></dt><dd><p>Limits on the intensity of the alphas, in percent.  If a single float
 is given, this is a lower bound, if a 2-tuple then (upper, lower) bounds.</p>
 </dd>
-<dt><strong>E_lim</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float or 2-tuple of floats, optional</span></dt>
-<dd><p class="first last">Limits on the energy of the alphas, in keV.  If a single float is given,
+<dt><strong>E_lim</strong><span class="classifier">float or 2-tuple of floats, optional</span></dt><dd><p>Limits on the energy of the alphas, in keV.  If a single float is given,
 this is a lower bound, if a 2-tuple then (upper, lower) bounds.</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>alphas</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pd.DataFrame</span></dt>
-<dd><p class="first last">Tabular alpha emission data, with keys ‘energy’, ‘intensity’ and ‘unc_intensity’. Units
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>alphas</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Tabular alpha emission data, with keys ‘energy’, ‘intensity’ and ‘unc_intensity’. Units
 of energy are in keV and units of intensity are in percent.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ip</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Isotope</span><span class="p">(</span><span class="s1">&#39;210PO&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ip</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Isotope</span><span class="p">(</span><span class="s1">&#39;210PO&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ip</span><span class="o">.</span><span class="n">alphas</span><span class="p">(</span><span class="n">I_lim</span><span class="o">=</span><span class="mf">1.0</span><span class="p">))</span>
 <span class="go">    energy  intensity  unc_intensity</span>
 <span class="go">0  5304.33      100.0            5.0</span>
@@ -225,40 +191,33 @@ of energy are in keV and units of intensity are in percent.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="curie.Isotope.beta_minus">
-<code class="descname">beta_minus</code><span class="sig-paren">(</span><em>I_lim=None</em>, <em>Endpoint_lim=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/isotope.html#Isotope.beta_minus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Isotope.beta_minus" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="curie.Isotope.beta_minus">
+<span class="sig-name descname"><span class="pre">beta_minus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">I_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Endpoint_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/isotope.html#Isotope.beta_minus"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Isotope.beta_minus" title="Permalink to this definition">¶</a></dt>
 <dd><p>Electrons from beta-minus decay</p>
 <p>Returns a DataFrame of beta-minus mean and enpoint energies, intensities and
 intensity-uncertainties based on an optional set of selection critieria.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>I_lim</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float or 2-tuple of floats, optional</span></dt>
-<dd><p class="first last">Limits on the intensity of the beta-minus decay, in percent.  If a single float
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>I_lim</strong><span class="classifier">float or 2-tuple of floats, optional</span></dt><dd><p>Limits on the intensity of the beta-minus decay, in percent.  If a single float
 is given, this is a lower bound, if a 2-tuple then (upper, lower) bounds.</p>
 </dd>
-<dt><strong>Endpoint_lim</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float or 2-tuple of floats, optional</span></dt>
-<dd><p class="first last">Limits on the endpoint energy of the beta-minus decay, in keV.  If a single float
+<dt><strong>Endpoint_lim</strong><span class="classifier">float or 2-tuple of floats, optional</span></dt><dd><p>Limits on the endpoint energy of the beta-minus decay, in keV.  If a single float
 is given, this is a lower bound, if a 2-tuple then (upper, lower) bounds.</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>beta_minus</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pd.DataFrame</span></dt>
-<dd><p class="first last">Tabular beta-minus data, with keywords ‘mean_energy’, ‘endpoint_energy’, ‘intensity’,
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>beta_minus</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Tabular beta-minus data, with keywords ‘mean_energy’, ‘endpoint_energy’, ‘intensity’,
 ‘unc_intensity’. Units of energy are in keV and units of intensity are in percent.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ip</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Isotope</span><span class="p">(</span><span class="s1">&#39;35S&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ip</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Isotope</span><span class="p">(</span><span class="s1">&#39;35S&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ip</span><span class="o">.</span><span class="n">beta_minus</span><span class="p">())</span>
 <span class="go">   mean_energy  endpoint_energy  intensity  unc_intensity</span>
 <span class="go">0       48.758           167.33      100.0            5.0</span>
@@ -266,40 +225,33 @@ is given, this is a lower bound, if a 2-tuple then (upper, lower) bounds.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="curie.Isotope.beta_plus">
-<code class="descname">beta_plus</code><span class="sig-paren">(</span><em>I_lim=None</em>, <em>Endpoint_lim=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/isotope.html#Isotope.beta_plus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Isotope.beta_plus" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="curie.Isotope.beta_plus">
+<span class="sig-name descname"><span class="pre">beta_plus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">I_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Endpoint_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/isotope.html#Isotope.beta_plus"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Isotope.beta_plus" title="Permalink to this definition">¶</a></dt>
 <dd><p>Positrons from beta-plus decay</p>
 <p>Returns a DataFrame of beta-plus mean and enpoint energies, intensities and
 intensity-uncertainties based on an optional set of selection critieria.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>I_lim</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float or 2-tuple of floats, optional</span></dt>
-<dd><p class="first last">Limits on the intensity of the beta-plus decay, in percent.  If a single float
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>I_lim</strong><span class="classifier">float or 2-tuple of floats, optional</span></dt><dd><p>Limits on the intensity of the beta-plus decay, in percent.  If a single float
 is given, this is a lower bound, if a 2-tuple then (upper, lower) bounds.</p>
 </dd>
-<dt><strong>Endpoint_lim</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float or 2-tuple of floats, optional</span></dt>
-<dd><p class="first last">Limits on the endpoint energy of the beta-plus decay, in keV.  If a single float
+<dt><strong>Endpoint_lim</strong><span class="classifier">float or 2-tuple of floats, optional</span></dt><dd><p>Limits on the endpoint energy of the beta-plus decay, in keV.  If a single float
 is given, this is a lower bound, if a 2-tuple then (upper, lower) bounds.</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>beta_plus</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pd.DataFrame</span></dt>
-<dd><p class="first last">Tabular beta-plus data, with keywords ‘mean_energy’, ‘endpoint_energy’, ‘intensity’,
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>beta_plus</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Tabular beta-plus data, with keywords ‘mean_energy’, ‘endpoint_energy’, ‘intensity’,
 ‘unc_intensity’. Units of energy are in keV and units of intensity are in percent.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ip</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Isotope</span><span class="p">(</span><span class="s1">&#39;18F&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ip</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Isotope</span><span class="p">(</span><span class="s1">&#39;18F&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ip</span><span class="o">.</span><span class="n">beta_plus</span><span class="p">())</span>
 <span class="go">   mean_energy  endpoint_energy  intensity  unc_intensity</span>
 <span class="go">0        249.8            633.5      96.73           0.04</span>
@@ -307,38 +259,31 @@ is given, this is a lower bound, if a 2-tuple then (upper, lower) bounds.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="curie.Isotope.decay_const">
-<code class="descname">decay_const</code><span class="sig-paren">(</span><em>units='s'</em>, <em>unc=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/isotope.html#Isotope.decay_const"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Isotope.decay_const" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="curie.Isotope.decay_const">
+<span class="sig-name descname"><span class="pre">decay_const</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'s'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/isotope.html#Isotope.decay_const"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Isotope.decay_const" title="Permalink to this definition">¶</a></dt>
 <dd><p>Decay constant of isotope</p>
 <p>Returns isotope decay constant, in specified units, with or without uncertainty</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>units</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
-<dd><p class="first last">Units for which to return decay constant. Options are 
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>units</strong><span class="classifier">str, optional</span></dt><dd><p>Units for which to return decay constant. Options are 
 ns, us, ms, s, m, h, d, y, ky, My, Gy
 Actual value will be given in units of inverse time</p>
 </dd>
-<dt><strong>unc</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
-<dd><p class="first last">If <cite>True</cite>, uncertainty in decay constant (in specified units) will also be returned</p>
+<dt><strong>unc</strong><span class="classifier">str, optional</span></dt><dd><p>If <cite>True</cite>, uncertainty in decay constant (in specified units) will also be returned</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>decay_const</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float or 2-tuple of floats</span></dt>
-<dd><p class="first last">Decay constant in specified units, with uncertainty only if <cite>unc=True</cite></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>decay_const</strong><span class="classifier">float or 2-tuple of floats</span></dt><dd><p>Decay constant in specified units, with uncertainty only if <cite>unc=True</cite></p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ip</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Isotope</span><span class="p">(</span><span class="s1">&#39;221AT&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ip</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Isotope</span><span class="p">(</span><span class="s1">&#39;221AT&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ip</span><span class="o">.</span><span class="n">decay_const</span><span class="p">())</span>
 <span class="go">0.0050228056562314875</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ip</span><span class="o">.</span><span class="n">decay_const</span><span class="p">(</span><span class="s1">&#39;m&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span>
@@ -347,43 +292,35 @@ Actual value will be given in units of inverse time</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="curie.Isotope.dose_rate">
-<code class="descname">dose_rate</code><span class="sig-paren">(</span><em>activity=1.0</em>, <em>distance=30.0</em>, <em>units='R/hr'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/isotope.html#Isotope.dose_rate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Isotope.dose_rate" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="curie.Isotope.dose_rate">
+<span class="sig-name descname"><span class="pre">dose_rate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">activity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'R/hr'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/isotope.html#Isotope.dose_rate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Isotope.dose_rate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Dose-rate from a point source of the isotope</p>
 <p>Assuming a point source with no attenuation, this function calculates the dose-rate
 from each emitted particle type using a specified source activity and distance.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>activity</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float, optional</span></dt>
-<dd><p class="first last">Source activity in Bq. Default is 1.0</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>activity</strong><span class="classifier">float, optional</span></dt><dd><p>Source activity in Bq. Default is 1.0</p>
 </dd>
-<dt><strong>distance</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float, optional</span></dt>
-<dd><p class="first last">Source distance in cm. Default is 30.0</p>
+<dt><strong>distance</strong><span class="classifier">float, optional</span></dt><dd><p>Source distance in cm. Default is 30.0</p>
 </dd>
-<dt><strong>units</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
-<dd><p class="first last">Desired units of dose rate. Format: <cite>dose/time</cite> where dose is one of R (Roentgen), Sv, Gy, with
+<dt><strong>units</strong><span class="classifier">str, optional</span></dt><dd><p>Desired units of dose rate. Format: <cite>dose/time</cite> where dose is one of R (Roentgen), Sv, Gy, with
 the Si prefixes u, m, k, and M supported, and time is in the same format described under
 the <cite>Isotope.half_life()</cite> function. E.g. mR/hr, uSv/m, kGy/y. Default is ‘R/hr’</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>dose_rate</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
-<dd><p class="first last">Dictionary of dose from each of the following particle type: ‘gamma’, ‘electron’, 
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>dose_rate</strong><span class="classifier">dict</span></dt><dd><p>Dictionary of dose from each of the following particle type: ‘gamma’, ‘electron’, 
 ‘beta_minus’, ‘beta_plus’, ‘alpha’, and ‘total’.  Units are specified as an input.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ip</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Isotope</span><span class="p">(</span><span class="s1">&#39;Co-60&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ip</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Isotope</span><span class="p">(</span><span class="s1">&#39;Co-60&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ip</span><span class="o">.</span><span class="n">dose_rate</span><span class="p">(</span><span class="n">activity</span><span class="o">=</span><span class="mf">3.7E10</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;R/hr&#39;</span><span class="p">))</span> <span class="c1"># 1 Ci of Co-60 at 30 cm</span>
 <span class="go">{&#39;beta_plus&#39;: 0.0, &#39;alphas&#39;: 0.0, &#39;gammas&#39;: 52035.28424827692, </span>
 <span class="go">&#39;electrons&#39;: 65.66251805557148, &#39;beta_minus&#39;: 5536.541902410433, &#39;total&#39;: 57637.488668742924}</span>
@@ -391,46 +328,37 @@ the <cite>Isotope.half_life()</cite> function. E.g. mR/hr, uSv/m, kGy/y. Default
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="curie.Isotope.electrons">
-<code class="descname">electrons</code><span class="sig-paren">(</span><em>I_lim=None</em>, <em>E_lim=None</em>, <em>CE_only=False</em>, <em>Auger_only=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/isotope.html#Isotope.electrons"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Isotope.electrons" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="curie.Isotope.electrons">
+<span class="sig-name descname"><span class="pre">electrons</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">I_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">E_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">CE_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Auger_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/isotope.html#Isotope.electrons"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Isotope.electrons" title="Permalink to this definition">¶</a></dt>
 <dd><p>Electrons (conversion and Auger) emitted by the decay of the isotope</p>
 <p>Returns a DataFrame of electron energies, intensities and intensity-uncertainties
 based on an optional set of selection critieria.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>I_lim</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float or 2-tuple of floats, optional</span></dt>
-<dd><p class="first last">Limits on the intensity of the electrons, in percent.  If a single float
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>I_lim</strong><span class="classifier">float or 2-tuple of floats, optional</span></dt><dd><p>Limits on the intensity of the electrons, in percent.  If a single float
 is given, this is a lower bound, if a 2-tuple then (upper, lower) bounds.</p>
 </dd>
-<dt><strong>E_lim</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float or 2-tuple of floats, optional</span></dt>
-<dd><p class="first last">Limits on the energies of the electrons, in keV.  If a single float
+<dt><strong>E_lim</strong><span class="classifier">float or 2-tuple of floats, optional</span></dt><dd><p>Limits on the energies of the electrons, in keV.  If a single float
 is given, this is a lower bound, if a 2-tuple then (upper, lower) bounds.</p>
 </dd>
-<dt><strong>CE_only</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
-<dd><p class="first last">If <cite>True</cite>, only conversion electrons will be returned. Default <cite>False</cite></p>
+<dt><strong>CE_only</strong><span class="classifier">bool</span></dt><dd><p>If <cite>True</cite>, only conversion electrons will be returned. Default <cite>False</cite></p>
 </dd>
-<dt><strong>Auger_only</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
-<dd><p class="first last">If <cite>True</cite>, only Auger electrons will be returned. Default <cite>False</cite>.</p>
+<dt><strong>Auger_only</strong><span class="classifier">bool</span></dt><dd><p>If <cite>True</cite>, only Auger electrons will be returned. Default <cite>False</cite>.</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>electrons</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pd.DataFrame</span></dt>
-<dd><p class="first last">Tabular electron data, with keywords ‘energy’, ‘intensity’, ‘unc_intensity’. Units
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>electrons</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Tabular electron data, with keywords ‘energy’, ‘intensity’, ‘unc_intensity’. Units
 of energy are in keV and units of intensity are in percent.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ip</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Isotope</span><span class="p">(</span><span class="s1">&#39;Pt-193m&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ip</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Isotope</span><span class="p">(</span><span class="s1">&#39;Pt-193m&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ip</span><span class="o">.</span><span class="n">electrons</span><span class="p">(</span><span class="n">I_lim</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span> <span class="n">E_lim</span><span class="o">=</span><span class="p">(</span><span class="mf">10.0</span><span class="p">,</span> <span class="mf">130.0</span><span class="p">)))</span>
 <span class="go">    energy  intensity  unc_intensity</span>
 <span class="go">0   11.912       17.1          0.855</span>
@@ -440,54 +368,45 @@ of energy are in keV and units of intensity are in percent.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="curie.Isotope.gammas">
-<code class="descname">gammas</code><span class="sig-paren">(</span><em>I_lim=None</em>, <em>E_lim=None</em>, <em>xrays=False</em>, <em>dE_511=0.0</em>, <em>istp_col=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/isotope.html#Isotope.gammas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Isotope.gammas" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="curie.Isotope.gammas">
+<span class="sig-name descname"><span class="pre">gammas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">I_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">E_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xrays</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dE_511</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">istp_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/isotope.html#Isotope.gammas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Isotope.gammas" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gamma-rays emitted by the decay of the isotope</p>
 <p>Returns a DataFrame of gamma-ray energies, intensities and intensity-uncertainties
 based on an optional set of selection critieria.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>I_lim</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float or 2-tuple of floats, optional</span></dt>
-<dd><p class="first last">Limits on the intensity of the gamma-rays, in percent.  If a single float
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>I_lim</strong><span class="classifier">float or 2-tuple of floats, optional</span></dt><dd><p>Limits on the intensity of the gamma-rays, in percent.  If a single float
 is given, this is a lower bound, if a 2-tuple then (upper, lower) bounds.</p>
 </dd>
-<dt><strong>E_lim</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float or 2-tuple of floats, optional</span></dt>
-<dd><p class="first last">Limits on the energy of the gamma-rays, in keV.  If a single float is given,
+<dt><strong>E_lim</strong><span class="classifier">float or 2-tuple of floats, optional</span></dt><dd><p>Limits on the energy of the gamma-rays, in keV.  If a single float is given,
 this is a lower bound, if a 2-tuple then (upper, lower) bounds.</p>
 </dd>
-<dt><strong>xrays</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
-<dd><p class="first last">If <cite>True</cite>, retrieved data will include x-rays.  Default <cite>False</cite>.</p>
+<dt><strong>xrays</strong><span class="classifier">bool, optional</span></dt><dd><p>If <cite>True</cite>, retrieved data will include x-rays.  Default <cite>False</cite>.</p>
 </dd>
-<dt><strong>dE_511</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float, optional</span></dt>
-<dd><p class="first last">Filter out gamma-rays that are within <cite>dE_511</cite> keV of the annihilation peak.
+<dt><strong>dE_511</strong><span class="classifier">float, optional</span></dt><dd><p>Filter out gamma-rays that are within <cite>dE_511</cite> keV of the annihilation peak.
 Default 0.0.</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>gammas</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pd.DataFrame</span></dt>
-<dd><p class="first last">Tabular gamma-ray data, with keys ‘energy’, ‘intensity’ and ‘unc_intensity’. Units
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>gammas</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Tabular gamma-ray data, with keys ‘energy’, ‘intensity’ and ‘unc_intensity’. Units
 of energy are in keV and units of intensity are in percent.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ip</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Isotope</span><span class="p">(</span><span class="s1">&#39;Co-60&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ip</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Isotope</span><span class="p">(</span><span class="s1">&#39;Co-60&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ip</span><span class="o">.</span><span class="n">gammas</span><span class="p">(</span><span class="n">I_lim</span><span class="o">=</span><span class="mf">1.0</span><span class="p">))</span>
 <span class="go">     energy  intensity  unc_intensity</span>
 <span class="go">0  1173.228    99.8500         0.0300</span>
 <span class="go">1  1332.492    99.9826         0.0006</span>
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ip</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Isotope</span><span class="p">(</span><span class="s1">&#39;64CU&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ip</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Isotope</span><span class="p">(</span><span class="s1">&#39;64CU&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ip</span><span class="o">.</span><span class="n">gammas</span><span class="p">())</span>
 <span class="go">        energy  intensity  unc_intensity</span>
 <span class="go">0   511.00     35.200          0.400</span>
@@ -504,96 +423,78 @@ of energy are in keV and units of intensity are in percent.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="curie.Isotope.get_NFY">
-<code class="descname">get_NFY</code><span class="sig-paren">(</span><em>E</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/isotope.html#Isotope.get_NFY"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Isotope.get_NFY" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="curie.Isotope.get_NFY">
+<span class="sig-name descname"><span class="pre">get_NFY</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">E</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/isotope.html#Isotope.get_NFY"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Isotope.get_NFY" title="Permalink to this definition">¶</a></dt>
 <dd><p>Neutron induced fission yields</p>
 <p>Returns the absolute neutron induced fission yields (independent) for a given nuclide,
 where available from ENDF.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>E</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">Incident neutron energy, in eV. Available energies are 0.0253, 5E5, 2E6 and 14E6.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>E</strong><span class="classifier">float</span></dt><dd><p>Incident neutron energy, in eV. Available energies are 0.0253, 5E5, 2E6 and 14E6.</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>nfy</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pd.DataFrame</span></dt>
-<dd><p class="first last">Tabular neutron induced fission yields, with keys ‘daughter’, ‘yield’ and ‘unc_yield’</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>nfy</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Tabular neutron induced fission yields, with keys ‘daughter’, ‘yield’ and ‘unc_yield’</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ip</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Isotope</span><span class="p">(</span><span class="s1">&#39;235U&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ip</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Isotope</span><span class="p">(</span><span class="s1">&#39;235U&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ip</span><span class="o">.</span><span class="n">get_NFY</span><span class="p">(</span><span class="n">E</span><span class="o">=</span><span class="mf">0.0253</span><span class="p">))</span>
 </pre></div>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="curie.Isotope.get_SFY">
-<code class="descname">get_SFY</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/isotope.html#Isotope.get_SFY"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Isotope.get_SFY" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="curie.Isotope.get_SFY">
+<span class="sig-name descname"><span class="pre">get_SFY</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/isotope.html#Isotope.get_SFY"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Isotope.get_SFY" title="Permalink to this definition">¶</a></dt>
 <dd><p>Spontaneous fission yields</p>
 <p>Returns the absolute spontaneous fission yields (independent) for a given nuclide,
 where available from ENDF.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>sfy</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pd.DataFrame</span></dt>
-<dd><p class="first last">Tabular spontaneous fission yields, with keys ‘daughter’, ‘yield’ and ‘unc_yield’</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>sfy</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Tabular spontaneous fission yields, with keys ‘daughter’, ‘yield’ and ‘unc_yield’</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ip</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Isotope</span><span class="p">(</span><span class="s1">&#39;238U&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ip</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Isotope</span><span class="p">(</span><span class="s1">&#39;238U&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ip</span><span class="o">.</span><span class="n">get_SFY</span><span class="p">())</span>
 </pre></div>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="curie.Isotope.half_life">
-<code class="descname">half_life</code><span class="sig-paren">(</span><em>units='s'</em>, <em>unc=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/isotope.html#Isotope.half_life"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Isotope.half_life" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="curie.Isotope.half_life">
+<span class="sig-name descname"><span class="pre">half_life</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'s'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/isotope.html#Isotope.half_life"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Isotope.half_life" title="Permalink to this definition">¶</a></dt>
 <dd><p>Half-life of isotope</p>
 <p>Returns isotope half-life, in specified units, with or without uncertainty.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>units</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
-<dd><p class="first last">Units for which to return half-life. Options are 
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>units</strong><span class="classifier">str, optional</span></dt><dd><p>Units for which to return half-life. Options are 
 ns, us, ms, s, m, h, d, y, ky, My, Gy</p>
 </dd>
-<dt><strong>unc</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
-<dd><p class="first last">If <cite>True</cite>, uncertainty in half life (in specified units) will also be returned</p>
+<dt><strong>unc</strong><span class="classifier">bool, optional</span></dt><dd><p>If <cite>True</cite>, uncertainty in half life (in specified units) will also be returned</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>half_life</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float or 2-tuple of floats</span></dt>
-<dd><p class="first last">Half-life in specified units, with uncertainty only if <cite>unc=True</cite></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>half_life</strong><span class="classifier">float or 2-tuple of floats</span></dt><dd><p>Half-life in specified units, with uncertainty only if <cite>unc=True</cite></p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ip</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Isotope</span><span class="p">(</span><span class="s1">&#39;67CU&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ip</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Isotope</span><span class="p">(</span><span class="s1">&#39;67CU&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ip</span><span class="o">.</span><span class="n">half_life</span><span class="p">(</span><span class="s1">&#39;d&#39;</span><span class="p">))</span>
 <span class="go">2.57625</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ip</span><span class="o">.</span><span class="n">half_life</span><span class="p">(</span><span class="s1">&#39;h&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span>
@@ -602,25 +503,20 @@ ns, us, ms, s, m, h, d, y, ky, My, Gy</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="curie.Isotope.optimum_units">
-<code class="descname">optimum_units</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/isotope.html#Isotope.optimum_units"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Isotope.optimum_units" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="curie.Isotope.optimum_units">
+<span class="sig-name descname"><span class="pre">optimum_units</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/isotope.html#Isotope.optimum_units"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Isotope.optimum_units" title="Permalink to this definition">¶</a></dt>
 <dd><p>Appropriate units for half-life</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>units</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
-<dd><p class="first last">Units that will represent half-life as a number greater than 1, but with as few digits as possible.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>units</strong><span class="classifier">str</span></dt><dd><p>Units that will represent half-life as a number greater than 1, but with as few digits as possible.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ip</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Isotope</span><span class="p">(</span><span class="s1">&#39;226RA&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ip</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Isotope</span><span class="p">(</span><span class="s1">&#39;226RA&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ip</span><span class="o">.</span><span class="n">half_life</span><span class="p">())</span>
 <span class="go">50492200000.0</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ip</span><span class="o">.</span><span class="n">optimum_units</span><span class="p">())</span>
@@ -633,17 +529,48 @@ ns, us, ms, s, m, h, d, y, ky, My, Gy</p>
 
 </dd></dl>
 
-</div>
+</section>
 
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="index.html"
-                        title="previous chapter">API</a></p>
+  <div>
+    <h3><a href="../index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">Isotope</a><ul>
+<li><a class="reference internal" href="#curie.Isotope"><code class="docutils literal notranslate"><span class="pre">Isotope</span></code></a><ul>
+<li><a class="reference internal" href="#curie.Isotope.alphas"><code class="docutils literal notranslate"><span class="pre">Isotope.alphas()</span></code></a></li>
+<li><a class="reference internal" href="#curie.Isotope.beta_minus"><code class="docutils literal notranslate"><span class="pre">Isotope.beta_minus()</span></code></a></li>
+<li><a class="reference internal" href="#curie.Isotope.beta_plus"><code class="docutils literal notranslate"><span class="pre">Isotope.beta_plus()</span></code></a></li>
+<li><a class="reference internal" href="#curie.Isotope.decay_const"><code class="docutils literal notranslate"><span class="pre">Isotope.decay_const()</span></code></a></li>
+<li><a class="reference internal" href="#curie.Isotope.dose_rate"><code class="docutils literal notranslate"><span class="pre">Isotope.dose_rate()</span></code></a></li>
+<li><a class="reference internal" href="#curie.Isotope.electrons"><code class="docutils literal notranslate"><span class="pre">Isotope.electrons()</span></code></a></li>
+<li><a class="reference internal" href="#curie.Isotope.gammas"><code class="docutils literal notranslate"><span class="pre">Isotope.gammas()</span></code></a></li>
+<li><a class="reference internal" href="#curie.Isotope.get_NFY"><code class="docutils literal notranslate"><span class="pre">Isotope.get_NFY()</span></code></a></li>
+<li><a class="reference internal" href="#curie.Isotope.get_SFY"><code class="docutils literal notranslate"><span class="pre">Isotope.get_SFY()</span></code></a></li>
+<li><a class="reference internal" href="#curie.Isotope.half_life"><code class="docutils literal notranslate"><span class="pre">Isotope.half_life()</span></code></a></li>
+<li><a class="reference internal" href="#curie.Isotope.optimum_units"><code class="docutils literal notranslate"><span class="pre">Isotope.optimum_units()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="index.html"
+                          title="previous chapter">API</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="element.html"
+                          title="next chapter">Element</a></p>
+  </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -652,17 +579,15 @@ ns, us, ms, s, m, h, d, y, ky, My, Gy</p>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -674,15 +599,19 @@ ns, us, ms, s, m, h, d, y, ky, My, Gy</p>
           <a href="../genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
+          <a href="element.html" title="Element"
+             >next</a> |</li>
+        <li class="right" >
           <a href="index.html" title="API"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">Curie 0.0.15 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="index.html" >API</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="index.html" >API</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Isotope</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2020, Jonathan Morrell.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.3.
+    &#169; Copyright 2020, Jonathan Morrell.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
     </div>
   </body>
 </html>

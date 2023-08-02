@@ -1,23 +1,22 @@
+<!DOCTYPE html>
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html lang="en">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
     <title>Compound &#8212; Curie 0.0.15 documentation</title>
-    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b76e3c8a" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css?v=89b800e6" />
     
-    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=8810cfe0"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
     
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" /> 
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Stack" href="stack.html" />
+    <link rel="prev" title="Element" href="element.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -25,8 +24,15 @@
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="stack.html" title="Stack"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="element.html" title="Element"
+             accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">Curie 0.0.15 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">API</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">API</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Compound</a></li> 
       </ul>
     </div>  
 
@@ -35,11 +41,11 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="compound">
-<span id="id1"></span><h1>Compound<a class="headerlink" href="#compound" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
-<dt id="curie.Compound">
-<em class="property">class </em><code class="descclassname">curie.</code><code class="descname">Compound</code><span class="sig-paren">(</span><em>compound</em>, <em>weights=None</em>, <em>density=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/compound.html#Compound"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Compound" title="Permalink to this definition">¶</a></dt>
+  <section id="compound">
+<span id="id1"></span><h1>Compound<a class="headerlink" href="#compound" title="Permalink to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="curie.Compound">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">curie.</span></span><span class="sig-name descname"><span class="pre">Compound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">compound</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">density</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/compound.html#Compound"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Compound" title="Permalink to this definition">¶</a></dt>
 <dd><p>Data and properties of atomic compounds</p>
 <p>The compound class provides the same functionality as the
 element class, but for compounds of atomic elements rather
@@ -51,21 +57,17 @@ in H2O the atom weights are 0.67 for H and 0.33 for O, or as
 mass-weights, e.g. brass is 0.33 Zn by weight and 0.67 Cu by
 weight.  Some preset compounds are available; their names can be
 found by printing <cite>ci.COMPOUND_LIST</cite>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>compound</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
-<dd><p class="first last">The name of the compound.  If the compound is in <cite>ci.COMPOUND_LIST</cite>,
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>compound</strong><span class="classifier">str</span></dt><dd><p>The name of the compound.  If the compound is in <cite>ci.COMPOUND_LIST</cite>,
 the weights and density will take preset values, if not given.
 If the name of the compound is given in chemical notation, e.g. NaCl
 or H2O2, the atom-weights can be inferred if not given explicitly.  Note
 that full chemical notation is not supported, so Ca3(PO4)2 must be written
 as Ca3P2O8.  Decimal weights are supported, e.g. C0.5O is equivalent to CO2.</p>
 </dd>
-<dt><strong>weights</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict, str or pd.DataFrame, optional</span></dt>
-<dd><p class="first">The weights of each element in the compound.  Multiple formats are supported.
+<dt><strong>weights</strong><span class="classifier">dict, str or pd.DataFrame, optional</span></dt><dd><p>The weights of each element in the compound.  Multiple formats are supported.
 If weights is a dict, it must be formatted as {‘el1’:wt1, ‘el2’:wt2}, where
 atom-weights are positive, and mass-weights are negative.</p>
 <p>If weights is a pandas DataFrame, it must contain an ‘element’ column, 
@@ -75,21 +77,18 @@ given, the convention of positive atom-weights and negative mass-weights is foll
 a path to a .csv, .json or .db file.  These files must contain the same information 
 as the DataFrame option, and can contain weights for multiple compounds, if ‘compound’ 
 is one of the columns/keys.</p>
-<p class="last">If a .json file, it must follow the ‘records’ formatting convention (see pandas docs).</p>
+<p>If a .json file, it must follow the ‘records’ formatting convention (see pandas docs).</p>
 </dd>
-<dt><strong>density</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float, optional</span></dt>
-<dd><p class="first last">Density of the compound in g/cm^3.  The density is required for the cm.attenuation(),
+<dt><strong>density</strong><span class="classifier">float, optional</span></dt><dd><p>Density of the compound in g/cm^3.  The density is required for the cm.attenuation(),
 cm.S(), cm.range() and cm.plot_range() functions, but is an optional argument in each
 of those functions if not provided at construction.  Can also be specified by using
 a ‘density’ column/key in the file/DataFrame for weights.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Silicone&#39;</span> <span class="ow">in</span> <span class="n">ci</span><span class="o">.</span><span class="n">COMPOUND_LIST</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Silicone&#39;</span> <span class="ow">in</span> <span class="n">ci</span><span class="o">.</span><span class="n">COMPOUND_LIST</span><span class="p">)</span>
 <span class="go">True</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">cm</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Compound</span><span class="p">(</span><span class="s1">&#39;Silicone&#39;</span><span class="p">)</span> <span class="c1"># preset compound</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">cm</span><span class="o">.</span><span class="n">elements</span><span class="p">)))</span>
@@ -107,124 +106,103 @@ a ‘density’ column/key in the file/DataFrame for weights.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">cm</span><span class="o">.</span><span class="n">saveas</span><span class="p">(</span><span class="s1">&#39;brass.csv&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>name</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
-<dd><p class="first last">The name of the compound.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>name</strong><span class="classifier">str</span></dt><dd><p>The name of the compound.</p>
 </dd>
-<dt><strong>weights</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pd.DataFrame</span></dt>
-<dd><p class="first last">The weights for each element in the compound.  DataFrame columns are
+<dt><strong>weights</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>The weights for each element in the compound.  DataFrame columns are
 ‘element’, ‘Z’, ‘mass_weight’, ‘atom_weight’.</p>
 </dd>
-<dt><strong>density</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">Density of the compound in g/cm^3. The density is used in
+<dt><strong>density</strong><span class="classifier">float</span></dt><dd><p>Density of the compound in g/cm^3. The density is used in
 calculations of charged particle dEdx and photon attenuation, so
 if the density was not explicitly given at construction,
 you can assign a new density using <cite>cm.density = new_density</cite> if
 needed, or using the <cite>density</cite> keyword in either of those functions.</p>
 </dd>
-<dt><strong>elements</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of ci.Element</span></dt>
-<dd><p class="first last">Elements in the compound.</p>
+<dt><strong>elements</strong><span class="classifier">list of ci.Element</span></dt><dd><p>Elements in the compound.</p>
 </dd>
-<dt><strong>mass_coeff</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pd.DataFrame</span></dt>
-<dd><p class="first last">Table of mass-attenuation coefficients as a function of photon
+<dt><strong>mass_coeff</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Table of mass-attenuation coefficients as a function of photon
 energy, from the NIST XCOM database.  Energies are in keV, and
 mass-attenuation coefficients, or mu/rho, are given in cm^2/g.
 DataFrame columns are ‘energy’, ‘mu’ and ‘mu_en’ for the 
 mass-energy absorption coefficient.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Methods</p>
-<table border="1" class="longtable docutils">
-<colgroup>
-<col width="10%" />
-<col width="90%" />
-</colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#curie.Compound.S" title="curie.Compound.S"><code class="xref py py-obj docutils literal notranslate"><span class="pre">S</span></code></a>(energy[,&nbsp;particle,&nbsp;density])</td>
-<td>Charged particle stopping power in matter</td>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#curie.Compound.S" title="curie.Compound.S"><code class="xref py py-obj docutils literal notranslate"><span class="pre">S</span></code></a>(energy[, particle, density])</p></td>
+<td><p>Charged particle stopping power in matter</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#curie.Compound.attenuation" title="curie.Compound.attenuation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">attenuation</span></code></a>(energy,&nbsp;x[,&nbsp;density])</td>
-<td>Photon attenuation in matter</td>
+<tr class="row-even"><td><p><a class="reference internal" href="#curie.Compound.attenuation" title="curie.Compound.attenuation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">attenuation</span></code></a>(energy, x[, density])</p></td>
+<td><p>Photon attenuation in matter</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#curie.Compound.mu" title="curie.Compound.mu"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mu</span></code></a>(energy)</td>
-<td>Mass-attenuation coefficient</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#curie.Compound.mu" title="curie.Compound.mu"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mu</span></code></a>(energy)</p></td>
+<td><p>Mass-attenuation coefficient</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#curie.Compound.mu_en" title="curie.Compound.mu_en"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mu_en</span></code></a>(energy)</td>
-<td>Mass energy-absorption coefficient</td>
+<tr class="row-even"><td><p><a class="reference internal" href="#curie.Compound.mu_en" title="curie.Compound.mu_en"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mu_en</span></code></a>(energy)</p></td>
+<td><p>Mass energy-absorption coefficient</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#curie.Compound.plot_S" title="curie.Compound.plot_S"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_S</span></code></a>([particle,&nbsp;energy])</td>
-<td>Plot the stopping power in the compound</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#curie.Compound.plot_S" title="curie.Compound.plot_S"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_S</span></code></a>([particle, energy])</p></td>
+<td><p>Plot the stopping power in the compound</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#curie.Compound.plot_mass_coeff" title="curie.Compound.plot_mass_coeff"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_mass_coeff</span></code></a>([energy])</td>
-<td>Plot the mass-attenuation coefficient in the compound</td>
+<tr class="row-even"><td><p><a class="reference internal" href="#curie.Compound.plot_mass_coeff" title="curie.Compound.plot_mass_coeff"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_mass_coeff</span></code></a>([energy])</p></td>
+<td><p>Plot the mass-attenuation coefficient in the compound</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#curie.Compound.plot_mass_coeff_en" title="curie.Compound.plot_mass_coeff_en"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_mass_coeff_en</span></code></a>([energy])</td>
-<td>Plot the mass energy-absorption coefficient in the compound</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#curie.Compound.plot_mass_coeff_en" title="curie.Compound.plot_mass_coeff_en"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_mass_coeff_en</span></code></a>([energy])</p></td>
+<td><p>Plot the mass energy-absorption coefficient in the compound</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#curie.Compound.plot_range" title="curie.Compound.plot_range"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_range</span></code></a>([particle,&nbsp;energy,&nbsp;density])</td>
-<td>Plot the charged particle range in the compound</td>
+<tr class="row-even"><td><p><a class="reference internal" href="#curie.Compound.plot_range" title="curie.Compound.plot_range"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_range</span></code></a>([particle, energy, density])</p></td>
+<td><p>Plot the charged particle range in the compound</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#curie.Compound.range" title="curie.Compound.range"><code class="xref py py-obj docutils literal notranslate"><span class="pre">range</span></code></a>(energy[,&nbsp;particle,&nbsp;density])</td>
-<td>Charged particle range in matter</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#curie.Compound.range" title="curie.Compound.range"><code class="xref py py-obj docutils literal notranslate"><span class="pre">range</span></code></a>(energy[, particle, density])</p></td>
+<td><p>Charged particle range in matter</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#curie.Compound.saveas" title="curie.Compound.saveas"><code class="xref py py-obj docutils literal notranslate"><span class="pre">saveas</span></code></a>(filename[,&nbsp;replace])</td>
-<td>Save the compound definition to a file</td>
+<tr class="row-even"><td><p><a class="reference internal" href="#curie.Compound.saveas" title="curie.Compound.saveas"><code class="xref py py-obj docutils literal notranslate"><span class="pre">saveas</span></code></a>(filename[, replace])</p></td>
+<td><p>Save the compound definition to a file</p></td>
 </tr>
 </tbody>
 </table>
-<dl class="method">
-<dt id="curie.Compound.S">
-<code class="descname">S</code><span class="sig-paren">(</span><em>energy</em>, <em>particle='p'</em>, <em>density=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/compound.html#Compound.S"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Compound.S" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="curie.Compound.S">
+<span class="sig-name descname"><span class="pre">S</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">particle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'p'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">density</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/compound.html#Compound.S"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Compound.S" title="Permalink to this definition">¶</a></dt>
 <dd><p>Charged particle stopping power in matter</p>
 <p>Calculate the stopping power, S=-dE/dx, for a given ion as a 
 function of the ion energy in MeV.  Units of S are MeV/cm.  To return
 stopping power in units of MeV/(mg/cm^2), use option <cite>density=1E-3</cite>.
 The stopping power is calculated using the Element.S() methods for
 each element in cm.elements, added using Bragg’s rule.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>energy</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
-<dd><p class="first last">Incident ion energy in MeV.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>energy</strong><span class="classifier">array_like</span></dt><dd><p>Incident ion energy in MeV.</p>
 </dd>
-<dt><strong>particle</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
-<dd><p class="first last">Incident ion.  For light ions, options are ‘p’ (default), ‘d’, ‘t’, ‘a’ for proton, 
+<dt><strong>particle</strong><span class="classifier">str, optional</span></dt><dd><p>Incident ion.  For light ions, options are ‘p’ (default), ‘d’, ‘t’, ‘a’ for proton, 
 deuteron, triton and alpha, respectively.  Additionally, heavy ions can be
 specified either by element or isotope, e.g. ‘Fe’, ‘40CA’, ‘U’, ‘Bi-209’. For
 light ions, the charge state is assumed to be fully stripped. For heavy ions
 the charge state is handled by a Bohr/Northcliffe parameterization consistent
 with the Anderson-Ziegler formalism.</p>
 </dd>
-<dt><strong>density</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float, optional</span></dt>
-<dd><p class="first last">Density of the compound in g/cm^3.  Default behavior is to use
+<dt><strong>density</strong><span class="classifier">float, optional</span></dt><dd><p>Density of the compound in g/cm^3.  Default behavior is to use
 <cite>Compound.density</cite>.  To return stopping power in units of MeV/(mg/cm^2), i.e.
 the mass-stopping power, use <cite>density=1E-3</cite>.</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>stopping_power</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy.ndarray</span></dt>
-<dd><p class="first last">Stopping power, S=-dE/dx, for a given ion as a function of the 
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>stopping_power</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>Stopping power, S=-dE/dx, for a given ion as a function of the 
 ion energy in MeV.  Units of S are MeV/cm.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cm</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Compound</span><span class="p">(</span><span class="s1">&#39;SrCO3&#39;</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="mf">3.5</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cm</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Compound</span><span class="p">(</span><span class="s1">&#39;SrCO3&#39;</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="mf">3.5</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">cm</span><span class="o">.</span><span class="n">S</span><span class="p">(</span><span class="mf">60.0</span><span class="p">))</span>
 <span class="go">27.196387031247834</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">cm</span><span class="o">.</span><span class="n">S</span><span class="p">(</span><span class="mf">55.0</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="mf">1E-3</span><span class="p">))</span> <span class="c1">### S in MeV/(mg/cm^2)</span>
@@ -233,43 +211,35 @@ ion energy in MeV.  Units of S are MeV/cm.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="curie.Compound.attenuation">
-<code class="descname">attenuation</code><span class="sig-paren">(</span><em>energy</em>, <em>x</em>, <em>density=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/compound.html#Compound.attenuation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Compound.attenuation" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="curie.Compound.attenuation">
+<span class="sig-name descname"><span class="pre">attenuation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">density</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/compound.html#Compound.attenuation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Compound.attenuation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Photon attenuation in matter</p>
 <p>Calculate the attenuation factor I(x)/I_0 = e^(-mu*x) for a given
 photon energy (in keV) and slab thickness (in cm).</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>energy</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
-<dd><p class="first last">Incident photon energy in keV.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>energy</strong><span class="classifier">array_like</span></dt><dd><p>Incident photon energy in keV.</p>
 </dd>
-<dt><strong>x</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">Thickness of slab of given compound, in cm.</p>
+<dt><strong>x</strong><span class="classifier">float</span></dt><dd><p>Thickness of slab of given compound, in cm.</p>
 </dd>
-<dt><strong>density</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float, optional</span></dt>
-<dd><p class="first last">Density of the compound in g/cm^3.  Default behavior is to
+<dt><strong>density</strong><span class="classifier">float, optional</span></dt><dd><p>Density of the compound in g/cm^3.  Default behavior is to
 use <cite>Compound.density</cite>, which must be supplied at construction.</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>attenuation</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy.ndarray</span></dt>
-<dd><p class="first last">The slab attenuation factor as an absolute number (i.e. from 0 to 1).
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>attenuation</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>The slab attenuation factor as an absolute number (i.e. from 0 to 1).
 E.g. if the incident intensity is I_0, the transmitted intensity I(x) 
 is I_0 times the attenuation factor.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cm</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Compound</span><span class="p">(</span><span class="s1">&#39;SS_316&#39;</span><span class="p">)</span> <span class="c1"># preset compound for 316 Stainless</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cm</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Compound</span><span class="p">(</span><span class="s1">&#39;SS_316&#39;</span><span class="p">)</span> <span class="c1"># preset compound for 316 Stainless</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">cm</span><span class="o">.</span><span class="n">attenuation</span><span class="p">(</span><span class="mi">511</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mf">0.3</span><span class="p">))</span>
 <span class="go">0.8199829388434694</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">cm</span><span class="o">.</span><span class="n">attenuation</span><span class="p">(</span><span class="mi">300</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="mf">5.0</span><span class="p">))</span>
@@ -278,111 +248,91 @@ is I_0 times the attenuation factor.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="curie.Compound.mu">
-<code class="descname">mu</code><span class="sig-paren">(</span><em>energy</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/compound.html#Compound.mu"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Compound.mu" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="curie.Compound.mu">
+<span class="sig-name descname"><span class="pre">mu</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/compound.html#Compound.mu"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Compound.mu" title="Permalink to this definition">¶</a></dt>
 <dd><p>Mass-attenuation coefficient</p>
 <p>Interpolates the mass-attenuation coefficient, mu/rho,
 for the compound along the input energy grid.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>energy</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
-<dd><p class="first last">The incident photon energy, in keV.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>energy</strong><span class="classifier">array_like</span></dt><dd><p>The incident photon energy, in keV.</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>mu</strong> <span class="classifier-delimiter">:</span> <span class="classifier">np.ndarray</span></dt>
-<dd><p class="first last">Mass attenuation coefficient, mu/rho, in cm^2/g.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>mu</strong><span class="classifier">np.ndarray</span></dt><dd><p>Mass attenuation coefficient, mu/rho, in cm^2/g.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cm</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Compound</span><span class="p">(</span><span class="s1">&#39;H2O&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cm</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Compound</span><span class="p">(</span><span class="s1">&#39;H2O&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">cm</span><span class="o">.</span><span class="n">mu</span><span class="p">(</span><span class="mi">200</span><span class="p">))</span>
 <span class="go">0.13703928393005832</span>
 </pre></div>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="curie.Compound.mu_en">
-<code class="descname">mu_en</code><span class="sig-paren">(</span><em>energy</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/compound.html#Compound.mu_en"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Compound.mu_en" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="curie.Compound.mu_en">
+<span class="sig-name descname"><span class="pre">mu_en</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/compound.html#Compound.mu_en"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Compound.mu_en" title="Permalink to this definition">¶</a></dt>
 <dd><p>Mass energy-absorption coefficient</p>
 <p>Interpolates the mass-energy absorption coefficient, mu_en/rho,
 for the compound along the input energy grid.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>energy</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
-<dd><p class="first last">The incident photon energy, in keV.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>energy</strong><span class="classifier">array_like</span></dt><dd><p>The incident photon energy, in keV.</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>mu_en</strong> <span class="classifier-delimiter">:</span> <span class="classifier">np.ndarray</span></dt>
-<dd><p class="first last">Mass energy absorption coefficient, mu_en/rho, in cm^2/g.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>mu_en</strong><span class="classifier">np.ndarray</span></dt><dd><p>Mass energy absorption coefficient, mu_en/rho, in cm^2/g.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cm</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Compound</span><span class="p">(</span><span class="s1">&#39;H2O&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cm</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Compound</span><span class="p">(</span><span class="s1">&#39;H2O&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">cm</span><span class="o">.</span><span class="n">mu_en</span><span class="p">(</span><span class="mi">200</span><span class="p">))</span>
 <span class="go">0.029671598667776862</span>
 </pre></div>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="curie.Compound.plot_S">
-<code class="descname">plot_S</code><span class="sig-paren">(</span><em>particle='p'</em>, <em>energy=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/compound.html#Compound.plot_S"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Compound.plot_S" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="curie.Compound.plot_S">
+<span class="sig-name descname"><span class="pre">plot_S</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">particle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'p'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/compound.html#Compound.plot_S"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Compound.plot_S" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the stopping power in the compound</p>
 <p>Creates a plot of the charged particle stopping power (in MeV/(mg/cm^2))
 in the compound as a function of the incident ion energy (in MeV).</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>particle</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
-<dd><p class="first last">Incident ion.  For light ions, options are ‘p’ (default), ‘d’, ‘t’, ‘a’ for proton, 
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>particle</strong><span class="classifier">str</span></dt><dd><p>Incident ion.  For light ions, options are ‘p’ (default), ‘d’, ‘t’, ‘a’ for proton, 
 deuteron, triton and alpha, respectively.  Additionally, heavy ions can be
 specified either by element or isotope, e.g. ‘Fe’, ‘40CA’, ‘U’, ‘Bi-209’.</p>
 </dd>
-<dt><strong>energy</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like, optional</span></dt>
-<dd><p class="first last">Energy grid on which to plot, replacing the default energy grid.
+<dt><strong>energy</strong><span class="classifier">array_like, optional</span></dt><dd><p>Energy grid on which to plot, replacing the default energy grid.
 Units are in MeV.</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name" colspan="2">Other Parameters:</th></tr>
-<tr class="field-even field"><td>&#160;</td><td class="field-body"><dl class="first last docutils">
-<dt><strong>**kwargs</strong></dt>
-<dd><p class="first last">Optional keyword arguments for plotting.  See the 
+</dd>
+<dt class="field-even">Other Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>**kwargs</strong></dt><dd><p>Optional keyword arguments for plotting.  See the 
 plotting section of the curie API for a complete
 list of kwargs.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cm</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Compound</span><span class="p">(</span><span class="s1">&#39;He&#39;</span><span class="p">)</span> <span class="c1"># same as element</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cm</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Compound</span><span class="p">(</span><span class="s1">&#39;He&#39;</span><span class="p">)</span> <span class="c1"># same as element</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">cm</span><span class="o">.</span><span class="n">plot_S</span><span class="p">(</span><span class="n">particle</span><span class="o">=</span><span class="s1">&#39;a&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">cm</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Compound</span><span class="p">(</span><span class="s1">&#39;Kapton&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">cm</span><span class="o">.</span><span class="n">plot_S</span><span class="p">(</span><span class="n">particle</span><span class="o">=</span><span class="s1">&#39;d&#39;</span><span class="p">)</span>
@@ -390,38 +340,31 @@ list of kwargs.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="curie.Compound.plot_mass_coeff">
-<code class="descname">plot_mass_coeff</code><span class="sig-paren">(</span><em>energy=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/compound.html#Compound.plot_mass_coeff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Compound.plot_mass_coeff" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="curie.Compound.plot_mass_coeff">
+<span class="sig-name descname"><span class="pre">plot_mass_coeff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/compound.html#Compound.plot_mass_coeff"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Compound.plot_mass_coeff" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the mass-attenuation coefficient in the compound</p>
 <p>Creates a plot of the mass-attenuation coefficient (in cm^2/g)
 as a function of photon energy in keV.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>energy</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like, optional</span></dt>
-<dd><p class="first last">Energy grid on which to plot, replacing the default energy grid.
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>energy</strong><span class="classifier">array_like, optional</span></dt><dd><p>Energy grid on which to plot, replacing the default energy grid.
 Units are in keV.</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name" colspan="2">Other Parameters:</th></tr>
-<tr class="field-even field"><td>&#160;</td><td class="field-body"><dl class="first last docutils">
-<dt><strong>**kwargs</strong></dt>
-<dd><p class="first last">Optional keyword arguments for plotting.  See the 
+</dd>
+<dt class="field-even">Other Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>**kwargs</strong></dt><dd><p>Optional keyword arguments for plotting.  See the 
 plotting section of the curie API for a complete
 list of kwargs.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cm</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Compound</span><span class="p">(</span><span class="s1">&#39;Fe&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cm</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Compound</span><span class="p">(</span><span class="s1">&#39;Fe&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">cm</span><span class="o">.</span><span class="n">plot_mass_coeff</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">cm</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Compound</span><span class="p">(</span><span class="s1">&#39;H2O&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">cm</span><span class="o">.</span><span class="n">plot_mass_coeff</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s1">&#39;poster&#39;</span><span class="p">)</span>
@@ -429,136 +372,112 @@ list of kwargs.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="curie.Compound.plot_mass_coeff_en">
-<code class="descname">plot_mass_coeff_en</code><span class="sig-paren">(</span><em>energy=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/compound.html#Compound.plot_mass_coeff_en"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Compound.plot_mass_coeff_en" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="curie.Compound.plot_mass_coeff_en">
+<span class="sig-name descname"><span class="pre">plot_mass_coeff_en</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/compound.html#Compound.plot_mass_coeff_en"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Compound.plot_mass_coeff_en" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the mass energy-absorption coefficient in the compound</p>
 <p>Creates a plot of the mass energy-absorption coefficient (in cm^2/g)
 as a function of photon energy in keV.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>energy</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like, optional</span></dt>
-<dd><p class="first last">Energy grid on which to plot, replacing the default energy grid.
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>energy</strong><span class="classifier">array_like, optional</span></dt><dd><p>Energy grid on which to plot, replacing the default energy grid.
 Units are in keV.</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name" colspan="2">Other Parameters:</th></tr>
-<tr class="field-even field"><td>&#160;</td><td class="field-body"><dl class="first last docutils">
-<dt><strong>**kwargs</strong></dt>
-<dd><p class="first last">Optional keyword arguments for plotting.  See the 
+</dd>
+<dt class="field-even">Other Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>**kwargs</strong></dt><dd><p>Optional keyword arguments for plotting.  See the 
 plotting section of the curie API for a complete
 list of kwargs.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cm</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Compound</span><span class="p">(</span><span class="s1">&#39;Silicone&#39;</span><span class="p">)</span> <span class="c1"># preset compound</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cm</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Compound</span><span class="p">(</span><span class="s1">&#39;Silicone&#39;</span><span class="p">)</span> <span class="c1"># preset compound</span>
 </pre></div>
 </div>
 <p>Example plotting the mass-attenuation coefficient together with the mass
 energy-absorption coefficient, on the same axes.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">f</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">plot_mass_coeff</span><span class="p">(</span><span class="n">return_plot</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">f</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">plot_mass_coeff</span><span class="p">(</span><span class="n">return_plot</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">cm</span><span class="o">.</span><span class="n">plot_mass_coeff_en</span><span class="p">(</span><span class="n">f</span><span class="o">=</span><span class="n">f</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="curie.Compound.plot_range">
-<code class="descname">plot_range</code><span class="sig-paren">(</span><em>particle='p'</em>, <em>energy=None</em>, <em>density=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/compound.html#Compound.plot_range"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Compound.plot_range" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="curie.Compound.plot_range">
+<span class="sig-name descname"><span class="pre">plot_range</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">particle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'p'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">density</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/compound.html#Compound.plot_range"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Compound.plot_range" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the charged particle range in the compound</p>
 <p>Creates a plot of the charged particle range (in cm)
 in the compound as a function of the incident ion energy (in MeV).</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>particle</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
-<dd><p class="first last">Incident ion.  For light ions, options are ‘p’ (default), ‘d’, ‘t’, ‘a’ for proton, 
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>particle</strong><span class="classifier">str</span></dt><dd><p>Incident ion.  For light ions, options are ‘p’ (default), ‘d’, ‘t’, ‘a’ for proton, 
 deuteron, triton and alpha, respectively.  Additionally, heavy ions can be
 specified either by element or isotope, e.g. ‘Fe’, ‘40CA’, ‘U’, ‘Bi-209’.</p>
 </dd>
-<dt><strong>energy</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like, optional</span></dt>
-<dd><p class="first last">Energy grid on which to plot, replacing the default energy grid.
+<dt><strong>energy</strong><span class="classifier">array_like, optional</span></dt><dd><p>Energy grid on which to plot, replacing the default energy grid.
 Units are in MeV.</p>
 </dd>
-<dt><strong>density</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float, optional</span></dt>
-<dd><p class="first last">Density of the compound in g/cm^3.  Default behavior is to use
+<dt><strong>density</strong><span class="classifier">float, optional</span></dt><dd><p>Density of the compound in g/cm^3.  Default behavior is to use
 <cite>Compound.density</cite>.</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name" colspan="2">Other Parameters:</th></tr>
-<tr class="field-even field"><td>&#160;</td><td class="field-body"><dl class="first last docutils">
-<dt><strong>**kwargs</strong></dt>
-<dd><p class="first last">Optional keyword arguments for plotting.  See the 
+</dd>
+<dt class="field-even">Other Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>**kwargs</strong></dt><dd><p>Optional keyword arguments for plotting.  See the 
 plotting section of the curie API for a complete
 list of kwargs.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cm</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Compound</span><span class="p">(</span><span class="s1">&#39;Bronze&#39;</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;Cu&#39;</span><span class="p">:</span><span class="o">-</span><span class="mi">80</span><span class="p">,</span> <span class="s1">&#39;Sn&#39;</span><span class="p">:</span><span class="o">-</span><span class="mi">20</span><span class="p">},</span> <span class="n">density</span><span class="o">=</span><span class="mf">8.9</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cm</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Compound</span><span class="p">(</span><span class="s1">&#39;Bronze&#39;</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;Cu&#39;</span><span class="p">:</span><span class="o">-</span><span class="mi">80</span><span class="p">,</span> <span class="s1">&#39;Sn&#39;</span><span class="p">:</span><span class="o">-</span><span class="mi">20</span><span class="p">},</span> <span class="n">density</span><span class="o">=</span><span class="mf">8.9</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">f</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">plot_range</span><span class="p">(</span><span class="n">return_plot</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">cm</span><span class="o">.</span><span class="n">plot_range</span><span class="p">(</span><span class="n">particle</span><span class="o">=</span><span class="s1">&#39;d&#39;</span><span class="p">,</span> <span class="n">f</span><span class="o">=</span><span class="n">f</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="curie.Compound.range">
-<code class="descname">range</code><span class="sig-paren">(</span><em>energy</em>, <em>particle='p'</em>, <em>density=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/compound.html#Compound.range"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Compound.range" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="curie.Compound.range">
+<span class="sig-name descname"><span class="pre">range</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">particle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'p'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">density</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/compound.html#Compound.range"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Compound.range" title="Permalink to this definition">¶</a></dt>
 <dd><p>Charged particle range in matter</p>
 <p>Calculates the charged particle range in the compound, in cm.  Incident
 energy should be in MeV, and the particle type definition is identical
 to <cite>Compound.S()</cite>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>energy</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
-<dd><p class="first last">Incident ion energy in MeV.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>energy</strong><span class="classifier">array_like</span></dt><dd><p>Incident ion energy in MeV.</p>
 </dd>
-<dt><strong>particle</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
-<dd><p class="first last">Incident ion.  For light ions, options are ‘p’ (default), ‘d’, ‘t’, ‘a’ for proton, 
+<dt><strong>particle</strong><span class="classifier">str, optional</span></dt><dd><p>Incident ion.  For light ions, options are ‘p’ (default), ‘d’, ‘t’, ‘a’ for proton, 
 deuteron, triton and alpha, respectively.  Additionally, heavy ions can be
 specified either by element or isotope, e.g. ‘Fe’, ‘40CA’, ‘U’, ‘Bi-209’. For
 light ions, the charge state is assumed to be fully stripped. For heavy ions
 the charge state is handled by a Bohr/Northcliffe parameterization consistent
 with the Anderson-Ziegler formalism.</p>
 </dd>
-<dt><strong>density</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float, optional</span></dt>
-<dd><p class="first last">Density of the compound in g/cm^3.  Default behavior is to use
+<dt><strong>density</strong><span class="classifier">float, optional</span></dt><dd><p>Density of the compound in g/cm^3.  Default behavior is to use
 <cite>Compound.density</cite>, which must be supplied at construction.</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>range</strong> <span class="classifier-delimiter">:</span> <span class="classifier">np.ndarray</span></dt>
-<dd><p class="first last">Charged particle range in the compound, in cm.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>range</strong><span class="classifier">np.ndarray</span></dt><dd><p>Charged particle range in the compound, in cm.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cm</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Compound</span><span class="p">(</span><span class="s1">&#39;Fe&#39;</span><span class="p">)</span> <span class="c1"># same behavior as element</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cm</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Compound</span><span class="p">(</span><span class="s1">&#39;Fe&#39;</span><span class="p">)</span> <span class="c1"># same behavior as element</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">cm</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="mf">60.0</span><span class="p">))</span>
 <span class="go">0.5858151125192633</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">cm</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Compound</span><span class="p">(</span><span class="s1">&#39;SS_316&#39;</span><span class="p">)</span> <span class="c1"># preset compound</span>
@@ -568,35 +487,29 @@ with the Anderson-Ziegler formalism.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="curie.Compound.saveas">
-<code class="descname">saveas</code><span class="sig-paren">(</span><em>filename</em>, <em>replace=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/compound.html#Compound.saveas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Compound.saveas" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="curie.Compound.saveas">
+<span class="sig-name descname"><span class="pre">saveas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/compound.html#Compound.saveas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Compound.saveas" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save the compound definition to a file</p>
 <p>The weights and density of the compound can be saved to one of
 the following file formats: .csv, .json, .db.  If the file exists,
 the data will be appended, unless <cite>replace=True</cite>, in which case
 the file will be replaced.  If a definition for the compound exists
 in the file already, it will be replaced.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>filename</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
-<dd><p class="first last">Filename where the compound will be saved.  Available formats
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>filename</strong><span class="classifier">str</span></dt><dd><p>Filename where the compound will be saved.  Available formats
 are .csv, .json and .db.</p>
 </dd>
-<dt><strong>replace</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
-<dd><p class="first last">If <cite>True</cite>, replace the file if it exists.  Default <cite>False</cite>, which
+<dt><strong>replace</strong><span class="classifier">bool, optional</span></dt><dd><p>If <cite>True</cite>, replace the file if it exists.  Default <cite>False</cite>, which
 appends the data to the file.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cm</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Compound</span><span class="p">(</span><span class="s1">&#39;Brass&#39;</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;Zn&#39;</span><span class="p">:</span><span class="o">-</span><span class="mi">33</span><span class="p">,</span><span class="s1">&#39;Cu&#39;</span><span class="p">:</span><span class="o">-</span><span class="mi">66</span><span class="p">})</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cm</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Compound</span><span class="p">(</span><span class="s1">&#39;Brass&#39;</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;Zn&#39;</span><span class="p">:</span><span class="o">-</span><span class="mi">33</span><span class="p">,</span><span class="s1">&#39;Cu&#39;</span><span class="p">:</span><span class="o">-</span><span class="mi">66</span><span class="p">})</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">cm</span><span class="o">.</span><span class="n">saveas</span><span class="p">(</span><span class="s1">&#39;brass.csv&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">cm</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Compound</span><span class="p">(</span><span class="s1">&#39;Water&#39;</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;H&#39;</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;O&#39;</span><span class="p">:</span><span class="mi">1</span><span class="p">},</span> <span class="n">density</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">cm</span><span class="o">.</span><span class="n">saveas</span><span class="p">(</span><span class="s1">&#39;water.json&#39;</span><span class="p">)</span>
@@ -606,14 +519,47 @@ appends the data to the file.</p>
 
 </dd></dl>
 
-</div>
+</section>
 
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="../index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">Compound</a><ul>
+<li><a class="reference internal" href="#curie.Compound"><code class="docutils literal notranslate"><span class="pre">Compound</span></code></a><ul>
+<li><a class="reference internal" href="#curie.Compound.S"><code class="docutils literal notranslate"><span class="pre">Compound.S()</span></code></a></li>
+<li><a class="reference internal" href="#curie.Compound.attenuation"><code class="docutils literal notranslate"><span class="pre">Compound.attenuation()</span></code></a></li>
+<li><a class="reference internal" href="#curie.Compound.mu"><code class="docutils literal notranslate"><span class="pre">Compound.mu()</span></code></a></li>
+<li><a class="reference internal" href="#curie.Compound.mu_en"><code class="docutils literal notranslate"><span class="pre">Compound.mu_en()</span></code></a></li>
+<li><a class="reference internal" href="#curie.Compound.plot_S"><code class="docutils literal notranslate"><span class="pre">Compound.plot_S()</span></code></a></li>
+<li><a class="reference internal" href="#curie.Compound.plot_mass_coeff"><code class="docutils literal notranslate"><span class="pre">Compound.plot_mass_coeff()</span></code></a></li>
+<li><a class="reference internal" href="#curie.Compound.plot_mass_coeff_en"><code class="docutils literal notranslate"><span class="pre">Compound.plot_mass_coeff_en()</span></code></a></li>
+<li><a class="reference internal" href="#curie.Compound.plot_range"><code class="docutils literal notranslate"><span class="pre">Compound.plot_range()</span></code></a></li>
+<li><a class="reference internal" href="#curie.Compound.range"><code class="docutils literal notranslate"><span class="pre">Compound.range()</span></code></a></li>
+<li><a class="reference internal" href="#curie.Compound.saveas"><code class="docutils literal notranslate"><span class="pre">Compound.saveas()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="element.html"
+                          title="previous chapter">Element</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="stack.html"
+                          title="next chapter">Stack</a></p>
+  </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -622,17 +568,15 @@ appends the data to the file.</p>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -643,13 +587,20 @@ appends the data to the file.</p>
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              >index</a></li>
+        <li class="right" >
+          <a href="stack.html" title="Stack"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="element.html" title="Element"
+             >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">Curie 0.0.15 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="index.html" >API</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="index.html" >API</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Compound</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2020, Jonathan Morrell.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.3.
+    &#169; Copyright 2020, Jonathan Morrell.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
     </div>
   </body>
 </html>

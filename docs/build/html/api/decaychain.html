@@ -1,23 +1,22 @@
+<!DOCTYPE html>
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html lang="en">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
     <title>Decay Chain &#8212; Curie 0.0.15 documentation</title>
-    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b76e3c8a" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css?v=89b800e6" />
     
-    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=8810cfe0"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
     
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" /> 
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Data" href="data.html" />
+    <link rel="prev" title="Spectrum" href="spectrum.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -25,8 +24,15 @@
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="data.html" title="Data"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="spectrum.html" title="Spectrum"
+             accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">Curie 0.0.15 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">API</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">API</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Decay Chain</a></li> 
       </ul>
     </div>  
 
@@ -35,27 +41,23 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="decay-chain">
-<span id="decaychain"></span><h1>Decay Chain<a class="headerlink" href="#decay-chain" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
-<dt id="curie.DecayChain">
-<em class="property">class </em><code class="descclassname">curie.</code><code class="descname">DecayChain</code><span class="sig-paren">(</span><em>parent_isotope</em>, <em>R=None</em>, <em>A0=None</em>, <em>units='s'</em>, <em>timestamp=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/decay_chain.html#DecayChain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.DecayChain" title="Permalink to this definition">¶</a></dt>
+  <section id="decay-chain">
+<span id="decaychain"></span><h1>Decay Chain<a class="headerlink" href="#decay-chain" title="Permalink to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="curie.DecayChain">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">curie.</span></span><span class="sig-name descname"><span class="pre">DecayChain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent_isotope</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">A0</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'s'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/decay_chain.html#DecayChain"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.DecayChain" title="Permalink to this definition">¶</a></dt>
 <dd><p>Radioactive Decay Chain</p>
 <p>Uses the Bateman equations to calculate the activities and number of decays
 from a radioactive decay chain as a function of time, both in production
 and decay.  Also, initial isotope activities and production rates can
 be fit to observed count data, or directly fit to HPGe spectra using the
 <cite>get_counts()</cite> function.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>parent_isotope</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
-<dd><p class="first last">Parent isotope in the chain.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>parent_isotope</strong><span class="classifier">str</span></dt><dd><p>Parent isotope in the chain.</p>
 </dd>
-<dt><strong>R</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like, dict, str or pd.DataFrame</span></dt>
-<dd><p class="first">Production rate for each isotope in the decay chain as a function of time.
+<dt><strong>R</strong><span class="classifier">array_like, dict, str or pd.DataFrame</span></dt><dd><p>Production rate for each isotope in the decay chain as a function of time.
 If a Nx2 np.ndarray, element n gives the production rate R_n up until
 time t_n for the parent isotope. E.g. If the production rate of the parent
 is 5 for 1 hour, and 8 for 3 hours, the array will be [[5, 1], [8, 4]].  If
@@ -64,34 +66,29 @@ of timestamps, set ‘timestamp=False’.  In this case the production rate arra
 will be [[5, 1], [8, 3]]. (R=5 for 1 hour, R=8 for 3 hours).</p>
 <p>If R is a dict, it specifies the production rate for multiple isotopes, 
 where the keys are the isotopes and the values are type np.ndarray.</p>
-<p class="last">If R is a pd.DataFrame, it must have columns ‘R’ and ‘time’, and optionally ‘isotope’
+<p>If R is a pd.DataFrame, it must have columns ‘R’ and ‘time’, and optionally ‘isotope’
 if R&gt;0 for any isotopes other than the parent.  If R is a str, it must be a 
 path to a file where the same data is provided.  Supported file types are
 .csv, .json and .db files, where .json files must be in the ‘records’ format,
 and .db files must have a table named ‘R’.  Also, each isotope must have
 the same time grid, for both timestamp=True and timestamp=False.</p>
 </dd>
-<dt><strong>A0</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float or dict</span></dt>
-<dd><p class="first last">Initial activity.  If a float, the initial activity of the parent isotope.
+<dt><strong>A0</strong><span class="classifier">float or dict</span></dt><dd><p>Initial activity.  If a float, the initial activity of the parent isotope.
 If a dict, the keys are the isotopes for which the values represent the
 initial activity.</p>
 </dd>
-<dt><strong>units</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
-<dd><p class="first last">Units of time for the chain. Options are ‘ns’, ‘us’, ‘ms’, ‘s’, ‘m’, ‘h’, 
+<dt><strong>units</strong><span class="classifier">str, optional</span></dt><dd><p>Units of time for the chain. Options are ‘ns’, ‘us’, ‘ms’, ‘s’, ‘m’, ‘h’, 
 ‘d’, ‘y’, ‘ky’, ‘My’, ‘Gy’.  Default is ‘s’.</p>
 </dd>
-<dt><strong>timestamp</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
-<dd><p class="first last">Determines if the ‘time’ variable in R is to be read as a timestamp-like grid,
+<dt><strong>timestamp</strong><span class="classifier">bool, optional</span></dt><dd><p>Determines if the ‘time’ variable in R is to be read as a timestamp-like grid,
 i.e. in monotonically increasing order, or as a series of time intervals.
 Default is <cite>True</cite>.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dc</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">DecayChain</span><span class="p">(</span><span class="s1">&#39;Ra-225&#39;</span><span class="p">,</span> <span class="n">R</span><span class="o">=</span><span class="p">[[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">],</span> <span class="p">[</span><span class="mf">2.0</span><span class="p">,</span> <span class="mi">6</span><span class="p">]],</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;d&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dc</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">DecayChain</span><span class="p">(</span><span class="s1">&#39;Ra-225&#39;</span><span class="p">,</span> <span class="n">R</span><span class="o">=</span><span class="p">[[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">],</span> <span class="p">[</span><span class="mf">2.0</span><span class="p">,</span> <span class="mi">6</span><span class="p">]],</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;d&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">dc</span><span class="o">.</span><span class="n">isotopes</span><span class="p">)</span>
 <span class="go">[&#39;225RAg&#39;, &#39;225ACg&#39;, &#39;221FRg&#39;, &#39;217ATg&#39;, &#39;213BIg&#39;, &#39;217RNg&#39;, &#39;209TLg&#39;, &#39;213POg&#39;, &#39;209PBg&#39;, &#39;209BIg&#39;]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">dc</span><span class="o">.</span><span class="n">R_avg</span><span class="p">)</span>
@@ -99,107 +96,86 @@ Default is <cite>True</cite>.</p>
 <span class="go">0  1.708333  225RAg</span>
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dc</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">DecayChain</span><span class="p">(</span><span class="s1">&#39;152EU&#39;</span><span class="p">,</span> <span class="n">A0</span><span class="o">=</span><span class="mf">3.7E3</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;h&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dc</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">DecayChain</span><span class="p">(</span><span class="s1">&#39;152EU&#39;</span><span class="p">,</span> <span class="n">A0</span><span class="o">=</span><span class="mf">3.7E3</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;h&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ci</span><span class="o">.</span><span class="n">isotopes</span><span class="p">)</span>
 <span class="go">[&#39;152EUg&#39;, &#39;152GDg&#39;, &#39;152SMg&#39;]</span>
 </pre></div>
 </div>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>R</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pd.DataFrame</span></dt>
-<dd><p class="first last">Production rate as a function of time, for each isotope in the chain. This
+<dl class="field-list simple">
+<dt class="field-odd">Attributes<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>R</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Production rate as a function of time, for each isotope in the chain. This
 will be modified if <cite>fit_R()</cite> is called.</p>
 </dd>
-<dt><strong>A0</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
-<dd><p class="first last">Initial activity of each isotope in the chain.</p>
+<dt><strong>A0</strong><span class="classifier">dict</span></dt><dd><p>Initial activity of each isotope in the chain.</p>
 </dd>
-<dt><strong>isotopes</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
-<dd><p class="first last">List of isotopes in the decay chain.</p>
+<dt><strong>isotopes</strong><span class="classifier">list</span></dt><dd><p>List of isotopes in the decay chain.</p>
 </dd>
-<dt><strong>counts</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pd.DataFrame</span></dt>
-<dd><p class="first last">Observed counts from isotopes in the decay chain, which can be used
+<dt><strong>counts</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Observed counts from isotopes in the decay chain, which can be used
 to determine the initial activities or average production rates using
 the <cite>fit_R()</cite> or <cite>fit_A0()</cite> functions.</p>
 </dd>
-<dt><strong>R_avg</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pd.DataFrame</span></dt>
-<dd><p class="first last">Time-averaged production rate for each isotope where R&gt;0.  This will be
+<dt><strong>R_avg</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Time-averaged production rate for each isotope where R&gt;0.  This will be
 modified if <cite>fit_R()</cite> is called.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Methods</p>
-<table border="1" class="longtable docutils">
-<colgroup>
-<col width="10%" />
-<col width="90%" />
-</colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#curie.DecayChain.activity" title="curie.DecayChain.activity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">activity</span></code></a>(isotope,&nbsp;time[,&nbsp;units,&nbsp;_R_dict,&nbsp;…])</td>
-<td>Activity of an isotope in the chain</td>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#curie.DecayChain.activity" title="curie.DecayChain.activity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">activity</span></code></a>(isotope, time[, units, _R_dict, ...])</p></td>
+<td><p>Activity of an isotope in the chain</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#curie.DecayChain.decays" title="curie.DecayChain.decays"><code class="xref py py-obj docutils literal notranslate"><span class="pre">decays</span></code></a>(isotope,&nbsp;t_start,&nbsp;t_stop[,&nbsp;units,&nbsp;…])</td>
-<td>Number of decays in a given time interval</td>
+<tr class="row-even"><td><p><a class="reference internal" href="#curie.DecayChain.decays" title="curie.DecayChain.decays"><code class="xref py py-obj docutils literal notranslate"><span class="pre">decays</span></code></a>(isotope, t_start, t_stop[, units, ...])</p></td>
+<td><p>Number of decays in a given time interval</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#curie.DecayChain.fit_A0" title="curie.DecayChain.fit_A0"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_A0</span></code></a>()</td>
-<td>Fit the initial activity to count data</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#curie.DecayChain.fit_A0" title="curie.DecayChain.fit_A0"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_A0</span></code></a>()</p></td>
+<td><p>Fit the initial activity to count data</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#curie.DecayChain.fit_R" title="curie.DecayChain.fit_R"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_R</span></code></a>()</td>
-<td>Fit the production rate to count data</td>
+<tr class="row-even"><td><p><a class="reference internal" href="#curie.DecayChain.fit_R" title="curie.DecayChain.fit_R"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_R</span></code></a>()</p></td>
+<td><p>Fit the production rate to count data</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#curie.DecayChain.get_counts" title="curie.DecayChain.get_counts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_counts</span></code></a>(spectra,&nbsp;EoB[,&nbsp;peak_data])</td>
-<td>Retrieves the number of measured decays</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#curie.DecayChain.get_counts" title="curie.DecayChain.get_counts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_counts</span></code></a>(spectra, EoB[, peak_data])</p></td>
+<td><p>Retrieves the number of measured decays</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#curie.DecayChain.plot" title="curie.DecayChain.plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot</span></code></a>([time,&nbsp;max_plot,&nbsp;max_label,&nbsp;…])</td>
-<td>Plot the activities in the decay chain</td>
+<tr class="row-even"><td><p><a class="reference internal" href="#curie.DecayChain.plot" title="curie.DecayChain.plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot</span></code></a>([time, max_plot, max_label, ...])</p></td>
+<td><p>Plot the activities in the decay chain</p></td>
 </tr>
 </tbody>
 </table>
-<dl class="method">
-<dt id="curie.DecayChain.activity">
-<code class="descname">activity</code><span class="sig-paren">(</span><em>isotope</em>, <em>time</em>, <em>units=None</em>, <em>_R_dict=None</em>, <em>_A_dict=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/decay_chain.html#DecayChain.activity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.DecayChain.activity" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="curie.DecayChain.activity">
+<span class="sig-name descname"><span class="pre">activity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">isotope</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_R_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_A_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/decay_chain.html#DecayChain.activity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.DecayChain.activity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Activity of an isotope in the chain</p>
 <p>Computes the activity of a given isotope in the decay chain at a
 given time.  Units of activity are in Bq.  Units of time must be either
 the units for the DecayChain (default ‘s’), or specified by the <cite>units</cite>
 keyword.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>isotope</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
-<dd><p class="first last">Isotope for which the activity is calculated.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>isotope</strong><span class="classifier">str</span></dt><dd><p>Isotope for which the activity is calculated.</p>
 </dd>
-<dt><strong>time</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
-<dd><p class="first last">Time to calculate the activity.  Units of time must be the same
+<dt><strong>time</strong><span class="classifier">array_like</span></dt><dd><p>Time to calculate the activity.  Units of time must be the same
 as the decay chain, or be given by <cite>units</cite>. Note that if R!=0, time=0 is 
 defined as the end of production time.  Else, if A0!=0, time=0
 is defined as the time at which the specified activities equaled
 A0.  t&lt;0 is not allowed.</p>
 </dd>
-<dt><strong>units</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
-<dd><p class="first last">Units of time, if different from the units of the decay chain.</p>
+<dt><strong>units</strong><span class="classifier">str, optional</span></dt><dd><p>Units of time, if different from the units of the decay chain.</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>activity</strong> <span class="classifier-delimiter">:</span> <span class="classifier">np.ndarray</span></dt>
-<dd><p class="first last">Activity of the given isotope in Bq.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>activity</strong><span class="classifier">np.ndarray</span></dt><dd><p>Activity of the given isotope in Bq.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dc</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">DecayChain</span><span class="p">(</span><span class="s1">&#39;152EU&#39;</span><span class="p">,</span> <span class="n">A0</span><span class="o">=</span><span class="mf">3.7E3</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;h&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dc</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">DecayChain</span><span class="p">(</span><span class="s1">&#39;152EU&#39;</span><span class="p">,</span> <span class="n">A0</span><span class="o">=</span><span class="mf">3.7E3</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;h&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">dc</span><span class="o">.</span><span class="n">activity</span><span class="p">(</span><span class="s1">&#39;152EU&#39;</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
 <span class="go">3700.0</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">dc</span><span class="o">.</span><span class="n">activity</span><span class="p">(</span><span class="s1">&#39;152EU&#39;</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="mf">13.537</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">))</span>
@@ -208,45 +184,36 @@ A0.  t&lt;0 is not allowed.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="curie.DecayChain.decays">
-<code class="descname">decays</code><span class="sig-paren">(</span><em>isotope</em>, <em>t_start</em>, <em>t_stop</em>, <em>units=None</em>, <em>_A_dict=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/decay_chain.html#DecayChain.decays"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.DecayChain.decays" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="curie.DecayChain.decays">
+<span class="sig-name descname"><span class="pre">decays</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">isotope</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_stop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_A_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/decay_chain.html#DecayChain.decays"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.DecayChain.decays" title="Permalink to this definition">¶</a></dt>
 <dd><p>Number of decays in a given time interval</p>
 <p>Computes the number of decays from a given isotope in the
 decay chain in the time interal t_start to t_stop.  The 
 units of t_start and t_stop must be either the same units
 as the decay chain, or be specified by the <cite>units</cite> keyword.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>isotope</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
-<dd><p class="first last">Isotope for which the number of decays is calculated.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>isotope</strong><span class="classifier">str</span></dt><dd><p>Isotope for which the number of decays is calculated.</p>
 </dd>
-<dt><strong>t_start</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
-<dd><p class="first last">Time of the start of the interval.</p>
+<dt><strong>t_start</strong><span class="classifier">array_like</span></dt><dd><p>Time of the start of the interval.</p>
 </dd>
-<dt><strong>t_stop</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
-<dd><p class="first last">Time of the end of the interval.</p>
+<dt><strong>t_stop</strong><span class="classifier">array_like</span></dt><dd><p>Time of the end of the interval.</p>
 </dd>
-<dt><strong>units</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
-<dd><p class="first last">Units of time, if different from the units of the decay chain.</p>
+<dt><strong>units</strong><span class="classifier">str, optional</span></dt><dd><p>Units of time, if different from the units of the decay chain.</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>decays</strong> <span class="classifier-delimiter">:</span> <span class="classifier">np.ndarray</span></dt>
-<dd><p class="first last">Number of decays</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>decays</strong><span class="classifier">np.ndarray</span></dt><dd><p>Number of decays</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dc</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">DecayChain</span><span class="p">(</span><span class="s1">&#39;152EU&#39;</span><span class="p">,</span> <span class="n">A0</span><span class="o">=</span><span class="mf">3.7E3</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;h&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dc</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">DecayChain</span><span class="p">(</span><span class="s1">&#39;152EU&#39;</span><span class="p">,</span> <span class="n">A0</span><span class="o">=</span><span class="mf">3.7E3</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;h&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">dc</span><span class="o">.</span><span class="n">decays</span><span class="p">(</span><span class="s1">&#39;152EU&#39;</span><span class="p">,</span> <span class="n">t_start</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">t_stop</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
 <span class="go">13319883.293399204</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">dc</span><span class="o">.</span><span class="n">decays</span><span class="p">(</span><span class="s1">&#39;152EU&#39;</span><span class="p">,</span> <span class="n">t_start</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">t_stop</span><span class="o">=</span><span class="mf">50.1</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">))</span>
@@ -255,41 +222,34 @@ as the decay chain, or be specified by the <cite>units</cite> keyword.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="curie.DecayChain.fit_A0">
-<code class="descname">fit_A0</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/decay_chain.html#DecayChain.fit_A0"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.DecayChain.fit_A0" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="curie.DecayChain.fit_A0">
+<span class="sig-name descname"><span class="pre">fit_A0</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/decay_chain.html#DecayChain.fit_A0"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.DecayChain.fit_A0" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit the initial activity to count data</p>
 <p>Fits a scalar multiplier to the initial activity for
 each isotope specified in self.A0.  The fit minimizes to the number of
 measured decays (self.counts) as a function of time, rather than the 
 activity, because the activity at each time point may be sensitive to
 the shape of the decay curve.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>isotopes</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
-<dd><p class="first last">List of isotopes where A0&gt;0.  Same indices as fit. (i.e. isotope[0] corresponds
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>isotopes</strong><span class="classifier">list</span></dt><dd><p>List of isotopes where A0&gt;0.  Same indices as fit. (i.e. isotope[0] corresponds
 to fit[0] and cov[0][0].)</p>
 </dd>
-<dt><strong>fit</strong> <span class="classifier-delimiter">:</span> <span class="classifier">np.ndarray</span></dt>
-<dd><p class="first last">The initial activity for each isotope where A0&gt;0.</p>
+<dt><strong>fit</strong><span class="classifier">np.ndarray</span></dt><dd><p>The initial activity for each isotope where A0&gt;0.</p>
 </dd>
-<dt><strong>cov</strong> <span class="classifier-delimiter">:</span> <span class="classifier">np.ndarray</span></dt>
-<dd><p class="first last">Covariance matrix on the fit.</p>
+<dt><strong>cov</strong><span class="classifier">np.ndarray</span></dt><dd><p>Covariance matrix on the fit.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Spectrum</span><span class="p">(</span><span class="s1">&#39;eu_calib_7cm.Spe&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Spectrum</span><span class="p">(</span><span class="s1">&#39;eu_calib_7cm.Spe&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span><span class="o">.</span><span class="n">isotopes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;152EU&#39;</span><span class="p">]</span>
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dc</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">DecayChain</span><span class="p">(</span><span class="s1">&#39;152EU&#39;</span><span class="p">,</span> <span class="n">A0</span><span class="o">=</span><span class="mf">3.7E4</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;d&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dc</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">DecayChain</span><span class="p">(</span><span class="s1">&#39;152EU&#39;</span><span class="p">,</span> <span class="n">A0</span><span class="o">=</span><span class="mf">3.7E4</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;d&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">dc</span><span class="o">.</span><span class="n">get_counts</span><span class="p">([</span><span class="n">sp</span><span class="p">],</span> <span class="n">EoB</span><span class="o">=</span><span class="s1">&#39;01/01/2016 08:39:08&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">dc</span><span class="o">.</span><span class="n">fit_A0</span><span class="p">())</span>
 <span class="go">([&#39;152EUg&#39;], array([6501.93665952]), array([[42425.53832341]]))</span>
@@ -297,41 +257,34 @@ to fit[0] and cov[0][0].)</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="curie.DecayChain.fit_R">
-<code class="descname">fit_R</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/decay_chain.html#DecayChain.fit_R"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.DecayChain.fit_R" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="curie.DecayChain.fit_R">
+<span class="sig-name descname"><span class="pre">fit_R</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/decay_chain.html#DecayChain.fit_R"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.DecayChain.fit_R" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit the production rate to count data</p>
 <p>Fits a scalar multiplier to the production rate (as a function of time) for
 each isotope specified in self.R.  The fit minimizes to the number of
 measured decays (self.counts) as a function of time, rather than the 
 activity, because the activity at each time point may be sensitive to
 the shape of the decay curve.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>isotopes: list</strong></dt>
-<dd><p class="first last">List of isotopes where R&gt;0.  Same indices as fit. (i.e. isotope[0] corresponds
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>isotopes: list</dt><dd><p>List of isotopes where R&gt;0.  Same indices as fit. (i.e. isotope[0] corresponds
 to fit[0] and cov[0][0].)</p>
 </dd>
-<dt><strong>fit</strong> <span class="classifier-delimiter">:</span> <span class="classifier">np.ndarray</span></dt>
-<dd><p class="first last">The fitted time-averaged production rate for each isotope where R&gt;0.</p>
+<dt><strong>fit</strong><span class="classifier">np.ndarray</span></dt><dd><p>The fitted time-averaged production rate for each isotope where R&gt;0.</p>
 </dd>
-<dt><strong>cov</strong> <span class="classifier-delimiter">:</span> <span class="classifier">np.ndarray</span></dt>
-<dd><p class="first last">Covariance matrix on the fit.</p>
+<dt><strong>cov</strong><span class="classifier">np.ndarray</span></dt><dd><p>Covariance matrix on the fit.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Spectrum</span><span class="p">(</span><span class="s1">&#39;eu_calib_7cm.Spe&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Spectrum</span><span class="p">(</span><span class="s1">&#39;eu_calib_7cm.Spe&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span><span class="o">.</span><span class="n">isotopes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;152EU&#39;</span><span class="p">]</span>
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dc</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">DecayChain</span><span class="p">(</span><span class="s1">&#39;152EU&#39;</span><span class="p">,</span> <span class="n">R</span><span class="o">=</span><span class="p">[[</span><span class="mf">3E5</span><span class="p">,</span> <span class="mf">36.0</span><span class="p">]],</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;d&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dc</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">DecayChain</span><span class="p">(</span><span class="s1">&#39;152EU&#39;</span><span class="p">,</span> <span class="n">R</span><span class="o">=</span><span class="p">[[</span><span class="mf">3E5</span><span class="p">,</span> <span class="mf">36.0</span><span class="p">]],</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;d&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">dc</span><span class="o">.</span><span class="n">get_counts</span><span class="p">([</span><span class="n">sp</span><span class="p">],</span> <span class="n">EoB</span><span class="o">=</span><span class="s1">&#39;01/01/2016 08:39:08&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">dc</span><span class="o">.</span><span class="n">fit_R</span><span class="p">())</span>
 <span class="go">(array([&#39;152EUg&#39;], dtype=object), array([1291584.51735774]), array([[1.67412376e+09]]))</span>
@@ -339,45 +292,38 @@ to fit[0] and cov[0][0].)</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="curie.DecayChain.get_counts">
-<code class="descname">get_counts</code><span class="sig-paren">(</span><em>spectra</em>, <em>EoB</em>, <em>peak_data=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/decay_chain.html#DecayChain.get_counts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.DecayChain.get_counts" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="curie.DecayChain.get_counts">
+<span class="sig-name descname"><span class="pre">get_counts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spectra</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">EoB</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peak_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/decay_chain.html#DecayChain.get_counts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.DecayChain.get_counts" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieves the number of measured decays</p>
 <p>Takes the number of measured decays from one of the following: a list of spectra,
 a file with peak data, or a pandas DataFrame with peak data.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>spectra</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list or str</span></dt>
-<dd><p class="first last">List of ci.Spectrum objects, or str of spectra filenames.  If list of str, 
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>spectra</strong><span class="classifier">list or str</span></dt><dd><p>List of ci.Spectrum objects, or str of spectra filenames.  If list of str, 
 peak_data <strong>must</strong> be specified.  In this case the filenames must be
 an exact match of the filenames in <cite>peak_data</cite>.  If spectra is a str,
 it is assumed to be a regex match for the filenames in <cite>peak_data</cite>.</p>
 </dd>
-<dt><strong>EoB</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str or datetime.datetime</span></dt>
-<dd><p class="first last">Date/time of end-of-bombardment (t=0).  Must be a datetime object or
+<dt><strong>EoB</strong><span class="classifier">str or datetime.datetime</span></dt><dd><p>Date/time of end-of-bombardment (t=0).  Must be a datetime object or
 a string in the format ‘%m/%d/%Y %H:%M:%S’.  This is used to calculate
 the decay time for the count.</p>
 </dd>
-<dt><strong>peak_data</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str or pd.DataFrame, optional</span></dt>
-<dd><p class="first last">Either a file path to a file that was created using
+<dt><strong>peak_data</strong><span class="classifier">str or pd.DataFrame, optional</span></dt><dd><p>Either a file path to a file that was created using
 <cite>ci.Spectrum.saveas()</cite> or a DataFrame with the same 
 structure as <cite>ci.Spectrum.peaks</cite>.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Spectrum</span><span class="p">(</span><span class="s1">&#39;eu_calib_7cm.Spe&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Spectrum</span><span class="p">(</span><span class="s1">&#39;eu_calib_7cm.Spe&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span><span class="o">.</span><span class="n">isotopes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;152EU&#39;</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span><span class="o">.</span><span class="n">saveas</span><span class="p">(</span><span class="s1">&#39;test_spec.json&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dc</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">DecayChain</span><span class="p">(</span><span class="s1">&#39;152EU&#39;</span><span class="p">,</span> <span class="n">A0</span><span class="o">=</span><span class="mf">3.7E3</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;h&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dc</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">DecayChain</span><span class="p">(</span><span class="s1">&#39;152EU&#39;</span><span class="p">,</span> <span class="n">A0</span><span class="o">=</span><span class="mf">3.7E3</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;h&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">dc</span><span class="o">.</span><span class="n">get_counts</span><span class="p">([</span><span class="n">sp</span><span class="p">],</span> <span class="n">EoB</span><span class="o">=</span><span class="s1">&#39;01/01/2016 08:39:08&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">dc</span><span class="o">.</span><span class="n">get_counts</span><span class="p">([</span><span class="s1">&#39;eu_calib_7cm.Spe&#39;</span><span class="p">],</span> <span class="n">EoB</span><span class="o">=</span><span class="s1">&#39;01/01/2016 08:39:08&#39;</span><span class="p">,</span> <span class="n">peak_data</span><span class="o">=</span><span class="s1">&#39;test_spec.json&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">dc</span><span class="o">.</span><span class="n">counts</span><span class="p">)</span>
@@ -385,63 +331,52 @@ structure as <cite>ci.Spectrum.peaks</cite>.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="curie.DecayChain.plot">
-<code class="descname">plot</code><span class="sig-paren">(</span><em>time=None</em>, <em>max_plot=10</em>, <em>max_label=10</em>, <em>max_plot_error=0.4</em>, <em>max_plot_chi2=10</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/decay_chain.html#DecayChain.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.DecayChain.plot" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="curie.DecayChain.plot">
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_plot_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_plot_chi2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/decay_chain.html#DecayChain.plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.DecayChain.plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the activities in the decay chain</p>
 <p>Plots the activities as a function of time for all radioactive
 isotopes in the decay chain.  Can plot along a specified time
 grid, else the time will be inferred from the half-life of the
 parent isotope, or any count information given to self.counts.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>time</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like, optional</span></dt>
-<dd><p class="first last">Time grid along which to plot.  Units must be the same as the decay chain.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>time</strong><span class="classifier">array_like, optional</span></dt><dd><p>Time grid along which to plot.  Units must be the same as the decay chain.</p>
 </dd>
-<dt><strong>max_plot</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, optional</span></dt>
-<dd><p class="first last">Maximum number of isotope activities to plot in the decay chain. Default, 10.</p>
+<dt><strong>max_plot</strong><span class="classifier">int, optional</span></dt><dd><p>Maximum number of isotope activities to plot in the decay chain. Default, 10.</p>
 </dd>
-<dt><strong>max_label</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, optional</span></dt>
-<dd><p class="first last">Maximum number of isotope activities to label in the legend. Default, 10.</p>
+<dt><strong>max_label</strong><span class="classifier">int, optional</span></dt><dd><p>Maximum number of isotope activities to label in the legend. Default, 10.</p>
 </dd>
-<dt><strong>max_plot_error</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float, optional</span></dt>
-<dd><p class="first last">The maximum relative error of a count point to include on the plot. E.g. 0.25=25%
+<dt><strong>max_plot_error</strong><span class="classifier">float, optional</span></dt><dd><p>The maximum relative error of a count point to include on the plot. E.g. 0.25=25%
 (ony points with less than 25% error will be shown). Default, 0.4.</p>
 </dd>
-<dt><strong>max_plot_chi2</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float or int, optional</span></dt>
-<dd><p class="first last">Maximum chi^2 of a count point to include on the plot. Only points with a chi^2
+<dt><strong>max_plot_chi2</strong><span class="classifier">float or int, optional</span></dt><dd><p>Maximum chi^2 of a count point to include on the plot. Only points with a chi^2
 less than this value will be shown. Default, 10.</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name" colspan="2">Other Parameters:</th></tr>
-<tr class="field-even field"><td>&#160;</td><td class="field-body"><dl class="first last docutils">
-<dt><strong>**kwargs</strong></dt>
-<dd><p class="first last">Optional keyword arguments for plotting.  See the 
+</dd>
+<dt class="field-even">Other Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>**kwargs</strong></dt><dd><p>Optional keyword arguments for plotting.  See the 
 plotting section of the curie API for a complete
 list of kwargs.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Spectrum</span><span class="p">(</span><span class="s1">&#39;eu_calib_7cm.Spe&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Spectrum</span><span class="p">(</span><span class="s1">&#39;eu_calib_7cm.Spe&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span><span class="o">.</span><span class="n">isotopes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;152EU&#39;</span><span class="p">]</span>
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dc</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">DecayChain</span><span class="p">(</span><span class="s1">&#39;152EU&#39;</span><span class="p">,</span> <span class="n">R</span><span class="o">=</span><span class="p">[[</span><span class="mf">3E5</span><span class="p">,</span> <span class="mf">36.0</span><span class="p">]],</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;d&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dc</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">DecayChain</span><span class="p">(</span><span class="s1">&#39;152EU&#39;</span><span class="p">,</span> <span class="n">R</span><span class="o">=</span><span class="p">[[</span><span class="mf">3E5</span><span class="p">,</span> <span class="mf">36.0</span><span class="p">]],</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;d&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">dc</span><span class="o">.</span><span class="n">get_counts</span><span class="p">([</span><span class="n">sp</span><span class="p">],</span> <span class="n">EoB</span><span class="o">=</span><span class="s1">&#39;01/01/2016 08:39:08&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">dc</span><span class="o">.</span><span class="n">fit_R</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">dc</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dc</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">DecayChain</span><span class="p">(</span><span class="s1">&#39;99MO&#39;</span><span class="p">,</span> <span class="n">A0</span><span class="o">=</span><span class="mf">350E6</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;d&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dc</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">DecayChain</span><span class="p">(</span><span class="s1">&#39;99MO&#39;</span><span class="p">,</span> <span class="n">A0</span><span class="o">=</span><span class="mf">350E6</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;d&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">dc</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -449,14 +384,43 @@ list of kwargs.</p>
 
 </dd></dl>
 
-</div>
+</section>
 
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="../index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">Decay Chain</a><ul>
+<li><a class="reference internal" href="#curie.DecayChain"><code class="docutils literal notranslate"><span class="pre">DecayChain</span></code></a><ul>
+<li><a class="reference internal" href="#curie.DecayChain.activity"><code class="docutils literal notranslate"><span class="pre">DecayChain.activity()</span></code></a></li>
+<li><a class="reference internal" href="#curie.DecayChain.decays"><code class="docutils literal notranslate"><span class="pre">DecayChain.decays()</span></code></a></li>
+<li><a class="reference internal" href="#curie.DecayChain.fit_A0"><code class="docutils literal notranslate"><span class="pre">DecayChain.fit_A0()</span></code></a></li>
+<li><a class="reference internal" href="#curie.DecayChain.fit_R"><code class="docutils literal notranslate"><span class="pre">DecayChain.fit_R()</span></code></a></li>
+<li><a class="reference internal" href="#curie.DecayChain.get_counts"><code class="docutils literal notranslate"><span class="pre">DecayChain.get_counts()</span></code></a></li>
+<li><a class="reference internal" href="#curie.DecayChain.plot"><code class="docutils literal notranslate"><span class="pre">DecayChain.plot()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="spectrum.html"
+                          title="previous chapter">Spectrum</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="data.html"
+                          title="next chapter">Data</a></p>
+  </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -465,17 +429,15 @@ list of kwargs.</p>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -486,13 +448,20 @@ list of kwargs.</p>
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              >index</a></li>
+        <li class="right" >
+          <a href="data.html" title="Data"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="spectrum.html" title="Spectrum"
+             >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">Curie 0.0.15 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="index.html" >API</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="index.html" >API</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Decay Chain</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2020, Jonathan Morrell.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.3.
+    &#169; Copyright 2020, Jonathan Morrell.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
     </div>
   </body>
 </html>

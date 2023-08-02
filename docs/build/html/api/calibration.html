@@ -1,23 +1,22 @@
+<!DOCTYPE html>
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html lang="en">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
     <title>Calibration &#8212; Curie 0.0.15 documentation</title>
-    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b76e3c8a" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css?v=89b800e6" />
     
-    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=8810cfe0"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
     
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" /> 
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Spectrum" href="spectrum.html" />
+    <link rel="prev" title="Reaction" href="reaction.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -25,8 +24,15 @@
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="spectrum.html" title="Spectrum"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="reaction.html" title="Reaction"
+             accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">Curie 0.0.15 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">API</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">API</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Calibration</a></li> 
       </ul>
     </div>  
 
@@ -35,33 +41,28 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="calibration">
-<span id="id1"></span><h1>Calibration<a class="headerlink" href="#calibration" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
-<dt id="curie.Calibration">
-<em class="property">class </em><code class="descclassname">curie.</code><code class="descname">Calibration</code><span class="sig-paren">(</span><em>filename=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Calibration" title="Permalink to this definition">¶</a></dt>
+  <section id="calibration">
+<span id="id1"></span><h1>Calibration<a class="headerlink" href="#calibration" title="Permalink to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="curie.Calibration">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">curie.</span></span><span class="sig-name descname"><span class="pre">Calibration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Calibration" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calibration for HPGe spectra</p>
 <p>Provides methods for calculating and fitting energy, efficiency and resolution
 calibrations for HPGe spectra.  Each Spectrum class contains a Calibration, 
 which can be loaded from a file, or fit to calibration spectra from known sources.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>filename</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
-<dd><p class="first last">Path to a .json file storing calibration data.  The .json file can be produced by
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>filename</strong><span class="classifier">str, optional</span></dt><dd><p>Path to a .json file storing calibration data.  The .json file can be produced by
 calling <cite>cb.saveas(‘example_calib.json’)</cite> after performing a calibration fit with
 the <cite>cb.calibrate()</cite> function.  This allows past calibrations to be recalled without
 needing to re-perform the calibration fits.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cb</span> <span class="o">=</span> <span class="n">Calibration</span><span class="p">()</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cb</span> <span class="o">=</span> <span class="n">Calibration</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">cb</span><span class="o">.</span><span class="n">engcal</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.001</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">cb</span><span class="o">.</span><span class="n">engcal</span><span class="p">)</span>
 <span class="go">[0.0 0.3]</span>
@@ -73,106 +74,88 @@ needing to re-perform the calibration fits.</p>
 <span class="go">[0.0 0.25 0.001]</span>
 </pre></div>
 </div>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>engcal</strong> <span class="classifier-delimiter">:</span> <span class="classifier">np.ndarray</span></dt>
-<dd><p class="first last">Energy calibration parameters. length 2 or 3 array, depending on whether the calibration
+<dl class="field-list simple">
+<dt class="field-odd">Attributes<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>engcal</strong><span class="classifier">np.ndarray</span></dt><dd><p>Energy calibration parameters. length 2 or 3 array, depending on whether the calibration
 is linear or quadratic.</p>
 </dd>
-<dt><strong>effcal</strong> <span class="classifier-delimiter">:</span> <span class="classifier">np.ndarray</span></dt>
-<dd><p class="first last">Efficiency calibration parameters. length 3 or 5 array, depending on whether the efficiency
+<dt><strong>effcal</strong><span class="classifier">np.ndarray</span></dt><dd><p>Efficiency calibration parameters. length 3 or 5 array, depending on whether the efficiency
 fit includes a “dead-layer term”.</p>
 </dd>
-<dt><strong>unc_effcal</strong> <span class="classifier-delimiter">:</span> <span class="classifier">np.ndarray</span></dt>
-<dd><p class="first last">Efficiency calibration covariance matrix. shape 3x3 or 5x5, depending on the length of effcal.</p>
+<dt><strong>unc_effcal</strong><span class="classifier">np.ndarray</span></dt><dd><p>Efficiency calibration covariance matrix. shape 3x3 or 5x5, depending on the length of effcal.</p>
 </dd>
-<dt><strong>rescal</strong> <span class="classifier-delimiter">:</span> <span class="classifier">np.ndarray</span></dt>
-<dd><p class="first last">Resolution calibration parameters.  length 2 array if resolution calibration is of the form
+<dt><strong>rescal</strong><span class="classifier">np.ndarray</span></dt><dd><p>Resolution calibration parameters.  length 2 array if resolution calibration is of the form
 R = a + b*chan (default), or length 1 if R = a*sqrt(chan).</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Methods</p>
-<table border="1" class="longtable docutils">
-<colgroup>
-<col width="10%" />
-<col width="90%" />
-</colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#curie.Calibration.calibrate" title="curie.Calibration.calibrate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calibrate</span></code></a>(spectra,&nbsp;sources)</td>
-<td>Generate calibration parameters from spectra</td>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#curie.Calibration.calibrate" title="curie.Calibration.calibrate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calibrate</span></code></a>(spectra, sources)</p></td>
+<td><p>Generate calibration parameters from spectra</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#curie.Calibration.eff" title="curie.Calibration.eff"><code class="xref py py-obj docutils literal notranslate"><span class="pre">eff</span></code></a>(energy[,&nbsp;effcal])</td>
-<td>Efficiency calibration function</td>
+<tr class="row-even"><td><p><a class="reference internal" href="#curie.Calibration.eff" title="curie.Calibration.eff"><code class="xref py py-obj docutils literal notranslate"><span class="pre">eff</span></code></a>(energy[, effcal])</p></td>
+<td><p>Efficiency calibration function</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#curie.Calibration.eng" title="curie.Calibration.eng"><code class="xref py py-obj docutils literal notranslate"><span class="pre">eng</span></code></a>(channel[,&nbsp;engcal])</td>
-<td>Energy calibration function</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#curie.Calibration.eng" title="curie.Calibration.eng"><code class="xref py py-obj docutils literal notranslate"><span class="pre">eng</span></code></a>(channel[, engcal])</p></td>
+<td><p>Energy calibration function</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#curie.Calibration.map_channel" title="curie.Calibration.map_channel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">map_channel</span></code></a>(energy[,&nbsp;engcal])</td>
-<td>Energy to channel calibration</td>
+<tr class="row-even"><td><p><a class="reference internal" href="#curie.Calibration.map_channel" title="curie.Calibration.map_channel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">map_channel</span></code></a>(energy[, engcal])</p></td>
+<td><p>Energy to channel calibration</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#curie.Calibration.plot" title="curie.Calibration.plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot</span></code></a>(**kwargs)</td>
-<td>Plots energy, resolution and efficiency calibrations</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#curie.Calibration.plot" title="curie.Calibration.plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot</span></code></a>(**kwargs)</p></td>
+<td><p>Plots energy, resolution and efficiency calibrations</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#curie.Calibration.plot_effcal" title="curie.Calibration.plot_effcal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_effcal</span></code></a>(**kwargs)</td>
-<td>Plot the efficiency calibration</td>
+<tr class="row-even"><td><p><a class="reference internal" href="#curie.Calibration.plot_effcal" title="curie.Calibration.plot_effcal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_effcal</span></code></a>(**kwargs)</p></td>
+<td><p>Plot the efficiency calibration</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#curie.Calibration.plot_engcal" title="curie.Calibration.plot_engcal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_engcal</span></code></a>(**kwargs)</td>
-<td>Plot the energy calibration</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#curie.Calibration.plot_engcal" title="curie.Calibration.plot_engcal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_engcal</span></code></a>(**kwargs)</p></td>
+<td><p>Plot the energy calibration</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#curie.Calibration.plot_rescal" title="curie.Calibration.plot_rescal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_rescal</span></code></a>(**kwargs)</td>
-<td>Plot the resolution calibration</td>
+<tr class="row-even"><td><p><a class="reference internal" href="#curie.Calibration.plot_rescal" title="curie.Calibration.plot_rescal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_rescal</span></code></a>(**kwargs)</p></td>
+<td><p>Plot the resolution calibration</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#curie.Calibration.res" title="curie.Calibration.res"><code class="xref py py-obj docutils literal notranslate"><span class="pre">res</span></code></a>(channel[,&nbsp;rescal])</td>
-<td>Resolution calibration</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#curie.Calibration.res" title="curie.Calibration.res"><code class="xref py py-obj docutils literal notranslate"><span class="pre">res</span></code></a>(channel[, rescal])</p></td>
+<td><p>Resolution calibration</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#curie.Calibration.saveas" title="curie.Calibration.saveas"><code class="xref py py-obj docutils literal notranslate"><span class="pre">saveas</span></code></a>(filename)</td>
-<td>Save the calibration as a .json file</td>
+<tr class="row-even"><td><p><a class="reference internal" href="#curie.Calibration.saveas" title="curie.Calibration.saveas"><code class="xref py py-obj docutils literal notranslate"><span class="pre">saveas</span></code></a>(filename)</p></td>
+<td><p>Save the calibration as a .json file</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#curie.Calibration.unc_eff" title="curie.Calibration.unc_eff"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unc_eff</span></code></a>(energy[,&nbsp;effcal,&nbsp;unc_effcal])</td>
-<td>Uncertainty in the efficiency</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#curie.Calibration.unc_eff" title="curie.Calibration.unc_eff"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unc_eff</span></code></a>(energy[, effcal, unc_effcal])</p></td>
+<td><p>Uncertainty in the efficiency</p></td>
 </tr>
 </tbody>
 </table>
-<dl class="method">
-<dt id="curie.Calibration.calibrate">
-<code class="descname">calibrate</code><span class="sig-paren">(</span><em>spectra</em>, <em>sources</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration.calibrate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Calibration.calibrate" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="curie.Calibration.calibrate">
+<span class="sig-name descname"><span class="pre">calibrate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spectra</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sources</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration.calibrate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Calibration.calibrate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate calibration parameters from spectra</p>
 <p>Performs an energy, resolution and efficiency calibration on peak fits
 to a given list of spectra.  Reference activities _MUst be given for the
 efficiency calibration.  Spectra are allowed to have isotopes that are
 not in <cite>sources</cite>, but these will not be included in the efficiency calibration.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>spectra</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of sp.Spectrum</span></dt>
-<dd><p class="first last">List of calibration spectra.  Must have sp.isotopes defined, and matching
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>spectra</strong><span class="classifier">list of sp.Spectrum</span></dt><dd><p>List of calibration spectra.  Must have sp.isotopes defined, and matching
 the isotopes given in <cite>sources</cite>.</p>
 </dd>
-<dt><strong>sources</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, list, dict or pd.DataFrame</span></dt>
-<dd><p class="first last">Datatype or (if str) file that can be converted into a
+<dt><strong>sources</strong><span class="classifier">str, list, dict or pd.DataFrame</span></dt><dd><p>Datatype or (if str) file that can be converted into a
 pandas DataFrame.  Required keys are ‘isotope’, ‘A0’ (reference activity),
 and ‘ref_date’ (reference date).</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Spectrum</span><span class="p">(</span><span class="s1">&#39;eu_calib_7cm.Spe&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Spectrum</span><span class="p">(</span><span class="s1">&#39;eu_calib_7cm.Spe&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span><span class="o">.</span><span class="n">isotopes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;152EU&#39;</span><span class="p">]</span>
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cb</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Calibration</span><span class="p">()</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cb</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Calibration</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">cb</span><span class="o">.</span><span class="n">calibrate</span><span class="p">([</span><span class="n">sp</span><span class="p">],</span> <span class="n">sources</span><span class="o">=</span><span class="p">[{</span><span class="s1">&#39;isotope&#39;</span><span class="p">:</span><span class="s1">&#39;152EU&#39;</span><span class="p">,</span> <span class="s1">&#39;A0&#39;</span><span class="p">:</span><span class="mf">3.5E4</span><span class="p">,</span> <span class="s1">&#39;ref_date&#39;</span><span class="p">:</span><span class="s1">&#39;01/01/2009 12:00:00&#39;</span><span class="p">}])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">cb</span><span class="o">.</span><span class="n">effcal</span><span class="p">)</span>
 <span class="go">[4.33742771 2.28579733 0.15337749]</span>
@@ -181,9 +164,9 @@ and ‘ref_date’ (reference date).</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="curie.Calibration.eff">
-<code class="descname">eff</code><span class="sig-paren">(</span><em>energy</em>, <em>effcal=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration.eff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Calibration.eff" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="curie.Calibration.eff">
+<span class="sig-name descname"><span class="pre">eff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">effcal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration.eff"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Calibration.eff" title="Permalink to this definition">¶</a></dt>
 <dd><p>Efficiency calibration function</p>
 <p>Returns the calculated (absolute) efficiency given an input array of 
 energies. The <cite>effcal</cite> can be supplied, or if <cite>effcal=None</cite>, the
@@ -194,32 +177,25 @@ semi-empirical formula proposed by Vidmar (2001):
 eff(E) = c[0]*(1.0-exp(-mu(eng)*c[1]))*(tau(eng)+sigma(eng)*(1.0-exp(-(mu(eng)*c[3])**c[2]))*c[4])/mu(eng) if the effcal is length 5 or
 eff(E) = c[0]*exp(-mu_w(eng)*c[5])*exp(-mu(eng)*c[6])*(1.0-exp(-mu(eng)*c[1]))*(tau(eng)+sigma(eng)*(1.0-exp(-(mu(eng)*c[3])**c[2]))*c[4])/mu(eng)
 if the effcal is length 7.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>energy</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
-<dd><p class="first last">Peak energy in keV.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>energy</strong><span class="classifier">array_like</span></dt><dd><p>Peak energy in keV.</p>
 </dd>
-<dt><strong>effcal</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like, optional</span></dt>
-<dd><p class="first last">Efficiency calibration parameters. length 5 or 7 array, depending on whether the efficiency
+<dt><strong>effcal</strong><span class="classifier">array_like, optional</span></dt><dd><p>Efficiency calibration parameters. length 5 or 7 array, depending on whether the efficiency
 fit includes the low-energy components.</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>efficiency</strong> <span class="classifier-delimiter">:</span> <span class="classifier">np.ndarray</span></dt>
-<dd><p class="first last">Absolute efficiency at the given energies.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>efficiency</strong><span class="classifier">np.ndarray</span></dt><dd><p>Absolute efficiency at the given energies.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cb</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Calibration</span><span class="p">()</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cb</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Calibration</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">cb</span><span class="o">.</span><span class="n">effcal</span><span class="p">)</span>
 <span class="go">[0.02 8.3 2.1 1.66 0.4]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">cb</span><span class="o">.</span><span class="n">eff</span><span class="p">(</span><span class="mi">50</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">10</span><span class="p">)))</span>
@@ -229,42 +205,35 @@ fit includes the low-energy components.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="curie.Calibration.eng">
-<code class="descname">eng</code><span class="sig-paren">(</span><em>channel</em>, <em>engcal=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration.eng"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Calibration.eng" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="curie.Calibration.eng">
+<span class="sig-name descname"><span class="pre">eng</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">engcal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration.eng"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Calibration.eng" title="Permalink to this definition">¶</a></dt>
 <dd><p>Energy calibration function</p>
 <p>Returns the calculated energy given an input array of
 channel numbers.  The <cite>engcal</cite> can be supplied, or
 if <cite>engcal=None</cite> the Calibration object’s energy
 calibration is used (cb.engcal).</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>channel</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
-<dd><p class="first last">Spectrum channel number.  The maxi_MUm channel number should
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>channel</strong><span class="classifier">array_like</span></dt><dd><p>Spectrum channel number.  The maxi_MUm channel number should
 be the length of the spectrum.</p>
 </dd>
-<dt><strong>engcal</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like, optional</span></dt>
-<dd><p class="first last">Optional energy calibration. If a length 2 array, calibration
+<dt><strong>engcal</strong><span class="classifier">array_like, optional</span></dt><dd><p>Optional energy calibration. If a length 2 array, calibration
 will be engcal[0] + engcal[1]*channel.  If length 3, then
 engcal[0] + engcal[1]*channel + engcal[2]*channel**2</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>energy: np.ndarray</strong></dt>
-<dd><p class="first last">Calibrated energy corresponding to the given channels.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>energy: np.ndarray</dt><dd><p>Calibrated energy corresponding to the given channels.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cb</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Calibration</span><span class="p">()</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cb</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Calibration</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">cb</span><span class="o">.</span><span class="n">engcal</span><span class="p">)</span>
 <span class="go">[0.  0.3]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">cb</span><span class="o">.</span><span class="n">eng</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">10</span><span class="p">)))</span>
@@ -276,39 +245,32 @@ engcal[0] + engcal[1]*channel + engcal[2]*channel**2</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="curie.Calibration.map_channel">
-<code class="descname">map_channel</code><span class="sig-paren">(</span><em>energy</em>, <em>engcal=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration.map_channel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Calibration.map_channel" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="curie.Calibration.map_channel">
+<span class="sig-name descname"><span class="pre">map_channel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">engcal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration.map_channel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Calibration.map_channel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Energy to channel calibration</p>
 <p>Calculates the spectrum channel number corresponding to a given
 energy array.  This should return the inverse of the energy calibration, but
 as an integer-type channel number.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>energy</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
-<dd><p class="first last">Peak energy in keV</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>energy</strong><span class="classifier">array_like</span></dt><dd><p>Peak energy in keV</p>
 </dd>
-<dt><strong>engcal</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like, optional</span></dt>
-<dd><p class="first last">Energy calibration parameters. length 2 or 3 array, depending on whether the calibration
+<dt><strong>engcal</strong><span class="classifier">array_like, optional</span></dt><dd><p>Energy calibration parameters. length 2 or 3 array, depending on whether the calibration
 is linear or quadratic.</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>channel</strong> <span class="classifier-delimiter">:</span> <span class="classifier">np.ndarray</span></dt>
-<dd><p class="first last">Calculated channel number given the input energy array</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>channel</strong><span class="classifier">np.ndarray</span></dt><dd><p>Calculated channel number given the input energy array</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cb</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Calibration</span><span class="p">()</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cb</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Calibration</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">cb</span><span class="o">.</span><span class="n">engcal</span><span class="p">)</span>
 <span class="go">[0.  0.3]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">cb</span><span class="o">.</span><span class="n">map_channel</span><span class="p">(</span><span class="mi">300</span><span class="p">))</span>
@@ -319,173 +281,142 @@ is linear or quadratic.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="curie.Calibration.plot">
-<code class="descname">plot</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Calibration.plot" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="curie.Calibration.plot">
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration.plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Calibration.plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plots energy, resolution and efficiency calibrations</p>
 <p>Draws all three of energy, resolution and efficiency calibrations on a 
 single figure, and shows measured values from peak data, if available.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name" colspan="2">Other Parameters:</th></tr>
-<tr class="field-odd field"><td>&#160;</td><td class="field-body"><dl class="first last docutils">
-<dt><strong>**kwargs</strong></dt>
-<dd><p class="first last">Optional keyword arguments for plotting.  See the 
+<dl class="field-list simple">
+<dt class="field-odd">Other Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>**kwargs</strong></dt><dd><p>Optional keyword arguments for plotting.  See the 
 plotting section of the curie API for a complete
 list of kwargs.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Spectrum</span><span class="p">(</span><span class="s1">&#39;eu_calib_7cm.Spe&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Spectrum</span><span class="p">(</span><span class="s1">&#39;eu_calib_7cm.Spe&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span><span class="o">.</span><span class="n">isotopes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;152EU&#39;</span><span class="p">]</span>
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cb</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Calibration</span><span class="p">()</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cb</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Calibration</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">cb</span><span class="o">.</span><span class="n">calibrate</span><span class="p">([</span><span class="n">sp</span><span class="p">],</span> <span class="n">sources</span><span class="o">=</span><span class="p">[{</span><span class="s1">&#39;isotope&#39;</span><span class="p">:</span><span class="s1">&#39;152EU&#39;</span><span class="p">,</span> <span class="s1">&#39;A0&#39;</span><span class="p">:</span><span class="mf">3.5E4</span><span class="p">,</span> <span class="s1">&#39;ref_date&#39;</span><span class="p">:</span><span class="s1">&#39;01/01/2009 12:00:00&#39;</span><span class="p">}])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">cb</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
 </pre></div>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="curie.Calibration.plot_effcal">
-<code class="descname">plot_effcal</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration.plot_effcal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Calibration.plot_effcal" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="curie.Calibration.plot_effcal">
+<span class="sig-name descname"><span class="pre">plot_effcal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration.plot_effcal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Calibration.plot_effcal" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the efficiency calibration</p>
 <p>Draws the efficiency calibration, with measurements from peak fit data if available.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name" colspan="2">Other Parameters:</th></tr>
-<tr class="field-odd field"><td>&#160;</td><td class="field-body"><dl class="first last docutils">
-<dt><strong>**kwargs</strong></dt>
-<dd><p class="first last">Optional keyword arguments for plotting.  See the 
+<dl class="field-list simple">
+<dt class="field-odd">Other Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>**kwargs</strong></dt><dd><p>Optional keyword arguments for plotting.  See the 
 plotting section of the curie API for a complete
 list of kwargs.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Spectrum</span><span class="p">(</span><span class="s1">&#39;eu_calib_7cm.Spe&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Spectrum</span><span class="p">(</span><span class="s1">&#39;eu_calib_7cm.Spe&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span><span class="o">.</span><span class="n">isotopes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;152EU&#39;</span><span class="p">]</span>
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cb</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Calibration</span><span class="p">()</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cb</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Calibration</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">cb</span><span class="o">.</span><span class="n">calibrate</span><span class="p">([</span><span class="n">sp</span><span class="p">],</span> <span class="n">sources</span><span class="o">=</span><span class="p">[{</span><span class="s1">&#39;isotope&#39;</span><span class="p">:</span><span class="s1">&#39;152EU&#39;</span><span class="p">,</span> <span class="s1">&#39;A0&#39;</span><span class="p">:</span><span class="mf">3.5E4</span><span class="p">,</span> <span class="s1">&#39;ref_date&#39;</span><span class="p">:</span><span class="s1">&#39;01/01/2009 12:00:00&#39;</span><span class="p">}])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">cb</span><span class="o">.</span><span class="n">plot_effcal</span><span class="p">()</span>
 </pre></div>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="curie.Calibration.plot_engcal">
-<code class="descname">plot_engcal</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration.plot_engcal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Calibration.plot_engcal" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="curie.Calibration.plot_engcal">
+<span class="sig-name descname"><span class="pre">plot_engcal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration.plot_engcal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Calibration.plot_engcal" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the energy calibration</p>
 <p>Draws the energy calibration, with measurements from peak fit data if available.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name" colspan="2">Other Parameters:</th></tr>
-<tr class="field-odd field"><td>&#160;</td><td class="field-body"><dl class="first last docutils">
-<dt><strong>**kwargs</strong></dt>
-<dd><p class="first last">Optional keyword arguments for plotting.  See the 
+<dl class="field-list simple">
+<dt class="field-odd">Other Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>**kwargs</strong></dt><dd><p>Optional keyword arguments for plotting.  See the 
 plotting section of the curie API for a complete
 list of kwargs.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Spectrum</span><span class="p">(</span><span class="s1">&#39;eu_calib_7cm.Spe&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Spectrum</span><span class="p">(</span><span class="s1">&#39;eu_calib_7cm.Spe&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span><span class="o">.</span><span class="n">isotopes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;152EU&#39;</span><span class="p">]</span>
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cb</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Calibration</span><span class="p">()</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cb</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Calibration</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">cb</span><span class="o">.</span><span class="n">calibrate</span><span class="p">([</span><span class="n">sp</span><span class="p">],</span> <span class="n">sources</span><span class="o">=</span><span class="p">[{</span><span class="s1">&#39;isotope&#39;</span><span class="p">:</span><span class="s1">&#39;152EU&#39;</span><span class="p">,</span> <span class="s1">&#39;A0&#39;</span><span class="p">:</span><span class="mf">3.5E4</span><span class="p">,</span> <span class="s1">&#39;ref_date&#39;</span><span class="p">:</span><span class="s1">&#39;01/01/2009 12:00:00&#39;</span><span class="p">}])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">cb</span><span class="o">.</span><span class="n">plot_engcal</span><span class="p">()</span>
 </pre></div>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="curie.Calibration.plot_rescal">
-<code class="descname">plot_rescal</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration.plot_rescal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Calibration.plot_rescal" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="curie.Calibration.plot_rescal">
+<span class="sig-name descname"><span class="pre">plot_rescal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration.plot_rescal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Calibration.plot_rescal" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the resolution calibration</p>
 <p>Draws the resolution calibration, with measurements from peak fit data if available.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name" colspan="2">Other Parameters:</th></tr>
-<tr class="field-odd field"><td>&#160;</td><td class="field-body"><dl class="first last docutils">
-<dt><strong>**kwargs</strong></dt>
-<dd><p class="first last">Optional keyword arguments for plotting.  See the 
+<dl class="field-list simple">
+<dt class="field-odd">Other Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>**kwargs</strong></dt><dd><p>Optional keyword arguments for plotting.  See the 
 plotting section of the curie API for a complete
 list of kwargs.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Spectrum</span><span class="p">(</span><span class="s1">&#39;eu_calib_7cm.Spe&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Spectrum</span><span class="p">(</span><span class="s1">&#39;eu_calib_7cm.Spe&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span><span class="o">.</span><span class="n">isotopes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;152EU&#39;</span><span class="p">]</span>
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cb</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Calibration</span><span class="p">()</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cb</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Calibration</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">cb</span><span class="o">.</span><span class="n">calibrate</span><span class="p">([</span><span class="n">sp</span><span class="p">],</span> <span class="n">sources</span><span class="o">=</span><span class="p">[{</span><span class="s1">&#39;isotope&#39;</span><span class="p">:</span><span class="s1">&#39;152EU&#39;</span><span class="p">,</span> <span class="s1">&#39;A0&#39;</span><span class="p">:</span><span class="mf">3.5E4</span><span class="p">,</span> <span class="s1">&#39;ref_date&#39;</span><span class="p">:</span><span class="s1">&#39;01/01/2009 12:00:00&#39;</span><span class="p">}])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">cb</span><span class="o">.</span><span class="n">plot_rescal</span><span class="p">()</span>
 </pre></div>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="curie.Calibration.res">
-<code class="descname">res</code><span class="sig-paren">(</span><em>channel</em>, <em>rescal=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration.res"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Calibration.res" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="curie.Calibration.res">
+<span class="sig-name descname"><span class="pre">res</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rescal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration.res"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Calibration.res" title="Permalink to this definition">¶</a></dt>
 <dd><p>Resolution calibration</p>
 <p>Calculates the expected 1-sigma peak widths for a given input array
 of channel numbers.  If <cite>rescal</cite> is given, it is used instead of
 the calibration object’s internal value (cb.rescal).</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>channel</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
-<dd><p class="first last">Spectrum channel number.  The maxi_MUm channel number should
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>channel</strong><span class="classifier">array_like</span></dt><dd><p>Spectrum channel number.  The maxi_MUm channel number should
 be the length of the spectrum.</p>
 </dd>
-<dt><strong>rescal</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like, optional</span></dt>
-<dd><p class="first last">Resolution calibration parameters.  length 2 array if resolution calibration is of the form
+<dt><strong>rescal</strong><span class="classifier">array_like, optional</span></dt><dd><p>Resolution calibration parameters.  length 2 array if resolution calibration is of the form
 R = a + b*chan (default), or length 1 if R = a*sqrt(chan).</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>resolution</strong> <span class="classifier-delimiter">:</span> <span class="classifier">np.ndarray</span></dt>
-<dd><p class="first last">Calculated 1-sigma width of the peaks given the input channel numbers.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>resolution</strong><span class="classifier">np.ndarray</span></dt><dd><p>Calculated 1-sigma width of the peaks given the input channel numbers.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cb</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Calibration</span><span class="p">()</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cb</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Calibration</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">cb</span><span class="o">.</span><span class="n">rescal</span><span class="p">)</span>
 <span class="go">[2.e+00 4.e-04]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">cb</span><span class="o">.</span><span class="n">res</span><span class="p">(</span><span class="mi">100</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">10</span><span class="p">)))</span>
@@ -494,83 +425,70 @@ R = a + b*chan (default), or length 1 if R = a*sqrt(chan).</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="curie.Calibration.saveas">
-<code class="descname">saveas</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration.saveas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Calibration.saveas" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="curie.Calibration.saveas">
+<span class="sig-name descname"><span class="pre">saveas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration.saveas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Calibration.saveas" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save the calibration as a .json file</p>
 <p>Saves the energy, resolution and efficiency calibration to a .json
 file, which can be recalled by a new calibration object by passing
 the ‘filename’ keyword to Calibration() upon construction.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>filename</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
-<dd><p class="first last">Complete filename to save the calibration. Must end in ‘.json’.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>filename</strong><span class="classifier">str</span></dt><dd><p>Complete filename to save the calibration. Must end in ‘.json’.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Spectrum</span><span class="p">(</span><span class="s1">&#39;eu_calib_7cm.Spe&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Spectrum</span><span class="p">(</span><span class="s1">&#39;eu_calib_7cm.Spe&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span><span class="o">.</span><span class="n">isotopes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;152EU&#39;</span><span class="p">]</span>
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cb</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Calibration</span><span class="p">()</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cb</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Calibration</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">cb</span><span class="o">.</span><span class="n">calibrate</span><span class="p">([</span><span class="n">sp</span><span class="p">],</span> <span class="n">sources</span><span class="o">=</span><span class="p">[{</span><span class="s1">&#39;isotope&#39;</span><span class="p">:</span><span class="s1">&#39;152EU&#39;</span><span class="p">,</span> <span class="s1">&#39;A0&#39;</span><span class="p">:</span><span class="mf">3.5E4</span><span class="p">,</span> <span class="s1">&#39;ref_date&#39;</span><span class="p">:</span><span class="s1">&#39;01/01/2009 12:00:00&#39;</span><span class="p">}])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">cb</span><span class="o">.</span><span class="n">effcal</span><span class="p">)</span>
 <span class="go">[4.33742771 2.28579733 0.15337749]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">cb</span><span class="o">.</span><span class="n">saveas</span><span class="p">(</span><span class="s1">&#39;example_calib.json&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cb</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Calibration</span><span class="p">(</span><span class="s1">&#39;example_calib.json&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cb</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Calibration</span><span class="p">(</span><span class="s1">&#39;example_calib.json&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">cb</span><span class="o">.</span><span class="n">effcal</span><span class="p">)</span>
 <span class="go">[4.33742771 2.28579733 0.15337749]</span>
 </pre></div>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="curie.Calibration.unc_eff">
-<code class="descname">unc_eff</code><span class="sig-paren">(</span><em>energy</em>, <em>effcal=None</em>, <em>unc_effcal=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration.unc_eff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Calibration.unc_eff" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="curie.Calibration.unc_eff">
+<span class="sig-name descname"><span class="pre">unc_eff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">effcal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unc_effcal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration.unc_eff"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Calibration.unc_eff" title="Permalink to this definition">¶</a></dt>
 <dd><p>Uncertainty in the efficiency</p>
 <p>Returns the calculated uncertainty in efficiency for an input
 array of energies.  If <cite>effcal</cite> or <cite>unc_effcal</cite> are not none,
 they are used instead of the calibration object’s internal
 values. (cb.unc_effcal)  unc_effcal _MUst be a covariance matrix of the
 same dimension as effcal.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>energy</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
-<dd><p class="first last">Peak energy in keV.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>energy</strong><span class="classifier">array_like</span></dt><dd><p>Peak energy in keV.</p>
 </dd>
-<dt><strong>effcal</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like, optional</span></dt>
-<dd><p class="first last">Efficiency calibration parameters. length 5 or 7 array, depending on whether the efficiency
+<dt><strong>effcal</strong><span class="classifier">array_like, optional</span></dt><dd><p>Efficiency calibration parameters. length 5 or 7 array, depending on whether the efficiency
 fit includes the low-energy components.</p>
 </dd>
-<dt><strong>unc_effcal</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like, optional</span></dt>
-<dd><p class="first last">Efficiency calibration covariance matrix. shape 5x5 or 7x7, depending on the length of effcal.</p>
+<dt><strong>unc_effcal</strong><span class="classifier">array_like, optional</span></dt><dd><p>Efficiency calibration covariance matrix. shape 5x5 or 7x7, depending on the length of effcal.</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>unc_efficiency</strong> <span class="classifier-delimiter">:</span> <span class="classifier">np.ndarray</span></dt>
-<dd><p class="first last">Absolute uncertainty in efficiency for the given energies.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>unc_efficiency</strong><span class="classifier">np.ndarray</span></dt><dd><p>Absolute uncertainty in efficiency for the given energies.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cb</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Calibration</span><span class="p">()</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cb</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Calibration</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">cb</span><span class="o">.</span><span class="n">effcal</span><span class="p">)</span>
 <span class="go">[0.02 8.3 2.1 1.66 0.4]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">cb</span><span class="o">.</span><span class="n">unc_effcal</span><span class="p">)</span>
@@ -591,14 +509,48 @@ fit includes the low-energy components.</p>
 
 </dd></dl>
 
-</div>
+</section>
 
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="../index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">Calibration</a><ul>
+<li><a class="reference internal" href="#curie.Calibration"><code class="docutils literal notranslate"><span class="pre">Calibration</span></code></a><ul>
+<li><a class="reference internal" href="#curie.Calibration.calibrate"><code class="docutils literal notranslate"><span class="pre">Calibration.calibrate()</span></code></a></li>
+<li><a class="reference internal" href="#curie.Calibration.eff"><code class="docutils literal notranslate"><span class="pre">Calibration.eff()</span></code></a></li>
+<li><a class="reference internal" href="#curie.Calibration.eng"><code class="docutils literal notranslate"><span class="pre">Calibration.eng()</span></code></a></li>
+<li><a class="reference internal" href="#curie.Calibration.map_channel"><code class="docutils literal notranslate"><span class="pre">Calibration.map_channel()</span></code></a></li>
+<li><a class="reference internal" href="#curie.Calibration.plot"><code class="docutils literal notranslate"><span class="pre">Calibration.plot()</span></code></a></li>
+<li><a class="reference internal" href="#curie.Calibration.plot_effcal"><code class="docutils literal notranslate"><span class="pre">Calibration.plot_effcal()</span></code></a></li>
+<li><a class="reference internal" href="#curie.Calibration.plot_engcal"><code class="docutils literal notranslate"><span class="pre">Calibration.plot_engcal()</span></code></a></li>
+<li><a class="reference internal" href="#curie.Calibration.plot_rescal"><code class="docutils literal notranslate"><span class="pre">Calibration.plot_rescal()</span></code></a></li>
+<li><a class="reference internal" href="#curie.Calibration.res"><code class="docutils literal notranslate"><span class="pre">Calibration.res()</span></code></a></li>
+<li><a class="reference internal" href="#curie.Calibration.saveas"><code class="docutils literal notranslate"><span class="pre">Calibration.saveas()</span></code></a></li>
+<li><a class="reference internal" href="#curie.Calibration.unc_eff"><code class="docutils literal notranslate"><span class="pre">Calibration.unc_eff()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="reaction.html"
+                          title="previous chapter">Reaction</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="spectrum.html"
+                          title="next chapter">Spectrum</a></p>
+  </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -607,17 +559,15 @@ fit includes the low-energy components.</p>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -628,13 +578,20 @@ fit includes the low-energy components.</p>
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              >index</a></li>
+        <li class="right" >
+          <a href="spectrum.html" title="Spectrum"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="reaction.html" title="Reaction"
+             >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">Curie 0.0.15 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="index.html" >API</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="index.html" >API</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Calibration</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2020, Jonathan Morrell.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.3.
+    &#169; Copyright 2020, Jonathan Morrell.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
     </div>
   </body>
 </html>

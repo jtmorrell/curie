@@ -1,23 +1,22 @@
+<!DOCTYPE html>
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html lang="en">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
     <title>Reaction &#8212; Curie 0.0.15 documentation</title>
-    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b76e3c8a" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css?v=89b800e6" />
     
-    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=8810cfe0"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
     
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" /> 
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Calibration" href="calibration.html" />
+    <link rel="prev" title="Library" href="library.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -25,8 +24,15 @@
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="calibration.html" title="Calibration"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="library.html" title="Library"
+             accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">Curie 0.0.15 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">API</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">API</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Reaction</a></li> 
       </ul>
     </div>  
 
@@ -35,36 +41,30 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="reaction">
-<span id="id1"></span><h1>Reaction<a class="headerlink" href="#reaction" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
-<dt id="curie.Reaction">
-<em class="property">class </em><code class="descclassname">curie.</code><code class="descname">Reaction</code><span class="sig-paren">(</span><em>reaction_name</em>, <em>library='best'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/reaction.html#Reaction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Reaction" title="Permalink to this definition">¶</a></dt>
+  <section id="reaction">
+<span id="id1"></span><h1>Reaction<a class="headerlink" href="#reaction" title="Permalink to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="curie.Reaction">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">curie.</span></span><span class="sig-name descname"><span class="pre">Reaction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reaction_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">library</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'best'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/reaction.html#Reaction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Reaction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Cross section data for nuclear reactions</p>
 <p>Contains reaction cross sections as a function of incident energy,
 and some useful methods for manipulating cross section data, such as
 flux-averages, integrated cross-sections, and interpolation.  All 
 cross sections (and uncertainties) are in mb, and all energies are
 in MeV.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>reaction_name</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
-<dd><p class="first last">Name of the reaction, in nuclear reaction notation. E.g. ‘115IN(n,g)’,
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>reaction_name</strong><span class="classifier">str</span></dt><dd><p>Name of the reaction, in nuclear reaction notation. E.g. ‘115IN(n,g)’,
 ‘235U(n,f)’, ‘139LA(p,x)134CE’, ‘Ra-226(n,2n)Ra-225’, ‘Al-27(n,a)’, etc.</p>
 </dd>
-<dt><strong>library</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
-<dd><p class="first last">Name of the library to use, or ‘best’ (default).</p>
+<dt><strong>library</strong><span class="classifier">str, optional</span></dt><dd><p>Name of the library to use, or ‘best’ (default).</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rx</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Reaction</span><span class="p">(</span><span class="s1">&#39;226RA(n,2n)&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rx</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Reaction</span><span class="p">(</span><span class="s1">&#39;226RA(n,2n)&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">rx</span><span class="o">.</span><span class="n">library</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 <span class="go">ENDF/B-VII.1</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">rx</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Reaction</span><span class="p">(</span><span class="s1">&#39;226RA(n,x)225RA&#39;</span><span class="p">)</span>
@@ -75,109 +75,83 @@ in MeV.</p>
 <span class="go">IRDFF-II</span>
 </pre></div>
 </div>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>target</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
-<dd><p class="first last">The target nucleus.  Some libraries support natural elements, e.g. ‘natEl’.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>target</strong><span class="classifier">str</span></dt><dd><p>The target nucleus.  Some libraries support natural elements, e.g. ‘natEl’.</p>
 </dd>
-<dt><strong>incident</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
-<dd><p class="first last">Incident particle. E.g. ‘n’, ‘p’, ‘d’.</p>
+<dt><strong>incident</strong><span class="classifier">str</span></dt><dd><p>Incident particle. E.g. ‘n’, ‘p’, ‘d’.</p>
 </dd>
-<dt><strong>outgoing</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
-<dd><p class="first last">Outgoing particle, or reaction shorthand.  E.g. ‘2n’, ‘d’, ‘f’, ‘inl’, ‘x’.
+<dt><strong>outgoing</strong><span class="classifier">str</span></dt><dd><p>Outgoing particle, or reaction shorthand.  E.g. ‘2n’, ‘d’, ‘f’, ‘inl’, ‘x’.
 Will always be ‘x’ for (TENDL) residual product libraries.</p>
 </dd>
-<dt><strong>product</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
-<dd><p class="first last">The product isotope.</p>
+<dt><strong>product</strong><span class="classifier">str</span></dt><dd><p>The product isotope.</p>
 </dd>
-<dt><strong>eng</strong> <span class="classifier-delimiter">:</span> <span class="classifier">np.ndarray</span></dt>
-<dd><p class="first last">Incident particle energy, in MeV.</p>
+<dt><strong>eng</strong><span class="classifier">np.ndarray</span></dt><dd><p>Incident particle energy, in MeV.</p>
 </dd>
-<dt><strong>xs</strong> <span class="classifier-delimiter">:</span> <span class="classifier">np.ndarray</span></dt>
-<dd><p class="first last">Reaction cross section, in mb.</p>
+<dt><strong>xs</strong><span class="classifier">np.ndarray</span></dt><dd><p>Reaction cross section, in mb.</p>
 </dd>
-<dt><strong>unc_xs</strong> <span class="classifier-delimiter">:</span> <span class="classifier">np.ndarray</span></dt>
-<dd><p class="first last">Uncertainty in the cross section, in mb.  If not provided by the
+<dt><strong>unc_xs</strong><span class="classifier">np.ndarray</span></dt><dd><p>Uncertainty in the cross section, in mb.  If not provided by the
 library, default is zeros of same shape as xs.</p>
 </dd>
-<dt><strong>name</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
-<dd><p class="first last">Name of the reaction in nuclear reaction notation.</p>
+<dt><strong>name</strong><span class="classifier">str</span></dt><dd><p>Name of the reaction in nuclear reaction notation.</p>
 </dd>
-<dt><strong>library</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ci.Library</span></dt>
-<dd><p class="first last">Nuclear reaction library.  printing <cite>rx.library.name</cite> will give the
+<dt><strong>library</strong><span class="classifier">ci.Library</span></dt><dd><p>Nuclear reaction library.  printing <cite>rx.library.name</cite> will give the
 name of the library.</p>
 </dd>
-<dt><strong>TeX</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
-<dd><p class="first last">LaTeX formatted reaction name.</p>
+<dt><strong>TeX</strong><span class="classifier">str</span></dt><dd><p>LaTeX formatted reaction name.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Methods</p>
-<table border="1" class="longtable docutils">
-<colgroup>
-<col width="10%" />
-<col width="90%" />
-</colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#curie.Reaction.average" title="curie.Reaction.average"><code class="xref py py-obj docutils literal notranslate"><span class="pre">average</span></code></a>(energy,&nbsp;flux[,&nbsp;unc])</td>
-<td>Flux averaged reaction cross section</td>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#curie.Reaction.average" title="curie.Reaction.average"><code class="xref py py-obj docutils literal notranslate"><span class="pre">average</span></code></a>(energy, flux[, unc])</p></td>
+<td><p>Flux averaged reaction cross section</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#curie.Reaction.integrate" title="curie.Reaction.integrate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">integrate</span></code></a>(energy,&nbsp;flux[,&nbsp;unc])</td>
-<td>Reaction flux integral</td>
+<tr class="row-even"><td><p><a class="reference internal" href="#curie.Reaction.integrate" title="curie.Reaction.integrate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">integrate</span></code></a>(energy, flux[, unc])</p></td>
+<td><p>Reaction flux integral</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#curie.Reaction.interpolate" title="curie.Reaction.interpolate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">interpolate</span></code></a>(energy)</td>
-<td>Interpolated cross section</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#curie.Reaction.interpolate" title="curie.Reaction.interpolate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">interpolate</span></code></a>(energy)</p></td>
+<td><p>Interpolated cross section</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#curie.Reaction.interpolate_unc" title="curie.Reaction.interpolate_unc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">interpolate_unc</span></code></a>(energy)</td>
-<td>Uncertainty in interpolated cross section</td>
+<tr class="row-even"><td><p><a class="reference internal" href="#curie.Reaction.interpolate_unc" title="curie.Reaction.interpolate_unc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">interpolate_unc</span></code></a>(energy)</p></td>
+<td><p>Uncertainty in interpolated cross section</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#curie.Reaction.plot" title="curie.Reaction.plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot</span></code></a>([energy,&nbsp;label,&nbsp;title])</td>
-<td>Plot the cross section</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#curie.Reaction.plot" title="curie.Reaction.plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot</span></code></a>([energy, label, title])</p></td>
+<td><p>Plot the cross section</p></td>
 </tr>
 </tbody>
 </table>
-<dl class="method">
-<dt id="curie.Reaction.average">
-<code class="descname">average</code><span class="sig-paren">(</span><em>energy</em>, <em>flux</em>, <em>unc=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/reaction.html#Reaction.average"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Reaction.average" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="curie.Reaction.average">
+<span class="sig-name descname"><span class="pre">average</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flux</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/reaction.html#Reaction.average"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Reaction.average" title="Permalink to this definition">¶</a></dt>
 <dd><p>Flux averaged reaction cross section</p>
 <p>Calculates the flux-weighted average reaction cross section, using the
 input flux and energy grid.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>energy</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
-<dd><p class="first last">Incident particle energy, in MeV.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>energy</strong><span class="classifier">array_like</span></dt><dd><p>Incident particle energy, in MeV.</p>
 </dd>
-<dt><strong>flux</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
-<dd><p class="first last">Incident particle flux as a function of the input energy grid.</p>
+<dt><strong>flux</strong><span class="classifier">array_like</span></dt><dd><p>Incident particle flux as a function of the input energy grid.</p>
 </dd>
-<dt><strong>unc</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
-<dd><p class="first last">If <cite>True</cite>, returns the both the flux average cross section and the uncertainty. If <cite>False</cite>,
+<dt><strong>unc</strong><span class="classifier">bool, optional</span></dt><dd><p>If <cite>True</cite>, returns the both the flux average cross section and the uncertainty. If <cite>False</cite>,
 just the average cross section is returned. Default <cite>False</cite>.</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>average_xs</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float or tuple</span></dt>
-<dd><p class="first last">Flux-averaged reaction cross section if <cite>unc=False</cite> (default), or average
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>average_xs</strong><span class="classifier">float or tuple</span></dt><dd><p>Flux-averaged reaction cross section if <cite>unc=False</cite> (default), or average
 and uncertainty, if <cite>unc=True</cite>.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rx</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Reaction</span><span class="p">(</span><span class="s1">&#39;Ni-58(n,p)&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rx</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Reaction</span><span class="p">(</span><span class="s1">&#39;Ni-58(n,p)&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">eng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">phi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">rx</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">eng</span><span class="p">,</span> <span class="n">phi</span><span class="p">))</span>
@@ -188,41 +162,33 @@ and uncertainty, if <cite>unc=True</cite>.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="curie.Reaction.integrate">
-<code class="descname">integrate</code><span class="sig-paren">(</span><em>energy</em>, <em>flux</em>, <em>unc=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/reaction.html#Reaction.integrate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Reaction.integrate" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="curie.Reaction.integrate">
+<span class="sig-name descname"><span class="pre">integrate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flux</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/reaction.html#Reaction.integrate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Reaction.integrate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reaction flux integral</p>
 <p>Integrate the product of the cross section and flux along the input energy grid.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>energy</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
-<dd><p class="first last">Incident particle energy, in MeV.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>energy</strong><span class="classifier">array_like</span></dt><dd><p>Incident particle energy, in MeV.</p>
 </dd>
-<dt><strong>flux</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
-<dd><p class="first last">Incident particle flux as a function of the input energy grid.</p>
+<dt><strong>flux</strong><span class="classifier">array_like</span></dt><dd><p>Incident particle flux as a function of the input energy grid.</p>
 </dd>
-<dt><strong>unc</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
-<dd><p class="first last">If <cite>True</cite>, returns the both the flux integral and the uncertainty. If <cite>False</cite>,
+<dt><strong>unc</strong><span class="classifier">bool, optional</span></dt><dd><p>If <cite>True</cite>, returns the both the flux integral and the uncertainty. If <cite>False</cite>,
 just the flux integral is returned. Default <cite>False</cite>.</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>xs_integral</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float or tuple</span></dt>
-<dd><p class="first last">Reaction flux integral if <cite>unc=False</cite> (default), or reaction flux integral
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>xs_integral</strong><span class="classifier">float or tuple</span></dt><dd><p>Reaction flux integral if <cite>unc=False</cite> (default), or reaction flux integral
 and uncertainty, if <cite>unc=True</cite>.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Reaction</span><span class="p">(</span><span class="s1">&#39;Ni-58(n,p)&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Reaction</span><span class="p">(</span><span class="s1">&#39;Ni-58(n,p)&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">eng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">phi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">rx</span><span class="o">.</span><span class="n">integrate</span><span class="p">(</span><span class="n">eng</span><span class="p">,</span> <span class="n">phi</span><span class="p">))</span>
@@ -233,34 +199,28 @@ and uncertainty, if <cite>unc=True</cite>.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="curie.Reaction.interpolate">
-<code class="descname">interpolate</code><span class="sig-paren">(</span><em>energy</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/reaction.html#Reaction.interpolate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Reaction.interpolate" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="curie.Reaction.interpolate">
+<span class="sig-name descname"><span class="pre">interpolate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/reaction.html#Reaction.interpolate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Reaction.interpolate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Interpolated cross section</p>
 <p>Linear interpolation of the reaction cross section along the
 input energy grid.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>energy</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
-<dd><p class="first last">Incident particle energy, in MeV.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>energy</strong><span class="classifier">array_like</span></dt><dd><p>Incident particle energy, in MeV.</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>cross_section</strong> <span class="classifier-delimiter">:</span> <span class="classifier">np.ndarray</span></dt>
-<dd><p class="first last">Interpolated cross section, in mb.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>cross_section</strong><span class="classifier">np.ndarray</span></dt><dd><p>Interpolated cross section, in mb.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rx</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Reaction</span><span class="p">(</span><span class="s1">&#39;115IN(n,g)&#39;</span><span class="p">,</span> <span class="s1">&#39;IRDFF&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rx</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Reaction</span><span class="p">(</span><span class="s1">&#39;115IN(n,g)&#39;</span><span class="p">,</span> <span class="s1">&#39;IRDFF&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">rx</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="mf">0.5</span><span class="p">))</span>
 <span class="go">161.41656650941306</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">rx</span><span class="o">.</span><span class="n">interpolate</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">]))</span>
@@ -269,34 +229,28 @@ input energy grid.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="curie.Reaction.interpolate_unc">
-<code class="descname">interpolate_unc</code><span class="sig-paren">(</span><em>energy</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/reaction.html#Reaction.interpolate_unc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Reaction.interpolate_unc" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="curie.Reaction.interpolate_unc">
+<span class="sig-name descname"><span class="pre">interpolate_unc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/reaction.html#Reaction.interpolate_unc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Reaction.interpolate_unc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Uncertainty in interpolated cross section</p>
 <p>Linear interpolation of the uncertainty in the reaction cross section
 along the input energy grid, for libraries where uncertainties are provided.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>energy</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
-<dd><p class="first last">Incident particle energy, in MeV.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>energy</strong><span class="classifier">array_like</span></dt><dd><p>Incident particle energy, in MeV.</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>unc_cross_section</strong> <span class="classifier-delimiter">:</span> <span class="classifier">np.ndarray</span></dt>
-<dd><p class="first last">Uncertainty in the interpolated cross section, in mb.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>unc_cross_section</strong><span class="classifier">np.ndarray</span></dt><dd><p>Uncertainty in the interpolated cross section, in mb.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rx</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Reaction</span><span class="p">(</span><span class="s1">&#39;115IN(n,g)&#39;</span><span class="p">,</span> <span class="s1">&#39;IRDFF&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rx</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Reaction</span><span class="p">(</span><span class="s1">&#39;115IN(n,g)&#39;</span><span class="p">,</span> <span class="s1">&#39;IRDFF&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">rx</span><span class="o">.</span><span class="n">interpolate_unc</span><span class="p">(</span><span class="mf">0.5</span><span class="p">))</span>
 <span class="go">3.9542683715745546</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">rx</span><span class="o">.</span><span class="n">interpolate_unc</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">]))</span>
@@ -305,46 +259,37 @@ along the input energy grid, for libraries where uncertainties are provided.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="curie.Reaction.plot">
-<code class="descname">plot</code><span class="sig-paren">(</span><em>energy=None</em>, <em>label='reaction'</em>, <em>title=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/reaction.html#Reaction.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Reaction.plot" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="curie.Reaction.plot">
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'reaction'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/reaction.html#Reaction.plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Reaction.plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the cross section</p>
 <p>Plots the energy differential cross section.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>energy</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like, optional</span></dt>
-<dd><p class="first last">Energy grid along which to plot the cross section.  If None, the
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>energy</strong><span class="classifier">array_like, optional</span></dt><dd><p>Energy grid along which to plot the cross section.  If None, the
 energy grid provided by the library will be used.</p>
 </dd>
-<dt><strong>label</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
-<dd><p class="first last">Axes label.  If label=’reaction’, the label will be the reaction name.
+<dt><strong>label</strong><span class="classifier">str, optional</span></dt><dd><p>Axes label.  If label=’reaction’, the label will be the reaction name.
 If ‘library’, it will be the name of the cross section library.
 If ‘both’, then the reaction name and library will be given.  If
 none of these options, pyplot will be called with <cite>ax.plot(…, label=label)</cite>.</p>
 </dd>
-<dt><strong>title</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
-<dd><p class="first last">Display the reaction name as the plot title.  Default, False.</p>
+<dt><strong>title</strong><span class="classifier">bool, optional</span></dt><dd><p>Display the reaction name as the plot title.  Default, False.</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name" colspan="2">Other Parameters:</th></tr>
-<tr class="field-even field"><td>&#160;</td><td class="field-body"><dl class="first last docutils">
-<dt><strong>**kwargs</strong></dt>
-<dd><p class="first last">Optional keyword arguments for plotting.  See the 
+</dd>
+<dt class="field-even">Other Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>**kwargs</strong></dt><dd><p>Optional keyword arguments for plotting.  See the 
 plotting section of the curie API for a complete
 list of kwargs.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rx</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Reaction</span><span class="p">(</span><span class="s1">&#39;115IN(n,g)&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rx</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Reaction</span><span class="p">(</span><span class="s1">&#39;115IN(n,g)&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">rx</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="s1">&#39;loglog&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">rx</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Reaction</span><span class="p">(</span><span class="s1">&#39;35CL(n,p)&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">f</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">rx</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">return_plot</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -356,14 +301,42 @@ list of kwargs.</p>
 
 </dd></dl>
 
-</div>
+</section>
 
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="../index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">Reaction</a><ul>
+<li><a class="reference internal" href="#curie.Reaction"><code class="docutils literal notranslate"><span class="pre">Reaction</span></code></a><ul>
+<li><a class="reference internal" href="#curie.Reaction.average"><code class="docutils literal notranslate"><span class="pre">Reaction.average()</span></code></a></li>
+<li><a class="reference internal" href="#curie.Reaction.integrate"><code class="docutils literal notranslate"><span class="pre">Reaction.integrate()</span></code></a></li>
+<li><a class="reference internal" href="#curie.Reaction.interpolate"><code class="docutils literal notranslate"><span class="pre">Reaction.interpolate()</span></code></a></li>
+<li><a class="reference internal" href="#curie.Reaction.interpolate_unc"><code class="docutils literal notranslate"><span class="pre">Reaction.interpolate_unc()</span></code></a></li>
+<li><a class="reference internal" href="#curie.Reaction.plot"><code class="docutils literal notranslate"><span class="pre">Reaction.plot()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="library.html"
+                          title="previous chapter">Library</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="calibration.html"
+                          title="next chapter">Calibration</a></p>
+  </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -372,17 +345,15 @@ list of kwargs.</p>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -393,13 +364,20 @@ list of kwargs.</p>
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              >index</a></li>
+        <li class="right" >
+          <a href="calibration.html" title="Calibration"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="library.html" title="Library"
+             >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">Curie 0.0.15 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="index.html" >API</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="index.html" >API</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Reaction</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2020, Jonathan Morrell.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.3.
+    &#169; Copyright 2020, Jonathan Morrell.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
     </div>
   </body>
 </html>

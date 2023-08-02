@@ -1,23 +1,22 @@
+<!DOCTYPE html>
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html lang="en">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
     <title>Spectrum &#8212; Curie 0.0.15 documentation</title>
-    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b76e3c8a" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css?v=89b800e6" />
     
-    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=8810cfe0"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
     
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" /> 
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Decay Chain" href="decaychain.html" />
+    <link rel="prev" title="Calibration" href="calibration.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -25,8 +24,15 @@
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="decaychain.html" title="Decay Chain"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="calibration.html" title="Calibration"
+             accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">Curie 0.0.15 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">API</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">API</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Spectrum</a></li> 
       </ul>
     </div>  
 
@@ -35,45 +41,36 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="spectrum">
-<span id="id1"></span><h1>Spectrum<a class="headerlink" href="#spectrum" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
-<dt id="curie.Spectrum">
-<em class="property">class </em><code class="descclassname">curie.</code><code class="descname">Spectrum</code><span class="sig-paren">(</span><em>filename=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/spectrum.html#Spectrum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Spectrum" title="Permalink to this definition">¶</a></dt>
+  <section id="spectrum">
+<span id="id1"></span><h1>Spectrum<a class="headerlink" href="#spectrum" title="Permalink to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="curie.Spectrum">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">curie.</span></span><span class="sig-name descname"><span class="pre">Spectrum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/spectrum.html#Spectrum"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Spectrum" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gamma-ray spectrum from High-Purity Germanium (HPGe) detectors</p>
 <p>Provides methods for reading, converting, and fitting gamma-ray spectra
 from HPGe data.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>filename</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
-<dd><p class="first last">File path to the gamma-ray spectrum.  Supported file types are Ortec .Spe
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>filename</strong><span class="classifier">str</span></dt><dd><p>File path to the gamma-ray spectrum.  Supported file types are Ortec .Spe
 and .Chn files.</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name" colspan="2">Other Parameters:</th></tr>
-<tr class="field-even field"><td>&#160;</td><td class="field-body"><dl class="first last docutils">
-<dt><strong>cb</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str or ci.Calibration</span></dt>
-<dd><p class="first last">Calibration to use, or path to a calibration .json file.</p>
 </dd>
-<dt><strong>isotopes</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
-<dd><p class="first last">List of gamma-decaying isotopes observed in the spectrum.</p>
+<dt class="field-even">Other Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>cb</strong><span class="classifier">str or ci.Calibration</span></dt><dd><p>Calibration to use, or path to a calibration .json file.</p>
 </dd>
-<dt><strong>fit_config</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
-<dd><p class="first last">Dictionary of fit configuration parameters passed as keyword arguments to
+<dt><strong>isotopes</strong><span class="classifier">list</span></dt><dd><p>List of gamma-decaying isotopes observed in the spectrum.</p>
+</dd>
+<dt><strong>fit_config</strong><span class="classifier">dict</span></dt><dd><p>Dictionary of fit configuration parameters passed as keyword arguments to
 <cite>self.fit_peaks()</cite>. See that function for more details on these arguments.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Spectrum</span><span class="p">(</span><span class="s1">&#39;eu_calib_7cm.Spe&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Spectrum</span><span class="p">(</span><span class="s1">&#39;eu_calib_7cm.Spe&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span><span class="o">.</span><span class="n">isotopes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Eu-152&#39;</span><span class="p">,</span> <span class="s1">&#39;40K&#39;</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span><span class="o">.</span><span class="n">cb</span> <span class="o">=</span> <span class="s1">&#39;example_calib.json&#39;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span><span class="o">.</span><span class="n">fit_config</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;bg&#39;</span><span class="p">:</span><span class="s1">&#39;quadratic&#39;</span><span class="p">,</span> <span class="s1">&#39;xrays&#39;</span><span class="p">:</span><span class="kc">False</span><span class="p">}</span>
@@ -81,38 +78,27 @@ and .Chn files.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Spectrum</span><span class="p">(</span><span class="s1">&#39;eu_calib_7cm.Chn&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>cb</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ci.Calibration</span></dt>
-<dd><p class="first last">Gamma-ray energy, efficiency and resolution calibration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>cb</strong><span class="classifier">ci.Calibration</span></dt><dd><p>Gamma-ray energy, efficiency and resolution calibration.</p>
 </dd>
-<dt><strong>isotopes</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
-<dd><p class="first last">List of gamma-decaying isotopes observed in the spectrum.</p>
+<dt><strong>isotopes</strong><span class="classifier">list</span></dt><dd><p>List of gamma-decaying isotopes observed in the spectrum.</p>
 </dd>
-<dt><strong>fit_config</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
-<dd><p class="first last">Dictionary of fit configuration parameters passed as keyword arguments to
+<dt><strong>fit_config</strong><span class="classifier">dict</span></dt><dd><p>Dictionary of fit configuration parameters passed as keyword arguments to
 <cite>self.fit_peaks()</cite>. See that function for more details on these arguments.</p>
 </dd>
-<dt><strong>filename</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
-<dd><p class="first last">File path to the gamma-ray spectrum.</p>
+<dt><strong>filename</strong><span class="classifier">str</span></dt><dd><p>File path to the gamma-ray spectrum.</p>
 </dd>
-<dt><strong>hist</strong> <span class="classifier-delimiter">:</span> <span class="classifier">np.ndarray</span></dt>
-<dd><p class="first last">Histogram of counts observed in the spectrum.</p>
+<dt><strong>hist</strong><span class="classifier">np.ndarray</span></dt><dd><p>Histogram of counts observed in the spectrum.</p>
 </dd>
-<dt><strong>start_time</strong> <span class="classifier-delimiter">:</span> <span class="classifier">datetime.datetime</span></dt>
-<dd><p class="first last">Date-time marking the start of the count.</p>
+<dt><strong>start_time</strong><span class="classifier">datetime.datetime</span></dt><dd><p>Date-time marking the start of the count.</p>
 </dd>
-<dt><strong>live_time</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">Total time the spectrum was counting, in seconds, minus the dead time.</p>
+<dt><strong>live_time</strong><span class="classifier">float</span></dt><dd><p>Total time the spectrum was counting, in seconds, minus the dead time.</p>
 </dd>
-<dt><strong>real_time</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">Total time the spectrum was counting, in seconds.</p>
+<dt><strong>real_time</strong><span class="classifier">float</span></dt><dd><p>Total time the spectrum was counting, in seconds.</p>
 </dd>
-<dt><strong>peaks</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pd.DataFrame</span></dt>
-<dd><p class="first last">Table of fits to the gamma-ray data.  Includes counts, isotopes, energies,
+<dt><strong>peaks</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Table of fits to the gamma-ray data.  Includes counts, isotopes, energies,
 intensities, efficiencies, calculated decays and decay-rates, chi^2, and other
 information.  The complete list of columns is ‘filename’, ‘isotope’, ‘energy’, ‘counts’,
 ‘unc_counts’, ‘intensity’, ‘unc_intensity’, ‘efficiency’, ‘unc_efficiency’,
@@ -120,46 +106,40 @@ information.  The complete list of columns is ‘filename’, ‘isotope’, ‘
 ‘live_time’, and ‘real_time’.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Methods</p>
-<table border="1" class="longtable docutils">
-<colgroup>
-<col width="10%" />
-<col width="90%" />
-</colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#curie.Spectrum.attenuation_correction" title="curie.Spectrum.attenuation_correction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">attenuation_correction</span></code></a>(compounds[,&nbsp;x,&nbsp;ad])</td>
-<td>Efficiency correction for sample attenuation</td>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#curie.Spectrum.attenuation_correction" title="curie.Spectrum.attenuation_correction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">attenuation_correction</span></code></a>(compounds[, x, ad])</p></td>
+<td><p>Efficiency correction for sample attenuation</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#curie.Spectrum.auto_calibrate" title="curie.Spectrum.auto_calibrate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">auto_calibrate</span></code></a>([guess,&nbsp;peaks])</td>
-<td>Attempt to automatically adjust the energy calibration</td>
+<tr class="row-even"><td><p><a class="reference internal" href="#curie.Spectrum.auto_calibrate" title="curie.Spectrum.auto_calibrate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">auto_calibrate</span></code></a>([guess, peaks])</p></td>
+<td><p>Attempt to automatically adjust the energy calibration</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#curie.Spectrum.fit_peaks" title="curie.Spectrum.fit_peaks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_peaks</span></code></a>([gammas])</td>
-<td>Fit the peaks in the spectrum</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#curie.Spectrum.fit_peaks" title="curie.Spectrum.fit_peaks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_peaks</span></code></a>([gammas])</p></td>
+<td><p>Fit the peaks in the spectrum</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#curie.Spectrum.geometry_correction" title="curie.Spectrum.geometry_correction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">geometry_correction</span></code></a>(distance,&nbsp;r_det,&nbsp;…[,&nbsp;…])</td>
-<td>Efficiency correction for sample geometry</td>
+<tr class="row-even"><td><p><a class="reference internal" href="#curie.Spectrum.geometry_correction" title="curie.Spectrum.geometry_correction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">geometry_correction</span></code></a>(distance, r_det, ...[, ...])</p></td>
+<td><p>Efficiency correction for sample geometry</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#curie.Spectrum.plot" title="curie.Spectrum.plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot</span></code></a>([fit,&nbsp;xcalib])</td>
-<td>Plot the spectrum</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#curie.Spectrum.plot" title="curie.Spectrum.plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot</span></code></a>([fit, xcalib])</p></td>
+<td><p>Plot the spectrum</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#curie.Spectrum.rebin" title="curie.Spectrum.rebin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rebin</span></code></a>(N_bins)</td>
-<td>Rebin the histogram</td>
+<tr class="row-even"><td><p><a class="reference internal" href="#curie.Spectrum.rebin" title="curie.Spectrum.rebin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rebin</span></code></a>(N_bins)</p></td>
+<td><p>Rebin the histogram</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#curie.Spectrum.saveas" title="curie.Spectrum.saveas"><code class="xref py py-obj docutils literal notranslate"><span class="pre">saveas</span></code></a>(filename[,&nbsp;replace])</td>
-<td>Save the spectrum or peak information to a file</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#curie.Spectrum.saveas" title="curie.Spectrum.saveas"><code class="xref py py-obj docutils literal notranslate"><span class="pre">saveas</span></code></a>(filename[, replace])</p></td>
+<td><p>Save the spectrum or peak information to a file</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#curie.Spectrum.summarize" title="curie.Spectrum.summarize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">summarize</span></code></a>()</td>
-<td>Summarize the fitted peaks in the spectrum</td>
+<tr class="row-even"><td><p><a class="reference internal" href="#curie.Spectrum.summarize" title="curie.Spectrum.summarize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">summarize</span></code></a>()</p></td>
+<td><p>Summarize the fitted peaks in the spectrum</p></td>
 </tr>
 </tbody>
 </table>
-<dl class="method">
-<dt id="curie.Spectrum.attenuation_correction">
-<code class="descname">attenuation_correction</code><span class="sig-paren">(</span><em>compounds</em>, <em>x=None</em>, <em>ad=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/spectrum.html#Spectrum.attenuation_correction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Spectrum.attenuation_correction" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="curie.Spectrum.attenuation_correction">
+<span class="sig-name descname"><span class="pre">attenuation_correction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">compounds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/spectrum.html#Spectrum.attenuation_correction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Spectrum.attenuation_correction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Efficiency correction for sample attenuation</p>
 <p>Corrects the efficiency used in calculating observed decays from each peak for
 sample attenuation.  A list of compounds (and their areal densities) is given,
@@ -172,46 +152,38 @@ of centimeters must be given for each compound, or the areal density in
 units of g/cm^2.  Note that calling <cite>sp.attenuation_correction()</cite> will modify
 the efficiencies/decays in the peak fits, but it also returns the correction
 factor function used to do so.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>compounds</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of str or ci.Compound</span></dt>
-<dd><p class="first last">List of compounds to correct for.  The first compound is assumed to be
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>compounds</strong><span class="classifier">list of str or ci.Compound</span></dt><dd><p>List of compounds to correct for.  The first compound is assumed to be
 the radiogenic sample (“self”), the following compounds are assumed to
 be between the source and detector.  If str, the compounds must be either
 a natural element, or be included in <cite>ci.COMPOUND_LIST</cite>.  They can also
 be a ci.Compound object.</p>
 </dd>
-<dt><strong>x</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of float</span></dt>
-<dd><p class="first last">List of the thicknesses (in cm) of each compound to be corrected for.
+<dt><strong>x</strong><span class="classifier">list of float</span></dt><dd><p>List of the thicknesses (in cm) of each compound to be corrected for.
 len(x) must be the same as len(compounds).
 If a density other than the density of the corresponding compound is
 desired, use the <cite>ad</cite> keyword.  Only one of <cite>x</cite> or <cite>ad</cite> should be given,
 but at least one is required.</p>
 </dd>
-<dt><strong>ad</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of float</span></dt>
-<dd><p class="first last">List of the areal densities (in g/cm^2) of each compound to be corrected
+<dt><strong>ad</strong><span class="classifier">list of float</span></dt><dd><p>List of the areal densities (in g/cm^2) of each compound to be corrected
 for.  len(ad) must be the same as len(compounds).  Only one of <cite>x</cite> or <cite>ad</cite>
 should be given, but at least one is required.</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>correction_factor</strong> <span class="classifier-delimiter">:</span> <span class="classifier">scipy.interpolate.interp1d</span></dt>
-<dd><p class="first last">Interpolation function that gives the correction factor
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>correction_factor</strong><span class="classifier">scipy.interpolate.interp1d</span></dt><dd><p>Interpolation function that gives the correction factor
 as a function of energy, in keV.  Correction factor should
 be multiplied with the efficiency.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Spectrum</span><span class="p">(</span><span class="s1">&#39;eu_calib_7cm.Spe&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Spectrum</span><span class="p">(</span><span class="s1">&#39;eu_calib_7cm.Spe&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">attenuation_correction</span><span class="p">([</span><span class="s1">&#39;Fe&#39;</span><span class="p">,</span> <span class="n">ci</span><span class="o">.</span><span class="n">Compound</span><span class="p">(</span><span class="s1">&#39;H2O&#39;</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)],</span> <span class="n">x</span><span class="o">=</span><span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">])(</span><span class="mi">100</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">)))</span>
 <span class="go">[0.79614452 0.88215107 0.90281046 0.91410313 0.92187566 0.92780998</span>
 <span class="go"> 0.93217524 0.9365405  0.93969564]</span>
@@ -222,9 +194,9 @@ be multiplied with the efficiency.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="curie.Spectrum.auto_calibrate">
-<code class="descname">auto_calibrate</code><span class="sig-paren">(</span><em>guess=None</em>, <em>peaks=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/spectrum.html#Spectrum.auto_calibrate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Spectrum.auto_calibrate" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="curie.Spectrum.auto_calibrate">
+<span class="sig-name descname"><span class="pre">auto_calibrate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">guess</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peaks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/spectrum.html#Spectrum.auto_calibrate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Spectrum.auto_calibrate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Attempt to automatically adjust the energy calibration</p>
 <p>Uses a genetic forward fitting algorithm to attempt to automatically
 adjust the energy calibration in cases where the peak centroids are
@@ -233,26 +205,20 @@ isotopes in the spectrum, so self.isotopes cannot be None.  Also,
 the feature will only make small adjustments to the calibration,
 so if the current calibration is greater than 0.5 percent off, 
 either a guess or a list of peak locations must be given</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>guess</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like, optional</span></dt>
-<dd><p class="first last">Guess parameters for the energy calibration. Must be a 
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>guess</strong><span class="classifier">array_like, optional</span></dt><dd><p>Guess parameters for the energy calibration. Must be a 
 length 2 or 3 array.  If None, the energy calibration
 from self.cb.engcal will be used.</p>
 </dd>
-<dt><strong>peaks</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like, optional</span></dt>
-<dd><p class="first last">List of peak locations.  Must be a 2-d array of format [[channel, energy], …]</p>
+<dt><strong>peaks</strong><span class="classifier">array_like, optional</span></dt><dd><p>List of peak locations.  Must be a 2-d array of format [[channel, energy], …]</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Spectrum</span><span class="p">(</span><span class="s1">&#39;eu_calib_7cm.Spe&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Spectrum</span><span class="p">(</span><span class="s1">&#39;eu_calib_7cm.Spe&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">cb</span><span class="o">.</span><span class="n">engcal</span><span class="p">)</span>
 <span class="go">[3.3973e-01 1.8297e-01 5.5683e-09]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span><span class="o">.</span><span class="n">cb</span><span class="o">.</span><span class="n">engcal</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.184</span><span class="p">]</span>
@@ -260,7 +226,7 @@ from self.cb.engcal will be used.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Spectrum</span><span class="p">(</span><span class="s1">&#39;eu_calib_7cm.Spe&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Spectrum</span><span class="p">(</span><span class="s1">&#39;eu_calib_7cm.Spe&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span><span class="o">.</span><span class="n">cb</span><span class="o">.</span><span class="n">engcal</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.1835</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span><span class="o">.</span><span class="n">isotopes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;152EU&#39;</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span><span class="o">.</span><span class="n">auto_calibrate</span><span class="p">()</span>
@@ -269,7 +235,7 @@ from self.cb.engcal will be used.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Spectrum</span><span class="p">(</span><span class="s1">&#39;eu_calib_7cm.Spe&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Spectrum</span><span class="p">(</span><span class="s1">&#39;eu_calib_7cm.Spe&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span><span class="o">.</span><span class="n">cb</span><span class="o">.</span><span class="n">engcal</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span><span class="o">.</span><span class="n">isotopes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;152EU&#39;</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span><span class="o">.</span><span class="n">auto_calibrate</span><span class="p">(</span><span class="n">peaks</span><span class="o">=</span><span class="p">[[</span><span class="mi">664</span><span class="p">,</span> <span class="mf">121.8</span><span class="p">]])</span>
@@ -278,7 +244,7 @@ from self.cb.engcal will be used.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Spectrum</span><span class="p">(</span><span class="s1">&#39;eu_calib_7cm.Spe&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Spectrum</span><span class="p">(</span><span class="s1">&#39;eu_calib_7cm.Spe&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span><span class="o">.</span><span class="n">cb</span><span class="o">.</span><span class="n">engcal</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span><span class="o">.</span><span class="n">isotopes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;152EU&#39;</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span><span class="o">.</span><span class="n">auto_calibrate</span><span class="p">(</span><span class="n">guess</span><span class="o">=</span><span class="p">[</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.1835</span><span class="p">])</span>
@@ -289,9 +255,9 @@ from self.cb.engcal will be used.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="curie.Spectrum.fit_peaks">
-<code class="descname">fit_peaks</code><span class="sig-paren">(</span><em>gammas=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/spectrum.html#Spectrum.fit_peaks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Spectrum.fit_peaks" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="curie.Spectrum.fit_peaks">
+<span class="sig-name descname"><span class="pre">fit_peaks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gammas</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/spectrum.html#Spectrum.fit_peaks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Spectrum.fit_peaks" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit the peaks in the spectrum</p>
 <p>Fits a multiplet of peaks, with configurable parameters, to the spectrum.
 The list of gammas can either be generated automatically by setting the
@@ -303,44 +269,34 @@ or <cite>Spectrum.plot()</cite> methods are called.  The peaks are then saved, a
 re-fit unless <cite>Spectrum.fit_peaks()</cite> (this method) is called explicitly.  This
 is important if parameters such as the calibration, isotopes, or fit_config are changed
 after the peaks are generated the first time.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>gammas</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list, dict or pd.DataFrame, optional</span></dt>
-<dd><p class="first last">Manual entry for specifying peaks in the spectrum. ‘gammas’ must be an
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>gammas</strong><span class="classifier">list, dict or pd.DataFrame, optional</span></dt><dd><p>Manual entry for specifying peaks in the spectrum. ‘gammas’ must be an
 object that can be converted into a pandas DataFrame, with the keywords
 ‘energy’, ‘intensity’, ‘unc_intensity’ and optionally ‘isotope’.  Units
 of intensity should be percent, units of energy should be keV.</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>peaks</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pd.DataFrame</span></dt>
-<dd><p class="first last">Table of peaks that were successfully fit.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>peaks</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Table of peaks that were successfully fit.</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name" colspan="2">Other Parameters:</th></tr>
-<tr class="field-odd field"><td>&#160;</td><td class="field-body"><dl class="first last docutils">
-<dt><strong>xrays</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
-<dd><p class="first last">Whether peak fits should include x-rays, as given by Nudat2. Default False.</p>
 </dd>
-<dt><strong>E_min</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">Minimum peak energy to fit, in keV. Default 75.0.</p>
+<dt class="field-odd">Other Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>xrays</strong><span class="classifier">bool</span></dt><dd><p>Whether peak fits should include x-rays, as given by Nudat2. Default False.</p>
 </dd>
-<dt><strong>I_min</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">Minimum peak intensity to fit, in percent. Default 0.05</p>
+<dt><strong>E_min</strong><span class="classifier">float</span></dt><dd><p>Minimum peak energy to fit, in keV. Default 75.0.</p>
 </dd>
-<dt><strong>dE_511</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">Gammas that are fewer than dE_511 keV from the 511 keV
+<dt><strong>I_min</strong><span class="classifier">float</span></dt><dd><p>Minimum peak intensity to fit, in percent. Default 0.05</p>
+</dd>
+<dt><strong>dE_511</strong><span class="classifier">float</span></dt><dd><p>Gammas that are fewer than dE_511 keV from the 511 keV
 annihilation peak are excluded from the fit. Default 3.5</p>
 </dd>
-<dt><strong>bg</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
-<dd><p class="first last">Type of background fit to use. Options are ‘constant’, ‘linear’,
+<dt><strong>bg</strong><span class="classifier">str</span></dt><dd><p>Type of background fit to use. Options are ‘constant’, ‘linear’,
 ‘quadratic’ or ‘snip’. Default ‘snip’.  The ‘snip’ algorithm interpolates 
 the background under the peaks using the detector resolution, and the
 assumption that the background is smoothly varying.  Will fail for
@@ -348,8 +304,7 @@ peaks that are on top of quickly varying features such as the electron
 backscatter peak, but has the benefit of removing a free parameter from
 the fit.</p>
 </dd>
-<dt><strong>skew_fit</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
-<dd><p class="first last">If skew_fit is True, the fit parameters include the skewed gaussian component,
+<dt><strong>skew_fit</strong><span class="classifier">bool</span></dt><dd><p>If skew_fit is True, the fit parameters include the skewed gaussian component,
 otherwise only the gaussian parameters are fit. Default False.  The skewed gaussian is 
 characterized by the parameters R and alpha, and has the functional
 form R*A*exp((x-mu)/(alpha*sig))*erfc((x-mu)/(sqrt(2)*sig)+1.0/(sqrt(2)*alpha))
@@ -358,8 +313,7 @@ peak function.  Note that unless R and alpha are explicitly set to zero, they
 will be included in the peak function.  skew_fit only specifies whether or not
 their values are to be fit for each peak.</p>
 </dd>
-<dt><strong>step_fit</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
-<dd><p class="first last">If step_fit is True, a step function is added to the background fit,
+<dt><strong>step_fit</strong><span class="classifier">bool</span></dt><dd><p>If step_fit is True, a step function is added to the background fit,
 which arises from compton scattering. Default False. The functional
 form of the step function is step*A*erfc((x-mu)/(sqrt(2)*sig)), where
 A, mu and sigma are the amplitude, centroid and width of the gaussian peak.
@@ -367,46 +321,34 @@ Similar to skew_fit, unless step is explicitly set to zero (it is by default),
 a step component is included in every peak.  step_fit only specifies whether or
 not the value of this parameter is fit for every peak.</p>
 </dd>
-<dt><strong>R</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">Expected value of R (amplitude of skewed component of gaussian). Default 0.1.</p>
+<dt><strong>R</strong><span class="classifier">float</span></dt><dd><p>Expected value of R (amplitude of skewed component of gaussian). Default 0.1.</p>
 </dd>
-<dt><strong>alpha</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">Expected value of alpha (width of skewed component of gaussian). Default 0.9.</p>
+<dt><strong>alpha</strong><span class="classifier">float</span></dt><dd><p>Expected value of alpha (width of skewed component of gaussian). Default 0.9.</p>
 </dd>
-<dt><strong>step</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">Expected value of step (amplitude of compton background). Default 0.0.</p>
+<dt><strong>step</strong><span class="classifier">float</span></dt><dd><p>Expected value of step (amplitude of compton background). Default 0.0.</p>
 </dd>
-<dt><strong>pk_width</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">Number of peak standard deviations (width) to include in the spectrum data passed to
+<dt><strong>pk_width</strong><span class="classifier">float</span></dt><dd><p>Number of peak standard deviations (width) to include in the spectrum data passed to
 the curve fit function. Default 7.5.  Should be wide enough such that several background
 channels not in the peak can be included in the fit.  If too wide, multiplets may
 begin to overlap.</p>
 </dd>
-<dt><strong>snip_adj</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">Multiplier for parameters in the snip background calculation. Default 1.0.</p>
+<dt><strong>snip_adj</strong><span class="classifier">float</span></dt><dd><p>Multiplier for parameters in the snip background calculation. Default 1.0.</p>
 </dd>
-<dt><strong>SNR_min</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">Minimum acceptable peak amplitude to noise (sqrt(background)) ratio. Default 4.0.</p>
+<dt><strong>SNR_min</strong><span class="classifier">float</span></dt><dd><p>Minimum acceptable peak amplitude to noise (sqrt(background)) ratio. Default 4.0.</p>
 </dd>
-<dt><strong>A_bound</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">Multiplier for the bounds on the fit parameter A (peak amplitude). Default 1.0.</p>
+<dt><strong>A_bound</strong><span class="classifier">float</span></dt><dd><p>Multiplier for the bounds on the fit parameter A (peak amplitude). Default 1.0.</p>
 </dd>
-<dt><strong>mu_bound</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">Multiplier for the bounds on the fit parameter mu (peak centroid). Default 1.0.</p>
+<dt><strong>mu_bound</strong><span class="classifier">float</span></dt><dd><p>Multiplier for the bounds on the fit parameter mu (peak centroid). Default 1.0.</p>
 </dd>
-<dt><strong>sig_bound</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">Multiplier for the bounds on the fit parameter sig (peak width). Default 1.0.</p>
+<dt><strong>sig_bound</strong><span class="classifier">float</span></dt><dd><p>Multiplier for the bounds on the fit parameter sig (peak width). Default 1.0.</p>
 </dd>
-<dt><strong>multi_max</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
-<dd><p class="first last">Maximum number of peaks allowed in a multiplet. Default 8.</p>
+<dt><strong>multi_max</strong><span class="classifier">int</span></dt><dd><p>Maximum number of peaks allowed in a multiplet. Default 8.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Spectrum</span><span class="p">(</span><span class="s1">&#39;eu_calib_7cm.Spe&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Spectrum</span><span class="p">(</span><span class="s1">&#39;eu_calib_7cm.Spe&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span><span class="o">.</span><span class="n">isotopes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;152EU&#39;</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">fit_peaks</span><span class="p">(</span><span class="n">SNR_min</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">dE_511</span><span class="o">=</span><span class="mi">12</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">fit_peaks</span><span class="p">(</span><span class="n">bg</span><span class="o">=</span><span class="s1">&#39;quadratic&#39;</span><span class="p">))</span>
@@ -414,9 +356,9 @@ begin to overlap.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="curie.Spectrum.geometry_correction">
-<code class="descname">geometry_correction</code><span class="sig-paren">(</span><em>distance</em>, <em>r_det</em>, <em>thickness</em>, <em>sample_size</em>, <em>shape='circle'</em>, <em>N=1000000</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/spectrum.html#Spectrum.geometry_correction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Spectrum.geometry_correction" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="curie.Spectrum.geometry_correction">
+<span class="sig-name descname"><span class="pre">geometry_correction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">distance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_det</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thickness</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'circle'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000000</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/spectrum.html#Spectrum.geometry_correction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Spectrum.geometry_correction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Efficiency correction for sample geometry</p>
 <p>Correction to the efficiency for non-point source geometries.
 The correction factor is a multiplier to the efficiency, that corrects
@@ -426,54 +368,43 @@ units, but they are assumed to all be in the same units system (e.g. they
 are all in cm, or inches).  Also, like the attenuation_correction, the
 correction factor is automatically applied to the peak data, but it
 is returned by the function as well.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>distance</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">Distance from the front of the sample to the detector.
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>distance</strong><span class="classifier">float</span></dt><dd><p>Distance from the front of the sample to the detector.
 Units must be consistent with other inputs.</p>
 </dd>
-<dt><strong>r_det</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">Radius of the detector. Units must be consistent with
+<dt><strong>r_det</strong><span class="classifier">float</span></dt><dd><p>Radius of the detector. Units must be consistent with
 other inputs.</p>
 </dd>
-<dt><strong>thickness</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">Thickness of the sample, in the same units as the
+<dt><strong>thickness</strong><span class="classifier">float</span></dt><dd><p>Thickness of the sample, in the same units as the
 other inputs.</p>
 </dd>
-<dt><strong>sample_size</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">Characteristic sample dimensions (in same units).  If
+<dt><strong>sample_size</strong><span class="classifier">float</span></dt><dd><p>Characteristic sample dimensions (in same units).  If
 shape is circle, this is sample radius.  If square, it
 is side length.  If rectangle, sample_size must be
 a length 2 tuple/array/list, corresponding to
 the x and y dimensions of the rectangle.</p>
 </dd>
-<dt><strong>shape</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
-<dd><p class="first last">Shape of the sample. Options are ‘circle’ (default),
+<dt><strong>shape</strong><span class="classifier">str, optional</span></dt><dd><p>Shape of the sample. Options are ‘circle’ (default),
 ‘square’ and ‘rectangle’.</p>
 </dd>
-<dt><strong>N</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, optional</span></dt>
-<dd><p class="first last">Number of particles to use in Monte-Carlo solid angle
+<dt><strong>N</strong><span class="classifier">int, optional</span></dt><dd><p>Number of particles to use in Monte-Carlo solid angle
 calculation.  Default is 1E6.  If the sampling error
 in the correction factor is greater than 1 percent,
 a warning will be given to increase N.</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>correction_factor</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">Geometry correction factor, to be multiplied with the efficiency.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>correction_factor</strong><span class="classifier">float</span></dt><dd><p>Geometry correction factor, to be multiplied with the efficiency.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Spectrum</span><span class="p">(</span><span class="s1">&#39;eu_calib_7cm.Spe&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Spectrum</span><span class="p">(</span><span class="s1">&#39;eu_calib_7cm.Spe&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">geometry_correction</span><span class="p">(</span><span class="n">distance</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">r_det</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">thickness</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">sample_size</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="s1">&#39;square&#39;</span><span class="p">))</span>
 <span class="go">0.9744182633801829</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">geometry_correction</span><span class="p">(</span><span class="n">distance</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">r_det</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">thickness</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">sample_size</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
@@ -484,44 +415,36 @@ a warning will be given to increase N.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="curie.Spectrum.plot">
-<code class="descname">plot</code><span class="sig-paren">(</span><em>fit=True</em>, <em>xcalib=True</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/spectrum.html#Spectrum.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Spectrum.plot" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="curie.Spectrum.plot">
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xcalib</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/spectrum.html#Spectrum.plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Spectrum.plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the spectrum</p>
 <p>Draws a plot of the spectrum, and any successful peak fits.  Peaks
 are colored by isotope, and a dashed grey line is drawn over multiplets
 to help evaluate goodness of fit.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>fit</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
-<dd><p class="first last">If True, include peak fits. Else, only the spectrum is drawn. Default, True.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>fit</strong><span class="classifier">bool, optional</span></dt><dd><p>If True, include peak fits. Else, only the spectrum is drawn. Default, True.</p>
 </dd>
-<dt><strong>xcalib</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
-<dd><p class="first last">If True, the x-axis is the calibrated energy in keV. If False, it is the 
+<dt><strong>xcalib</strong><span class="classifier">bool, optional</span></dt><dd><p>If True, the x-axis is the calibrated energy in keV. If False, it is the 
 ADC channel number.  This may help locate peaks to give the 
 <cite>Spectrum.auto_calibrate()</cite> function if the energy calibration is poor.
 Default, True.</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name" colspan="2">Other Parameters:</th></tr>
-<tr class="field-even field"><td>&#160;</td><td class="field-body"><dl class="first last docutils">
-<dt><strong>**kwargs</strong></dt>
-<dd><p class="first last">Optional keyword arguments for plotting.  See the 
+</dd>
+<dt class="field-even">Other Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>**kwargs</strong></dt><dd><p>Optional keyword arguments for plotting.  See the 
 plotting section of the curie API for a complete
 list of kwargs.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Spectrum</span><span class="p">(</span><span class="s1">&#39;eu_calib_7cm.Spe&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Spectrum</span><span class="p">(</span><span class="s1">&#39;eu_calib_7cm.Spe&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span><span class="o">.</span><span class="n">isotopes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;152EU&#39;</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xcalib</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -530,29 +453,24 @@ list of kwargs.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="curie.Spectrum.rebin">
-<code class="descname">rebin</code><span class="sig-paren">(</span><em>N_bins</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/spectrum.html#Spectrum.rebin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Spectrum.rebin" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="curie.Spectrum.rebin">
+<span class="sig-name descname"><span class="pre">rebin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N_bins</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/spectrum.html#Spectrum.rebin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Spectrum.rebin" title="Permalink to this definition">¶</a></dt>
 <dd><p>Rebin the histogram</p>
 <p>Rebins the histogram to the closest power of 2 to
 the given <cite>N_bins</cite>.  Energy and resolution calibrations
 will be adjusted to match the new bin length. Note N_bins must
 be less than the current histogram length.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>N_bins</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
-<dd><p class="first last">Number of desired bins. Rounds to closest power of 2, e.g. 1000 rounds to 1024.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>N_bins</strong><span class="classifier">int</span></dt><dd><p>Number of desired bins. Rounds to closest power of 2, e.g. 1000 rounds to 1024.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Spectrum</span><span class="p">(</span><span class="s1">&#39;eu_calib_7cm.Spe&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Spectrum</span><span class="p">(</span><span class="s1">&#39;eu_calib_7cm.Spe&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">hist</span><span class="p">))</span>
 <span class="go">16384</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span><span class="o">.</span><span class="n">rebin</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>
@@ -562,9 +480,9 @@ be less than the current histogram length.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="curie.Spectrum.saveas">
-<code class="descname">saveas</code><span class="sig-paren">(</span><em>filename</em>, <em>replace=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/spectrum.html#Spectrum.saveas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Spectrum.saveas" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="curie.Spectrum.saveas">
+<span class="sig-name descname"><span class="pre">saveas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/spectrum.html#Spectrum.saveas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Spectrum.saveas" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save the spectrum or peak information to a file</p>
 <p>If the file type is one of ‘.png’, ‘.pdf’, ‘.svg’ or another graphical
 file type, a plot of the spectrum will be saved.  If it is one of the supported
@@ -572,27 +490,21 @@ spectra formats, ‘.Spe’, ‘.Chn’ or ‘.spe’, the spectrum will be conv
 that only ‘.Spe’ and ‘.Chn’ can be read by ci.Spectrum.  If the file type is one of
 ‘.csv’, ‘.db’ or ‘.json’, the peak data will be saved.  All three can be read by the
 ci.DecayChain.get_counts method.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>filename</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
-<dd><p class="first last">Name of the file to save to. Supported file types are ‘.png’, ‘.pdf’, ‘.eps’, ‘.pgf’, ‘.ps’,
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>filename</strong><span class="classifier">str</span></dt><dd><p>Name of the file to save to. Supported file types are ‘.png’, ‘.pdf’, ‘.eps’, ‘.pgf’, ‘.ps’,
 ‘.raw’, ‘.rgba’, ‘.svg’, ‘.svgz’, ‘.Spe’, ‘.Chn’, ‘.spe’, ‘.csv’, ‘.json’, and ‘.db’.</p>
 </dd>
-<dt><strong>replace</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
-<dd><p class="first last">If True, when saving to one of the three supported peak data file types, any existing file
+<dt><strong>replace</strong><span class="classifier">bool, optional</span></dt><dd><p>If True, when saving to one of the three supported peak data file types, any existing file
 will be completely overwritten. If False, then only peak data that matches the spectrum
 name will be overwritten. Default, False.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Spectrum</span><span class="p">(</span><span class="s1">&#39;eu_calib_7cm.Spe&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Spectrum</span><span class="p">(</span><span class="s1">&#39;eu_calib_7cm.Spe&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span><span class="o">.</span><span class="n">isotopes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;152EU&#39;</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span><span class="o">.</span><span class="n">saveas</span><span class="p">(</span><span class="s1">&#39;test_plot.png&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span><span class="o">.</span><span class="n">saveas</span><span class="p">(</span><span class="s1">&#39;eu_calib.Chn&#39;</span><span class="p">)</span>
@@ -601,15 +513,15 @@ name will be overwritten. Default, False.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="curie.Spectrum.summarize">
-<code class="descname">summarize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/spectrum.html#Spectrum.summarize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#curie.Spectrum.summarize" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="curie.Spectrum.summarize">
+<span class="sig-name descname"><span class="pre">summarize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/spectrum.html#Spectrum.summarize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Spectrum.summarize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Summarize the fitted peaks in the spectrum</p>
 <p>Prints a summary of the observed counts in each peak, the
 number of decays of the given isotope it corresponds to, and an 
 estimate of the activity of the isotope.</p>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Spectrum</span><span class="p">(</span><span class="s1">&#39;eu_calib_7cm.Spe&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Spectrum</span><span class="p">(</span><span class="s1">&#39;eu_calib_7cm.Spe&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span><span class="o">.</span><span class="n">isotopes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;152EU&#39;</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span><span class="o">.</span><span class="n">summarize</span><span class="p">()</span>
 <span class="go">152EU - 121.7817 keV (I = 28.53%)</span>
@@ -619,21 +531,52 @@ estimate of the activity of the isotope.</p>
 <span class="go">activity (Bq): 1.025e+04 +/- 1.101e+03</span>
 <span class="go">activity (uCi): 2.770e-01 +/- 2.976e-02</span>
 <span class="go">chi2/dof: 21.923</span>
-<span class="gp">...</span>
+<span class="go">...</span>
 </pre></div>
 </div>
 </dd></dl>
 
 </dd></dl>
 
-</div>
+</section>
 
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="../index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">Spectrum</a><ul>
+<li><a class="reference internal" href="#curie.Spectrum"><code class="docutils literal notranslate"><span class="pre">Spectrum</span></code></a><ul>
+<li><a class="reference internal" href="#curie.Spectrum.attenuation_correction"><code class="docutils literal notranslate"><span class="pre">Spectrum.attenuation_correction()</span></code></a></li>
+<li><a class="reference internal" href="#curie.Spectrum.auto_calibrate"><code class="docutils literal notranslate"><span class="pre">Spectrum.auto_calibrate()</span></code></a></li>
+<li><a class="reference internal" href="#curie.Spectrum.fit_peaks"><code class="docutils literal notranslate"><span class="pre">Spectrum.fit_peaks()</span></code></a></li>
+<li><a class="reference internal" href="#curie.Spectrum.geometry_correction"><code class="docutils literal notranslate"><span class="pre">Spectrum.geometry_correction()</span></code></a></li>
+<li><a class="reference internal" href="#curie.Spectrum.plot"><code class="docutils literal notranslate"><span class="pre">Spectrum.plot()</span></code></a></li>
+<li><a class="reference internal" href="#curie.Spectrum.rebin"><code class="docutils literal notranslate"><span class="pre">Spectrum.rebin()</span></code></a></li>
+<li><a class="reference internal" href="#curie.Spectrum.saveas"><code class="docutils literal notranslate"><span class="pre">Spectrum.saveas()</span></code></a></li>
+<li><a class="reference internal" href="#curie.Spectrum.summarize"><code class="docutils literal notranslate"><span class="pre">Spectrum.summarize()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="calibration.html"
+                          title="previous chapter">Calibration</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="decaychain.html"
+                          title="next chapter">Decay Chain</a></p>
+  </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -642,17 +585,15 @@ estimate of the activity of the isotope.</p>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -663,13 +604,20 @@ estimate of the activity of the isotope.</p>
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              >index</a></li>
+        <li class="right" >
+          <a href="decaychain.html" title="Decay Chain"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="calibration.html" title="Calibration"
+             >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">Curie 0.0.15 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="index.html" >API</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="index.html" >API</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Spectrum</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2020, Jonathan Morrell.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.3.
+    &#169; Copyright 2020, Jonathan Morrell.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
     </div>
   </body>
 </html>

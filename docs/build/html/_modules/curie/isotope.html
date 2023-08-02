@@ -1,20 +1,16 @@
+<!DOCTYPE html>
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html lang="en">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>curie.isotope &#8212; Curie 0.0.15 documentation</title>
-    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b76e3c8a" />
+    <link rel="stylesheet" type="text/css" href="../../_static/classic.css?v=89b800e6" />
     
-    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=8810cfe0"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=4825356b"></script>
     
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -26,7 +22,8 @@
           <a href="../../genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="nav-item nav-item-0"><a href="../../index.html">Curie 0.0.15 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">curie.isotope</a></li> 
       </ul>
     </div>  
 
@@ -57,7 +54,7 @@
 			<span class="s1">&#39;Sg&#39;</span><span class="p">,</span><span class="s1">&#39;Bh&#39;</span><span class="p">,</span><span class="s1">&#39;Hs&#39;</span><span class="p">,</span><span class="s1">&#39;Mt&#39;</span><span class="p">,</span><span class="s1">&#39;Ds&#39;</span><span class="p">,</span><span class="s1">&#39;Rg&#39;</span><span class="p">,</span><span class="s1">&#39;Cn&#39;</span><span class="p">,</span><span class="s1">&#39;Nh&#39;</span><span class="p">,</span><span class="s1">&#39;Fl&#39;</span><span class="p">,</span><span class="s1">&#39;Mc&#39;</span><span class="p">,</span><span class="s1">&#39;Lv&#39;</span><span class="p">,</span><span class="s1">&#39;Ts&#39;</span><span class="p">]</span>
 
 <div class="viewcode-block" id="Isotope"><a class="viewcode-back" href="../../api/isotope.html#curie.Isotope">[docs]</a><span class="k">class</span> <span class="nc">Isotope</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-	<span class="sd">&quot;&quot;&quot;Retrieve isotopic structure and decay data</span>
+<span class="w">	</span><span class="sd">&quot;&quot;&quot;Retrieve isotopic structure and decay data</span>
 
 <span class="sd">	The Isotope class provides isotope specific nuclear data, such as masses,</span>
 <span class="sd">	abundances, half-lives, decay data and fission yields.  The main data souces </span>
@@ -240,7 +237,7 @@
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
 
 <div class="viewcode-block" id="Isotope.half_life"><a class="viewcode-back" href="../../api/isotope.html#curie.Isotope.half_life">[docs]</a>	<span class="k">def</span> <span class="nf">half_life</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="n">unc</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;Half-life of isotope</span>
+<span class="w">		</span><span class="sd">&quot;&quot;&quot;Half-life of isotope</span>
 
 <span class="sd">		Returns isotope half-life, in specified units, with or without uncertainty.</span>
 
@@ -285,7 +282,7 @@
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_t_half</span><span class="o">/</span><span class="n">half_conv</span></div>
 
 <div class="viewcode-block" id="Isotope.decay_const"><a class="viewcode-back" href="../../api/isotope.html#curie.Isotope.decay_const">[docs]</a>	<span class="k">def</span> <span class="nf">decay_const</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="n">unc</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;Decay constant of isotope</span>
+<span class="w">		</span><span class="sd">&quot;&quot;&quot;Decay constant of isotope</span>
 
 <span class="sd">		Returns isotope decay constant, in specified units, with or without uncertainty</span>
 
@@ -325,7 +322,7 @@
 		<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">half_life</span><span class="p">(</span><span class="n">units</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Isotope.optimum_units"><a class="viewcode-back" href="../../api/isotope.html#curie.Isotope.optimum_units">[docs]</a>	<span class="k">def</span> <span class="nf">optimum_units</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;Appropriate units for half-life </span>
+<span class="w">		</span><span class="sd">&quot;&quot;&quot;Appropriate units for half-life </span>
 
 <span class="sd">		Returns</span>
 <span class="sd">		-------</span>
@@ -351,7 +348,7 @@
 		<span class="k">return</span> <span class="n">opt</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="Isotope.get_SFY"><a class="viewcode-back" href="../../api/isotope.html#curie.Isotope.get_SFY">[docs]</a>	<span class="k">def</span> <span class="nf">get_SFY</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;Spontaneous fission yields</span>
+<span class="w">		</span><span class="sd">&quot;&quot;&quot;Spontaneous fission yields</span>
 
 <span class="sd">		Returns the absolute spontaneous fission yields (independent) for a given nuclide,</span>
 <span class="sd">		where available from ENDF.</span>
@@ -373,7 +370,7 @@
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_SFY</span></div>
 
 <div class="viewcode-block" id="Isotope.get_NFY"><a class="viewcode-back" href="../../api/isotope.html#curie.Isotope.get_NFY">[docs]</a>	<span class="k">def</span> <span class="nf">get_NFY</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">E</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;Neutron induced fission yields</span>
+<span class="w">		</span><span class="sd">&quot;&quot;&quot;Neutron induced fission yields</span>
 
 <span class="sd">		Returns the absolute neutron induced fission yields (independent) for a given nuclide,</span>
 <span class="sd">		where available from ENDF.</span>
@@ -399,7 +396,7 @@
 
 
 <div class="viewcode-block" id="Isotope.gammas"><a class="viewcode-back" href="../../api/isotope.html#curie.Isotope.gammas">[docs]</a>	<span class="k">def</span> <span class="nf">gammas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">I_lim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">E_lim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">xrays</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dE_511</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">istp_col</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;Gamma-rays emitted by the decay of the isotope</span>
+<span class="w">		</span><span class="sd">&quot;&quot;&quot;Gamma-rays emitted by the decay of the isotope</span>
 
 <span class="sd">		Returns a DataFrame of gamma-ray energies, intensities and intensity-uncertainties</span>
 <span class="sd">		based on an optional set of selection critieria.</span>
@@ -478,7 +475,7 @@
 		<span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Isotope.electrons"><a class="viewcode-back" href="../../api/isotope.html#curie.Isotope.electrons">[docs]</a>	<span class="k">def</span> <span class="nf">electrons</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">I_lim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">E_lim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">CE_only</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">Auger_only</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;Electrons (conversion and Auger) emitted by the decay of the isotope</span>
+<span class="w">		</span><span class="sd">&quot;&quot;&quot;Electrons (conversion and Auger) emitted by the decay of the isotope</span>
 
 <span class="sd">		Returns a DataFrame of electron energies, intensities and intensity-uncertainties</span>
 <span class="sd">		based on an optional set of selection critieria.</span>
@@ -540,7 +537,7 @@
 		<span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Isotope.beta_minus"><a class="viewcode-back" href="../../api/isotope.html#curie.Isotope.beta_minus">[docs]</a>	<span class="k">def</span> <span class="nf">beta_minus</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">I_lim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">Endpoint_lim</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;Electrons from beta-minus decay</span>
+<span class="w">		</span><span class="sd">&quot;&quot;&quot;Electrons from beta-minus decay</span>
 
 <span class="sd">		Returns a DataFrame of beta-minus mean and enpoint energies, intensities and</span>
 <span class="sd">		intensity-uncertainties based on an optional set of selection critieria.</span>
@@ -589,7 +586,7 @@
 		<span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;endpoint_energy&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Isotope.beta_plus"><a class="viewcode-back" href="../../api/isotope.html#curie.Isotope.beta_plus">[docs]</a>	<span class="k">def</span> <span class="nf">beta_plus</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">I_lim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">Endpoint_lim</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;Positrons from beta-plus decay</span>
+<span class="w">		</span><span class="sd">&quot;&quot;&quot;Positrons from beta-plus decay</span>
 
 <span class="sd">		Returns a DataFrame of beta-plus mean and enpoint energies, intensities and</span>
 <span class="sd">		intensity-uncertainties based on an optional set of selection critieria.</span>
@@ -638,7 +635,7 @@
 		<span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;endpoint_energy&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Isotope.alphas"><a class="viewcode-back" href="../../api/isotope.html#curie.Isotope.alphas">[docs]</a>	<span class="k">def</span> <span class="nf">alphas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">I_lim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">E_lim</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;Alpha-particles emitted by the decay of the isotope</span>
+<span class="w">		</span><span class="sd">&quot;&quot;&quot;Alpha-particles emitted by the decay of the isotope</span>
 
 <span class="sd">		Returns a DataFrame of alpha-particle energies, intensities and intensity-uncertainties</span>
 <span class="sd">		based on an optional set of selection critieria.</span>
@@ -687,7 +684,7 @@
 		<span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Isotope.dose_rate"><a class="viewcode-back" href="../../api/isotope.html#curie.Isotope.dose_rate">[docs]</a>	<span class="k">def</span> <span class="nf">dose_rate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">activity</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">distance</span><span class="o">=</span><span class="mf">30.0</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;R/hr&#39;</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;Dose-rate from a point source of the isotope</span>
+<span class="w">		</span><span class="sd">&quot;&quot;&quot;Dose-rate from a point source of the isotope</span>
 
 <span class="sd">		Assuming a point source with no attenuation, this function calculates the dose-rate</span>
 <span class="sd">		from each emitted particle type using a specified source activity and distance.</span>
@@ -777,23 +774,22 @@
 		<span class="k">return</span> <span class="n">dose</span></div></div>
 </pre></div>
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -805,12 +801,13 @@
           <a href="../../genindex.html" title="General Index"
              >index</a></li>
         <li class="nav-item nav-item-0"><a href="../../index.html">Curie 0.0.15 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">curie.isotope</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2020, Jonathan Morrell.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.3.
+    &#169; Copyright 2020, Jonathan Morrell.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
     </div>
   </body>
 </html>
