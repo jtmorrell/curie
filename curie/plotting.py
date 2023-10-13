@@ -34,7 +34,11 @@ DARK = """#16a085 #27ae60 #2980b9 #8e44ad #2c3e50 #f39c12 #d35400 #c0392b #bdc3c
 #00d8d6 #05c46b #0fbcf9 #3c40c6 #1e272e #ffd32a #ffa801 #ff3f34 #bdc3c7 #808e9b
 #67e6dc #3ae374 #17c0eb #7158e2 #3d3d3d #fff200 #ff9f1a #ff3838 #bdc3c7 #7f8c8d"""
 
-def colormap(palette='default', shade='dark', aslist=False):
+global CURRENT_PALETTE, CURRENT_SHADE
+CURRENT_PALETTE = 'default'
+CURRENT_SHADE = 'dark'
+
+def colormap(palette=None, shade=None, aslist=False):
 	"""Broad spectrum of hex-formatted colors for plotting
 
 	Function to provide a broad palette of colors for plotting, inspired by the
@@ -76,13 +80,23 @@ def colormap(palette='default', shade='dark', aslist=False):
 			'spanish','swedish','turkish']
 	cmap = ['aq','g','b','p','k','y','o','r','w','gy']
 
+	global CURRENT_PALETTE, CURRENT_SHADE
+	if palette is None:
+		palette = CURRENT_PALETTE
+	if shade is None:
+		shade = CURRENT_SHADE
+
 	if palette.lower() not in pmap:
 		palette = 'default'
+
 
 	if shade.lower()=='light':
 		cl = LIGHT.split('\n')[pmap.index(palette.lower())].split(' ')
 	else:
 		cl = DARK.split('\n')[pmap.index(palette.lower())].split(' ')
+
+	CURRENT_PALETTE = palette.lower()
+	CURRENT_SHADE = shade.lower()
 
 	if aslist:
 		return [cl[n] for n in [4,9,7,2,1,6,0,5,3]]
@@ -270,7 +284,12 @@ def _draw_plot(fig, axis, **kwargs):
 
 	if 'saveas' in kwargs:
 		if kwargs['saveas'] is not None:
-			f.savefig(kwargs['saveas'])
+			if kwargs['saveas'].endswith('.pickle'):
+				import pickle as pl
+				with open(kwargs['saveas'],'wb') as fl:
+					pl.dump(f, fl)
+			else:
+				f.savefig(kwargs['saveas'])
 
 
 	if 'return_plot' in kwargs:

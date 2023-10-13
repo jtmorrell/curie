@@ -1231,6 +1231,7 @@ class Spectrum(object):
 		xgrid = np.array([chan-0.5, chan+0.5]).T.flatten()
 		spec = np.array([self.hist, self.hist]).T.flatten()
 		erange = self.cb.eng(xgrid) if xcalib else xgrid
+		cm, cl = colormap(), colormap(aslist=True)
 
 		spec_label = self.filename.split('/')[-1] if self.filename is not None else None
 		ax.plot(erange, spec, lw=1.2, zorder=1, label=spec_label)
