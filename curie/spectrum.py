@@ -730,7 +730,7 @@ class Spectrum(object):
 		for n,i in enumerate(istp):
 			gm[n]['isotope'] = i
 		if gammas is not None:
-			gm_df = pd.DataFrame(gammas)
+			gm_df = pd.DataFrame(gammas, copy=True)
 			gm_df['intensity'] *= 1E-2
 			gm_df['unc_intensity'] *= 1E-2
 			for i in list(set(gammas['isotope'].to_list())):
