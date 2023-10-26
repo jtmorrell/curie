@@ -69,7 +69,11 @@
 <span class="s2">#00d8d6 #05c46b #0fbcf9 #3c40c6 #1e272e #ffd32a #ffa801 #ff3f34 #bdc3c7 #808e9b</span>
 <span class="s2">#67e6dc #3ae374 #17c0eb #7158e2 #3d3d3d #fff200 #ff9f1a #ff3838 #bdc3c7 #7f8c8d&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="colormap"><a class="viewcode-back" href="../../api/plotter.html#curie.colormap">[docs]</a><span class="k">def</span> <span class="nf">colormap</span><span class="p">(</span><span class="n">palette</span><span class="o">=</span><span class="s1">&#39;default&#39;</span><span class="p">,</span> <span class="n">shade</span><span class="o">=</span><span class="s1">&#39;dark&#39;</span><span class="p">,</span> <span class="n">aslist</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="k">global</span> <span class="n">CURRENT_PALETTE</span><span class="p">,</span> <span class="n">CURRENT_SHADE</span>
+<span class="n">CURRENT_PALETTE</span> <span class="o">=</span> <span class="s1">&#39;default&#39;</span>
+<span class="n">CURRENT_SHADE</span> <span class="o">=</span> <span class="s1">&#39;dark&#39;</span>
+
+<div class="viewcode-block" id="colormap"><a class="viewcode-back" href="../../api/plotter.html#curie.colormap">[docs]</a><span class="k">def</span> <span class="nf">colormap</span><span class="p">(</span><span class="n">palette</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">shade</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">aslist</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">	</span><span class="sd">&quot;&quot;&quot;Broad spectrum of hex-formatted colors for plotting</span>
 
 <span class="sd">	Function to provide a broad palette of colors for plotting, inspired by the</span>
@@ -111,13 +115,23 @@
 			<span class="s1">&#39;spanish&#39;</span><span class="p">,</span><span class="s1">&#39;swedish&#39;</span><span class="p">,</span><span class="s1">&#39;turkish&#39;</span><span class="p">]</span>
 	<span class="n">cmap</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;aq&#39;</span><span class="p">,</span><span class="s1">&#39;g&#39;</span><span class="p">,</span><span class="s1">&#39;b&#39;</span><span class="p">,</span><span class="s1">&#39;p&#39;</span><span class="p">,</span><span class="s1">&#39;k&#39;</span><span class="p">,</span><span class="s1">&#39;y&#39;</span><span class="p">,</span><span class="s1">&#39;o&#39;</span><span class="p">,</span><span class="s1">&#39;r&#39;</span><span class="p">,</span><span class="s1">&#39;w&#39;</span><span class="p">,</span><span class="s1">&#39;gy&#39;</span><span class="p">]</span>
 
+	<span class="k">global</span> <span class="n">CURRENT_PALETTE</span><span class="p">,</span> <span class="n">CURRENT_SHADE</span>
+	<span class="k">if</span> <span class="n">palette</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+		<span class="n">palette</span> <span class="o">=</span> <span class="n">CURRENT_PALETTE</span>
+	<span class="k">if</span> <span class="n">shade</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+		<span class="n">shade</span> <span class="o">=</span> <span class="n">CURRENT_SHADE</span>
+
 	<span class="k">if</span> <span class="n">palette</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">pmap</span><span class="p">:</span>
 		<span class="n">palette</span> <span class="o">=</span> <span class="s1">&#39;default&#39;</span>
+
 
 	<span class="k">if</span> <span class="n">shade</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">==</span><span class="s1">&#39;light&#39;</span><span class="p">:</span>
 		<span class="n">cl</span> <span class="o">=</span> <span class="n">LIGHT</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)[</span><span class="n">pmap</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">palette</span><span class="o">.</span><span class="n">lower</span><span class="p">())]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
 	<span class="k">else</span><span class="p">:</span>
 		<span class="n">cl</span> <span class="o">=</span> <span class="n">DARK</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)[</span><span class="n">pmap</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">palette</span><span class="o">.</span><span class="n">lower</span><span class="p">())]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+
+	<span class="n">CURRENT_PALETTE</span> <span class="o">=</span> <span class="n">palette</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+	<span class="n">CURRENT_SHADE</span> <span class="o">=</span> <span class="n">shade</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
 
 	<span class="k">if</span> <span class="n">aslist</span><span class="p">:</span>
 		<span class="k">return</span> <span class="p">[</span><span class="n">cl</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">3</span><span class="p">]]</span>
@@ -305,7 +319,12 @@
 
 	<span class="k">if</span> <span class="s1">&#39;saveas&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
 		<span class="k">if</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;saveas&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-			<span class="n">f</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;saveas&#39;</span><span class="p">])</span>
+			<span class="k">if</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;saveas&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.pickle&#39;</span><span class="p">):</span>
+				<span class="kn">import</span> <span class="nn">pickle</span> <span class="k">as</span> <span class="nn">pl</span>
+				<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;saveas&#39;</span><span class="p">],</span><span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fl</span><span class="p">:</span>
+					<span class="n">pl</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">fl</span><span class="p">)</span>
+			<span class="k">else</span><span class="p">:</span>
+				<span class="n">f</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;saveas&#39;</span><span class="p">])</span>
 
 
 	<span class="k">if</span> <span class="s1">&#39;return_plot&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
