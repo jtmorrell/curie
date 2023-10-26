@@ -53,7 +53,7 @@ from .reaction import Reaction
 
 from .stack import Stack
 
-__version__ = '0.0.18'
+__version__ = '0.0.20'
 __all__ = ['download', 'colormap', 'set_style', 
           'Isotope', 'Element', 'Compound', 
           'Spectrum', 'Calibration', 'DecayChain', 

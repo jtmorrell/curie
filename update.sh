@@ -7,11 +7,7 @@ rm -r curie.egg-info
 rm -r dist
 
 ##### To copy to local package index
-# rm -r ~/.local/lib/python2.7/site-packages/curie/
-# mkdir ~/.local/lib/python2.7/site-packages/curie
-# cp ./curie/* ~/.local/lib/python2.7/site-packages/curie/
-# cp -r ./curie/data ~/.local/lib/python2.7/site-packages/curie/data/
-# rm -r ~/.local/lib/python3.6/site-packages/curie/
-# mkdir ~/.local/lib/python3.6/site-packages/curie
-# cp ./curie/* ~/.local/lib/python3.6/site-packages/curie/
-# cp -r ./curie/data ~/.local/lib/python3.6/site-packages/curie/data/
+# rm -r ~/.local/lib/python3.10/site-packages/curie/
+# mkdir ~/.local/lib/python3.10/site-packages/curie
+# cp ./curie/* ~/.local/lib/python3.10/site-packages/curie/
+# cp -r ./curie/data ~/.local/lib/python3.10/site-packages/curie/data/

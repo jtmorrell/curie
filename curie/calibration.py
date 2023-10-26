@@ -513,8 +513,9 @@ class Calibration(object):
 			elif sources.endswith('.db'):
 				sources = pd.read_sql('SELECT * FROM sources', _get_connection(sources))
 		else:
-			if type(sources['A0'])==float:
-				sources['A0'] = [sources['A0']]
+			if type(sources)==dict:
+				if type(sources['A0'])==float:
+					sources['A0'] = [sources['A0']]
 			sources = pd.DataFrame(sources)
 		sources['ref_date'] = pd.to_datetime(sources['ref_date'], format='%m/%d/%Y %H:%M:%S')
 
