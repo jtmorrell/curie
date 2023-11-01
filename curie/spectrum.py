@@ -118,8 +118,7 @@ class Spectrum(object):
 					self._read_Chn(filename)
 				else:
 					raise ValueError('File type not supported: {}'.format(filename))
-				self._snip = self._snip_bg()
-				self._snip_interp = interp1d(np.arange(len(self.hist)), self._snip, bounds_error=False, fill_value=0.0)
+				self._snip_bg()
 			else:
 				raise ValueError('File does not exist: {}'.format(filename))
 
@@ -216,6 +215,9 @@ class Spectrum(object):
 		self._fits = None
 		for nm in _fit_config:
 			self._fit_config[nm] = _fit_config[nm]
+		if 'snip_adj' in _fit_config:
+			self._snip_bg()
+
 
 	@property
 	def isotopes(self):
@@ -250,8 +252,7 @@ class Spectrum(object):
 			if len(self.cb.engcal)==len(other.cb.engcal):
 				if len(np.where(self.cb.engcal==other.cb.engcal)[0])==len(self.cb.engcal):
 					self.hist += other.hist
-					self._snip = self._snip_bg()
-					self._snip_interp = interp1d(np.arange(len(self.hist)), self._snip, bounds_error=False, fill_value=0.0)
+					self._snip_bg()
 					return self
 
 		other_bins = other.cb.eng(np.arange(-0.5, len(other.hist)+0.5, 1.0))
@@ -266,9 +267,8 @@ class Spectrum(object):
 			e_grid = np.array([np.linspace(edges[0][n], edges[1][n], num=10) for n in range(len(edges[0]))])
 		N = np.asarray(np.trapz(f(e_grid), e_grid, axis=1), dtype=np.int64)
 		self.hist += np.random.poisson(N)
-		self._snip = self._snip_bg()
-		self._snip_interp = interp1d(np.arange(len(self.hist)), self._snip, bounds_error=False, fill_value=0.0)
-
+		self._snip_bg()
+		
 		return self
 		
 	def rebin(self, N_bins):
@@ -301,8 +301,7 @@ class Spectrum(object):
 
 		r = int(round(L/float(N_bins)))
 		self.hist = np.sum(self.hist.reshape((int(L/r), r)), axis=1)
-		self._snip = self._snip_bg()
-		self._snip_interp = interp1d(np.arange(len(self.hist)), self._snip, bounds_error=False, fill_value=0.0)
+		self._snip_bg()
 		
 		r = float(r)
 		ec = self.cb.engcal
@@ -494,7 +493,7 @@ class Spectrum(object):
 			V_i[dead:L] = np.minimum(V_i[dead:L], 0.5*(V_i[l[dead:L]]+V_i[h[dead:L]]))
 
 		snip = (np.exp(np.exp(V_i)-1.0)-1.0)**2-1.0
-		snip += adj*1.5*np.sqrt(snip+0.01)
+		snip += (1.5/adj)*np.sqrt(snip+0.01)
 
 		a1, a2 = 0.3/(adj*self.cb.res(0.1*L)), 0.3/(adj*self.cb.res(0.9*L))
 		wt1, wt2 = x[::-1]/x[-1], x/x[-1]
@@ -505,7 +504,9 @@ class Spectrum(object):
 			y = np.concatenate((np.ones(N)*x[0], x, np.ones(N)*x[-1]))
 			return np.dot(wts/np.sum(wts), np.take(y, [np.arange(i,len(x)+i) for i in range(2*N+1)]))
 
-		return wt1*exp_smooth(snip, a1) + wt2*exp_smooth(snip, a2)
+		self._snip = wt1*exp_smooth(snip, a1) + wt2*exp_smooth(snip, a2)
+		self._snip_interp = interp1d(np.arange(len(self.hist)), self._snip, bounds_error=False, fill_value=0.0)
+		return self._snip	
 
 
 	def _forward_fit(self, engcal=None):
