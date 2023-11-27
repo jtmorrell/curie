@@ -400,6 +400,7 @@ class DecayChain(object):
 		if N_c is not None:
 			if type(N_c)==pd.DataFrame:
 				self._counts = N_c.copy(deep=True)
+				self._counts['isotope'] = [self._filter_name(ip) for ip in self._counts['isotope']]
 
 			elif type(N_c)!=dict:
 				N_c = np.asarray(N_c)
@@ -527,7 +528,7 @@ class DecayChain(object):
 			df.append({'isotope':ip, 'R_avg':np.average(self.R[self.R['isotope']==ip]['R'], weights=time[1:]-time[:-1])})
 		return pd.DataFrame(df)
 		
-	def fit_R(self):
+	def fit_R(self, max_error=0.4, min_counts=1):
 		"""Fit the production rate to count data
 
 		Fits a scalar multiplier to the production rate (as a function of time) for
@@ -535,6 +536,16 @@ class DecayChain(object):
 		measured decays (self.counts) as a function of time, rather than the 
 		activity, because the activity at each time point may be sensitive to
 		the shape of the decay curve.
+
+		Parameters
+		----------
+		max_error : float, optional
+			The maximum relative error of a count datum to include in the fit. E.g. 0.25=25%
+			(ony points with less than 25% error will be shown). Default, 0.4 (40%).
+
+		min_counts : float or int, optional
+			The minimum number of counts (decays) for a datum in self.counts to be included
+			in the fit. Default, 1.
 
 		Returns
 		-------
@@ -566,6 +577,7 @@ class DecayChain(object):
 		X = []
 		R_isotopes = [i for i in self.isotopes if i in pd.unique(self.R['isotope'])]
 		time = np.insert(np.unique(self.R['time']), 0, [0.0])
+		filter_counts = self.counts[(self.counts['counts']>min_counts)&(self.counts['unc_counts']<max_error*self.counts['counts'])]
 
 		for ip in R_isotopes:
 			A0 = {p:0.0 for p in self.A0}
@@ -573,11 +585,11 @@ class DecayChain(object):
 				_R_dict = {ip:self.R[self.R['isotope']==ip].iloc[n]['R']}
 				A0 = {p:self.activity(p, dt, _R_dict=_R_dict, _A_dict=A0) for p in self.A0}
 
-			X.append([self.decays(c['isotope'], c['start'], c['stop'], _A_dict=A0) for n,c in self.counts.iterrows()])
+			X.append([self.decays(c['isotope'], c['start'], c['stop'], _A_dict=A0) for n,c in filter_counts.iterrows()])
 
 		X = np.array(X)
-		Y = self.counts['counts'].to_numpy()
-		dY = self.counts['unc_counts'].to_numpy()
+		Y = filter_counts['counts'].to_numpy()
+		dY = filter_counts['unc_counts'].to_numpy()
 
 		
 		wh = np.array([np.all(x>0) for x in X.T])
@@ -586,6 +598,7 @@ class DecayChain(object):
 
 		func = lambda X_f, *R_f: np.dot(np.asarray(R_f), X_f)
 		fit, cov = curve_fit(func, X, Y, sigma=dY, p0=p0, bounds=(0.0*p0, np.inf*p0))
+
 
 		for n,ip in enumerate(R_isotopes):
 			df_sub = self.R[self.R['isotope']==ip]
@@ -604,7 +617,7 @@ class DecayChain(object):
 			cov = np.ones(cov.shape)*((np.average(dY/Y))*fit)**2
 		return R_isotopes, R_norm, cov*(R_norm/fit)**2
 		
-	def fit_A0(self):
+	def fit_A0(self, max_error=0.4, min_counts=1):
 		"""Fit the initial activity to count data
 
 		Fits a scalar multiplier to the initial activity for
@@ -612,6 +625,16 @@ class DecayChain(object):
 		measured decays (self.counts) as a function of time, rather than the 
 		activity, because the activity at each time point may be sensitive to
 		the shape of the decay curve.
+
+		Parameters
+		----------
+		max_error : float, optional
+			The maximum relative error of a count datum to include in the fit. E.g. 0.25=25%
+			(ony points with less than 25% error will be shown). Default, 0.4 (40%).
+
+		min_counts : float or int, optional
+			The minimum number of counts (decays) for a datum in self.counts to be included
+			in the fit. Default, 1.
 
 		Returns
 		-------
@@ -642,13 +665,14 @@ class DecayChain(object):
 
 		X = []
 		A0_isotopes = [i for i in self.isotopes if i in self.A0]
+		filter_counts = self.counts[(self.counts['counts']>min_counts)&(self.counts['unc_counts']<max_error*self.counts['counts'])]
 		for ip in A0_isotopes:
 			A0 = {p:(self.A0[p] if p==ip else 0.0) for p in self.A0}
-			X.append([self.decays(c['isotope'], c['start'], c['stop'], _A_dict=A0) for n,c in self.counts.iterrows()])
+			X.append([self.decays(c['isotope'], c['start'], c['stop'], _A_dict=A0) for n,c in filter_counts.iterrows()])
 
 		X = np.array(X)
-		Y = self.counts['counts'].to_numpy()
-		dY = self.counts['unc_counts'].to_numpy()
+		Y = filter_counts['counts'].to_numpy()
+		dY = filter_counts['unc_counts'].to_numpy()
 
 		func = lambda X_f, *R_f: np.dot(np.asarray(R_f), X_f)
 		p0 = np.ones(len(X))

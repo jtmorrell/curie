@@ -123,7 +123,7 @@ Curie has the capability of calculating/fitting to any possible decay chain, usi
 	### Find the scaled production rate that gives us these counts
 	dc.fit_R()
 	### Only plot the 5 most active isotopes in the decay chain
-	dc.plot(N_plot=5)
+	dc.plot(max_plot=5)
 
 
 Nuclear Data Libraries

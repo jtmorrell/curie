@@ -130,10 +130,10 @@ modified if <cite>fit_R()</cite> is called.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#curie.DecayChain.decays" title="curie.DecayChain.decays"><code class="xref py py-obj docutils literal notranslate"><span class="pre">decays</span></code></a>(isotope, t_start, t_stop[, units, ...])</p></td>
 <td><p>Number of decays in a given time interval</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#curie.DecayChain.fit_A0" title="curie.DecayChain.fit_A0"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_A0</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#curie.DecayChain.fit_A0" title="curie.DecayChain.fit_A0"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_A0</span></code></a>([max_error, min_counts])</p></td>
 <td><p>Fit the initial activity to count data</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#curie.DecayChain.fit_R" title="curie.DecayChain.fit_R"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_R</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#curie.DecayChain.fit_R" title="curie.DecayChain.fit_R"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_R</span></code></a>([max_error, min_counts])</p></td>
 <td><p>Fit the production rate to count data</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#curie.DecayChain.get_counts" title="curie.DecayChain.get_counts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_counts</span></code></a>(spectra, EoB[, peak_data])</p></td>
@@ -224,7 +224,7 @@ as the decay chain, or be specified by the <cite>units</cite> keyword.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.DecayChain.fit_A0">
-<span class="sig-name descname"><span class="pre">fit_A0</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/decay_chain.html#DecayChain.fit_A0"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.DecayChain.fit_A0" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">fit_A0</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_counts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/decay_chain.html#DecayChain.fit_A0"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.DecayChain.fit_A0" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit the initial activity to count data</p>
 <p>Fits a scalar multiplier to the initial activity for
 each isotope specified in self.A0.  The fit minimizes to the number of
@@ -232,8 +232,18 @@ measured decays (self.counts) as a function of time, rather than the
 activity, because the activity at each time point may be sensitive to
 the shape of the decay curve.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
+<dt><strong>max_error</strong><span class="classifier">float, optional</span></dt><dd><p>The maximum relative error of a count datum to include in the fit. E.g. 0.25=25%
+(ony points with less than 25% error will be shown). Default, 0.4 (40%).</p>
+</dd>
+<dt><strong>min_counts</strong><span class="classifier">float or int, optional</span></dt><dd><p>The minimum number of counts (decays) for a datum in self.counts to be included
+in the fit. Default, 1.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
 <dt><strong>isotopes</strong><span class="classifier">list</span></dt><dd><p>List of isotopes where A0&gt;0.  Same indices as fit. (i.e. isotope[0] corresponds
 to fit[0] and cov[0][0].)</p>
 </dd>
@@ -259,7 +269,7 @@ to fit[0] and cov[0][0].)</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.DecayChain.fit_R">
-<span class="sig-name descname"><span class="pre">fit_R</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/decay_chain.html#DecayChain.fit_R"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.DecayChain.fit_R" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">fit_R</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_counts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/decay_chain.html#DecayChain.fit_R"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.DecayChain.fit_R" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit the production rate to count data</p>
 <p>Fits a scalar multiplier to the production rate (as a function of time) for
 each isotope specified in self.R.  The fit minimizes to the number of
@@ -267,8 +277,18 @@ measured decays (self.counts) as a function of time, rather than the
 activity, because the activity at each time point may be sensitive to
 the shape of the decay curve.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
+<dt><strong>max_error</strong><span class="classifier">float, optional</span></dt><dd><p>The maximum relative error of a count datum to include in the fit. E.g. 0.25=25%
+(ony points with less than 25% error will be shown). Default, 0.4 (40%).</p>
+</dd>
+<dt><strong>min_counts</strong><span class="classifier">float or int, optional</span></dt><dd><p>The minimum number of counts (decays) for a datum in self.counts to be included
+in the fit. Default, 1.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
 <dt>isotopes: list</dt><dd><p>List of isotopes where R&gt;0.  Same indices as fit. (i.e. isotope[0] corresponds
 to fit[0] and cov[0][0].)</p>
 </dd>
