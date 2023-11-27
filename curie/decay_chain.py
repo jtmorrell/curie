@@ -549,7 +549,7 @@ class DecayChain(object):
 
 		Returns
 		-------
-		isotopes: list
+		isotopes : list
 			List of isotopes where R>0.  Same indices as fit. (i.e. isotope[0] corresponds
 			to fit[0] and cov[0][0].)
 
