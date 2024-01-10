@@ -144,7 +144,7 @@ class Spectrum(object):
 					section = ln.strip()[1:-1]
 					if section=='DATA':
 						L = int(f.readline().strip().split()[1])+1
-						self.hist = np.fromfile(f, dtype=np.int64, count=L, sep='\n')
+						self.hist = np.array(np.fromfile(f, count=L, sep='\n'), dtype=np.int64)
 					else:
 						self._ortec_metadata[section] = []
 				else:
