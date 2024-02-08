@@ -154,7 +154,7 @@ class Spectrum(object):
 		self.start_time = dtm.datetime.strptime(self._ortec_metadata['DATE_MEA'][0], '%m/%d/%Y %H:%M:%S')
 		self.live_time, self.real_time = tuple(map(float, self._ortec_metadata['MEAS_TIM'][0].split()))
 
-		self.cb.engcal = list(map(float, self._ortec_metadata['MCA_CAL'][-1].split(' ')[:-1]))
+		self.cb.engcal = list(map(float, self._ortec_metadata['MCA_CAL'][-1].split(' ')[:3]))
 
 	def _read_Chn(self, filename):
 
@@ -775,7 +775,7 @@ class Spectrum(object):
 
 		p0 = []
 		for multi in multiplets:
-			p = {'df':multi, 'l':multi['l'].min(), 'h':multi['h'].max(), 'p0':[], 'bounds':[[],[]], 'istp':multi['isotope'].to_list()}
+			p = {'l':multi['l'].min(), 'h':multi['h'].max(), 'p0':[], 'bounds':[[],[]]}
 
 			bgf = self.fit_config['bg'].lower()
 			if bgf=='constant':
@@ -798,9 +798,31 @@ class Spectrum(object):
 			R, alpha, step = self.fit_config['R'], self.fit_config['alpha'], self.fit_config['step']
 			bA, bm, bs = 10.0*self.fit_config['A_bound'], 1.5*self.fit_config['mu_bound'], 1.5*self.fit_config['sig_bound']
 			for n,rw in multi.iterrows():
+				bA_m, bm_m = 1.0, 1.0
+				# CHECK FOR IDENTICAL PEAKS
+				if n+1 in multi.index:
+					if rw['idx']==multi.loc[n+1]['idx']:
+						print('WARNING: Identical gammas detected at',rw['energy'],'keV -',rw['isotope'],'and',multi.loc[n+1]['isotope'])
+						if rw['A']<1E2*multi.loc[n+1]['A']:
+							print('Peak height <1%...dropping',rw['isotope'])
+							multi.drop(n,inplace=True)
+							continue
+						else:
+							bA_m, bm_m = 1E-2, 1E-1
+				if n-1 in multi.index:
+					if rw['idx']==multi.loc[n-1]['idx']:
+						print('WARNING: Identical gammas detected at',rw['energy'],'keV -',rw['isotope'],'and',multi.loc[n-1]['isotope'])
+						if rw['A']<1E2*multi.loc[n-1]['A']:
+							print('Peak height <1%...dropping',rw['isotope'])
+							multi.drop(n,inplace=True)
+							continue
+						else:
+							bA_m, bm_m = 1E-2, 1E-1
+
 				p['p0'] += [rw['A'], rw['idx'], rw['sig']]
-				p['bounds'][0] += [0.0, rw['idx']-bm*rw['sig'], rw['sig']/bs]
-				p['bounds'][1] += [rw['A']*bA, rw['idx']+bm*rw['sig'], rw['sig']*bs]
+
+				p['bounds'][0] += [0.0, rw['idx']-bm*bm_m*rw['sig'], rw['sig']/bs]
+				p['bounds'][1] += [rw['A']*bA*bA_m, rw['idx']+bm*bm_m*rw['sig'], rw['sig']*bs]
 
 				if self.fit_config['skew_fit']:
 					p['p0'] += [R, alpha]
@@ -812,6 +834,8 @@ class Spectrum(object):
 					p['bounds'][0] += [0.0]
 					p['bounds'][1] += [0.1]
 
+			p['istp'] = multi['isotope'].to_list()
+			p['df'] = multi
 			p0.append(p)
 
 		return p0
@@ -1013,7 +1037,7 @@ class Spectrum(object):
 		Parameters
 		----------
 		filename : str
-			Name of the file to save to. Supported file types are '.png', '.pdf', '.eps', '.pgf', '.ps',
+			Name of the file to save to. Supported file types are '.png', '.pdf', '.pickle', '.eps', '.pgf', '.ps',
 			'.raw', '.rgba', '.svg', '.svgz', '.Spe', '.Chn', '.spe', '.csv', '.json', and '.db'.
 
 		replace : bool, optional
@@ -1031,7 +1055,7 @@ class Spectrum(object):
 
 		"""
 
-		if any([filename.endswith(e) for e in ['.png','.pdf','.eps','.pgf','.ps','.raw','.rgba','.svg','.svgz']]):
+		if any([filename.endswith(e) for e in ['.png','.pdf','.eps','.pgf','.ps','.raw','.rgba','.svg','.svgz','.pickle']]):
 				self.plot(saveas=filename, show=False)
 
 		if filename.endswith('.Spe'):

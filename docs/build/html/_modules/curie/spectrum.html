@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>curie.spectrum &#8212; Curie 0.0.15 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b76e3c8a" />
-    <link rel="stylesheet" type="text/css" href="../../_static/classic.css?v=89b800e6" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../_static/classic.css?v=514cf933" />
     
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=8810cfe0"></script>
+    <script src="../../_static/documentation_options.js?v=f0357c94"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
-    <script src="../../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -54,7 +54,9 @@
 <span class="kn">from</span> <span class="nn">.isotope</span> <span class="kn">import</span> <span class="n">Isotope</span>
 <span class="kn">from</span> <span class="nn">.compound</span> <span class="kn">import</span> <span class="n">Compound</span>
 
-<div class="viewcode-block" id="Spectrum"><a class="viewcode-back" href="../../api/spectrum.html#curie.Spectrum">[docs]</a><span class="k">class</span> <span class="nc">Spectrum</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="Spectrum">
+<a class="viewcode-back" href="../../api/spectrum.html#curie.Spectrum">[docs]</a>
+<span class="k">class</span> <span class="nc">Spectrum</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 <span class="w">	</span><span class="sd">&quot;&quot;&quot;Gamma-ray spectrum from High-Purity Germanium (HPGe) detectors</span>
 
 <span class="sd">	Provides methods for reading, converting, and fitting gamma-ray spectra</span>
@@ -189,7 +191,7 @@
 		<span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">=</span> <span class="n">dtm</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ortec_metadata</span><span class="p">[</span><span class="s1">&#39;DATE_MEA&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;%m/</span><span class="si">%d</span><span class="s1">/%Y %H:%M:%S&#39;</span><span class="p">)</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">live_time</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">real_time</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ortec_metadata</span><span class="p">[</span><span class="s1">&#39;MEAS_TIM&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()))</span>
 
-		<span class="bp">self</span><span class="o">.</span><span class="n">cb</span><span class="o">.</span><span class="n">engcal</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ortec_metadata</span><span class="p">[</span><span class="s1">&#39;MCA_CAL&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">cb</span><span class="o">.</span><span class="n">engcal</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ortec_metadata</span><span class="p">[</span><span class="s1">&#39;MCA_CAL&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)[:</span><span class="mi">3</span><span class="p">]))</span>
 
 	<span class="k">def</span> <span class="nf">_read_Chn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
 
@@ -306,7 +308,9 @@
 		
 		<span class="k">return</span> <span class="bp">self</span>
 		
-<div class="viewcode-block" id="Spectrum.rebin"><a class="viewcode-back" href="../../api/spectrum.html#curie.Spectrum.rebin">[docs]</a>	<span class="k">def</span> <span class="nf">rebin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">N_bins</span><span class="p">):</span>
+<div class="viewcode-block" id="Spectrum.rebin">
+<a class="viewcode-back" href="../../api/spectrum.html#curie.Spectrum.rebin">[docs]</a>
+	<span class="k">def</span> <span class="nf">rebin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">N_bins</span><span class="p">):</span>
 <span class="w">		</span><span class="sd">&quot;&quot;&quot;Rebin the histogram</span>
 
 <span class="sd">		Rebins the histogram to the closest power of 2 to</span>
@@ -344,8 +348,11 @@
 
 		<span class="n">rc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cb</span><span class="o">.</span><span class="n">rescal</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">cb</span><span class="o">.</span><span class="n">rescal</span> <span class="o">=</span> <span class="p">([</span><span class="n">rc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">r</span><span class="p">)]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="o">==</span><span class="mi">1</span> <span class="k">else</span> <span class="p">[</span><span class="n">rc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="n">r</span><span class="p">,</span> <span class="n">rc</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span></div>
+
 		
-<div class="viewcode-block" id="Spectrum.attenuation_correction"><a class="viewcode-back" href="../../api/spectrum.html#curie.Spectrum.attenuation_correction">[docs]</a>	<span class="k">def</span> <span class="nf">attenuation_correction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compounds</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ad</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span> <span class="c1"># first compound is &#39;self&#39;</span>
+<div class="viewcode-block" id="Spectrum.attenuation_correction">
+<a class="viewcode-back" href="../../api/spectrum.html#curie.Spectrum.attenuation_correction">[docs]</a>
+	<span class="k">def</span> <span class="nf">attenuation_correction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compounds</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ad</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span> <span class="c1"># first compound is &#39;self&#39;</span>
 <span class="w">		</span><span class="sd">&quot;&quot;&quot;Efficiency correction for sample attenuation</span>
 
 <span class="sd">		Corrects the efficiency used in calculating observed decays from each peak for</span>
@@ -417,8 +424,11 @@
 		<span class="bp">self</span><span class="o">.</span><span class="n">_atten_corr</span> <span class="o">=</span> <span class="n">atten_corr</span>
 		<span class="k">return</span> <span class="n">atten_corr</span></div>
 
+
 		
-<div class="viewcode-block" id="Spectrum.geometry_correction"><a class="viewcode-back" href="../../api/spectrum.html#curie.Spectrum.geometry_correction">[docs]</a>	<span class="k">def</span> <span class="nf">geometry_correction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">distance</span><span class="p">,</span> <span class="n">r_det</span><span class="p">,</span> <span class="n">thickness</span><span class="p">,</span> <span class="n">sample_size</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="s1">&#39;circle&#39;</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="mi">1000000</span><span class="p">):</span>
+<div class="viewcode-block" id="Spectrum.geometry_correction">
+<a class="viewcode-back" href="../../api/spectrum.html#curie.Spectrum.geometry_correction">[docs]</a>
+	<span class="k">def</span> <span class="nf">geometry_correction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">distance</span><span class="p">,</span> <span class="n">r_det</span><span class="p">,</span> <span class="n">thickness</span><span class="p">,</span> <span class="n">sample_size</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="s1">&#39;circle&#39;</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="mi">1000000</span><span class="p">):</span>
 <span class="w">		</span><span class="sd">&quot;&quot;&quot;Efficiency correction for sample geometry</span>
 
 <span class="sd">		Correction to the efficiency for non-point source geometries.</span>
@@ -515,6 +525,7 @@
 
 
 
+
 	<span class="k">def</span> <span class="nf">_snip_bg</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="n">adj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_config</span><span class="p">[</span><span class="s1">&#39;snip_adj&#39;</span><span class="p">]</span>
 
@@ -567,7 +578,9 @@
 		<span class="n">Y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hist</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">_snip</span>
 		<span class="k">return</span> <span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">X</span><span class="o">.</span><span class="n">T</span><span class="p">)),</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="o">.</span><span class="n">T</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Spectrum.auto_calibrate"><a class="viewcode-back" href="../../api/spectrum.html#curie.Spectrum.auto_calibrate">[docs]</a>	<span class="k">def</span> <span class="nf">auto_calibrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">guess</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">peaks</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Spectrum.auto_calibrate">
+<a class="viewcode-back" href="../../api/spectrum.html#curie.Spectrum.auto_calibrate">[docs]</a>
+	<span class="k">def</span> <span class="nf">auto_calibrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">guess</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">peaks</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">		</span><span class="sd">&quot;&quot;&quot;Attempt to automatically adjust the energy calibration</span>
 
 <span class="sd">		Uses a genetic forward fitting algorithm to attempt to automatically</span>
@@ -649,6 +662,7 @@
 			<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">Y</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">X</span><span class="p">))))</span>
 
 		<span class="bp">self</span><span class="o">.</span><span class="n">cb</span><span class="o">.</span><span class="n">engcal</span> <span class="o">=</span> <span class="p">[</span><span class="n">guess</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">differential_evolution</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="p">[(</span><span class="mf">0.995</span><span class="o">*</span><span class="n">guess</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mf">1.005</span><span class="o">*</span><span class="n">guess</span><span class="p">[</span><span class="mi">1</span><span class="p">])])</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">guess</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span></div>
+
 
 
 	<span class="k">def</span> <span class="nf">_gammas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_force</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -810,7 +824,7 @@
 
 		<span class="n">p0</span> <span class="o">=</span> <span class="p">[]</span>
 		<span class="k">for</span> <span class="n">multi</span> <span class="ow">in</span> <span class="n">multiplets</span><span class="p">:</span>
-			<span class="n">p</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;df&#39;</span><span class="p">:</span><span class="n">multi</span><span class="p">,</span> <span class="s1">&#39;l&#39;</span><span class="p">:</span><span class="n">multi</span><span class="p">[</span><span class="s1">&#39;l&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="s1">&#39;h&#39;</span><span class="p">:</span><span class="n">multi</span><span class="p">[</span><span class="s1">&#39;h&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="s1">&#39;p0&#39;</span><span class="p">:[],</span> <span class="s1">&#39;bounds&#39;</span><span class="p">:[[],[]],</span> <span class="s1">&#39;istp&#39;</span><span class="p">:</span><span class="n">multi</span><span class="p">[</span><span class="s1">&#39;isotope&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">to_list</span><span class="p">()}</span>
+			<span class="n">p</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;l&#39;</span><span class="p">:</span><span class="n">multi</span><span class="p">[</span><span class="s1">&#39;l&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="s1">&#39;h&#39;</span><span class="p">:</span><span class="n">multi</span><span class="p">[</span><span class="s1">&#39;h&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="s1">&#39;p0&#39;</span><span class="p">:[],</span> <span class="s1">&#39;bounds&#39;</span><span class="p">:[[],[]]}</span>
 
 			<span class="n">bgf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_config</span><span class="p">[</span><span class="s1">&#39;bg&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
 			<span class="k">if</span> <span class="n">bgf</span><span class="o">==</span><span class="s1">&#39;constant&#39;</span><span class="p">:</span>
@@ -833,9 +847,31 @@
 			<span class="n">R</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_config</span><span class="p">[</span><span class="s1">&#39;R&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_config</span><span class="p">[</span><span class="s1">&#39;alpha&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_config</span><span class="p">[</span><span class="s1">&#39;step&#39;</span><span class="p">]</span>
 			<span class="n">bA</span><span class="p">,</span> <span class="n">bm</span><span class="p">,</span> <span class="n">bs</span> <span class="o">=</span> <span class="mf">10.0</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">fit_config</span><span class="p">[</span><span class="s1">&#39;A_bound&#39;</span><span class="p">],</span> <span class="mf">1.5</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">fit_config</span><span class="p">[</span><span class="s1">&#39;mu_bound&#39;</span><span class="p">],</span> <span class="mf">1.5</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">fit_config</span><span class="p">[</span><span class="s1">&#39;sig_bound&#39;</span><span class="p">]</span>
 			<span class="k">for</span> <span class="n">n</span><span class="p">,</span><span class="n">rw</span> <span class="ow">in</span> <span class="n">multi</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+				<span class="n">bA_m</span><span class="p">,</span> <span class="n">bm_m</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span>
+				<span class="c1"># CHECK FOR IDENTICAL PEAKS</span>
+				<span class="k">if</span> <span class="n">n</span><span class="o">+</span><span class="mi">1</span> <span class="ow">in</span> <span class="n">multi</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
+					<span class="k">if</span> <span class="n">rw</span><span class="p">[</span><span class="s1">&#39;idx&#39;</span><span class="p">]</span><span class="o">==</span><span class="n">multi</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;idx&#39;</span><span class="p">]:</span>
+						<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;WARNING: Identical gammas detected at&#39;</span><span class="p">,</span><span class="n">rw</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">],</span><span class="s1">&#39;keV -&#39;</span><span class="p">,</span><span class="n">rw</span><span class="p">[</span><span class="s1">&#39;isotope&#39;</span><span class="p">],</span><span class="s1">&#39;and&#39;</span><span class="p">,</span><span class="n">multi</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;isotope&#39;</span><span class="p">])</span>
+						<span class="k">if</span> <span class="n">rw</span><span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">]</span><span class="o">&lt;</span><span class="mf">1E2</span><span class="o">*</span><span class="n">multi</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;A&#39;</span><span class="p">]:</span>
+							<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Peak height &lt;1%...dropping&#39;</span><span class="p">,</span><span class="n">rw</span><span class="p">[</span><span class="s1">&#39;isotope&#39;</span><span class="p">])</span>
+							<span class="n">multi</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+							<span class="k">continue</span>
+						<span class="k">else</span><span class="p">:</span>
+							<span class="n">bA_m</span><span class="p">,</span> <span class="n">bm_m</span> <span class="o">=</span> <span class="mf">1E-2</span><span class="p">,</span> <span class="mf">1E-1</span>
+				<span class="k">if</span> <span class="n">n</span><span class="o">-</span><span class="mi">1</span> <span class="ow">in</span> <span class="n">multi</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
+					<span class="k">if</span> <span class="n">rw</span><span class="p">[</span><span class="s1">&#39;idx&#39;</span><span class="p">]</span><span class="o">==</span><span class="n">multi</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;idx&#39;</span><span class="p">]:</span>
+						<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;WARNING: Identical gammas detected at&#39;</span><span class="p">,</span><span class="n">rw</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">],</span><span class="s1">&#39;keV -&#39;</span><span class="p">,</span><span class="n">rw</span><span class="p">[</span><span class="s1">&#39;isotope&#39;</span><span class="p">],</span><span class="s1">&#39;and&#39;</span><span class="p">,</span><span class="n">multi</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;isotope&#39;</span><span class="p">])</span>
+						<span class="k">if</span> <span class="n">rw</span><span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">]</span><span class="o">&lt;</span><span class="mf">1E2</span><span class="o">*</span><span class="n">multi</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;A&#39;</span><span class="p">]:</span>
+							<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Peak height &lt;1%...dropping&#39;</span><span class="p">,</span><span class="n">rw</span><span class="p">[</span><span class="s1">&#39;isotope&#39;</span><span class="p">])</span>
+							<span class="n">multi</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+							<span class="k">continue</span>
+						<span class="k">else</span><span class="p">:</span>
+							<span class="n">bA_m</span><span class="p">,</span> <span class="n">bm_m</span> <span class="o">=</span> <span class="mf">1E-2</span><span class="p">,</span> <span class="mf">1E-1</span>
+
 				<span class="n">p</span><span class="p">[</span><span class="s1">&#39;p0&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="p">[</span><span class="n">rw</span><span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">],</span> <span class="n">rw</span><span class="p">[</span><span class="s1">&#39;idx&#39;</span><span class="p">],</span> <span class="n">rw</span><span class="p">[</span><span class="s1">&#39;sig&#39;</span><span class="p">]]</span>
-				<span class="n">p</span><span class="p">[</span><span class="s1">&#39;bounds&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">rw</span><span class="p">[</span><span class="s1">&#39;idx&#39;</span><span class="p">]</span><span class="o">-</span><span class="n">bm</span><span class="o">*</span><span class="n">rw</span><span class="p">[</span><span class="s1">&#39;sig&#39;</span><span class="p">],</span> <span class="n">rw</span><span class="p">[</span><span class="s1">&#39;sig&#39;</span><span class="p">]</span><span class="o">/</span><span class="n">bs</span><span class="p">]</span>
-				<span class="n">p</span><span class="p">[</span><span class="s1">&#39;bounds&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="p">[</span><span class="n">rw</span><span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">]</span><span class="o">*</span><span class="n">bA</span><span class="p">,</span> <span class="n">rw</span><span class="p">[</span><span class="s1">&#39;idx&#39;</span><span class="p">]</span><span class="o">+</span><span class="n">bm</span><span class="o">*</span><span class="n">rw</span><span class="p">[</span><span class="s1">&#39;sig&#39;</span><span class="p">],</span> <span class="n">rw</span><span class="p">[</span><span class="s1">&#39;sig&#39;</span><span class="p">]</span><span class="o">*</span><span class="n">bs</span><span class="p">]</span>
+
+				<span class="n">p</span><span class="p">[</span><span class="s1">&#39;bounds&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">rw</span><span class="p">[</span><span class="s1">&#39;idx&#39;</span><span class="p">]</span><span class="o">-</span><span class="n">bm</span><span class="o">*</span><span class="n">bm_m</span><span class="o">*</span><span class="n">rw</span><span class="p">[</span><span class="s1">&#39;sig&#39;</span><span class="p">],</span> <span class="n">rw</span><span class="p">[</span><span class="s1">&#39;sig&#39;</span><span class="p">]</span><span class="o">/</span><span class="n">bs</span><span class="p">]</span>
+				<span class="n">p</span><span class="p">[</span><span class="s1">&#39;bounds&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="p">[</span><span class="n">rw</span><span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">]</span><span class="o">*</span><span class="n">bA</span><span class="o">*</span><span class="n">bA_m</span><span class="p">,</span> <span class="n">rw</span><span class="p">[</span><span class="s1">&#39;idx&#39;</span><span class="p">]</span><span class="o">+</span><span class="n">bm</span><span class="o">*</span><span class="n">bm_m</span><span class="o">*</span><span class="n">rw</span><span class="p">[</span><span class="s1">&#39;sig&#39;</span><span class="p">],</span> <span class="n">rw</span><span class="p">[</span><span class="s1">&#39;sig&#39;</span><span class="p">]</span><span class="o">*</span><span class="n">bs</span><span class="p">]</span>
 
 				<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_config</span><span class="p">[</span><span class="s1">&#39;skew_fit&#39;</span><span class="p">]:</span>
 					<span class="n">p</span><span class="p">[</span><span class="s1">&#39;p0&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="p">[</span><span class="n">R</span><span class="p">,</span> <span class="n">alpha</span><span class="p">]</span>
@@ -847,6 +883,8 @@
 					<span class="n">p</span><span class="p">[</span><span class="s1">&#39;bounds&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">]</span>
 					<span class="n">p</span><span class="p">[</span><span class="s1">&#39;bounds&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">]</span>
 
+			<span class="n">p</span><span class="p">[</span><span class="s1">&#39;istp&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">multi</span><span class="p">[</span><span class="s1">&#39;isotope&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">to_list</span><span class="p">()</span>
+			<span class="n">p</span><span class="p">[</span><span class="s1">&#39;df&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">multi</span>
 			<span class="n">p0</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
 
 		<span class="k">return</span> <span class="n">p0</span>
@@ -903,7 +941,9 @@
 		<span class="k">except</span><span class="p">:</span>
 			<span class="k">return</span> <span class="n">p0</span><span class="p">,</span> <span class="n">p0</span><span class="p">[</span><span class="s1">&#39;df&#39;</span><span class="p">]</span>
 
-<div class="viewcode-block" id="Spectrum.fit_peaks"><a class="viewcode-back" href="../../api/spectrum.html#curie.Spectrum.fit_peaks">[docs]</a>	<span class="k">def</span> <span class="nf">fit_peaks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gammas</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="Spectrum.fit_peaks">
+<a class="viewcode-back" href="../../api/spectrum.html#curie.Spectrum.fit_peaks">[docs]</a>
+	<span class="k">def</span> <span class="nf">fit_peaks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gammas</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">		</span><span class="sd">&quot;&quot;&quot;Fit the peaks in the spectrum</span>
 
 <span class="sd">		Fits a multiplet of peaks, with configurable parameters, to the spectrum.</span>
@@ -1028,6 +1068,7 @@
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_peaks</span></div>
 
 
+
 	<span class="nd">@property</span>
 	<span class="k">def</span> <span class="nf">peaks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_peaks</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -1035,7 +1076,9 @@
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_peaks</span>
 	
 		
-<div class="viewcode-block" id="Spectrum.saveas"><a class="viewcode-back" href="../../api/spectrum.html#curie.Spectrum.saveas">[docs]</a>	<span class="k">def</span> <span class="nf">saveas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="Spectrum.saveas">
+<a class="viewcode-back" href="../../api/spectrum.html#curie.Spectrum.saveas">[docs]</a>
+	<span class="k">def</span> <span class="nf">saveas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">		</span><span class="sd">&quot;&quot;&quot;Save the spectrum or peak information to a file</span>
 
 <span class="sd">		If the file type is one of &#39;.png&#39;, &#39;.pdf&#39;, &#39;.svg&#39; or another graphical</span>
@@ -1048,7 +1091,7 @@
 <span class="sd">		Parameters</span>
 <span class="sd">		----------</span>
 <span class="sd">		filename : str</span>
-<span class="sd">			Name of the file to save to. Supported file types are &#39;.png&#39;, &#39;.pdf&#39;, &#39;.eps&#39;, &#39;.pgf&#39;, &#39;.ps&#39;,</span>
+<span class="sd">			Name of the file to save to. Supported file types are &#39;.png&#39;, &#39;.pdf&#39;, &#39;.pickle&#39;, &#39;.eps&#39;, &#39;.pgf&#39;, &#39;.ps&#39;,</span>
 <span class="sd">			&#39;.raw&#39;, &#39;.rgba&#39;, &#39;.svg&#39;, &#39;.svgz&#39;, &#39;.Spe&#39;, &#39;.Chn&#39;, &#39;.spe&#39;, &#39;.csv&#39;, &#39;.json&#39;, and &#39;.db&#39;.</span>
 
 <span class="sd">		replace : bool, optional</span>
@@ -1066,7 +1109,7 @@
 
 <span class="sd">		&quot;&quot;&quot;</span>
 
-		<span class="k">if</span> <span class="nb">any</span><span class="p">([</span><span class="n">filename</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;.png&#39;</span><span class="p">,</span><span class="s1">&#39;.pdf&#39;</span><span class="p">,</span><span class="s1">&#39;.eps&#39;</span><span class="p">,</span><span class="s1">&#39;.pgf&#39;</span><span class="p">,</span><span class="s1">&#39;.ps&#39;</span><span class="p">,</span><span class="s1">&#39;.raw&#39;</span><span class="p">,</span><span class="s1">&#39;.rgba&#39;</span><span class="p">,</span><span class="s1">&#39;.svg&#39;</span><span class="p">,</span><span class="s1">&#39;.svgz&#39;</span><span class="p">]]):</span>
+		<span class="k">if</span> <span class="nb">any</span><span class="p">([</span><span class="n">filename</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;.png&#39;</span><span class="p">,</span><span class="s1">&#39;.pdf&#39;</span><span class="p">,</span><span class="s1">&#39;.eps&#39;</span><span class="p">,</span><span class="s1">&#39;.pgf&#39;</span><span class="p">,</span><span class="s1">&#39;.ps&#39;</span><span class="p">,</span><span class="s1">&#39;.raw&#39;</span><span class="p">,</span><span class="s1">&#39;.rgba&#39;</span><span class="p">,</span><span class="s1">&#39;.svg&#39;</span><span class="p">,</span><span class="s1">&#39;.svgz&#39;</span><span class="p">,</span><span class="s1">&#39;.pickle&#39;</span><span class="p">]]):</span>
 				<span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">saveas</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
 		<span class="k">if</span> <span class="n">filename</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.Spe&#39;</span><span class="p">):</span>
@@ -1184,8 +1227,11 @@
 			<span class="k">else</span><span class="p">:</span>
 				<span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">peaks</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">orient</span><span class="o">=</span><span class="s1">&#39;records&#39;</span><span class="p">)),</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">),</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span></div>
 
+
 		
-<div class="viewcode-block" id="Spectrum.summarize"><a class="viewcode-back" href="../../api/spectrum.html#curie.Spectrum.summarize">[docs]</a>	<span class="k">def</span> <span class="nf">summarize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Spectrum.summarize">
+<a class="viewcode-back" href="../../api/spectrum.html#curie.Spectrum.summarize">[docs]</a>
+	<span class="k">def</span> <span class="nf">summarize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">		</span><span class="sd">&quot;&quot;&quot;Summarize the fitted peaks in the spectrum</span>
 
 <span class="sd">		Prints a summary of the observed counts in each peak, the</span>
@@ -1225,8 +1271,11 @@
 			<span class="n">ss</span> <span class="o">+=</span> <span class="s1">&#39;chi2/dof: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ln2</span><span class="p">[</span><span class="mi">8</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
 			<span class="nb">print</span><span class="p">(</span><span class="n">ss</span><span class="o">+</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span></div>
 
+
 		
-<div class="viewcode-block" id="Spectrum.plot"><a class="viewcode-back" href="../../api/spectrum.html#curie.Spectrum.plot">[docs]</a>	<span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fit</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">xcalib</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="Spectrum.plot">
+<a class="viewcode-back" href="../../api/spectrum.html#curie.Spectrum.plot">[docs]</a>
+	<span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fit</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">xcalib</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">		</span><span class="sd">&quot;&quot;&quot;Plot the spectrum</span>
 
 <span class="sd">		Draws a plot of the spectrum, and any successful peak fits.  Peaks</span>
@@ -1316,7 +1365,9 @@
 		<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ncol</span><span class="o">=</span><span class="nb">min</span><span class="p">((</span><span class="nb">max</span><span class="p">((</span><span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">lbs</span><span class="p">)</span><span class="o">/</span><span class="mi">5</span><span class="p">),</span> <span class="mi">1</span><span class="p">)),</span> <span class="mi">3</span><span class="p">)))</span>
 		<span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;_default_log&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
 
-		<span class="k">return</span> <span class="n">_draw_plot</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
+		<span class="k">return</span> <span class="n">_draw_plot</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+</div>
+
 		
 </pre></div>
 
@@ -1353,7 +1404,7 @@
     </div>
     <div class="footer" role="contentinfo">
     &#169; Copyright 2020, Jonathan Morrell.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     </div>
   </body>
 </html>

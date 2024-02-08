@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Isotope &#8212; Curie 0.0.15 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b76e3c8a" />
-    <link rel="stylesheet" type="text/css" href="../_static/classic.css?v=89b800e6" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css?v=514cf933" />
     
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=8810cfe0"></script>
+    <script src="../_static/documentation_options.js?v=f0357c94"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -42,10 +42,10 @@
           <div class="body" role="main">
             
   <section id="isotope">
-<span id="id1"></span><h1>Isotope<a class="headerlink" href="#isotope" title="Permalink to this heading">¶</a></h1>
+<span id="id1"></span><h1>Isotope<a class="headerlink" href="#isotope" title="Link to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="curie.Isotope">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">curie.</span></span><span class="sig-name descname"><span class="pre">Isotope</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">isotope</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/isotope.html#Isotope"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Isotope" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">curie.</span></span><span class="sig-name descname"><span class="pre">Isotope</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">isotope</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/isotope.html#Isotope"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Isotope" title="Link to this definition">¶</a></dt>
 <dd><p>Retrieve isotopic structure and decay data</p>
 <p>The Isotope class provides isotope specific nuclear data, such as masses,
 abundances, half-lives, decay data and fission yields.  The main data souces 
@@ -159,7 +159,7 @@ and if just m is given, the first isomer is assumed.</p>
 </table>
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.Isotope.alphas">
-<span class="sig-name descname"><span class="pre">alphas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">I_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">E_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/isotope.html#Isotope.alphas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Isotope.alphas" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">alphas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">I_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">E_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/isotope.html#Isotope.alphas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Isotope.alphas" title="Link to this definition">¶</a></dt>
 <dd><p>Alpha-particles emitted by the decay of the isotope</p>
 <p>Returns a DataFrame of alpha-particle energies, intensities and intensity-uncertainties
 based on an optional set of selection critieria.</p>
@@ -193,7 +193,7 @@ of energy are in keV and units of intensity are in percent.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.Isotope.beta_minus">
-<span class="sig-name descname"><span class="pre">beta_minus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">I_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Endpoint_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/isotope.html#Isotope.beta_minus"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Isotope.beta_minus" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">beta_minus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">I_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Endpoint_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/isotope.html#Isotope.beta_minus"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Isotope.beta_minus" title="Link to this definition">¶</a></dt>
 <dd><p>Electrons from beta-minus decay</p>
 <p>Returns a DataFrame of beta-minus mean and enpoint energies, intensities and
 intensity-uncertainties based on an optional set of selection critieria.</p>
@@ -227,7 +227,7 @@ is given, this is a lower bound, if a 2-tuple then (upper, lower) bounds.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.Isotope.beta_plus">
-<span class="sig-name descname"><span class="pre">beta_plus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">I_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Endpoint_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/isotope.html#Isotope.beta_plus"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Isotope.beta_plus" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">beta_plus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">I_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Endpoint_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/isotope.html#Isotope.beta_plus"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Isotope.beta_plus" title="Link to this definition">¶</a></dt>
 <dd><p>Positrons from beta-plus decay</p>
 <p>Returns a DataFrame of beta-plus mean and enpoint energies, intensities and
 intensity-uncertainties based on an optional set of selection critieria.</p>
@@ -261,7 +261,7 @@ is given, this is a lower bound, if a 2-tuple then (upper, lower) bounds.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.Isotope.decay_const">
-<span class="sig-name descname"><span class="pre">decay_const</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'s'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/isotope.html#Isotope.decay_const"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Isotope.decay_const" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">decay_const</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'s'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/isotope.html#Isotope.decay_const"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Isotope.decay_const" title="Link to this definition">¶</a></dt>
 <dd><p>Decay constant of isotope</p>
 <p>Returns isotope decay constant, in specified units, with or without uncertainty</p>
 <dl class="field-list simple">
@@ -294,7 +294,7 @@ Actual value will be given in units of inverse time</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.Isotope.dose_rate">
-<span class="sig-name descname"><span class="pre">dose_rate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">activity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'R/hr'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/isotope.html#Isotope.dose_rate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Isotope.dose_rate" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">dose_rate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">activity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'R/hr'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/isotope.html#Isotope.dose_rate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Isotope.dose_rate" title="Link to this definition">¶</a></dt>
 <dd><p>Dose-rate from a point source of the isotope</p>
 <p>Assuming a point source with no attenuation, this function calculates the dose-rate
 from each emitted particle type using a specified source activity and distance.</p>
@@ -330,7 +330,7 @@ the <cite>Isotope.half_life()</cite> function. E.g. mR/hr, uSv/m, kGy/y. Default
 
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.Isotope.electrons">
-<span class="sig-name descname"><span class="pre">electrons</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">I_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">E_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">CE_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Auger_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/isotope.html#Isotope.electrons"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Isotope.electrons" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">electrons</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">I_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">E_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">CE_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Auger_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/isotope.html#Isotope.electrons"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Isotope.electrons" title="Link to this definition">¶</a></dt>
 <dd><p>Electrons (conversion and Auger) emitted by the decay of the isotope</p>
 <p>Returns a DataFrame of electron energies, intensities and intensity-uncertainties
 based on an optional set of selection critieria.</p>
@@ -370,7 +370,7 @@ of energy are in keV and units of intensity are in percent.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.Isotope.gammas">
-<span class="sig-name descname"><span class="pre">gammas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">I_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">E_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xrays</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dE_511</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">istp_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/isotope.html#Isotope.gammas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Isotope.gammas" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">gammas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">I_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">E_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xrays</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dE_511</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">istp_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/isotope.html#Isotope.gammas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Isotope.gammas" title="Link to this definition">¶</a></dt>
 <dd><p>Gamma-rays emitted by the decay of the isotope</p>
 <p>Returns a DataFrame of gamma-ray energies, intensities and intensity-uncertainties
 based on an optional set of selection critieria.</p>
@@ -425,7 +425,7 @@ of energy are in keV and units of intensity are in percent.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.Isotope.get_NFY">
-<span class="sig-name descname"><span class="pre">get_NFY</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">E</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/isotope.html#Isotope.get_NFY"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Isotope.get_NFY" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_NFY</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">E</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/isotope.html#Isotope.get_NFY"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Isotope.get_NFY" title="Link to this definition">¶</a></dt>
 <dd><p>Neutron induced fission yields</p>
 <p>Returns the absolute neutron induced fission yields (independent) for a given nuclide,
 where available from ENDF.</p>
@@ -452,7 +452,7 @@ where available from ENDF.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.Isotope.get_SFY">
-<span class="sig-name descname"><span class="pre">get_SFY</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/isotope.html#Isotope.get_SFY"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Isotope.get_SFY" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_SFY</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/isotope.html#Isotope.get_SFY"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Isotope.get_SFY" title="Link to this definition">¶</a></dt>
 <dd><p>Spontaneous fission yields</p>
 <p>Returns the absolute spontaneous fission yields (independent) for a given nuclide,
 where available from ENDF.</p>
@@ -473,7 +473,7 @@ where available from ENDF.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.Isotope.half_life">
-<span class="sig-name descname"><span class="pre">half_life</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'s'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/isotope.html#Isotope.half_life"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Isotope.half_life" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">half_life</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'s'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/isotope.html#Isotope.half_life"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Isotope.half_life" title="Link to this definition">¶</a></dt>
 <dd><p>Half-life of isotope</p>
 <p>Returns isotope half-life, in specified units, with or without uncertainty.</p>
 <dl class="field-list simple">
@@ -505,7 +505,7 @@ ns, us, ms, s, m, h, d, y, ky, My, Gy</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.Isotope.optimum_units">
-<span class="sig-name descname"><span class="pre">optimum_units</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/isotope.html#Isotope.optimum_units"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Isotope.optimum_units" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">optimum_units</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/isotope.html#Isotope.optimum_units"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Isotope.optimum_units" title="Link to this definition">¶</a></dt>
 <dd><p>Appropriate units for half-life</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -611,7 +611,7 @@ ns, us, ms, s, m, h, d, y, ky, My, Gy</p>
     </div>
     <div class="footer" role="contentinfo">
     &#169; Copyright 2020, Jonathan Morrell.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     </div>
   </body>
 </html>

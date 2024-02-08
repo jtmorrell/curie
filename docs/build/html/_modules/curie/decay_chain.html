@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>curie.decay_chain &#8212; Curie 0.0.15 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b76e3c8a" />
-    <link rel="stylesheet" type="text/css" href="../../_static/classic.css?v=89b800e6" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../_static/classic.css?v=514cf933" />
     
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=8810cfe0"></script>
+    <script src="../../_static/documentation_options.js?v=f0357c94"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
-    <script src="../../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -49,7 +49,9 @@
 <span class="kn">from</span> <span class="nn">.isotope</span> <span class="kn">import</span> <span class="n">Isotope</span>
 <span class="kn">from</span> <span class="nn">.spectrum</span> <span class="kn">import</span> <span class="n">Spectrum</span>
 
-<div class="viewcode-block" id="DecayChain"><a class="viewcode-back" href="../../api/decaychain.html#curie.DecayChain">[docs]</a><span class="k">class</span> <span class="nc">DecayChain</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="DecayChain">
+<a class="viewcode-back" href="../../api/decaychain.html#curie.DecayChain">[docs]</a>
+<span class="k">class</span> <span class="nc">DecayChain</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 <span class="w">	</span><span class="sd">&quot;&quot;&quot;Radioactive Decay Chain</span>
 
 <span class="sd">	Uses the Bateman equations to calculate the activities and number of decays</span>
@@ -289,7 +291,9 @@
 		<span class="k">return</span> <span class="n">half_conv</span><span class="p">[</span><span class="n">units</span><span class="p">]</span><span class="o">/</span><span class="n">half_conv</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">]</span>
 
 
-<div class="viewcode-block" id="DecayChain.activity"><a class="viewcode-back" href="../../api/decaychain.html#curie.DecayChain.activity">[docs]</a>	<span class="k">def</span> <span class="nf">activity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">isotope</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_R_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_A_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="DecayChain.activity">
+<a class="viewcode-back" href="../../api/decaychain.html#curie.DecayChain.activity">[docs]</a>
+	<span class="k">def</span> <span class="nf">activity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">isotope</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_R_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_A_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">		</span><span class="sd">&quot;&quot;&quot;Activity of an isotope in the chain</span>
 
 <span class="sd">		Computes the activity of a given isotope in the decay chain at a</span>
@@ -362,8 +366,11 @@
 							<span class="k">else</span><span class="p">:</span>
 								<span class="n">A</span> <span class="o">+=</span> <span class="n">_R_dict</span><span class="p">[</span><span class="n">ip</span><span class="p">]</span><span class="o">*</span><span class="n">lm</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">B_i</span><span class="o">*</span><span class="n">time</span><span class="o">/</span><span class="n">C_j</span>
 		<span class="k">return</span> <span class="n">A</span></div>
+
 		
-<div class="viewcode-block" id="DecayChain.decays"><a class="viewcode-back" href="../../api/decaychain.html#curie.DecayChain.decays">[docs]</a>	<span class="k">def</span> <span class="nf">decays</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">isotope</span><span class="p">,</span> <span class="n">t_start</span><span class="p">,</span> <span class="n">t_stop</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_A_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="DecayChain.decays">
+<a class="viewcode-back" href="../../api/decaychain.html#curie.DecayChain.decays">[docs]</a>
+	<span class="k">def</span> <span class="nf">decays</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">isotope</span><span class="p">,</span> <span class="n">t_start</span><span class="p">,</span> <span class="n">t_stop</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_A_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">		</span><span class="sd">&quot;&quot;&quot;Number of decays in a given time interval</span>
 
 <span class="sd">		Computes the number of decays from a given isotope in the</span>
@@ -426,6 +433,7 @@
 
 		<span class="k">return</span> <span class="n">D</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_r_lm</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">units</span> <span class="k">if</span> <span class="n">units</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">units</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span></div>
 
+
 	<span class="nd">@property</span>
 	<span class="k">def</span> <span class="nf">counts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_counts</span>
@@ -462,7 +470,9 @@
 			<span class="bp">self</span><span class="o">.</span><span class="n">_counts</span><span class="p">[</span><span class="s1">&#39;unc_activity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_counts</span><span class="p">[</span><span class="s1">&#39;unc_counts&#39;</span><span class="p">]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">counts</span><span class="p">[</span><span class="s1">&#39;activity&#39;</span><span class="p">]</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">_counts</span><span class="p">[</span><span class="s1">&#39;counts&#39;</span><span class="p">]</span>
 			
 		
-<div class="viewcode-block" id="DecayChain.get_counts"><a class="viewcode-back" href="../../api/decaychain.html#curie.DecayChain.get_counts">[docs]</a>	<span class="k">def</span> <span class="nf">get_counts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spectra</span><span class="p">,</span> <span class="n">EoB</span><span class="p">,</span> <span class="n">peak_data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="DecayChain.get_counts">
+<a class="viewcode-back" href="../../api/decaychain.html#curie.DecayChain.get_counts">[docs]</a>
+	<span class="k">def</span> <span class="nf">get_counts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spectra</span><span class="p">,</span> <span class="n">EoB</span><span class="p">,</span> <span class="n">peak_data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">		</span><span class="sd">&quot;&quot;&quot;Retrieves the number of measured decays</span>
 
 <span class="sd">		Takes the number of measured decays from one of the following: a list of spectra,</span>
@@ -555,6 +565,7 @@
 		<span class="bp">self</span><span class="o">.</span><span class="n">counts</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">counts</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 
+
 	<span class="nd">@property</span>	
 	<span class="k">def</span> <span class="nf">R_avg</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="n">df</span> <span class="o">=</span> <span class="p">[]</span>
@@ -563,7 +574,9 @@
 			<span class="n">df</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;isotope&#39;</span><span class="p">:</span><span class="n">ip</span><span class="p">,</span> <span class="s1">&#39;R_avg&#39;</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">R</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">R</span><span class="p">[</span><span class="s1">&#39;isotope&#39;</span><span class="p">]</span><span class="o">==</span><span class="n">ip</span><span class="p">][</span><span class="s1">&#39;R&#39;</span><span class="p">],</span> <span class="n">weights</span><span class="o">=</span><span class="n">time</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">-</span><span class="n">time</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])})</span>
 		<span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
 		
-<div class="viewcode-block" id="DecayChain.fit_R"><a class="viewcode-back" href="../../api/decaychain.html#curie.DecayChain.fit_R">[docs]</a>	<span class="k">def</span> <span class="nf">fit_R</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_error</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">min_counts</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<div class="viewcode-block" id="DecayChain.fit_R">
+<a class="viewcode-back" href="../../api/decaychain.html#curie.DecayChain.fit_R">[docs]</a>
+	<span class="k">def</span> <span class="nf">fit_R</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_error</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">min_counts</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
 <span class="w">		</span><span class="sd">&quot;&quot;&quot;Fit the production rate to count data</span>
 
 <span class="sd">		Fits a scalar multiplier to the production rate (as a function of time) for</span>
@@ -651,8 +664,11 @@
 		<span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">cov</span><span class="p">))):</span>
 			<span class="n">cov</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">cov</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="o">*</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">dY</span><span class="o">/</span><span class="n">Y</span><span class="p">))</span><span class="o">*</span><span class="n">fit</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
 		<span class="k">return</span> <span class="n">R_isotopes</span><span class="p">,</span> <span class="n">R_norm</span><span class="p">,</span> <span class="n">cov</span><span class="o">*</span><span class="p">(</span><span class="n">R_norm</span><span class="o">/</span><span class="n">fit</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span></div>
+
 		
-<div class="viewcode-block" id="DecayChain.fit_A0"><a class="viewcode-back" href="../../api/decaychain.html#curie.DecayChain.fit_A0">[docs]</a>	<span class="k">def</span> <span class="nf">fit_A0</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_error</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">min_counts</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<div class="viewcode-block" id="DecayChain.fit_A0">
+<a class="viewcode-back" href="../../api/decaychain.html#curie.DecayChain.fit_A0">[docs]</a>
+	<span class="k">def</span> <span class="nf">fit_A0</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_error</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">min_counts</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
 <span class="w">		</span><span class="sd">&quot;&quot;&quot;Fit the initial activity to count data</span>
 
 <span class="sd">		Fits a scalar multiplier to the initial activity for</span>
@@ -720,8 +736,11 @@
 
 		<span class="n">A_norm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">A0</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">A0_isotopes</span><span class="p">])</span>
 		<span class="k">return</span> <span class="n">A0_isotopes</span><span class="p">,</span> <span class="n">A_norm</span><span class="p">,</span> <span class="n">cov</span><span class="o">*</span><span class="p">(</span><span class="n">A_norm</span><span class="o">/</span><span class="n">fit</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span></div>
+
 		
-<div class="viewcode-block" id="DecayChain.plot"><a class="viewcode-back" href="../../api/decaychain.html#curie.DecayChain.plot">[docs]</a>	<span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_plot</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">max_label</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">max_plot_error</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">max_plot_chi2</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="DecayChain.plot">
+<a class="viewcode-back" href="../../api/decaychain.html#curie.DecayChain.plot">[docs]</a>
+	<span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_plot</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">max_label</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">max_plot_error</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">max_plot_chi2</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">		</span><span class="sd">&quot;&quot;&quot;Plot the activities in the decay chain</span>
 
 <span class="sd">		Plots the activities as a function of time for all radioactive</span>
@@ -828,7 +847,9 @@
 		<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Time (</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">))</span>
 		<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Activity (</span><span class="si">{}</span><span class="s1">Bq)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">lb_or</span><span class="p">))</span>
 		<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-		<span class="k">return</span> <span class="n">_draw_plot</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
+		<span class="k">return</span> <span class="n">_draw_plot</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+</div>
+
 		
 </pre></div>
 
@@ -865,7 +886,7 @@
     </div>
     <div class="footer" role="contentinfo">
     &#169; Copyright 2020, Jonathan Morrell.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     </div>
   </body>
 </html>

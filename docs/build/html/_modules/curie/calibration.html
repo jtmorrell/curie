@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>curie.calibration &#8212; Curie 0.0.15 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b76e3c8a" />
-    <link rel="stylesheet" type="text/css" href="../../_static/classic.css?v=89b800e6" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../_static/classic.css?v=514cf933" />
     
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=8810cfe0"></script>
+    <script src="../../_static/documentation_options.js?v=f0357c94"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
-    <script src="../../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -129,7 +129,9 @@
 <span class="n">_MU</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">E_keV</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">interp1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">_MU_Ge</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">_MU_Ge</span><span class="p">[:,</span><span class="mi">3</span><span class="p">]),</span> <span class="n">bounds_error</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="s1">&#39;extrapolate&#39;</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;quadratic&#39;</span><span class="p">)(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">E_keV</span><span class="p">)))</span>
 
 
-<div class="viewcode-block" id="Calibration"><a class="viewcode-back" href="../../api/calibration.html#curie.Calibration">[docs]</a><span class="k">class</span> <span class="nc">Calibration</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="Calibration">
+<a class="viewcode-back" href="../../api/calibration.html#curie.Calibration">[docs]</a>
+<span class="k">class</span> <span class="nc">Calibration</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 <span class="w">	</span><span class="sd">&quot;&quot;&quot;Calibration for HPGe spectra</span>
 
 <span class="sd">	Provides methods for calculating and fitting energy, efficiency and resolution</span>
@@ -249,7 +251,9 @@
 		<span class="bp">self</span><span class="o">.</span><span class="n">_rescal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">cal</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="Calibration.eng"><a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.eng">[docs]</a>	<span class="k">def</span> <span class="nf">eng</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">engcal</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Calibration.eng">
+<a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.eng">[docs]</a>
+	<span class="k">def</span> <span class="nf">eng</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">engcal</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">		</span><span class="sd">&quot;&quot;&quot;Energy calibration function</span>
 
 <span class="sd">		Returns the calculated energy given an input array of</span>
@@ -296,8 +300,11 @@
 
 		<span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">engcal</span><span class="p">)</span><span class="o">==</span><span class="mi">3</span><span class="p">:</span>
 			<span class="k">return</span> <span class="n">engcal</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">engcal</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">channel</span> <span class="o">+</span> <span class="n">engcal</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="n">channel</span><span class="o">**</span><span class="mi">2</span></div>
+
 		
-<div class="viewcode-block" id="Calibration.eff"><a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.eff">[docs]</a>	<span class="k">def</span> <span class="nf">eff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">effcal</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Calibration.eff">
+<a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.eff">[docs]</a>
+	<span class="k">def</span> <span class="nf">eff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">effcal</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">		</span><span class="sd">&quot;&quot;&quot;Efficiency calibration function</span>
 
 <span class="sd">		Returns the calculated (absolute) efficiency given an input array of </span>
@@ -350,8 +357,11 @@
 			<span class="n">sa</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">l0</span><span class="p">,</span> <span class="n">kappa</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">d</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">effcal</span><span class="p">)</span>
 			<span class="k">return</span> <span class="n">sa</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">_MU_W</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span><span class="o">*</span><span class="n">w</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">_MU</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span><span class="o">*</span><span class="n">d</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">_MU</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span><span class="o">*</span><span class="n">l</span><span class="p">))</span><span class="o">*</span><span class="p">(</span><span class="n">_TAU</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span><span class="o">+</span><span class="n">_SIGMA</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">_MU</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span><span class="o">*</span><span class="n">l0</span><span class="p">)</span><span class="o">**</span><span class="n">alpha</span><span class="p">))</span><span class="o">*</span><span class="n">kappa</span><span class="p">)</span><span class="o">/</span><span class="n">_MU</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span></div>
 
+
 		
-<div class="viewcode-block" id="Calibration.unc_eff"><a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.unc_eff">[docs]</a>	<span class="k">def</span> <span class="nf">unc_eff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">effcal</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unc_effcal</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Calibration.unc_eff">
+<a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.unc_eff">[docs]</a>
+	<span class="k">def</span> <span class="nf">unc_eff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">effcal</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unc_effcal</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">		</span><span class="sd">&quot;&quot;&quot;Uncertainty in the efficiency</span>
 
 <span class="sd">		Returns the calculated uncertainty in efficiency for an input</span>
@@ -420,8 +430,11 @@
 				<span class="n">var</span> <span class="o">+=</span> <span class="n">unc_effcal</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="n">m</span><span class="p">]</span><span class="o">*</span><span class="n">par_n</span><span class="o">*</span><span class="n">par_m</span><span class="o">*</span><span class="p">(</span><span class="mf">2.0</span> <span class="k">if</span> <span class="n">n</span><span class="o">!=</span><span class="n">m</span> <span class="k">else</span> <span class="mf">1.0</span><span class="p">)</span>
 
 		<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">var</span><span class="p">)</span></div>
+
 		
-<div class="viewcode-block" id="Calibration.res"><a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.res">[docs]</a>	<span class="k">def</span> <span class="nf">res</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">rescal</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Calibration.res">
+<a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.res">[docs]</a>
+	<span class="k">def</span> <span class="nf">res</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">rescal</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">		</span><span class="sd">&quot;&quot;&quot;Resolution calibration</span>
 
 <span class="sd">		Calculates the expected 1-sigma peak widths for a given input array</span>
@@ -463,8 +476,11 @@
 
 		<span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">rescal</span><span class="p">)</span><span class="o">==</span><span class="mi">2</span><span class="p">:</span>
 			<span class="k">return</span> <span class="n">rescal</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">rescal</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">channel</span></div>
+
 		
-<div class="viewcode-block" id="Calibration.map_channel"><a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.map_channel">[docs]</a>	<span class="k">def</span> <span class="nf">map_channel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">engcal</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Calibration.map_channel">
+<a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.map_channel">[docs]</a>
+	<span class="k">def</span> <span class="nf">map_channel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">engcal</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">		</span><span class="sd">&quot;&quot;&quot;Energy to channel calibration</span>
 
 <span class="sd">		Calculates the spectrum channel number corresponding to a given</span>
@@ -507,8 +523,11 @@
 				<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">rint</span><span class="p">(</span><span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">engcal</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="o">-</span><span class="mf">4.0</span><span class="o">*</span><span class="n">engcal</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="n">engcal</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="n">energy</span><span class="p">))</span><span class="o">-</span><span class="n">engcal</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">/</span><span class="n">engcal</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
 
 		<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">rint</span><span class="p">((</span><span class="n">energy</span><span class="o">-</span><span class="n">engcal</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">/</span><span class="n">engcal</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span></div>
+
 		
-<div class="viewcode-block" id="Calibration.calibrate"><a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.calibrate">[docs]</a>	<span class="k">def</span> <span class="nf">calibrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spectra</span><span class="p">,</span> <span class="n">sources</span><span class="p">):</span>
+<div class="viewcode-block" id="Calibration.calibrate">
+<a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.calibrate">[docs]</a>
+	<span class="k">def</span> <span class="nf">calibrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spectra</span><span class="p">,</span> <span class="n">sources</span><span class="p">):</span>
 <span class="w">		</span><span class="sd">&quot;&quot;&quot;Generate calibration parameters from spectra</span>
 
 <span class="sd">		Performs an energy, resolution and efficiency calibration on peak fits</span>
@@ -671,8 +690,11 @@
 
 
 
+
 		
-<div class="viewcode-block" id="Calibration.saveas"><a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.saveas">[docs]</a>	<span class="k">def</span> <span class="nf">saveas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+<div class="viewcode-block" id="Calibration.saveas">
+<a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.saveas">[docs]</a>
+	<span class="k">def</span> <span class="nf">saveas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
 <span class="w">		</span><span class="sd">&quot;&quot;&quot;Save the calibration as a .json file</span>
 
 <span class="sd">		Saves the energy, resolution and efficiency calibration to a .json</span>
@@ -718,8 +740,11 @@
 			<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
 				<span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">js</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span></div>
 
+
 		
-<div class="viewcode-block" id="Calibration.plot_engcal"><a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.plot_engcal">[docs]</a>	<span class="k">def</span> <span class="nf">plot_engcal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="Calibration.plot_engcal">
+<a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.plot_engcal">[docs]</a>
+	<span class="k">def</span> <span class="nf">plot_engcal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">		</span><span class="sd">&quot;&quot;&quot;Plot the energy calibration</span>
 
 <span class="sd">		Draws the energy calibration, with measurements from peak fit data if available.</span>
@@ -758,8 +783,11 @@
 		<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;ADC Channel&#39;</span><span class="p">)</span>
 
 		<span class="k">return</span> <span class="n">_draw_plot</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
 		
-<div class="viewcode-block" id="Calibration.plot_rescal"><a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.plot_rescal">[docs]</a>	<span class="k">def</span> <span class="nf">plot_rescal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="Calibration.plot_rescal">
+<a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.plot_rescal">[docs]</a>
+	<span class="k">def</span> <span class="nf">plot_rescal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">		</span><span class="sd">&quot;&quot;&quot;Plot the resolution calibration</span>
 
 <span class="sd">		Draws the resolution calibration, with measurements from peak fit data if available.</span>
@@ -798,8 +826,11 @@
 		<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Peak Width&#39;</span><span class="p">)</span>
 
 		<span class="k">return</span> <span class="n">_draw_plot</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
 		
-<div class="viewcode-block" id="Calibration.plot_effcal"><a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.plot_effcal">[docs]</a>	<span class="k">def</span> <span class="nf">plot_effcal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="Calibration.plot_effcal">
+<a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.plot_effcal">[docs]</a>
+	<span class="k">def</span> <span class="nf">plot_effcal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">		</span><span class="sd">&quot;&quot;&quot;Plot the efficiency calibration</span>
 
 <span class="sd">		Draws the efficiency calibration, with measurements from peak fit data if available.</span>
@@ -846,8 +877,11 @@
 		<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Efficiency (abs.)&#39;</span><span class="p">)</span>
 
 		<span class="k">return</span> <span class="n">_draw_plot</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
 		
-<div class="viewcode-block" id="Calibration.plot"><a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.plot">[docs]</a>	<span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="Calibration.plot">
+<a class="viewcode-back" href="../../api/calibration.html#curie.Calibration.plot">[docs]</a>
+	<span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">		</span><span class="sd">&quot;&quot;&quot;Plots energy, resolution and efficiency calibrations</span>
 
 <span class="sd">		Draws all three of energy, resolution and efficiency calibrations on a </span>
@@ -881,7 +915,9 @@
 		<span class="n">f</span><span class="p">,</span> <span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plot_effcal</span><span class="p">(</span><span class="n">f</span><span class="o">=</span><span class="n">f</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">return_plot</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 		<span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Efficiency Calibration&#39;</span><span class="p">)</span>
 
-		<span class="k">return</span> <span class="n">_draw_plot</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
+		<span class="k">return</span> <span class="n">_draw_plot</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+</div>
+
 		
 
 </pre></div>
@@ -919,7 +955,7 @@
     </div>
     <div class="footer" role="contentinfo">
     &#169; Copyright 2020, Jonathan Morrell.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     </div>
   </body>
 </html>

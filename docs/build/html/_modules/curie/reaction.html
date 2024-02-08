@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>curie.reaction &#8212; Curie 0.0.15 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b76e3c8a" />
-    <link rel="stylesheet" type="text/css" href="../../_static/classic.css?v=89b800e6" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../_static/classic.css?v=514cf933" />
     
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=8810cfe0"></script>
+    <script src="../../_static/documentation_options.js?v=f0357c94"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
-    <script src="../../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -46,7 +46,9 @@
 <span class="kn">from</span> <span class="nn">.isotope</span> <span class="kn">import</span> <span class="n">Isotope</span>
 <span class="kn">from</span> <span class="nn">.library</span> <span class="kn">import</span> <span class="n">Library</span>
 
-<div class="viewcode-block" id="Reaction"><a class="viewcode-back" href="../../api/reaction.html#curie.Reaction">[docs]</a><span class="k">class</span> <span class="nc">Reaction</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="Reaction">
+<a class="viewcode-back" href="../../api/reaction.html#curie.Reaction">[docs]</a>
+<span class="k">class</span> <span class="nc">Reaction</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 <span class="w">	</span><span class="sd">&quot;&quot;&quot;Cross section data for nuclear reactions</span>
 
 <span class="sd">	Contains reaction cross sections as a function of incident energy,</span>
@@ -176,7 +178,9 @@
 	<span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
 		
-<div class="viewcode-block" id="Reaction.interpolate"><a class="viewcode-back" href="../../api/reaction.html#curie.Reaction.interpolate">[docs]</a>	<span class="k">def</span> <span class="nf">interpolate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">):</span>
+<div class="viewcode-block" id="Reaction.interpolate">
+<a class="viewcode-back" href="../../api/reaction.html#curie.Reaction.interpolate">[docs]</a>
+	<span class="k">def</span> <span class="nf">interpolate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">):</span>
 <span class="w">		</span><span class="sd">&quot;&quot;&quot;Interpolated cross section</span>
 
 <span class="sd">		Linear interpolation of the reaction cross section along the</span>
@@ -218,7 +222,10 @@
 		<span class="n">_interp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interp</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span>
 		<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">_interp</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">,</span> <span class="n">_interp</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Reaction.interpolate_unc"><a class="viewcode-back" href="../../api/reaction.html#curie.Reaction.interpolate_unc">[docs]</a>	<span class="k">def</span> <span class="nf">interpolate_unc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Reaction.interpolate_unc">
+<a class="viewcode-back" href="../../api/reaction.html#curie.Reaction.interpolate_unc">[docs]</a>
+	<span class="k">def</span> <span class="nf">interpolate_unc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">):</span>
 <span class="w">		</span><span class="sd">&quot;&quot;&quot;Uncertainty in interpolated cross section</span>
 
 <span class="sd">		Linear interpolation of the uncertainty in the reaction cross section</span>
@@ -247,8 +254,11 @@
 		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interp_unc</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
 			<span class="bp">self</span><span class="o">.</span><span class="n">_interp_unc</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eng</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">unc_xs</span><span class="p">,</span> <span class="n">bounds_error</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interp_unc</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span></div>
+
 		
-<div class="viewcode-block" id="Reaction.integrate"><a class="viewcode-back" href="../../api/reaction.html#curie.Reaction.integrate">[docs]</a>	<span class="k">def</span> <span class="nf">integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">flux</span><span class="p">,</span> <span class="n">unc</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="Reaction.integrate">
+<a class="viewcode-back" href="../../api/reaction.html#curie.Reaction.integrate">[docs]</a>
+	<span class="k">def</span> <span class="nf">integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">flux</span><span class="p">,</span> <span class="n">unc</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">		</span><span class="sd">&quot;&quot;&quot;Reaction flux integral</span>
 
 <span class="sd">		Integrate the product of the cross section and flux along the input energy grid.</span>
@@ -289,8 +299,11 @@
 			<span class="n">unc_phisig</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">flux</span><span class="p">)</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">interpolate_unc</span><span class="p">(</span><span class="n">E</span><span class="p">)</span>
 			<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><span class="n">E</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">-</span><span class="n">E</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">*</span><span class="p">(</span><span class="n">phisig</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">phisig</span><span class="p">[</span><span class="mi">1</span><span class="p">:])),</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><span class="n">E</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">-</span><span class="n">E</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">*</span><span class="p">(</span><span class="n">unc_phisig</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">unc_phisig</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span>
 		<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><span class="n">E</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">-</span><span class="n">E</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">*</span><span class="p">(</span><span class="n">phisig</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">phisig</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span></div>
+
 		
-<div class="viewcode-block" id="Reaction.average"><a class="viewcode-back" href="../../api/reaction.html#curie.Reaction.average">[docs]</a>	<span class="k">def</span> <span class="nf">average</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">flux</span><span class="p">,</span> <span class="n">unc</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="Reaction.average">
+<a class="viewcode-back" href="../../api/reaction.html#curie.Reaction.average">[docs]</a>
+	<span class="k">def</span> <span class="nf">average</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">flux</span><span class="p">,</span> <span class="n">unc</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">		</span><span class="sd">&quot;&quot;&quot;Flux averaged reaction cross section</span>
 
 <span class="sd">		Calculates the flux-weighted average reaction cross section, using the</span>
@@ -333,8 +346,11 @@
 			<span class="n">unc_phisig</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">flux</span><span class="p">)</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">interpolate_unc</span><span class="p">(</span><span class="n">E</span><span class="p">)</span>
 			<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mf">0.5</span><span class="o">*</span><span class="n">dE</span><span class="o">*</span><span class="p">(</span><span class="n">phisig</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">phisig</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mf">0.5</span><span class="o">*</span><span class="n">dE</span><span class="o">*</span><span class="p">(</span><span class="n">phi</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">phi</span><span class="p">[</span><span class="mi">1</span><span class="p">:])),</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mf">0.5</span><span class="o">*</span><span class="n">dE</span><span class="o">*</span><span class="p">(</span><span class="n">unc_phisig</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">unc_phisig</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mf">0.5</span><span class="o">*</span><span class="n">dE</span><span class="o">*</span><span class="p">(</span><span class="n">phi</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">phi</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span>
 		<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mf">0.5</span><span class="o">*</span><span class="n">dE</span><span class="o">*</span><span class="p">(</span><span class="n">phisig</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">phisig</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mf">0.5</span><span class="o">*</span><span class="n">dE</span><span class="o">*</span><span class="p">(</span><span class="n">phi</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">phi</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span></div>
+
 		
-<div class="viewcode-block" id="Reaction.plot"><a class="viewcode-back" href="../../api/reaction.html#curie.Reaction.plot">[docs]</a>	<span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;reaction&#39;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="Reaction.plot">
+<a class="viewcode-back" href="../../api/reaction.html#curie.Reaction.plot">[docs]</a>
+	<span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;reaction&#39;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">		</span><span class="sd">&quot;&quot;&quot;Plot the cross section</span>
 
 <span class="sd">		Plots the energy differential cross section.</span>
@@ -412,7 +428,9 @@
 		<span class="k">if</span> <span class="n">label</span><span class="p">:</span>
 			<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
-		<span class="k">return</span> <span class="n">_draw_plot</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
+		<span class="k">return</span> <span class="n">_draw_plot</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+</div>
+
 		
 </pre></div>
 
@@ -449,7 +467,7 @@
     </div>
     <div class="footer" role="contentinfo">
     &#169; Copyright 2020, Jonathan Morrell.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     </div>
   </body>
 </html>

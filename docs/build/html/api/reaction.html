@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Reaction &#8212; Curie 0.0.15 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b76e3c8a" />
-    <link rel="stylesheet" type="text/css" href="../_static/classic.css?v=89b800e6" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css?v=514cf933" />
     
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=8810cfe0"></script>
+    <script src="../_static/documentation_options.js?v=f0357c94"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -42,10 +42,10 @@
           <div class="body" role="main">
             
   <section id="reaction">
-<span id="id1"></span><h1>Reaction<a class="headerlink" href="#reaction" title="Permalink to this heading">¶</a></h1>
+<span id="id1"></span><h1>Reaction<a class="headerlink" href="#reaction" title="Link to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="curie.Reaction">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">curie.</span></span><span class="sig-name descname"><span class="pre">Reaction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reaction_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">library</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'best'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/reaction.html#Reaction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Reaction" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">curie.</span></span><span class="sig-name descname"><span class="pre">Reaction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reaction_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">library</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'best'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/reaction.html#Reaction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Reaction" title="Link to this definition">¶</a></dt>
 <dd><p>Cross section data for nuclear reactions</p>
 <p>Contains reaction cross sections as a function of incident energy,
 and some useful methods for manipulating cross section data, such as
@@ -126,7 +126,7 @@ name of the library.</p>
 </table>
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.Reaction.average">
-<span class="sig-name descname"><span class="pre">average</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flux</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/reaction.html#Reaction.average"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Reaction.average" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">average</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flux</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/reaction.html#Reaction.average"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Reaction.average" title="Link to this definition">¶</a></dt>
 <dd><p>Flux averaged reaction cross section</p>
 <p>Calculates the flux-weighted average reaction cross section, using the
 input flux and energy grid.</p>
@@ -164,7 +164,7 @@ and uncertainty, if <cite>unc=True</cite>.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.Reaction.integrate">
-<span class="sig-name descname"><span class="pre">integrate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flux</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/reaction.html#Reaction.integrate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Reaction.integrate" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">integrate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flux</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/reaction.html#Reaction.integrate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Reaction.integrate" title="Link to this definition">¶</a></dt>
 <dd><p>Reaction flux integral</p>
 <p>Integrate the product of the cross section and flux along the input energy grid.</p>
 <dl class="field-list simple">
@@ -201,7 +201,7 @@ and uncertainty, if <cite>unc=True</cite>.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.Reaction.interpolate">
-<span class="sig-name descname"><span class="pre">interpolate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/reaction.html#Reaction.interpolate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Reaction.interpolate" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">interpolate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/reaction.html#Reaction.interpolate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Reaction.interpolate" title="Link to this definition">¶</a></dt>
 <dd><p>Interpolated cross section</p>
 <p>Linear interpolation of the reaction cross section along the
 input energy grid.</p>
@@ -231,7 +231,7 @@ input energy grid.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.Reaction.interpolate_unc">
-<span class="sig-name descname"><span class="pre">interpolate_unc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/reaction.html#Reaction.interpolate_unc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Reaction.interpolate_unc" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">interpolate_unc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/reaction.html#Reaction.interpolate_unc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Reaction.interpolate_unc" title="Link to this definition">¶</a></dt>
 <dd><p>Uncertainty in interpolated cross section</p>
 <p>Linear interpolation of the uncertainty in the reaction cross section
 along the input energy grid, for libraries where uncertainties are provided.</p>
@@ -261,7 +261,7 @@ along the input energy grid, for libraries where uncertainties are provided.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.Reaction.plot">
-<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'reaction'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/reaction.html#Reaction.plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Reaction.plot" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'reaction'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/reaction.html#Reaction.plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Reaction.plot" title="Link to this definition">¶</a></dt>
 <dd><p>Plot the cross section</p>
 <p>Plots the energy differential cross section.</p>
 <dl class="field-list simple">
@@ -377,7 +377,7 @@ list of kwargs.</p>
     </div>
     <div class="footer" role="contentinfo">
     &#169; Copyright 2020, Jonathan Morrell.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     </div>
   </body>
 </html>

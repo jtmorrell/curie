@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>curie.library &#8212; Curie 0.0.15 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b76e3c8a" />
-    <link rel="stylesheet" type="text/css" href="../../_static/classic.css?v=89b800e6" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../_static/classic.css?v=514cf933" />
     
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=8810cfe0"></script>
+    <script src="../../_static/documentation_options.js?v=f0357c94"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
-    <script src="../../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -44,7 +44,9 @@
 <span class="kn">from</span> <span class="nn">.data</span> <span class="kn">import</span> <span class="n">_get_connection</span>
 <span class="kn">from</span> <span class="nn">.isotope</span> <span class="kn">import</span> <span class="n">Isotope</span>
 
-<div class="viewcode-block" id="Library"><a class="viewcode-back" href="../../api/library.html#curie.Library">[docs]</a><span class="k">class</span> <span class="nc">Library</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="Library">
+<a class="viewcode-back" href="../../api/library.html#curie.Library">[docs]</a>
+<span class="k">class</span> <span class="nc">Library</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 <span class="w">	</span><span class="sd">&quot;&quot;&quot;Library of nuclear reaction data</span>
 
 <span class="sd">	Provides a means of searching and retrieving data from various nuclear reaction</span>
@@ -101,7 +103,9 @@
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
 		
 
-<div class="viewcode-block" id="Library.search"><a class="viewcode-back" href="../../api/library.html#curie.Library.search">[docs]</a>	<span class="k">def</span> <span class="nf">search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">incident</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">outgoing</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">product</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_label</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="Library.search">
+<a class="viewcode-back" href="../../api/library.html#curie.Library.search">[docs]</a>
+	<span class="k">def</span> <span class="nf">search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">incident</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">outgoing</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">product</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_label</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">		</span><span class="sd">&quot;&quot;&quot;Searches the library for reactions</span>
 
 <span class="sd">		Returns a list of reactions that match the specified target, incident</span>
@@ -207,8 +211,11 @@
 
 		<span class="k">return</span> <span class="p">[</span><span class="n">fmt</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">reacs</span><span class="p">]</span></div>
 
+
 		
-<div class="viewcode-block" id="Library.retrieve"><a class="viewcode-back" href="../../api/library.html#curie.Library.retrieve">[docs]</a>	<span class="k">def</span> <span class="nf">retrieve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">incident</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">outgoing</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">product</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Library.retrieve">
+<a class="viewcode-back" href="../../api/library.html#curie.Library.retrieve">[docs]</a>
+	<span class="k">def</span> <span class="nf">retrieve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">incident</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">outgoing</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">product</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">		</span><span class="sd">&quot;&quot;&quot;Pull reaction data from the library</span>
 
 <span class="sd">		Returns a numpy ndarray containing the reaction energy grid (in MeV),</span>
@@ -281,7 +288,9 @@
 			<span class="k">if</span> <span class="n">incident</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
 				<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Incident particle must be specified.&#39;</span><span class="p">)</span>
 			<span class="n">table</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;n&#39;</span><span class="p">:</span><span class="s1">&#39;neutron&#39;</span><span class="p">,</span><span class="s1">&#39;p&#39;</span><span class="p">:</span><span class="s1">&#39;proton&#39;</span><span class="p">,</span><span class="s1">&#39;d&#39;</span><span class="p">:</span><span class="s1">&#39;deuteron&#39;</span><span class="p">,</span><span class="s1">&#39;h&#39;</span><span class="p">:</span><span class="s1">&#39;helion&#39;</span><span class="p">,</span><span class="s1">&#39;a&#39;</span><span class="p">:</span><span class="s1">&#39;alpha&#39;</span><span class="p">,</span><span class="s1">&#39;g&#39;</span><span class="p">:</span><span class="s1">&#39;gamma&#39;</span><span class="p">}[</span><span class="n">incident</span><span class="p">]</span>
-			<span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s1">&#39;SELECT energy,cross_section,unc_cross_section FROM </span><span class="si">{0}</span><span class="s1"> WHERE target LIKE ? AND product=?&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">table</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_con</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;%&#39;</span><span class="o">+</span><span class="n">target</span><span class="o">+</span><span class="s1">&#39;%&#39;</span><span class="p">,</span> <span class="n">labels</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span></div></div>
+			<span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s1">&#39;SELECT energy,cross_section,unc_cross_section FROM </span><span class="si">{0}</span><span class="s1"> WHERE target LIKE ? AND product=?&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">table</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_con</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;%&#39;</span><span class="o">+</span><span class="n">target</span><span class="o">+</span><span class="s1">&#39;%&#39;</span><span class="p">,</span> <span class="n">labels</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span></div>
+</div>
+
 		
 </pre></div>
 
@@ -318,7 +327,7 @@
     </div>
     <div class="footer" role="contentinfo">
     &#169; Copyright 2020, Jonathan Morrell.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     </div>
   </body>
 </html>

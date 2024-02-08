@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Element &#8212; Curie 0.0.15 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b76e3c8a" />
-    <link rel="stylesheet" type="text/css" href="../_static/classic.css?v=89b800e6" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css?v=514cf933" />
     
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=8810cfe0"></script>
+    <script src="../_static/documentation_options.js?v=f0357c94"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -42,10 +42,10 @@
           <div class="body" role="main">
             
   <section id="element">
-<span id="id1"></span><h1>Element<a class="headerlink" href="#element" title="Permalink to this heading">¶</a></h1>
+<span id="id1"></span><h1>Element<a class="headerlink" href="#element" title="Link to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="curie.Element">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">curie.</span></span><span class="sig-name descname"><span class="pre">Element</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/element.html#Element"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Element" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">curie.</span></span><span class="sig-name descname"><span class="pre">Element</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/element.html#Element"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Element" title="Link to this definition">¶</a></dt>
 <dd><p>Elemental data and properties</p>
 <p>The Element class provides useful data about the natural elements,
 such as mass, density, and isotopic composition.  Additionally, it contains
@@ -134,7 +134,7 @@ mass-energy absorption coefficient.</p>
 </table>
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.Element.S">
-<span class="sig-name descname"><span class="pre">S</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">particle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'p'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">density</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/element.html#Element.S"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Element.S" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">S</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">particle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'p'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">density</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/element.html#Element.S"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Element.S" title="Link to this definition">¶</a></dt>
 <dd><p>Charged particle stopping power in matter</p>
 <p>Calculate the stopping power, S=-dE/dx, for a given ion as a 
 function of the ion energy in MeV.  Units of S are MeV/cm.  To return
@@ -177,7 +177,7 @@ ion energy in MeV.  Units of S are MeV/cm.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.Element.attenuation">
-<span class="sig-name descname"><span class="pre">attenuation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">density</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/element.html#Element.attenuation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Element.attenuation" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">attenuation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">density</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/element.html#Element.attenuation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Element.attenuation" title="Link to this definition">¶</a></dt>
 <dd><p>Photon attenuation in matter</p>
 <p>Calculate the attenuation factor I(x)/I_0 = e^(-mu*x) for a given
 photon energy (in keV) and slab thickness (in cm).</p>
@@ -214,7 +214,7 @@ is I_0 times the attenuation factor.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.Element.mu">
-<span class="sig-name descname"><span class="pre">mu</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/element.html#Element.mu"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Element.mu" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">mu</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/element.html#Element.mu"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Element.mu" title="Link to this definition">¶</a></dt>
 <dd><p>Mass-attenuation coefficient</p>
 <p>Interpolates the mass-attenuation coefficient, mu/rho,
 for the element along the input energy grid.</p>
@@ -242,7 +242,7 @@ for the element along the input energy grid.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.Element.mu_en">
-<span class="sig-name descname"><span class="pre">mu_en</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/element.html#Element.mu_en"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Element.mu_en" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">mu_en</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/element.html#Element.mu_en"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Element.mu_en" title="Link to this definition">¶</a></dt>
 <dd><p>Mass energy-absorption coefficient</p>
 <p>Interpolates the mass-energy absorption coefficient, mu_en/rho,
 for the element along the input energy grid.</p>
@@ -270,7 +270,7 @@ for the element along the input energy grid.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.Element.plot_S">
-<span class="sig-name descname"><span class="pre">plot_S</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">particle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'p'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/element.html#Element.plot_S"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Element.plot_S" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">plot_S</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">particle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'p'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/element.html#Element.plot_S"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Element.plot_S" title="Link to this definition">¶</a></dt>
 <dd><p>Plot the stopping power in the element</p>
 <p>Creates a plot of the charged particle stopping power (in MeV/(mg/cm^2))
 in the element as a function of the incident ion energy (in MeV).</p>
@@ -306,7 +306,7 @@ list of kwargs.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.Element.plot_mass_coeff">
-<span class="sig-name descname"><span class="pre">plot_mass_coeff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/element.html#Element.plot_mass_coeff"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Element.plot_mass_coeff" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">plot_mass_coeff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/element.html#Element.plot_mass_coeff"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Element.plot_mass_coeff" title="Link to this definition">¶</a></dt>
 <dd><p>Plot the mass-attenuation coefficient in the element</p>
 <p>Creates a plot of the mass-attenuation coefficient (in cm^2/g)
 as a function of photon energy in keV.</p>
@@ -337,7 +337,7 @@ list of kwargs.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.Element.plot_mass_coeff_en">
-<span class="sig-name descname"><span class="pre">plot_mass_coeff_en</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/element.html#Element.plot_mass_coeff_en"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Element.plot_mass_coeff_en" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">plot_mass_coeff_en</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/element.html#Element.plot_mass_coeff_en"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Element.plot_mass_coeff_en" title="Link to this definition">¶</a></dt>
 <dd><p>Plot the mass energy-absorption coefficient in the element</p>
 <p>Creates a plot of the mass energy-absorption coefficient (in cm^2/g)
 as a function of photon energy in keV.</p>
@@ -372,7 +372,7 @@ energy-absorption coefficient, on the same axes.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.Element.plot_range">
-<span class="sig-name descname"><span class="pre">plot_range</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">particle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'p'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">density</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/element.html#Element.plot_range"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Element.plot_range" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">plot_range</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">particle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'p'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">density</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/element.html#Element.plot_range"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Element.plot_range" title="Link to this definition">¶</a></dt>
 <dd><p>Plot the charged particle range in the element</p>
 <p>Creates a plot of the charged particle range (in cm)
 in the element as a function of the incident ion energy (in MeV).</p>
@@ -410,7 +410,7 @@ list of kwargs.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.Element.range">
-<span class="sig-name descname"><span class="pre">range</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">particle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'p'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">density</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/element.html#Element.range"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Element.range" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">range</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">particle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'p'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">density</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/element.html#Element.range"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Element.range" title="Link to this definition">¶</a></dt>
 <dd><p>Charged particle range in matter</p>
 <p>Calculates the charged particle range in the element, in cm.  Incident
 energy should be in MeV, and the particle type definition is identical
@@ -532,7 +532,7 @@ with the Anderson-Ziegler formalism.</p>
     </div>
     <div class="footer" role="contentinfo">
     &#169; Copyright 2020, Jonathan Morrell.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     </div>
   </body>
 </html>

@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>curie.compound &#8212; Curie 0.0.15 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b76e3c8a" />
-    <link rel="stylesheet" type="text/css" href="../../_static/classic.css?v=89b800e6" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../_static/classic.css?v=514cf933" />
     
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=8810cfe0"></script>
+    <script src="../../_static/documentation_options.js?v=f0357c94"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
-    <script src="../../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -53,7 +53,9 @@
 
 
 
-<div class="viewcode-block" id="Compound"><a class="viewcode-back" href="../../api/compound.html#curie.Compound">[docs]</a><span class="k">class</span> <span class="nc">Compound</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="Compound">
+<a class="viewcode-back" href="../../api/compound.html#curie.Compound">[docs]</a>
+<span class="k">class</span> <span class="nc">Compound</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 <span class="w">	</span><span class="sd">&quot;&quot;&quot;Data and properties of atomic compounds</span>
 
 <span class="sd">	The compound class provides the same functionality as the</span>
@@ -266,7 +268,9 @@
 	<span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
 
-<div class="viewcode-block" id="Compound.saveas"><a class="viewcode-back" href="../../api/compound.html#curie.Compound.saveas">[docs]</a>	<span class="k">def</span> <span class="nf">saveas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="Compound.saveas">
+<a class="viewcode-back" href="../../api/compound.html#curie.Compound.saveas">[docs]</a>
+	<span class="k">def</span> <span class="nf">saveas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">		</span><span class="sd">&quot;&quot;&quot;Save the compound definition to a file</span>
 
 <span class="sd">		The weights and density of the compound can be saved to one of</span>
@@ -326,7 +330,10 @@
 			<span class="k">else</span><span class="p">:</span>
 				<span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">wts</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">orient</span><span class="o">=</span><span class="s1">&#39;records&#39;</span><span class="p">)),</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">),</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Compound.mu"><a class="viewcode-back" href="../../api/compound.html#curie.Compound.mu">[docs]</a>	<span class="k">def</span> <span class="nf">mu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Compound.mu">
+<a class="viewcode-back" href="../../api/compound.html#curie.Compound.mu">[docs]</a>
+	<span class="k">def</span> <span class="nf">mu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">):</span>
 <span class="w">		</span><span class="sd">&quot;&quot;&quot;Mass-attenuation coefficient</span>
 
 <span class="sd">		Interpolates the mass-attenuation coefficient, mu/rho,</span>
@@ -354,7 +361,10 @@
 			<span class="bp">self</span><span class="o">.</span><span class="n">_mc_interp</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mass_coeff</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mass_coeff</span><span class="p">[</span><span class="s1">&#39;mu&#39;</span><span class="p">]),</span> <span class="n">bounds_error</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="s1">&#39;extrapolate&#39;</span><span class="p">)</span>
 		<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mc_interp</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">energy</span><span class="p">)))</span></div>
 
-<div class="viewcode-block" id="Compound.mu_en"><a class="viewcode-back" href="../../api/compound.html#curie.Compound.mu_en">[docs]</a>	<span class="k">def</span> <span class="nf">mu_en</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Compound.mu_en">
+<a class="viewcode-back" href="../../api/compound.html#curie.Compound.mu_en">[docs]</a>
+	<span class="k">def</span> <span class="nf">mu_en</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">):</span>
 <span class="w">		</span><span class="sd">&quot;&quot;&quot;Mass energy-absorption coefficient</span>
 
 <span class="sd">		Interpolates the mass-energy absorption coefficient, mu_en/rho,</span>
@@ -382,7 +392,10 @@
 			<span class="bp">self</span><span class="o">.</span><span class="n">_mc_en_interp</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mass_coeff</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mass_coeff</span><span class="p">[</span><span class="s1">&#39;mu_en&#39;</span><span class="p">]),</span> <span class="n">bounds_error</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="s1">&#39;extrapolate&#39;</span><span class="p">)</span>
 		<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mc_en_interp</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">energy</span><span class="p">)))</span></div>
 
-<div class="viewcode-block" id="Compound.attenuation"><a class="viewcode-back" href="../../api/compound.html#curie.Compound.attenuation">[docs]</a>	<span class="k">def</span> <span class="nf">attenuation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Compound.attenuation">
+<a class="viewcode-back" href="../../api/compound.html#curie.Compound.attenuation">[docs]</a>
+	<span class="k">def</span> <span class="nf">attenuation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">		</span><span class="sd">&quot;&quot;&quot;Photon attenuation in matter</span>
 
 <span class="sd">		Calculate the attenuation factor I(x)/I_0 = e^(-mu*x) for a given</span>
@@ -423,8 +436,11 @@
 			<span class="n">density</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">density</span>
 
 		<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">mu</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span><span class="o">*</span><span class="n">x</span><span class="o">*</span><span class="n">density</span><span class="p">)</span></div>
+
 		
-<div class="viewcode-block" id="Compound.S"><a class="viewcode-back" href="../../api/compound.html#curie.Compound.S">[docs]</a>	<span class="k">def</span> <span class="nf">S</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">particle</span><span class="o">=</span><span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Compound.S">
+<a class="viewcode-back" href="../../api/compound.html#curie.Compound.S">[docs]</a>
+	<span class="k">def</span> <span class="nf">S</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">particle</span><span class="o">=</span><span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">		</span><span class="sd">&quot;&quot;&quot;Charged particle stopping power in matter</span>
 
 <span class="sd">		Calculate the stopping power, S=-dE/dx, for a given ion as a </span>
@@ -472,8 +488,11 @@
 			<span class="n">density</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">density</span>
 
 		<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">([</span><span class="n">el</span><span class="o">.</span><span class="n">S</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">particle</span><span class="o">=</span><span class="n">particle</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="mf">1E-3</span><span class="p">)</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">],</span> <span class="n">weights</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">[</span><span class="s1">&#39;mass_weight&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">*</span><span class="mf">1E3</span><span class="o">*</span><span class="n">density</span></div>
+
 		
-<div class="viewcode-block" id="Compound.range"><a class="viewcode-back" href="../../api/compound.html#curie.Compound.range">[docs]</a>	<span class="k">def</span> <span class="nf">range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">particle</span><span class="o">=</span><span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Compound.range">
+<a class="viewcode-back" href="../../api/compound.html#curie.Compound.range">[docs]</a>
+	<span class="k">def</span> <span class="nf">range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">particle</span><span class="o">=</span><span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">		</span><span class="sd">&quot;&quot;&quot;Charged particle range in matter</span>
 
 <span class="sd">		Calculates the charged particle range in the compound, in cm.  Incident</span>
@@ -522,8 +541,11 @@
 		<span class="n">S</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">S</span><span class="p">(</span><span class="n">E_grid</span><span class="p">,</span> <span class="n">particle</span><span class="o">=</span><span class="n">particle</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="n">density</span><span class="p">)</span>
 		<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">((</span><span class="mf">1.0</span><span class="o">/</span><span class="n">S</span><span class="p">)</span><span class="o">*</span><span class="n">dE</span><span class="p">)</span>
 		<span class="k">return</span> <span class="n">interp1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">E_grid</span><span class="p">),</span> <span class="n">x</span><span class="p">,</span> <span class="n">bounds_error</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="s1">&#39;extrapolate&#39;</span><span class="p">)(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">energy</span><span class="p">))</span></div>
+
 		
-<div class="viewcode-block" id="Compound.plot_mass_coeff"><a class="viewcode-back" href="../../api/compound.html#curie.Compound.plot_mass_coeff">[docs]</a>	<span class="k">def</span> <span class="nf">plot_mass_coeff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="Compound.plot_mass_coeff">
+<a class="viewcode-back" href="../../api/compound.html#curie.Compound.plot_mass_coeff">[docs]</a>
+	<span class="k">def</span> <span class="nf">plot_mass_coeff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">		</span><span class="sd">&quot;&quot;&quot;Plot the mass-attenuation coefficient in the compound</span>
 
 <span class="sd">		Creates a plot of the mass-attenuation coefficient (in cm^2/g)</span>
@@ -568,8 +590,11 @@
 		<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
 		
 		<span class="k">return</span> <span class="n">_draw_plot</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
 		
-<div class="viewcode-block" id="Compound.plot_mass_coeff_en"><a class="viewcode-back" href="../../api/compound.html#curie.Compound.plot_mass_coeff_en">[docs]</a>	<span class="k">def</span> <span class="nf">plot_mass_coeff_en</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="Compound.plot_mass_coeff_en">
+<a class="viewcode-back" href="../../api/compound.html#curie.Compound.plot_mass_coeff_en">[docs]</a>
+	<span class="k">def</span> <span class="nf">plot_mass_coeff_en</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">		</span><span class="sd">&quot;&quot;&quot;Plot the mass energy-absorption coefficient in the compound</span>
 
 <span class="sd">		Creates a plot of the mass energy-absorption coefficient (in cm^2/g)</span>
@@ -617,9 +642,12 @@
 		<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
 
 		<span class="k">return</span> <span class="n">_draw_plot</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
 		
 		
-<div class="viewcode-block" id="Compound.plot_S"><a class="viewcode-back" href="../../api/compound.html#curie.Compound.plot_S">[docs]</a>	<span class="k">def</span> <span class="nf">plot_S</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">particle</span><span class="o">=</span><span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="n">energy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="Compound.plot_S">
+<a class="viewcode-back" href="../../api/compound.html#curie.Compound.plot_S">[docs]</a>
+	<span class="k">def</span> <span class="nf">plot_S</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">particle</span><span class="o">=</span><span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="n">energy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">		</span><span class="sd">&quot;&quot;&quot;Plot the stopping power in the compound</span>
 
 <span class="sd">		Creates a plot of the charged particle stopping power (in MeV/(mg/cm^2))</span>
@@ -664,8 +692,11 @@
 		<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
 
 		<span class="k">return</span> <span class="n">_draw_plot</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
 		
-<div class="viewcode-block" id="Compound.plot_range"><a class="viewcode-back" href="../../api/compound.html#curie.Compound.plot_range">[docs]</a>	<span class="k">def</span> <span class="nf">plot_range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">particle</span><span class="o">=</span><span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="n">energy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="Compound.plot_range">
+<a class="viewcode-back" href="../../api/compound.html#curie.Compound.plot_range">[docs]</a>
+	<span class="k">def</span> <span class="nf">plot_range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">particle</span><span class="o">=</span><span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="n">energy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">		</span><span class="sd">&quot;&quot;&quot;Plot the charged particle range in the compound</span>
 
 <span class="sd">		Creates a plot of the charged particle range (in cm)</span>
@@ -713,7 +744,9 @@
 		<span class="n">ax</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
 		<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
 
-		<span class="k">return</span> <span class="n">_draw_plot</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
+		<span class="k">return</span> <span class="n">_draw_plot</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+</div>
+
 </pre></div>
 
             <div class="clearer"></div>
@@ -749,7 +782,7 @@
     </div>
     <div class="footer" role="contentinfo">
     &#169; Copyright 2020, Jonathan Morrell.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     </div>
   </body>
 </html>

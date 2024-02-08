@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Stack &#8212; Curie 0.0.15 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b76e3c8a" />
-    <link rel="stylesheet" type="text/css" href="../_static/classic.css?v=89b800e6" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css?v=514cf933" />
     
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=8810cfe0"></script>
+    <script src="../_static/documentation_options.js?v=f0357c94"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -42,10 +42,10 @@
           <div class="body" role="main">
             
   <section id="stack">
-<span id="id1"></span><h1>Stack<a class="headerlink" href="#stack" title="Permalink to this heading">¶</a></h1>
+<span id="id1"></span><h1>Stack<a class="headerlink" href="#stack" title="Link to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="curie.Stack">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">curie.</span></span><span class="sig-name descname"><span class="pre">Stack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stack</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">particle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'p'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">E0</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60.0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/stack.html#Stack"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Stack" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">curie.</span></span><span class="sig-name descname"><span class="pre">Stack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stack</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">particle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'p'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">E0</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60.0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/stack.html#Stack"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Stack" title="Link to this definition">¶</a></dt>
 <dd><p>Foil pack for stacked target calculations</p>
 <p>Computes the energy loss and (relative) charged particle flux through a stack
 of foils using the Anderson-Ziegler formulation for stopping powers.</p>
@@ -169,7 +169,7 @@ for each foil in the stack (energies in MeV).</p>
 </table>
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.Stack.get_flux">
-<span class="sig-name descname"><span class="pre">get_flux</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sample_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/stack.html#Stack.get_flux"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Stack.get_flux" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_flux</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sample_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/stack.html#Stack.get_flux"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Stack.get_flux" title="Link to this definition">¶</a></dt>
 <dd><p>Returns the computed energy grid and flux for a sample</p>
 <p>Units of energy are in MeV, and the flux is a relative flux (normalized to 1).
 Note that sample_name must be an exact match with the ‘name’ property in the
@@ -207,7 +207,7 @@ match for an element in the stack.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.Stack.plot">
-<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filter_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/stack.html#Stack.plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Stack.plot" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filter_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/stack.html#Stack.plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Stack.plot" title="Link to this definition">¶</a></dt>
 <dd><p>Plots the fluxes for each foil in the stack calculation</p>
 <p>Plots the flux distribution for each foil in the stack, or
 the filtered stack depending on the behaviour of <cite>filter_name</cite>.</p>
@@ -245,7 +245,7 @@ list of kwargs.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.Stack.saveas">
-<span class="sig-name descname"><span class="pre">saveas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_fluxes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/stack.html#Stack.saveas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Stack.saveas" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">saveas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_fluxes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/stack.html#Stack.saveas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Stack.saveas" title="Link to this definition">¶</a></dt>
 <dd><p>Saves the results of the stack calculation</p>
 <p>Saves the stack design, mean energies, and (optionally) the flux
 profile for each foil in the stack.  Supported file types are ‘.csv’,
@@ -288,7 +288,7 @@ are saved.  This applies to both files. Default, True.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.Stack.summarize">
-<span class="sig-name descname"><span class="pre">summarize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filter_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/stack.html#Stack.summarize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Stack.summarize" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">summarize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filter_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/stack.html#Stack.summarize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Stack.summarize" title="Link to this definition">¶</a></dt>
 <dd><p>Summarize the stack calculation</p>
 <p>Prints out the mean energies and 1-sigma energy widths of
 each foil in the stack, or the filtered stack depending
@@ -402,7 +402,7 @@ matching a regex search with filter_name are included. Default, True.</p>
     </div>
     <div class="footer" role="contentinfo">
     &#169; Copyright 2020, Jonathan Morrell.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     </div>
   </body>
 </html>

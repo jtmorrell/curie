@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Decay Chain &#8212; Curie 0.0.15 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b76e3c8a" />
-    <link rel="stylesheet" type="text/css" href="../_static/classic.css?v=89b800e6" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css?v=514cf933" />
     
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=8810cfe0"></script>
+    <script src="../_static/documentation_options.js?v=f0357c94"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -42,10 +42,10 @@
           <div class="body" role="main">
             
   <section id="decay-chain">
-<span id="decaychain"></span><h1>Decay Chain<a class="headerlink" href="#decay-chain" title="Permalink to this heading">¶</a></h1>
+<span id="decaychain"></span><h1>Decay Chain<a class="headerlink" href="#decay-chain" title="Link to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="curie.DecayChain">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">curie.</span></span><span class="sig-name descname"><span class="pre">DecayChain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent_isotope</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">A0</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'s'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/decay_chain.html#DecayChain"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.DecayChain" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">curie.</span></span><span class="sig-name descname"><span class="pre">DecayChain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent_isotope</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">A0</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'s'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/decay_chain.html#DecayChain"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.DecayChain" title="Link to this definition">¶</a></dt>
 <dd><p>Radioactive Decay Chain</p>
 <p>Uses the Bateman equations to calculate the activities and number of decays
 from a radioactive decay chain as a function of time, both in production
@@ -146,7 +146,7 @@ modified if <cite>fit_R()</cite> is called.</p>
 </table>
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.DecayChain.activity">
-<span class="sig-name descname"><span class="pre">activity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">isotope</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_R_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_A_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/decay_chain.html#DecayChain.activity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.DecayChain.activity" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">activity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">isotope</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_R_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_A_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/decay_chain.html#DecayChain.activity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.DecayChain.activity" title="Link to this definition">¶</a></dt>
 <dd><p>Activity of an isotope in the chain</p>
 <p>Computes the activity of a given isotope in the decay chain at a
 given time.  Units of activity are in Bq.  Units of time must be either
@@ -186,7 +186,7 @@ A0.  t&lt;0 is not allowed.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.DecayChain.decays">
-<span class="sig-name descname"><span class="pre">decays</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">isotope</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_stop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_A_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/decay_chain.html#DecayChain.decays"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.DecayChain.decays" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">decays</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">isotope</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_stop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_A_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/decay_chain.html#DecayChain.decays"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.DecayChain.decays" title="Link to this definition">¶</a></dt>
 <dd><p>Number of decays in a given time interval</p>
 <p>Computes the number of decays from a given isotope in the
 decay chain in the time interal t_start to t_stop.  The 
@@ -224,7 +224,7 @@ as the decay chain, or be specified by the <cite>units</cite> keyword.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.DecayChain.fit_A0">
-<span class="sig-name descname"><span class="pre">fit_A0</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_counts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/decay_chain.html#DecayChain.fit_A0"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.DecayChain.fit_A0" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">fit_A0</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_counts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/decay_chain.html#DecayChain.fit_A0"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.DecayChain.fit_A0" title="Link to this definition">¶</a></dt>
 <dd><p>Fit the initial activity to count data</p>
 <p>Fits a scalar multiplier to the initial activity for
 each isotope specified in self.A0.  The fit minimizes to the number of
@@ -269,7 +269,7 @@ to fit[0] and cov[0][0].)</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.DecayChain.fit_R">
-<span class="sig-name descname"><span class="pre">fit_R</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_counts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/decay_chain.html#DecayChain.fit_R"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.DecayChain.fit_R" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">fit_R</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_counts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/decay_chain.html#DecayChain.fit_R"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.DecayChain.fit_R" title="Link to this definition">¶</a></dt>
 <dd><p>Fit the production rate to count data</p>
 <p>Fits a scalar multiplier to the production rate (as a function of time) for
 each isotope specified in self.R.  The fit minimizes to the number of
@@ -314,7 +314,7 @@ to fit[0] and cov[0][0].)</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.DecayChain.get_counts">
-<span class="sig-name descname"><span class="pre">get_counts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spectra</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">EoB</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peak_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/decay_chain.html#DecayChain.get_counts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.DecayChain.get_counts" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_counts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spectra</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">EoB</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peak_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/decay_chain.html#DecayChain.get_counts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.DecayChain.get_counts" title="Link to this definition">¶</a></dt>
 <dd><p>Retrieves the number of measured decays</p>
 <p>Takes the number of measured decays from one of the following: a list of spectra,
 a file with peak data, or a pandas DataFrame with peak data.</p>
@@ -353,7 +353,7 @@ structure as <cite>ci.Spectrum.peaks</cite>.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.DecayChain.plot">
-<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_plot_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_plot_chi2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/decay_chain.html#DecayChain.plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.DecayChain.plot" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_plot_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_plot_chi2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/decay_chain.html#DecayChain.plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.DecayChain.plot" title="Link to this definition">¶</a></dt>
 <dd><p>Plot the activities in the decay chain</p>
 <p>Plots the activities as a function of time for all radioactive
 isotopes in the decay chain.  Can plot along a specified time
@@ -481,7 +481,7 @@ list of kwargs.</p>
     </div>
     <div class="footer" role="contentinfo">
     &#169; Copyright 2020, Jonathan Morrell.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     </div>
   </body>
 </html>

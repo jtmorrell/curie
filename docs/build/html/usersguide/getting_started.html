@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>1. Getting Started &#8212; Curie 0.0.15 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b76e3c8a" />
-    <link rel="stylesheet" type="text/css" href="../_static/classic.css?v=89b800e6" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css?v=514cf933" />
     
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=8810cfe0"></script>
+    <script src="../_static/documentation_options.js?v=f0357c94"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -42,13 +42,13 @@
           <div class="body" role="main">
             
   <section id="getting-started">
-<span id="id1"></span><h1><span class="section-number">1. </span>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this heading">¶</a></h1>
+<span id="id1"></span><h1><span class="section-number">1. </span>Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading">¶</a></h1>
 <section id="installation">
-<h2><span class="section-number">1.1. </span>Installation<a class="headerlink" href="#installation" title="Permalink to this heading">¶</a></h2>
+<h2><span class="section-number">1.1. </span>Installation<a class="headerlink" href="#installation" title="Link to this heading">¶</a></h2>
 <p>If you haven’t already installed Curie, visit the <a class="reference internal" href="../quickinstall.html#quickinstall"><span class="std std-ref">Installation</span></a> Guide.</p>
 </section>
 <section id="spectroscopy">
-<h2><span class="section-number">1.2. </span>Spectroscopy<a class="headerlink" href="#spectroscopy" title="Permalink to this heading">¶</a></h2>
+<h2><span class="section-number">1.2. </span>Spectroscopy<a class="headerlink" href="#spectroscopy" title="Link to this heading">¶</a></h2>
 <p>Curie provides two classes for spectroscopic analysis, the <cite>Spectrum</cite> class and the <cite>Calibration</cite> class. The following examples assume Curie has been imported as:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">curie</span> <span class="k">as</span> <span class="nn">ci</span>
 </pre></div>
@@ -109,7 +109,7 @@
 </div>
 </section>
 <section id="stopping-power-calculations">
-<h2><span class="section-number">1.3. </span>Stopping Power Calculations<a class="headerlink" href="#stopping-power-calculations" title="Permalink to this heading">¶</a></h2>
+<h2><span class="section-number">1.3. </span>Stopping Power Calculations<a class="headerlink" href="#stopping-power-calculations" title="Link to this heading">¶</a></h2>
 <p>Curie uses the Anderson &amp; Ziegler formalism for calculating charged-particle stopping powers.  These stopping powers can be calculated on an element or compound basis:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">el</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s1">&#39;Fe&#39;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">el</span><span class="o">.</span><span class="n">S</span><span class="p">(</span><span class="mf">20.0</span><span class="p">))</span>
@@ -136,7 +136,7 @@
 <p>The file <cite>test_stack.csv</cite> used in this example can be found on the <a class="reference external" href="https://github.com/jtmorrell/curie/blob/master/examples/">curie github</a>.</p>
 </section>
 <section id="decay-chains">
-<h2><span class="section-number">1.4. </span>Decay Chains<a class="headerlink" href="#decay-chains" title="Permalink to this heading">¶</a></h2>
+<h2><span class="section-number">1.4. </span>Decay Chains<a class="headerlink" href="#decay-chains" title="Link to this heading">¶</a></h2>
 <p>Curie has the capability of calculating/fitting to any possible decay chain, using the Bateman equations.  The following example demonstrates this for the radium-225 decay chain:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">dc</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">DecayChain</span><span class="p">(</span><span class="s1">&#39;225RA&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;d&#39;</span><span class="p">,</span> <span class="n">R</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;225RA&#39;</span><span class="p">:[[</span><span class="mi">9</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],[</span><span class="mi">2</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">],[</span><span class="mi">5</span><span class="p">,</span><span class="mf">4.5</span><span class="p">]]})</span>
 <span class="n">dc</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
@@ -155,7 +155,7 @@
 </div>
 </section>
 <section id="nuclear-data-libraries">
-<h2><span class="section-number">1.5. </span>Nuclear Data Libraries<a class="headerlink" href="#nuclear-data-libraries" title="Permalink to this heading">¶</a></h2>
+<h2><span class="section-number">1.5. </span>Nuclear Data Libraries<a class="headerlink" href="#nuclear-data-libraries" title="Link to this heading">¶</a></h2>
 <p>Curie contains data from the ENSDF, ENDF, IRDFF, IAEA-charged-particle and TENDL nuclear data libraries.  Information about a specific isotope, for example its half-life, can be retreieved using the <cite>Isotope</cite> class:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">i</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Isotope</span><span class="p">(</span><span class="s1">&#39;60CO&#39;</span><span class="p">)</span>
 <span class="n">i</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Isotope</span><span class="p">(</span><span class="s1">&#39;Co-60&#39;</span><span class="p">)</span>  <span class="c1"># equivalent</span>
@@ -270,7 +270,7 @@
     </div>
     <div class="footer" role="contentinfo">
     &#169; Copyright 2020, Jonathan Morrell.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     </div>
   </body>
 </html>

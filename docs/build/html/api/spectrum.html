@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Spectrum &#8212; Curie 0.0.15 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b76e3c8a" />
-    <link rel="stylesheet" type="text/css" href="../_static/classic.css?v=89b800e6" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css?v=514cf933" />
     
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=8810cfe0"></script>
+    <script src="../_static/documentation_options.js?v=f0357c94"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -42,10 +42,10 @@
           <div class="body" role="main">
             
   <section id="spectrum">
-<span id="id1"></span><h1>Spectrum<a class="headerlink" href="#spectrum" title="Permalink to this heading">¶</a></h1>
+<span id="id1"></span><h1>Spectrum<a class="headerlink" href="#spectrum" title="Link to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="curie.Spectrum">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">curie.</span></span><span class="sig-name descname"><span class="pre">Spectrum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/spectrum.html#Spectrum"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Spectrum" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">curie.</span></span><span class="sig-name descname"><span class="pre">Spectrum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/spectrum.html#Spectrum"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Spectrum" title="Link to this definition">¶</a></dt>
 <dd><p>Gamma-ray spectrum from High-Purity Germanium (HPGe) detectors</p>
 <p>Provides methods for reading, converting, and fitting gamma-ray spectra
 from HPGe data.</p>
@@ -139,7 +139,7 @@ information.  The complete list of columns is ‘filename’, ‘isotope’, ‘
 </table>
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.Spectrum.attenuation_correction">
-<span class="sig-name descname"><span class="pre">attenuation_correction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">compounds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/spectrum.html#Spectrum.attenuation_correction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Spectrum.attenuation_correction" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">attenuation_correction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">compounds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/spectrum.html#Spectrum.attenuation_correction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Spectrum.attenuation_correction" title="Link to this definition">¶</a></dt>
 <dd><p>Efficiency correction for sample attenuation</p>
 <p>Corrects the efficiency used in calculating observed decays from each peak for
 sample attenuation.  A list of compounds (and their areal densities) is given,
@@ -196,7 +196,7 @@ be multiplied with the efficiency.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.Spectrum.auto_calibrate">
-<span class="sig-name descname"><span class="pre">auto_calibrate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">guess</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peaks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/spectrum.html#Spectrum.auto_calibrate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Spectrum.auto_calibrate" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">auto_calibrate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">guess</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peaks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/spectrum.html#Spectrum.auto_calibrate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Spectrum.auto_calibrate" title="Link to this definition">¶</a></dt>
 <dd><p>Attempt to automatically adjust the energy calibration</p>
 <p>Uses a genetic forward fitting algorithm to attempt to automatically
 adjust the energy calibration in cases where the peak centroids are
@@ -257,7 +257,7 @@ from self.cb.engcal will be used.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.Spectrum.fit_peaks">
-<span class="sig-name descname"><span class="pre">fit_peaks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gammas</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/spectrum.html#Spectrum.fit_peaks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Spectrum.fit_peaks" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">fit_peaks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gammas</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/spectrum.html#Spectrum.fit_peaks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Spectrum.fit_peaks" title="Link to this definition">¶</a></dt>
 <dd><p>Fit the peaks in the spectrum</p>
 <p>Fits a multiplet of peaks, with configurable parameters, to the spectrum.
 The list of gammas can either be generated automatically by setting the
@@ -358,7 +358,7 @@ begin to overlap.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.Spectrum.geometry_correction">
-<span class="sig-name descname"><span class="pre">geometry_correction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">distance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_det</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thickness</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'circle'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000000</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/spectrum.html#Spectrum.geometry_correction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Spectrum.geometry_correction" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">geometry_correction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">distance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_det</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thickness</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'circle'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000000</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/spectrum.html#Spectrum.geometry_correction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Spectrum.geometry_correction" title="Link to this definition">¶</a></dt>
 <dd><p>Efficiency correction for sample geometry</p>
 <p>Correction to the efficiency for non-point source geometries.
 The correction factor is a multiplier to the efficiency, that corrects
@@ -417,7 +417,7 @@ a warning will be given to increase N.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.Spectrum.plot">
-<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xcalib</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/spectrum.html#Spectrum.plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Spectrum.plot" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xcalib</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/spectrum.html#Spectrum.plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Spectrum.plot" title="Link to this definition">¶</a></dt>
 <dd><p>Plot the spectrum</p>
 <p>Draws a plot of the spectrum, and any successful peak fits.  Peaks
 are colored by isotope, and a dashed grey line is drawn over multiplets
@@ -455,7 +455,7 @@ list of kwargs.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.Spectrum.rebin">
-<span class="sig-name descname"><span class="pre">rebin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N_bins</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/spectrum.html#Spectrum.rebin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Spectrum.rebin" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">rebin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N_bins</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/spectrum.html#Spectrum.rebin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Spectrum.rebin" title="Link to this definition">¶</a></dt>
 <dd><p>Rebin the histogram</p>
 <p>Rebins the histogram to the closest power of 2 to
 the given <cite>N_bins</cite>.  Energy and resolution calibrations
@@ -482,7 +482,7 @@ be less than the current histogram length.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.Spectrum.saveas">
-<span class="sig-name descname"><span class="pre">saveas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/spectrum.html#Spectrum.saveas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Spectrum.saveas" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">saveas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/spectrum.html#Spectrum.saveas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Spectrum.saveas" title="Link to this definition">¶</a></dt>
 <dd><p>Save the spectrum or peak information to a file</p>
 <p>If the file type is one of ‘.png’, ‘.pdf’, ‘.svg’ or another graphical
 file type, a plot of the spectrum will be saved.  If it is one of the supported
@@ -493,7 +493,7 @@ ci.DecayChain.get_counts method.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>filename</strong><span class="classifier">str</span></dt><dd><p>Name of the file to save to. Supported file types are ‘.png’, ‘.pdf’, ‘.eps’, ‘.pgf’, ‘.ps’,
+<dt><strong>filename</strong><span class="classifier">str</span></dt><dd><p>Name of the file to save to. Supported file types are ‘.png’, ‘.pdf’, ‘.pickle’, ‘.eps’, ‘.pgf’, ‘.ps’,
 ‘.raw’, ‘.rgba’, ‘.svg’, ‘.svgz’, ‘.Spe’, ‘.Chn’, ‘.spe’, ‘.csv’, ‘.json’, and ‘.db’.</p>
 </dd>
 <dt><strong>replace</strong><span class="classifier">bool, optional</span></dt><dd><p>If True, when saving to one of the three supported peak data file types, any existing file
@@ -515,7 +515,7 @@ name will be overwritten. Default, False.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.Spectrum.summarize">
-<span class="sig-name descname"><span class="pre">summarize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/spectrum.html#Spectrum.summarize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Spectrum.summarize" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">summarize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/spectrum.html#Spectrum.summarize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Spectrum.summarize" title="Link to this definition">¶</a></dt>
 <dd><p>Summarize the fitted peaks in the spectrum</p>
 <p>Prints a summary of the observed counts in each peak, the
 number of decays of the given isotope it corresponds to, and an 
@@ -617,7 +617,7 @@ estimate of the activity of the isotope.</p>
     </div>
     <div class="footer" role="contentinfo">
     &#169; Copyright 2020, Jonathan Morrell.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     </div>
   </body>
 </html>

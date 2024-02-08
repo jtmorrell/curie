@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>curie.stack &#8212; Curie 0.0.15 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b76e3c8a" />
-    <link rel="stylesheet" type="text/css" href="../../_static/classic.css?v=89b800e6" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../_static/classic.css?v=514cf933" />
     
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=8810cfe0"></script>
+    <script src="../../_static/documentation_options.js?v=f0357c94"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
-    <script src="../../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -48,7 +48,9 @@
 <span class="kn">from</span> <span class="nn">.compound</span> <span class="kn">import</span> <span class="n">Compound</span>
 <span class="kn">from</span> <span class="nn">.element</span> <span class="kn">import</span> <span class="n">Element</span>
 
-<div class="viewcode-block" id="Stack"><a class="viewcode-back" href="../../api/stack.html#curie.Stack">[docs]</a><span class="k">class</span> <span class="nc">Stack</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="Stack">
+<a class="viewcode-back" href="../../api/stack.html#curie.Stack">[docs]</a>
+<span class="k">class</span> <span class="nc">Stack</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 <span class="w">	</span><span class="sd">&quot;&quot;&quot;Foil pack for stacked target calculations</span>
 
 <span class="sd">	Computes the energy loss and (relative) charged particle flux through a stack</span>
@@ -372,7 +374,9 @@
 		<span class="n">match</span> <span class="o">=</span> <span class="p">[</span><span class="nb">bool</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">nm</span><span class="p">))</span> <span class="k">for</span> <span class="n">nm</span> <span class="ow">in</span> <span class="n">df_NN</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]]</span>
 		<span class="k">return</span> <span class="n">df_NN</span><span class="p">[</span><span class="n">match</span><span class="p">]</span>
 
-<div class="viewcode-block" id="Stack.get_flux"><a class="viewcode-back" href="../../api/stack.html#curie.Stack.get_flux">[docs]</a>	<span class="k">def</span> <span class="nf">get_flux</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample_name</span><span class="p">):</span>
+<div class="viewcode-block" id="Stack.get_flux">
+<a class="viewcode-back" href="../../api/stack.html#curie.Stack.get_flux">[docs]</a>
+	<span class="k">def</span> <span class="nf">get_flux</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample_name</span><span class="p">):</span>
 <span class="w">		</span><span class="sd">&quot;&quot;&quot;Returns the computed energy grid and flux for a sample</span>
 
 <span class="sd">		Units of energy are in MeV, and the flux is a relative flux (normalized to 1).</span>
@@ -411,7 +415,10 @@
 		<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">match</span><span class="p">]</span>
 		<span class="k">return</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;flux&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Stack.saveas"><a class="viewcode-back" href="../../api/stack.html#curie.Stack.saveas">[docs]</a>	<span class="k">def</span> <span class="nf">saveas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">save_fluxes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">filter_name</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Stack.saveas">
+<a class="viewcode-back" href="../../api/stack.html#curie.Stack.saveas">[docs]</a>
+	<span class="k">def</span> <span class="nf">saveas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">save_fluxes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">filter_name</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">		</span><span class="sd">&quot;&quot;&quot;Saves the results of the stack calculation</span>
 
 <span class="sd">		Saves the stack design, mean energies, and (optionally) the flux</span>
@@ -470,8 +477,11 @@
 			<span class="k">if</span> <span class="n">save_fluxes</span><span class="p">:</span>
 				<span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_filter_samples</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fluxes</span><span class="p">,</span> <span class="n">filter_name</span><span class="p">)</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">orient</span><span class="o">=</span><span class="s1">&#39;records&#39;</span><span class="p">)),</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.json&#39;</span><span class="p">,</span><span class="s1">&#39;_fluxes.json&#39;</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">),</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span></div>
 
+
 		
-<div class="viewcode-block" id="Stack.summarize"><a class="viewcode-back" href="../../api/stack.html#curie.Stack.summarize">[docs]</a>	<span class="k">def</span> <span class="nf">summarize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filter_name</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="Stack.summarize">
+<a class="viewcode-back" href="../../api/stack.html#curie.Stack.summarize">[docs]</a>
+	<span class="k">def</span> <span class="nf">summarize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filter_name</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">		</span><span class="sd">&quot;&quot;&quot;Summarize the stack calculation</span>
 
 <span class="sd">		Prints out the mean energies and 1-sigma energy widths of</span>
@@ -518,8 +528,11 @@
 				<span class="n">nm</span> <span class="o">=</span> <span class="n">sm</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
 			<span class="nb">print</span><span class="p">(</span><span class="n">nm</span><span class="o">+</span><span class="s1">&#39;: &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">sm</span><span class="p">[</span><span class="s1">&#39;mu_E&#39;</span><span class="p">],</span> <span class="mi">2</span><span class="p">))</span><span class="o">+</span><span class="s1">&#39; +/- &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">sm</span><span class="p">[</span><span class="s1">&#39;sig_E&#39;</span><span class="p">],</span> <span class="mi">2</span><span class="p">))</span><span class="o">+</span><span class="s1">&#39; (MeV)&#39;</span><span class="p">)</span></div>
 
+
 		
-<div class="viewcode-block" id="Stack.plot"><a class="viewcode-back" href="../../api/stack.html#curie.Stack.plot">[docs]</a>	<span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filter_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="Stack.plot">
+<a class="viewcode-back" href="../../api/stack.html#curie.Stack.plot">[docs]</a>
+	<span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filter_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">		</span><span class="sd">&quot;&quot;&quot;Plots the fluxes for each foil in the stack calculation</span>
 
 <span class="sd">		Plots the flux distribution for each foil in the stack, or</span>
@@ -566,7 +579,9 @@
 		<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Energy (MeV)&#39;</span><span class="p">)</span>
 		<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Flux (a.u.)&#39;</span><span class="p">)</span>
 		<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-		<span class="k">return</span> <span class="n">_draw_plot</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
+		<span class="k">return</span> <span class="n">_draw_plot</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+</div>
+
 		
 </pre></div>
 
@@ -603,7 +618,7 @@
     </div>
     <div class="footer" role="contentinfo">
     &#169; Copyright 2020, Jonathan Morrell.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     </div>
   </body>
 </html>

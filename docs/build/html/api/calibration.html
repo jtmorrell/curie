@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Calibration &#8212; Curie 0.0.15 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b76e3c8a" />
-    <link rel="stylesheet" type="text/css" href="../_static/classic.css?v=89b800e6" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css?v=514cf933" />
     
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=8810cfe0"></script>
+    <script src="../_static/documentation_options.js?v=f0357c94"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -42,10 +42,10 @@
           <div class="body" role="main">
             
   <section id="calibration">
-<span id="id1"></span><h1>Calibration<a class="headerlink" href="#calibration" title="Permalink to this heading">¶</a></h1>
+<span id="id1"></span><h1>Calibration<a class="headerlink" href="#calibration" title="Link to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="curie.Calibration">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">curie.</span></span><span class="sig-name descname"><span class="pre">Calibration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Calibration" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">curie.</span></span><span class="sig-name descname"><span class="pre">Calibration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Calibration" title="Link to this definition">¶</a></dt>
 <dd><p>Calibration for HPGe spectra</p>
 <p>Provides methods for calculating and fitting energy, efficiency and resolution
 calibrations for HPGe spectra.  Each Spectrum class contains a Calibration, 
@@ -131,7 +131,7 @@ R = a + b*chan (default), or length 1 if R = a*sqrt(chan).</p>
 </table>
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.Calibration.calibrate">
-<span class="sig-name descname"><span class="pre">calibrate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spectra</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sources</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration.calibrate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Calibration.calibrate" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">calibrate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spectra</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sources</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration.calibrate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Calibration.calibrate" title="Link to this definition">¶</a></dt>
 <dd><p>Generate calibration parameters from spectra</p>
 <p>Performs an energy, resolution and efficiency calibration on peak fits
 to a given list of spectra.  Reference activities _MUst be given for the
@@ -166,7 +166,7 @@ and ‘ref_date’ (reference date).</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.Calibration.eff">
-<span class="sig-name descname"><span class="pre">eff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">effcal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration.eff"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Calibration.eff" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">eff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">effcal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration.eff"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Calibration.eff" title="Link to this definition">¶</a></dt>
 <dd><p>Efficiency calibration function</p>
 <p>Returns the calculated (absolute) efficiency given an input array of 
 energies. The <cite>effcal</cite> can be supplied, or if <cite>effcal=None</cite>, the
@@ -207,7 +207,7 @@ fit includes the low-energy components.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.Calibration.eng">
-<span class="sig-name descname"><span class="pre">eng</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">engcal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration.eng"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Calibration.eng" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">eng</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">engcal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration.eng"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Calibration.eng" title="Link to this definition">¶</a></dt>
 <dd><p>Energy calibration function</p>
 <p>Returns the calculated energy given an input array of
 channel numbers.  The <cite>engcal</cite> can be supplied, or
@@ -247,7 +247,7 @@ engcal[0] + engcal[1]*channel + engcal[2]*channel**2</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.Calibration.map_channel">
-<span class="sig-name descname"><span class="pre">map_channel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">engcal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration.map_channel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Calibration.map_channel" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">map_channel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">engcal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration.map_channel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Calibration.map_channel" title="Link to this definition">¶</a></dt>
 <dd><p>Energy to channel calibration</p>
 <p>Calculates the spectrum channel number corresponding to a given
 energy array.  This should return the inverse of the energy calibration, but
@@ -283,7 +283,7 @@ is linear or quadratic.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.Calibration.plot">
-<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration.plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Calibration.plot" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration.plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Calibration.plot" title="Link to this definition">¶</a></dt>
 <dd><p>Plots energy, resolution and efficiency calibrations</p>
 <p>Draws all three of energy, resolution and efficiency calibrations on a 
 single figure, and shows measured values from peak data, if available.</p>
@@ -311,7 +311,7 @@ list of kwargs.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.Calibration.plot_effcal">
-<span class="sig-name descname"><span class="pre">plot_effcal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration.plot_effcal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Calibration.plot_effcal" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">plot_effcal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration.plot_effcal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Calibration.plot_effcal" title="Link to this definition">¶</a></dt>
 <dd><p>Plot the efficiency calibration</p>
 <p>Draws the efficiency calibration, with measurements from peak fit data if available.</p>
 <dl class="field-list simple">
@@ -338,7 +338,7 @@ list of kwargs.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.Calibration.plot_engcal">
-<span class="sig-name descname"><span class="pre">plot_engcal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration.plot_engcal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Calibration.plot_engcal" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">plot_engcal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration.plot_engcal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Calibration.plot_engcal" title="Link to this definition">¶</a></dt>
 <dd><p>Plot the energy calibration</p>
 <p>Draws the energy calibration, with measurements from peak fit data if available.</p>
 <dl class="field-list simple">
@@ -365,7 +365,7 @@ list of kwargs.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.Calibration.plot_rescal">
-<span class="sig-name descname"><span class="pre">plot_rescal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration.plot_rescal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Calibration.plot_rescal" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">plot_rescal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration.plot_rescal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Calibration.plot_rescal" title="Link to this definition">¶</a></dt>
 <dd><p>Plot the resolution calibration</p>
 <p>Draws the resolution calibration, with measurements from peak fit data if available.</p>
 <dl class="field-list simple">
@@ -392,7 +392,7 @@ list of kwargs.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.Calibration.res">
-<span class="sig-name descname"><span class="pre">res</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rescal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration.res"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Calibration.res" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">res</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rescal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration.res"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Calibration.res" title="Link to this definition">¶</a></dt>
 <dd><p>Resolution calibration</p>
 <p>Calculates the expected 1-sigma peak widths for a given input array
 of channel numbers.  If <cite>rescal</cite> is given, it is used instead of
@@ -427,7 +427,7 @@ R = a + b*chan (default), or length 1 if R = a*sqrt(chan).</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.Calibration.saveas">
-<span class="sig-name descname"><span class="pre">saveas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration.saveas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Calibration.saveas" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">saveas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration.saveas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Calibration.saveas" title="Link to this definition">¶</a></dt>
 <dd><p>Save the calibration as a .json file</p>
 <p>Saves the energy, resolution and efficiency calibration to a .json
 file, which can be recalled by a new calibration object by passing
@@ -461,7 +461,7 @@ the ‘filename’ keyword to Calibration() upon construction.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.Calibration.unc_eff">
-<span class="sig-name descname"><span class="pre">unc_eff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">effcal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unc_effcal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration.unc_eff"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Calibration.unc_eff" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">unc_eff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">effcal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unc_effcal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/calibration.html#Calibration.unc_eff"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Calibration.unc_eff" title="Link to this definition">¶</a></dt>
 <dd><p>Uncertainty in the efficiency</p>
 <p>Returns the calculated uncertainty in efficiency for an input
 array of energies.  If <cite>effcal</cite> or <cite>unc_effcal</cite> are not none,
@@ -591,7 +591,7 @@ fit includes the low-energy components.</p>
     </div>
     <div class="footer" role="contentinfo">
     &#169; Copyright 2020, Jonathan Morrell.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     </div>
   </body>
 </html>
