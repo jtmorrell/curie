@@ -532,7 +532,7 @@ class Spectrum(object):
 		Y = self.hist-self._snip
 		return X, Y, np.dot(np.linalg.inv(np.dot(X, X.T)), np.dot(X, Y.T).T)
 
-	def auto_calibrate(self, guess=None, peaks=None):
+	def auto_calibrate(self, guess=None, peaks=None, adjust=1.0):
 		"""Attempt to automatically adjust the energy calibration
 
 		Uses a genetic forward fitting algorithm to attempt to automatically
@@ -552,6 +552,10 @@ class Spectrum(object):
 
 		peaks : array_like, optional
 			List of peak locations.  Must be a 2-d array of format [[channel, energy], ...]
+
+		adjust : float, optional
+			Parameter to proportionally adjust the range of calibration 
+			parameters explored by `auto_calibrate()`. Default, 1.
 
 		Examples
 		--------
@@ -589,8 +593,6 @@ class Spectrum(object):
 
 		"""
 
-		from scipy.optimize import differential_evolution
-
 		if guess is None:
 			guess = list(self.cb.engcal)
 
@@ -609,11 +611,26 @@ class Spectrum(object):
 
 		guess = guess if len(guess)==3 else list(guess)+[0.0]
 		
-		def obj(*m):
-			X, Y, B = self._forward_fit(engcal=[guess[0], m[0], guess[2]])
+		def obj(p, guess, n):
+			guess[n] = p
+			X, Y, B = self._forward_fit(engcal=guess)
 			return np.sum(np.sqrt(np.abs(Y-np.dot(B, X))))
+		
+		M = 2 if adjust>2 else 1
+		adjust *= 1.0/float(M)
+		d_cb = []
+		d_cb.append(adjust*5E-4*self.cb.eng(len(self.hist), guess))
+		d_cb.append(adjust*5E-3*guess[1])
+		d_cb.append(adjust*5E-7*np.sqrt(self.cb.eng(len(self.hist), guess)/len(self.hist)))
 
-		self.cb.engcal = [guess[0], differential_evolution(obj, [(0.995*guess[1], 1.005*guess[1])]).x[0], guess[2]]
+		for m in range(M):
+			for n in range(3):
+				l, h = guess[n]-d_cb[n], guess[n]+d_cb[n]
+				P = np.linspace(l, h, int(adjust*25))
+				X = [obj(p, list(guess), n) for p in P]
+				guess[n] = P[X.index(min(X))]
+
+		self.cb.engcal = guess
 
 
 	def _gammas(self, _force=False):
