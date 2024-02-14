@@ -820,26 +820,26 @@ class Spectrum(object):
 				if n+1 in multi.index:
 					if rw['idx']==multi.loc[n+1]['idx']:
 						print('WARNING: Identical gammas detected at',rw['energy'],'keV -',rw['isotope'],'and',multi.loc[n+1]['isotope'])
-						if rw['A']<1E2*multi.loc[n+1]['A']:
+						if rw['A']<1E-2*multi.loc[n+1]['A']:
 							print('Peak height <1%...dropping',rw['isotope'])
 							multi.drop(n,inplace=True)
 							continue
 						else:
-							bA_m, bm_m = 1E-2, 1E-1
+							bA_m, bm_m = 0.1, 0.5
 				if n-1 in multi.index:
 					if rw['idx']==multi.loc[n-1]['idx']:
 						print('WARNING: Identical gammas detected at',rw['energy'],'keV -',rw['isotope'],'and',multi.loc[n-1]['isotope'])
-						if rw['A']<1E2*multi.loc[n-1]['A']:
+						if rw['A']<1E-2*multi.loc[n-1]['A']:
 							print('Peak height <1%...dropping',rw['isotope'])
 							multi.drop(n,inplace=True)
 							continue
 						else:
-							bA_m, bm_m = 1E-2, 1E-1
+							bA_m, bm_m = 0.1, 0.5
 
 				p['p0'] += [rw['A'], rw['idx'], rw['sig']]
 
-				p['bounds'][0] += [0.0, rw['idx']-bm*bm_m*rw['sig'], rw['sig']/bs]
-				p['bounds'][1] += [rw['A']*bA*bA_m, rw['idx']+bm*bm_m*rw['sig'], rw['sig']*bs]
+				p['bounds'][0] += [0.0, rw['idx']-bm*bm_m*rw['sig'], rw['sig']*(1-bs)]
+				p['bounds'][1] += [rw['A']*bA*bA_m, rw['idx']+bm*bm_m*rw['sig'], rw['sig']*(1+bs)]
 
 				if self.fit_config['skew_fit']:
 					p['p0'] += [R, alpha]
