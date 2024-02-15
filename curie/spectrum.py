@@ -1014,7 +1014,8 @@ class Spectrum(object):
 			Number of bins separating identical/overlapping peaks. Default 0. If two gammas overlap 
 			within this number of bins, they will be: combined if from the same isotope, flagged if 
 			from two different isotopes, and if one of the identical peaks is estimated to be <1% of
-			the peak height of the other, the smaller peak will be removed.
+			the peak height of the other, the smaller peak will be removed. Setting ident_idx=-1 will
+			turn off this feature.
 
 		Returns
 		-------
