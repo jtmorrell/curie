@@ -239,7 +239,7 @@ class Spectrum(object):
 			raise ValueError('Cannot add spectrum to type {}'.format(type(other)))
 
 		if self.start_time==other.start_time:
-			alpha = np.sum(self.hist)/float(np.sum(other.hist))
+			alpha = np.sum(self.hist)/float(np.sum(other.hist)+np.sum(self.hist))
 			dead_time = alpha*(self.real_time-self.live_time)+(1.0-alpha)*(other.real_time-other.live_time)
 			self.real_time = alpha*self.real_time+(1.0-alpha)*other.real_time
 			self.live_time = self.real_time-dead_time
