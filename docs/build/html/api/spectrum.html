@@ -347,6 +347,11 @@ begin to overlap.</p>
 </dd>
 <dt><strong>multi_max</strong><span class="classifier">int</span></dt><dd><p>Maximum number of peaks allowed in a multiplet. Default 8.</p>
 </dd>
+<dt><strong>ident_idx</strong><span class="classifier">int</span></dt><dd><p>Number of bins separating identical/overlapping peaks. Default 0. If two gammas overlap 
+within this number of bins, they will be: combined if from the same isotope, flagged if 
+from two different isotopes, and if one of the identical peaks is estimated to be &lt;1% of
+the peak height of the other, the smaller peak will be removed.</p>
+</dd>
 </dl>
 </dd>
 </dl>

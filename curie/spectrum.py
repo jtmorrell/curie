@@ -104,7 +104,7 @@ class Spectrum(object):
 							'step_fit':False, 'SNR_min':4.0, 'A_bound':1.0,
 							'mu_bound':1.0, 'sig_bound':1.0, 'xrays':False,
 							'pk_width':7.5, 'E_min':75.0, 'I_min':0.05,
-							'dE_511':3.5, 'multi_max':8}
+							'dE_511':3.5, 'multi_max':8, 'ident_idx':0}
 		if 'fit_config' in kwargs:
 			self.fit_config = kwargs['fit_config']
 		self._ortec_metadata = {}
@@ -640,6 +640,17 @@ class Spectrum(object):
 				g = Isotope(i).gammas(I_lim=self.fit_config['I_min'], E_lim=self.fit_config['E_min'], dE_511=self.fit_config['dE_511'], xrays=self.fit_config['xrays'])
 				g['intensity'] = g['intensity']*1E-2
 				g['unc_intensity'] = g['unc_intensity']*1E-2
+
+				# CHECK FOR IDENTICAL PEAKS
+				ix = self.cb.map_channel(g['energy']) # g is already sorted by energy
+				for n,x in enumerate(ix[:-1]):
+					if abs(x-ix[n+1])<=self.fit_config['ident_idx']:
+						print('WARNING: Isotope',i,'has un-resolvable gammas at',g.loc[n]['energy'],'and',g.loc[n+1]['energy'],'... Intensities will be combined.')
+						drop,replace = (n,n+1) if g.loc[n]['intensity']<g.loc[n+1]['intensity'] else (n+1,n)
+						g.loc[replace]['intensity'] += g.loc[drop]['intensity']
+						g.loc[replace]['unc_intensity'] = np.sqrt(g.loc[drop]['unc_intensity']**2 + g.loc[replace]['unc_intensity']**2)
+						g.drop(drop,inplace=True)
+
 				if len(g):
 					itps.append(i)
 					gm.append(g)
@@ -816,22 +827,14 @@ class Spectrum(object):
 			bA, bm, bs = 10.0*self.fit_config['A_bound'], 1.5*self.fit_config['mu_bound'], 1.5*self.fit_config['sig_bound']
 			for n,rw in multi.iterrows():
 				bA_m, bm_m = 1.0, 1.0
-				# CHECK FOR IDENTICAL PEAKS
+				# CHECK FOR IDENTICAL PEAKS	
 				if n+1 in multi.index:
-					if rw['idx']==multi.loc[n+1]['idx']:
+					if abs(rw['idx']-multi.loc[n+1]['idx'])<=self.fit_config['ident_idx']:
 						print('WARNING: Identical gammas detected at',rw['energy'],'keV -',rw['isotope'],'and',multi.loc[n+1]['isotope'])
-						if rw['A']<1E-2*multi.loc[n+1]['A']:
+						if rw['A']<1E-2*multi.loc[n+1]['A'] or multi.loc[n+1]['A']<1E-2*rw['A']:
+							drop = n if rw['A']<1E-2*multi.loc[n+1]['A'] else n+1
 							print('Peak height <1%...dropping',rw['isotope'])
-							multi.drop(n,inplace=True)
-							continue
-						else:
-							bA_m, bm_m = 0.1, 0.5
-				if n-1 in multi.index:
-					if rw['idx']==multi.loc[n-1]['idx']:
-						print('WARNING: Identical gammas detected at',rw['energy'],'keV -',rw['isotope'],'and',multi.loc[n-1]['isotope'])
-						if rw['A']<1E-2*multi.loc[n-1]['A']:
-							print('Peak height <1%...dropping',rw['isotope'])
-							multi.drop(n,inplace=True)
+							multi.drop(drop,inplace=True)
 							continue
 						else:
 							bA_m, bm_m = 0.1, 0.5
@@ -1006,6 +1009,12 @@ class Spectrum(object):
 
 		multi_max : int
 			Maximum number of peaks allowed in a multiplet. Default 8.
+
+		ident_idx : int
+			Number of bins separating identical/overlapping peaks. Default 0. If two gammas overlap 
+			within this number of bins, they will be: combined if from the same isotope, flagged if 
+			from two different isotopes, and if one of the identical peaks is estimated to be <1% of
+			the peak height of the other, the smaller peak will be removed.
 
 		Returns
 		-------
