@@ -59,7 +59,7 @@ def extended_examples():
 	sp = ci.Spectrum('eu_calib_7cm.Spe')
 	sp.isotopes = ['152EU']
 	sp.isotopes = ['152EU', '40K']
-	sp.fit_peaks(gammas=[{'energy':1460.8, 'intensity':10.66, 'unc_intensity':0.55}])
+	sp.fit_peaks(gammas=[{'energy':1460.8, 'intensity':10.66, 'unc_intensity':0.55, 'isotope':'40K'}])
 	sp.fit_peaks(gammas=ci.Isotope('40K').gammas(istp_col=True))
 	sp.summarize()
 	sp.saveas('test_spec.csv')

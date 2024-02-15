@@ -762,7 +762,7 @@ class Spectrum(object):
 			gm_df = pd.DataFrame(gammas, copy=True)
 			gm_df['intensity'] *= 1E-2
 			gm_df['unc_intensity'] *= 1E-2
-			for i in list(set(gammas['isotope'].to_list())):
+			for i in list(set(gm_df['isotope'].to_list())):
 				istp += [i]
 				gm += [gm_df[gm_df['isotope']==i]]
 			self._gmls = (istp, [g.drop(columns='isotope') for g in gm])
@@ -824,7 +824,7 @@ class Spectrum(object):
 				p['bounds'][1] += [i+100*unc[n][n] for n,i in enumerate(p['p0'])]
 
 			R, alpha, step = self.fit_config['R'], self.fit_config['alpha'], self.fit_config['step']
-			bA, bm, bs = 10.0*self.fit_config['A_bound'], 1.5*self.fit_config['mu_bound'], 1.5*self.fit_config['sig_bound']
+			bA, bm, bs = 10.0*self.fit_config['A_bound'], 1.5*self.fit_config['mu_bound'], self.fit_config['sig_bound']
 			for n,rw in multi.iterrows():
 				bA_m, bm_m = 1.0, 1.0
 				# CHECK FOR IDENTICAL PEAKS	
@@ -841,8 +841,8 @@ class Spectrum(object):
 
 				p['p0'] += [rw['A'], rw['idx'], rw['sig']]
 
-				p['bounds'][0] += [0.0, rw['idx']-bm*bm_m*rw['sig'], rw['sig']*(1-bs)]
-				p['bounds'][1] += [rw['A']*bA*bA_m, rw['idx']+bm*bm_m*rw['sig'], rw['sig']*(1+bs)]
+				p['bounds'][0] += [0.0, rw['idx']-bm*bm_m*rw['sig'], rw['sig']/(1.0+bs)]
+				p['bounds'][1] += [rw['A']*bA*bA_m, rw['idx']+bm*bm_m*rw['sig'], rw['sig']*(1+0.5*bs)]
 
 				if self.fit_config['skew_fit']:
 					p['p0'] += [R, alpha]
