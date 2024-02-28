@@ -55,7 +55,7 @@ from .stack import Stack
 
 from .yields import Yield
 
-__version__ = '0.0.30'
+__version__ = '0.0.31'
 __all__ = ['download', 'colormap', 'set_style', 
           'Isotope', 'Element', 'Compound', 
           'Spectrum', 'Calibration', 'DecayChain', 
