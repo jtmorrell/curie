@@ -145,52 +145,76 @@ class Yield(object):
 		products. Defaults to True.
 
 
+	Attributes
+	----------
+	reaction_df : pd.DataFrame
+		Table of cross sections for reactions on individual elements (either enriched or natural
+		abundance), calculated from monoisotopic targets based on the stack design.  
+
+	compound_xs_df : pd.DataFrame
+		The name of the compound.
+
+	rad_products : pd.DataFrame
+		The name of the compound.
+
+	rad_products : pd.DataFrame
+		The name of the compound.
+
+
 	
 	
 
 	"""
 
 	def __init__(self, stack_file, particle='p', E0=30.0, beam_current=1e3, irradiation_length=3600.0, **kwargs):
-		self._stack_file = stack_file
-		self._particle = particle
-		self._E0 = E0
-		self._beam_current = beam_current
-		self._irradiation_length = irradiation_length
+		self.stack_file = stack_file
+		self.particle = particle
+		self.E0 = E0
+		self.beam_current = beam_current
+		self.irradiation_length = irradiation_length
 		
 
 		self._parse_kwargs(**kwargs)
 
 
+		self.reaction_df = None
+		self.compound_rxn_df = None
+
+		self.rad_products = None
+		self.product_masses = None
+		
+
+
 
 	def _parse_kwargs(self, **kwargs):
-		self._compound_cross_sections_csv = str(kwargs['compound_cross_sections_csv']) if 'compound_cross_sections_csv' in kwargs else 'compound_cross_sections.csv'
-		self._n_largest_products = int(kwargs['n_largest_products']) if 'n_largest_products' in kwargs else 5
-		self._activity_units = str(kwargs['activity_units']) if 'activity_units' in kwargs else str('uCi')
-		self._mass_units = str(kwargs['mass_units']) if 'mass_units' in kwargs else str('ug')
-		self._enriched_targets = dict(kwargs['enriched_targets']) if 'enriched_targets' in kwargs else {}
-		self._cooling_length = float(kwargs['cooling_length']) if 'cooling_length' in kwargs else 24.0
-		self._lower_halflife_threshold = float(kwargs['lower_halflife_threshold']) if 'lower_halflife_threshold' in kwargs else 60
-		self._show_plots = bool(kwargs['show_plots']) if 'show_plots' in kwargs else False
-		self._save_csv = bool(kwargs['save_csv']) if 'save_csv' in kwargs else True
-		self._summary_masses = bool(kwargs['summary_masses']) if 'summary_masses' in kwargs else True
+		self.compound_cross_sections_csv = str(kwargs['compound_cross_sections_csv']) if 'compound_cross_sections_csv' in kwargs else 'compound_cross_sections.csv'
+		self.n_largest_products = int(kwargs['n_largest_products']) if 'n_largest_products' in kwargs else 5
+		self.activity_units = str(kwargs['activity_units']) if 'activity_units' in kwargs else str('uCi')
+		self.mass_units = str(kwargs['mass_units']) if 'mass_units' in kwargs else str('ug')
+		self.enriched_targets = dict(kwargs['enriched_targets']) if 'enriched_targets' in kwargs else {}
+		self.cooling_length = float(kwargs['cooling_length']) if 'cooling_length' in kwargs else 24.0
+		self.lower_halflife_threshold = float(kwargs['lower_halflife_threshold']) if 'lower_halflife_threshold' in kwargs else 60
+		self.show_plots = bool(kwargs['show_plots']) if 'show_plots' in kwargs else False
+		self.save_csv = bool(kwargs['save_csv']) if 'save_csv' in kwargs else True
+		self.summary_masses = bool(kwargs['summary_masses']) if 'summary_masses' in kwargs else True
 
 		
 
 
 		# Check to make sure that the requested incident particle has a TENDL library
-		if self._particle.lower() == 'p'.lower():
+		if self.particle.lower() == 'p'.lower():
 			# Running with incident protons
 			particle = 'p'
-		elif self._particle.lower() == 'd'.lower():
+		elif self.particle.lower() == 'd'.lower():
 			# Running with incident deuterons
-			self._particle = 'd'
-		elif self._particle.lower() == 'n'.lower():
+			self.particle = 'd'
+		elif self.particle.lower() == 'n'.lower():
 			# Running with incident neutrons
-			# self._particle = 'n'
+			# self.particle = 'n'
 			print('TENDL has (n,x) data, but this calculator only supports transport of incident charged particles!')
 			quit()
 		else:
-			print('Unsupported particle type \"'+str(self._particle)+'\" selected.')
+			print('Unsupported particle type \"'+str(self.particle)+'\" selected.')
 			print('Valid incident particles for TENDL data are currently limited to \"p\", \"d\".')
 			quit()
 
@@ -198,19 +222,19 @@ class Yield(object):
 
 		
 
-		lb = ci.Library('tendl_'+self._particle)       # selection of reaction data library
-		st = ci.Stack(self._stack_file, E0=self._E0, particle=self._particle, dE0=(self._E0*0.015), N=1E5, max_steps=100)      # Load pre-defined stack
+		lb = ci.Library('tendl_'+self.particle)       # selection of reaction data library
+		st = ci.Stack(self.stack_file, E0=self.E0, particle=self.particle, dE0=(self.E0*0.015), N=1E5, max_steps=100)      # Load pre-defined stack
 
 
 
 		# Make sure target enrichments are normalized
 		# print(enriched_targets)
 		# Remove all isotopes with abundance set to 0.0
-		self._enriched_targets = {a:{c:d for c, d in b.items() if d != 0.0} for a, b in self._enriched_targets.items()}
+		self.enriched_targets = {a:{c:d for c, d in b.items() if d != 0.0} for a, b in self.enriched_targets.items()}
 		# print(not bool(enriched_targets))
 		# if use_enriched_targets:
-		if bool(self._enriched_targets):
-			for compound_iterable, sub_dictionary in self._enriched_targets.items():
+		if bool(self.enriched_targets):
+			for compound_iterable, sub_dictionary in self.enriched_targets.items():
 				# print(sub_dictionary)
 				# print(compound_iterable)
 				# print(d['Enrichment'])
@@ -307,7 +331,7 @@ class Yield(object):
 				E_bins = half_max_x(energy,flux)
 				# print('Energy bins ', E_bins)
 				# plt.plot(old_energy, *np.stack(df['XS'].to_numpy()) , label=(df['Name'].values))
-				if self._show_plots:
+				if self.show_plots:
 					for y_arr, label, y_xs in zip(np.stack(df['XS'].to_numpy()), df['Name'].values, avg_xs):
 					    p = plt.semilogy(old_energy, y_arr,  label=label)
 					    plt.plot(avg_e, y_xs , 'o', color=p[0].get_color())
@@ -323,34 +347,34 @@ class Yield(object):
 
 		# Parse unit selection for later output
 
-		if self._activity_units == 'uCi':
+		if self.activity_units == 'uCi':
 			activity_scalar = 3.7E4
-		elif self._activity_units == 'Bq':
+		elif self.activity_units == 'Bq':
 			activity_scalar = 1
-		elif self._activity_units == 'kBq':
+		elif self.activity_units == 'kBq':
 			activity_scalar = 1E3
-		elif self._activity_units == 'MBq':
+		elif self.activity_units == 'MBq':
 			activity_scalar = 1E6
-		elif self._activity_units == 'mCi':
+		elif self.activity_units == 'mCi':
 			activity_scalar = 3.7E7
-		elif self._activity_units == 'GBq':
+		elif self.activity_units == 'GBq':
 			activity_scalar = 1E9
-		elif self._activity_units == 'Ci':
+		elif self.activity_units == 'Ci':
 			activity_scalar = 3.7E10
 		else:
 			print('Specified activity units not recognized, defaulting to Bq.')
 			activity_scalar = 1
 
 
-		if self._mass_units == 'fg':
+		if self.mass_units == 'fg':
 			mass_scalar = 1E15
-		elif self._mass_units == 'pg':
+		elif self.mass_units == 'pg':
 			mass_scalar = 1E12
-		elif self._mass_units == 'ng':
+		elif self.mass_units == 'ng':
 			mass_scalar = 1E9
-		elif self._mass_units == 'ug':
+		elif self.mass_units == 'ug':
 			mass_scalar = 1E6
-		elif self._mass_units == 'mg':
+		elif self.mass_units == 'mg':
 			mass_scalar = 1E3
 		else:
 			print('Specified activity units not recognized, defaulting to fg.')
@@ -375,10 +399,10 @@ class Yield(object):
 			# 
 			def converter(instr):
 			    return np.fromstring(instr[1:-1],sep=' ')
-			compound_xs_df = pd.read_csv(self._compound_cross_sections_csv, converters={'Energy':converter, 'XS':converter}, dtype={'Name':str, 'Compound':str, 'Product':str,  'Half-Life':np.float64, 'Subtargets':str}, skiprows=1)
-			print('Reading compound cross sections from file ' + self._compound_cross_sections_csv)
+			compound_xs_df = pd.read_csv(self.compound_cross_sections_csv, converters={'Energy':converter, 'XS':converter}, dtype={'Name':str, 'Compound':str, 'Product':str,  'Half-Life':np.float64, 'Subtargets':str}, skiprows=1)
+			print('Reading compound cross sections from file ' + self.compound_cross_sections_csv)
 			# print(data  )
-			compound_xs_df =  compound_xs_df[compound_xs_df['Half-Life'] > self._lower_halflife_threshold]
+			compound_xs_df =  compound_xs_df[compound_xs_df['Half-Life'] > self.lower_halflife_threshold]
 			print(compound_xs_df  )
 
 			rad_products =  compound_xs_df[compound_xs_df['Half-Life'] < np.inf]
@@ -399,9 +423,9 @@ class Yield(object):
 				# find all elements in the compound
 				for element_index, element_row in cm.weights.iterrows():
 					# if use_enriched_targets:
-					if bool(self._enriched_targets):	
+					if bool(self.enriched_targets):	
 						# for enriched_isotope_iterator in enriched_targets:
-						for compound_iterable, sub_dictionary in self._enriched_targets.items():
+						for compound_iterable, sub_dictionary in self.enriched_targets.items():
 							# print('Element index: ',element_index)
 							# print('Compound: ',compound)
 							if compound.lower() == compound_iterable.lower():
@@ -449,7 +473,7 @@ class Yield(object):
 				# Check for no reactions found for a foil - indicates compound was overlooked, or that compound_cross_sections_csv was generated from a different stack?
 				# print('Number of reactions for compound', row['compound'], 'in foil', row['name'], ' :', len( compound_xs_df[(compound_xs_df['Compound'] == row['compound'])].index.values ))
 				if len( compound_xs_df[(compound_xs_df['Compound'] == row['compound'])].index.values ) == 0:
-					print('No reactions found for compound', row['compound'], 'in foil', row['name'], '.\nThis compound might not exist in ', self._compound_cross_sections_csv, '!\nDelete or rename this file and try running again.')
+					print('No reactions found for compound', row['compound'], 'in foil', row['name'], '.\nThis compound might not exist in ', self.compound_cross_sections_csv, '!\nDelete or rename this file and try running again.')
 
 
 
@@ -467,12 +491,12 @@ class Yield(object):
 				# print('Production term: ', (1-np.exp(-np.log(2)*irradiation_length / rad_products.loc[rad_products['Compound'] == row['compound'],'Half-Life'].values )))
 				# print('production term: ', (np.exp(-np.log(2)*irradiation_length / rad_products.loc[rad_products['Compound'] == row['compound'],'Half-Life'].values )))
 				print('Compound ', row['compound'], ' has molar mass ',molar_mass_dict[row['compound']])
-				A0 = average_xs *  ( (row['areal_density'] ) * 6.022E20 / molar_mass_dict[row['compound']]) * self._beam_current * (1-np.exp(-np.log(2)*self._irradiation_length / rad_products.loc[rad_products['Compound'] == row['compound'],'Half-Life'].values )) * (np.exp(-np.log(2)*self._cooling_length*3600 / rad_products.loc[rad_products['Compound'] == row['compound'],'Half-Life'].values ))  / (1.602E-10 * 1E27 * activity_scalar)  
+				A0 = average_xs *  ( (row['areal_density'] ) * 6.022E20 / molar_mass_dict[row['compound']]) * self.beam_current * (1-np.exp(-np.log(2)*self.irradiation_length / rad_products.loc[rad_products['Compound'] == row['compound'],'Half-Life'].values )) * (np.exp(-np.log(2)*self.cooling_length*3600 / rad_products.loc[rad_products['Compound'] == row['compound'],'Half-Life'].values ))  / (1.602E-10 * 1E27 * activity_scalar)  
 				# print('A0 (' + activity_units +'): ', A0)
 				rad_mass = A0 * activity_scalar * molar_mass_dict[row['compound']] * (rad_products.loc[rad_products['Compound'] == row['compound'],'Half-Life'].values / np.log(2)) * mass_scalar / 6.022E23
 				# print('EoB Mass (' + mass_units +'): ', rad_mass)
 				# print('Stable products: ', stable_products.loc[stable_products['Compound'] == row['compound'],'Product'].values)
-				N_stable = stable_xs * ( (row['areal_density'] ) * 6.022E20 / molar_mass_dict[row['compound']]) * self._beam_current * self._irradiation_length   / (1.602E-10 * 1E27 )  
+				N_stable = stable_xs * ( (row['areal_density'] ) * 6.022E20 / molar_mass_dict[row['compound']]) * self.beam_current * self.irradiation_length   / (1.602E-10 * 1E27 )  
 				stable_mass = N_stable * molar_mass_dict[row['compound']] * mass_scalar / 6.022E23
 				# print('EoB Stable Mass (' + mass_units +'): ', stable_mass)
 				# print(np.shape(rad_mass))
@@ -492,19 +516,19 @@ class Yield(object):
 				
 			
 			# Pull out largest few activities for summary 
-			if self._n_largest_products > 0:
+			if self.n_largest_products > 0:
 				# First for activities
-				if self._cooling_length == 0:
-					summary_string = ",<E> (MeV),<E>-\u03B4E (MeV),<E>+\u03B4E (MeV),Note: all activities are in " + self._activity_units  +' - reported at EoB' + ' ,'*(self._n_largest_products-1) +'\n'
+				if self.cooling_length == 0:
+					summary_string = ",<E> (MeV),<E>-\u03B4E (MeV),<E>+\u03B4E (MeV),Note: all activities are in " + self.activity_units  +' - reported at EoB' + ' ,'*(self.n_largest_products-1) +'\n'
 				else:
-					summary_string = ",<E> (MeV),<E>-\u03B4E (MeV),<E>+\u03B4E (MeV),Note: all activities are in " + self._activity_units  +' - reported ' + str(self._cooling_length) + ' h after EoB' + ' ,'*(self._n_largest_products-1) +'\n'
+					summary_string = ",<E> (MeV),<E>-\u03B4E (MeV),<E>+\u03B4E (MeV),Note: all activities are in " + self.activity_units  +' - reported ' + str(self.cooling_length) + ' h after EoB' + ' ,'*(self.n_largest_products-1) +'\n'
 				for column in rad_products.columns[7:]:
 					energy, flux = st.get_flux(column.replace('A0_', '', 1)  )
 					avg_e = np.trapz(np.multiply(energy,flux), x=energy)/np.trapz(flux, x=energy)
 					E_bins = half_max_x(energy,flux)
-					largest = rad_products.nlargest(self._n_largest_products, column)
+					largest = rad_products.nlargest(self.n_largest_products, column)
 					summary_string +=  column.replace('A0_', '', 1)  + ',' + "{:.2f}".format(avg_e) + ',' + "{:.2f}".format(E_bins[0]) + ',' + "{:.2f}".format(E_bins[1]) 
-					for i in np.arange(self._n_largest_products):
+					for i in np.arange(self.n_largest_products):
 						# summary_string +=  ',' + largest['Product'].iloc[i].replace('g', '', 1) +  ' (' + "{:.2f}".format(largest[column].iloc[i]) + ')' #,' + largest['Product'].iloc[1].replace('g', '', 1) + ', (' +  str(largest[column].iloc[1]) + '),' +  largest['Product'].iloc[2] + ', (' +  str(largest[column].iloc[2]) + '\n'
 						summary_string +=  ',' + largest['Product'].iloc[i].replace('g', '', 1) +  ',' + "{:.2f}".format(largest[column].iloc[i]) + ',' #,' + largest['Product'].iloc[1].replace('g', '', 1) + ', (' +  str(largest[column].iloc[1]) + '),' +  largest['Product'].iloc[2] + ', (' +  str(largest[column].iloc[2]) + '\n'
 					# summary_string.join(i for j in zip(column.strip('A0'), largest['Name'].iloc[0], largest[column].iloc[0],largest['Name'].iloc[1],largest[column].iloc[1],largest['Name'].iloc[2],largest[column].iloc[2]) for i in j)
@@ -514,19 +538,19 @@ class Yield(object):
 				text_file = open("activity_summary.csv", "w")
 				n = text_file.write(summary_string)
 				text_file.close()
-				if self._summary_masses:
+				if self.summary_masses:
 					# 
 					# Repeat for masses
-					if self._cooling_length == 0:
-						summary_string = ",<E> (MeV),Note: all masses are in " + self._mass_units +' - reported at EoB' + ' ,'*(self._n_largest_products-1) +'\n'
+					if self.cooling_length == 0:
+						summary_string = ",<E> (MeV),Note: all masses are in " + self.mass_units +' - reported at EoB' + ' ,'*(self.n_largest_products-1) +'\n'
 					else:
-						summary_string = ",<E> (MeV),Note: all masses are in " + self._mass_units +' - reported ' + str(self._cooling_length) + ' h after EoB' + ' ,'*(self._n_largest_products-1) +'\n'
+						summary_string = ",<E> (MeV),Note: all masses are in " + self.mass_units +' - reported ' + str(self.cooling_length) + ' h after EoB' + ' ,'*(self.n_largest_products-1) +'\n'
 					for column in compound_xs_df.columns[7:]:
 						energy, flux = st.get_flux(column.replace('Mass_', '', 1)  )
 						avg_e = np.trapz(np.multiply(energy,flux), x=energy)/np.trapz(flux, x=energy)
-						largest = compound_xs_df.nlargest(self._n_largest_products, column)
+						largest = compound_xs_df.nlargest(self.n_largest_products, column)
 						summary_string +=  column.replace('Mass_', '', 1)  + ',' + "{:.2f}".format(avg_e)
-						for i in np.arange(self._n_largest_products):
+						for i in np.arange(self.n_largest_products):
 							# summary_string += ',' + largest['Product'].iloc[i].replace('g', '', 1) +  ' (' + "{:.2e}".format(largest[column].iloc[i]) + ')' #,' + largest['Product'].iloc[1].replace('g', '', 1) + ', (' +  str(largest[column].iloc[1]) + '),' +  largest['Product'].iloc[2] + ', (' +  str(largest[column].iloc[2]) + '\n'
 							summary_string += ',' + largest['Product'].iloc[i].replace('g', '', 1) +  ',' + "{:.2e}".format(largest[column].iloc[i]) + ',' #,' + largest['Product'].iloc[1].replace('g', '', 1) + ', (' +  str(largest[column].iloc[1]) + '),' +  largest['Product'].iloc[2] + ', (' +  str(largest[column].iloc[2]) + '\n'
 							# print(summary_string)
@@ -537,19 +561,21 @@ class Yield(object):
 
 
 
-
+			# Update class attributes with results
+			self.rad_products = rad_products
+			self.product_masses = compound_xs_df
 
 
 			# Output results to csv
-			if self._save_csv:
-				rad_products.to_csv('rad_products.csv', index=False)
-				compound_xs_df.to_csv('all_product_masses.csv', index=False)
+			if self.save_csv:
+				self.rad_products.to_csv('rad_products.csv', index=False)
+				self.product_masses.to_csv('all_product_masses.csv', index=False)
 
 				
 
 
 		except FileNotFoundError:
-			print('File ' + self._compound_cross_sections_csv + ' does not exist - we\'re doing this the hard way')
+			print('File ' + self.compound_cross_sections_csv + ' does not exist - we\'re doing this the hard way')
 
 
 			# Make empty dataframe to hold reaction data
@@ -588,7 +614,7 @@ class Yield(object):
 
 						if(em.abundances.empty):
 							# Target likely has no stable elements
-							for compound_iterable, sub_dictionary in self._enriched_targets.items():
+							for compound_iterable, sub_dictionary in self.enriched_targets.items():
 									# print('Element index: ',element_index)
 									# print('Compound: ',compound)
 									if compound.lower() == compound_iterable.lower():
@@ -612,20 +638,20 @@ class Yield(object):
 							abundance = 0.0
 							print('Grabbing abundances for isotope ',isotope_row['isotope'],' in element ',element)
 							# Use either natural abundances or enriched target abundances
-							if bool(self._enriched_targets):
+							if bool(self.enriched_targets):
 								# if compound in enriched_targets:
 								# print('This compound makes use of enriched targets, with abundances: ')
 								# print(enriched_targets)
 								# are we looking at enriched targets or not
 								isotope = isotope_row['isotope']
-								for compound_iterable, sub_dictionary in self._enriched_targets.items():
+								for compound_iterable, sub_dictionary in self.enriched_targets.items():
 									# print('Element index: ',element_index)
 									# print('Compound: ',compound)
 									if compound.lower() == compound_iterable.lower():
 										# is the current compound part of the enriched isotopes dictionary
 										# if compound in enriched_targets:
 										print('This compound makes use of enriched targets, with abundances: ')
-										print(self._enriched_targets)
+										print(self.enriched_targets)
 										# print('Enriched Isotope Abundances: ', sub_dictionary)
 										# print('Compound iterable: ',compound_iterable)
 										# print('Element: ',ci.Element(element_row['element']))
@@ -683,7 +709,7 @@ class Yield(object):
 							# for rxn in list_of_rxns[-10:]:       # Debug mode testing on small number of channels  
 							for rxn in list_of_rxns:
 								# product = rxn.replace(isotope, "").replace("(p,x)", "")
-								product = rxn.strip(isotope).strip("("+self._particle+",x)")
+								product = rxn.strip(isotope).strip("("+self.particle+",x)")
 								# print(product)
 								# 
 								# TENDL apparently has XS data for products which go beyond the proton drip line
@@ -691,17 +717,17 @@ class Yield(object):
 								# 
 								try:
 									print(product)
-									if ci.Isotope(product).half_life('s') >= self._lower_halflife_threshold:
+									if ci.Isotope(product).half_life('s') >= self.lower_halflife_threshold:
 										if abundance != 0.0:
 
 											# reaction_name = element+'('+particle+',x)'+product
 											target = element
 
 											if is_compound_enriched:
-												reaction_name = 'enriched'+element+'('+self._particle+',x)'+product
+												reaction_name = 'enriched'+element+'('+self.particle+',x)'+product
 												# target = 'enriched'+element
 											else:
-												reaction_name = 'nat'+element+'('+self._particle+',x)'+product
+												reaction_name = 'nat'+element+'('+self.particle+',x)'+product
 												# target = 'nat'+element
 											# if compound == 'Ti':
 												# print(rxn, product, reaction_name)
@@ -750,26 +776,19 @@ class Yield(object):
 						print('Element ', element, ' in ', st.compounds[compound], ' already added in compound ', from_compound[index], ', skipping...')
 
 
-				
+			self.reaction_df = reaction_df
 
 			print(reaction_df)
 			# Export elemental reaction XS data to csv
-			if self._save_csv:
+			if self.save_csv:
 				with open('reaction_df.csv', 'w') as f:
-					if bool(self._enriched_targets):
-						f.write('Note: all XS calculated using target enrichment of '+str(self._enriched_targets).replace(",","")+',,,,,\n')
-						reaction_df.to_csv(f, index=False, mode='a')
+					if bool(self.enriched_targets):
+						f.write('Note: all XS calculated using target enrichment of '+str(self.enriched_targets).replace(",","")+',,,,,\n')
+						self.reaction_df.to_csv(f, index=False, mode='a')
 					else:
 						f.write('Note: all XS calculated using natural abundance targets ,,,,,\n')
-						reaction_df.to_csv(f, index=False, mode='a')
-					# reaction_df.to_csv(f, index=False, mode='a')
-				# reaction_df_file = open('test.csv', 'a')
-				# reaction_df_file.write('# My awesome comment,,,,,\n')
-				# # reaction_df_file.close()
-				# # reaction_df.to_csv('reaction_df.csv', index=False)
-				# reaction_df.to_csv('reaction_df.csv', index=False, mode='a')
-				# # reaction_df_file.close()
-			# print(reaction_df['Subreactions'])
+						self.reaction_df.to_csv(f, index=False, mode='a')
+
 
 
 			print('**************************************************************************************************************')
@@ -801,13 +820,13 @@ class Yield(object):
 					atom_weight = element_row['atom_weight']
 					# print(element)
 					# test_df = reaction_df[reaction_df['Target'].str.match('nat'+element)]
-					test_df = reaction_df.loc[(reaction_df['Target'] == element)]
+					test_df = self.reaction_df.loc[(self.reaction_df['Target'] == element)]
 					# test_df = reaction_df.loc[(reaction_df['Target'] == 'nat'+element) | (reaction_df['Target'] == 'enriched'+element)]
 					
 
 					# for rxn_string in reaction_name:
 					for rxn_index, rxn_row in test_df.iterrows():
-						rxn_string = cm.name+'('+self._particle+',x)'+rxn_row['Product']
+						rxn_string = cm.name+'('+self.particle+',x)'+rxn_row['Product']
 						# print(rxn_string)
 						# 
 						# check if exists in dataframe or not
@@ -843,20 +862,21 @@ class Yield(object):
 						    compound_rxn_df.at[update_index[0],'Subtargets']= compound_rxn_df.at[update_index[0],'Subtargets'] + ',' + element
 
 
-			print(compound_rxn_df)
+			self.compound_rxn_df = compound_rxn_df
+			print(self.compound_rxn_df)
 
 			# Export compound XS data to csv
-			if self._save_csv:
-				with open(self._compound_cross_sections_csv, 'w') as f:
-					if bool(self._enriched_targets):
-						f.write('Note: all XS calculated using target enrichment of '+str(self._enriched_targets).replace(",","")+',,,,,\n')
-						compound_rxn_df.to_csv(f, index=False, mode='a')
+			if self.save_csv:
+				with open(self.compound_cross_sections_csv, 'w') as f:
+					if bool(self.enriched_targets):
+						f.write('Note: all XS calculated using target enrichment of '+str(self.enriched_targets).replace(",","")+',,,,,\n')
+						self.compound_rxn_df.to_csv(f, index=False, mode='a')
 					else:
 						f.write('Note: all XS calculated using natural abundance targets ,,,,,\n')
-						compound_rxn_df.to_csv(f, index=False, mode='a')
+						self.compound_rxn_df.to_csv(f, index=False, mode='a')
 					# compound_rxn_df.to_csv(f, index=False, mode='a')
 					# compound_rxn_df.to_csv(compound_cross_sections_csv, index=False)
-				print('XS data for all compounds in this stack have been saved to ', self._compound_cross_sections_csv, '.  Run this script again to generate activity and yield estimates.')
+				print('XS data for all compounds in this stack have been saved to ', self.compound_cross_sections_csv, '.  Run this script again to generate activity and yield estimates.')
 
 
 
