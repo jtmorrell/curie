@@ -68,7 +68,7 @@ class Yield(object):
 		than doing the actual activity/yield calculations, so exporting and loading this file 
 		speeds up future runs, as long as this file contains data for all compounds in an input 
 		stack. This parameter also specifies the name of the file that Yield looks to read from in 
-		these subsequent runs. Defaults to 'compound_cross_sections.csv'
+		these subsequent runs. Defaults to 'compound_cross_sections.csv'.
 
 		Note: in future versions of Curie.Yield(), natural abundance cross sections will be 
 		pre-calculated from TENDL data. This will also add a user option to save calculated
@@ -127,8 +127,8 @@ class Yield(object):
 
 	save_csv : bool, optional
 		This flag (when save_csv = True) causes the results of calculated cross sections for all stack 
-		compounds to be saved to a local .csv file after execution, as specified with the 
-		compound_cross_sections_csv optional parameter. This is highly recommended, as reading these 
+		compounds to be saved to a series of local .csv files after execution. This is highly 
+		recommended, particularly for the compound_cross_sections_csv optional parameter, as reading these 
 		cross sections from this file MASSIVELY reduces computational time for subsequent runs. The file 
 		must be regenerated if new compounds are added to the stack, or if the isotopic enrichment of 
 		any materials changes for subsequent runs. Defaults to True.
@@ -149,16 +149,22 @@ class Yield(object):
 	----------
 	reaction_df : pd.DataFrame
 		Table of cross sections for reactions on individual elements (either enriched or natural
-		abundance), calculated from monoisotopic targets based on the stack design.  
+		abundance), calculated from monoisotopic targets based on the stack design.  Saves locally as 
+		'reaction_df.csv'.
 
-	compound_xs_df : pd.DataFrame
-		The name of the compound.
+	compound_rxn_df : pd.DataFrame
+		Table of cross sections for reactions on individual compounds, calculated from the elements in the 
+		reaction_df dataframe, based on the stack design.  Saves locally using the filename specified in
+		the compound_cross_sections_csv optional parameter.
 
-	rad_products : pd.DataFrame
-		The name of the compound.
+	product_activities : pd.DataFrame
+		Table of all radionuclide activities produced in each stack layer, calculated at time EOB + 
+		cooling_length, in user-specified units. Saves locally as 'rad_product_activities.csv'.
 
-	rad_products : pd.DataFrame
-		The name of the compound.
+	product_masses : pd.DataFrame
+		Table of masses of all products (both stable and radioactive) produced in each stack layer, 
+		calculated at time EOB + cooling_length, in user-specified units. Saves locally as 
+		'all_product_masses.csv'.
 
 
 	
@@ -180,7 +186,7 @@ class Yield(object):
 		self.reaction_df = None
 		self.compound_rxn_df = None
 
-		self.rad_products = None
+		self.product_activities = None
 		self.product_masses = None
 		
 
@@ -343,6 +349,8 @@ class Yield(object):
 				return avg_xs
 
 
+	
+
 
 
 		# Parse unit selection for later output
@@ -401,6 +409,9 @@ class Yield(object):
 			    return np.fromstring(instr[1:-1],sep=' ')
 			compound_xs_df = pd.read_csv(self.compound_cross_sections_csv, converters={'Energy':converter, 'XS':converter}, dtype={'Name':str, 'Compound':str, 'Product':str,  'Half-Life':np.float64, 'Subtargets':str}, skiprows=1)
 			print('Reading compound cross sections from file ' + self.compound_cross_sections_csv)
+			self.compound_rxn_df = compound_xs_df
+			# Getter to load reaction_df
+			self.reaction_df = pd.read_csv('reaction_df.csv', converters={'Energy':converter, 'XS':converter}, dtype={'Name':str, 'Target':str, 'Product':str,  'Subreactions':str}, skiprows=1)
 			# print(data  )
 			compound_xs_df =  compound_xs_df[compound_xs_df['Half-Life'] > self.lower_halflife_threshold]
 			print(compound_xs_df  )
@@ -562,13 +573,13 @@ class Yield(object):
 
 
 			# Update class attributes with results
-			self.rad_products = rad_products
+			self.product_activities = rad_products
 			self.product_masses = compound_xs_df
 
 
 			# Output results to csv
 			if self.save_csv:
-				self.rad_products.to_csv('rad_products.csv', index=False)
+				self.product_activities.to_csv('rad_product_activities.csv', index=False)
 				self.product_masses.to_csv('all_product_masses.csv', index=False)
 
 				
@@ -716,7 +727,7 @@ class Yield(object):
 								# This catches null values from Curie failing to find them
 								# 
 								try:
-									print(product)
+									# print(product)
 									if ci.Isotope(product).half_life('s') >= self.lower_halflife_threshold:
 										if abundance != 0.0:
 
