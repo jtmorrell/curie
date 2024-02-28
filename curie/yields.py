@@ -234,109 +234,53 @@ class Yield(object):
 
 
 		# Make sure target enrichments are normalized
-		# print(enriched_targets)
 		# Remove all isotopes with abundance set to 0.0
 		self.enriched_targets = {a:{c:d for c, d in b.items() if d != 0.0} for a, b in self.enriched_targets.items()}
-		# print(not bool(enriched_targets))
 		# if use_enriched_targets:
 		if bool(self.enriched_targets):
 			for compound_iterable, sub_dictionary in self.enriched_targets.items():
-				# print(sub_dictionary)
-				# print(compound_iterable)
-				# print(d['Enrichment'])
-				# print(sub_dictionary.values())
 				factor = 1.0/sum(sub_dictionary.values())
 				if factor != 1.0:
 					print('Isotope enrichments in compound ', compound_iterable, ' are not normalized.  Renormalizing...')
-					# print(factor)
 					for enriched_isotope in sub_dictionary:
-						# print(enriched_isotope)
 						sub_dictionary[enriched_isotope] = sub_dictionary[enriched_isotope] * factor
-						# if sub_dictionary[enriched_isotope] == 0.0:
-						# 	print('Target isotope ', enriched_isotope, ' was manually assigned abundance ', sub_dictionary[enriched_isotope], ', dropping from enriched targets...')
-						# 	print(compound_iterable)
-						# 	print(enriched_isotope)
-						# 	print(enriched_targets[compound_iterable][enriched_isotope])
-						# 	# del(enriched_targets[compound_iterable][enriched_isotope])
 						if sub_dictionary[enriched_isotope] < 0.0:
 							print('Target isotope ', enriched_isotope, ' was manually assigned abundance ', sub_dictionary[enriched_isotope])
 							print('Abundance improperly formed, stopping program!')
 							quit()
 
 				else:
-					# print('Isotope enrichments in compound ', compound_iterable, ' are normalized.')
-					# for enriched_isotope in sub_dictionary:
-					# 	print(enriched_isotope)
-
 					continue
 
-		# print(enriched_targets)
-
-
-		# quit()
-
-		# Debug testing
-		# lb = ci.Library('tendl_p')
-		# print(ci.Isotope('81MOg'))
-
-		# N_xs_out = ( ci.Reaction('15N(p,x)15Ng').xs * ci.Isotope('15N').abundance*0.01)  
-		# O_xs_out = (ci.Reaction('16O(p,x)15Ng').xs * ci.Isotope('16O').abundance*0.01 + ci.Reaction('17O(p,x)15Ng').xs * ci.Isotope('17O').abundance*0.01 )
-		# # print(O_xs_out)
-		# # print(lb.search(target='18O', product='15Ng'))
-		# cm = ci.Compound('Kapton')
-		# # print(cm.weights[cm.weights['element']=='N'].atom_weight.values)
-		# print((N_xs_out * cm.weights[cm.weights['element']=='N'].atom_weight.values) + (O_xs_out * cm.weights[cm.weights['element']=='O'].atom_weight.values))
 
 		def lin_interp(x, y, i, half):
 		    return x[i] + (x[i+1] - x[i]) * ((half - y[i]) / (y[i+1] - y[i]))
+
+
 
 		def half_max_x(x, y):
 		    half = max(y)/2.0
 		    signs = np.sign(np.add(y, -half))
 		    zero_crossings = (signs[0:-2] != signs[1:-1])
-		    # print('zero_crossings: ', zero_crossings)
 		    zero_crossings_i = np.where(zero_crossings)[0]
-		    # print('zero_crossings_i: ', zero_crossings_i)
 		    lower_bound = lin_interp(x, y, zero_crossings_i[0], half)
-		    # print('Lower bound: ', lower_bound)
 		    try:
 		        upper_bound = lin_interp(x, y, zero_crossings_i[1], half)
 		    except IndexError:
 		        upper_bound = max(x)
 		    
-		    # print('Upper Bound: ', upper_bound)
 		    return np.array([lower_bound, upper_bound])
 
 
 		def interp_along_df(df,energy, flux):
 			if len(df.index) == 0:
-				# print('Empty DataFrame')
 				return 0.0
 			else:
-				# print(df)
-				# print(df['XS'].dtypes)
-				# print('XS: ', df['XS'].values)
-				# old_energy = df.at[0,'Energy']
 				old_energy = np.array(df['Energy'].iloc[0])
-				# print('Energy (MeV): ', energy)
-				# print('Old Energy (MeV): ', old_energy)
-				# print('Energy shape: ', np.shape(energy))
-				# print('Old Energy shape: ', np.shape(old_energy))
-				# print('Flux shape: ' ,np.shape(flux))
-				# print('XS shape', np.shape(np.stack(df['XS'].to_numpy())))
-				# print('Energy type: ', type(energy))
-				# print('Old Energy type: ', type(old_energy))
-				# print('Flux type: ' ,type(flux))
-				# print('XS type', type(np.stack(df['XS'].to_numpy())))
 				f_out = interpolate.interp1d(old_energy, np.stack(df['XS'].to_numpy()), axis=1)
 				avg_xs = np.trapz(np.multiply(f_out(energy),flux), axis=1, x=energy)/np.trapz(flux, x=energy)
 				avg_e = np.trapz(np.multiply(energy,flux), x=energy)/np.trapz(flux, x=energy)
-				# print('Flux-Averaged XS (mb): ', avg_xs)
-				# print('Flux-Averaged Energy (MeV): ', avg_e)
-				# print(df['Name'].values)
 				E_bins = half_max_x(energy,flux)
-				# print('Energy bins ', E_bins)
-				# plt.plot(old_energy, *np.stack(df['XS'].to_numpy()) , label=(df['Name'].values))
 				if self.show_plots:
 					for y_arr, label, y_xs in zip(np.stack(df['XS'].to_numpy()), df['Name'].values, avg_xs):
 					    p = plt.semilogy(old_energy, y_arr,  label=label)
@@ -394,9 +338,7 @@ class Yield(object):
 
 
 		# Load stack data for analysis
-		# st.plot('Tl')
 		data = st.stack
-		# print(data)
 
 		# No need to run if we've already exported to csv!
 		try:
@@ -412,24 +354,16 @@ class Yield(object):
 			self.compound_rxn_df = compound_xs_df
 			# Getter to load reaction_df
 			self.reaction_df = pd.read_csv('reaction_df.csv', converters={'Energy':converter, 'XS':converter}, dtype={'Name':str, 'Target':str, 'Product':str,  'Subreactions':str}, skiprows=1)
-			# print(data  )
 			compound_xs_df =  compound_xs_df[compound_xs_df['Half-Life'] > self.lower_halflife_threshold]
 			print(compound_xs_df  )
 
 			rad_products =  compound_xs_df[compound_xs_df['Half-Life'] < np.inf]
 			stable_products =  compound_xs_df[compound_xs_df['Half-Life'] == np.inf]
 
-			# print(rad_products)
-			# print(stable_products)
-
 			molar_mass_dict = {}
 
-			# print(st.compounds)
-
 			for compound in st.compounds:
-				# print(compound)
 				cm = ci.Compound(compound)
-				# print( cm.weights)
 				molar_mass = 0.0
 				# find all elements in the compound
 				for element_index, element_row in cm.weights.iterrows():
@@ -437,22 +371,9 @@ class Yield(object):
 					if bool(self.enriched_targets):	
 						# for enriched_isotope_iterator in enriched_targets:
 						for compound_iterable, sub_dictionary in self.enriched_targets.items():
-							# print('Element index: ',element_index)
-							# print('Compound: ',compound)
 							if compound.lower() == compound_iterable.lower():
-								# print('Subdictionary: ', sub_dictionary)
-								# print('Compound iterable: ',compound_iterable)
-								# print('Enriched Isotope Iterator: ', enriched_isotope_iterator)
-								# print('Element: ',ci.Element(element_row['element']))
 								for enriched_isotope_iterator in sub_dictionary:
-									# print('Enriched Isotope Iterator: ', enriched_isotope_iterator,' has enrichment ',sub_dictionary[enriched_isotope_iterator])
 									if enriched_isotope_iterator in ci.Element(element_row['element']).isotopes:
-										# print('Compound iterable: ',compound_iterable)
-										# # print('Subdictionary: ', sub_dictionary)
-										# print('Enriched Isotope Iterator: ', enriched_isotope_iterator,' has enrichment ',sub_dictionary[enriched_isotope_iterator])
-										# print('Isotope ', enriched_isotope_iterator, ' found in element ', ci.Element(element_row['element']))
-										# print('Elemental mass: ', ci.Element(element_row['element']).mass)
-										# print('Mass of Isotope ',enriched_isotope_iterator, ' : ', ci.Isotope(enriched_isotope_iterator).mass)
 										molar_mass += ci.Isotope(enriched_isotope_iterator).mass * sub_dictionary[enriched_isotope_iterator] * element_row['atom_weight'] #* 0.5
 									else:
 										molar_mass += ci.Element(element_row['element']).mass * element_row['atom_weight']
@@ -461,28 +382,18 @@ class Yield(object):
 						
 					else:
 						molar_mass += ci.Element(element_row['element']).mass * element_row['atom_weight']
-					# print(element_row)
-				# print(molar_mass)
 				molar_mass_dict[compound] = molar_mass
-				# print('Compound ', compound, ' has final molar mass of ', molar_mass_dict[compound])
-			# print(molar_mass_dict)
+
 
 
 			# Get fluxes for each row in compound_df
-			# print(compound_df['name'])
 			for index, row in data.iterrows():
-			    # print(index, row['name'])
-				# print(row['compound'], row['name'])
-				# print(row)
 
 				rad_indices    = compound_xs_df[(compound_xs_df['Half-Life'] <  np.inf) & (compound_xs_df['Compound'] == row['compound'])].index.values
 				stable_indices = compound_xs_df[(compound_xs_df['Half-Life'] == np.inf) & (compound_xs_df['Compound'] == row['compound'])].index.values
-				# print(rad_indices, stable_indices)
-				# print(len(rad_indices))
 				# 
 				# 
 				# Check for no reactions found for a foil - indicates compound was overlooked, or that compound_cross_sections_csv was generated from a different stack?
-				# print('Number of reactions for compound', row['compound'], 'in foil', row['name'], ' :', len( compound_xs_df[(compound_xs_df['Compound'] == row['compound'])].index.values ))
 				if len( compound_xs_df[(compound_xs_df['Compound'] == row['compound'])].index.values ) == 0:
 					print('No reactions found for compound', row['compound'], 'in foil', row['name'], '.\nThis compound might not exist in ', self.compound_cross_sections_csv, '!\nDelete or rename this file and try running again.')
 
@@ -491,26 +402,13 @@ class Yield(object):
 			    # Column structure: A0_compound_df = pd.DataFrame(columns = ['Name', 'Target', 'Product', 'Energy', 'XS', 'Subreactions'])
 
 				energy, flux = st.get_flux(row['name'])
-				# print('Energy: ', energy)
 				average_xs = interp_along_df(rad_products[rad_products['Compound'] == row['compound']],energy, flux)
 				stable_xs  = interp_along_df(stable_products[stable_products['Compound'] == row['compound']],energy, flux)
-				# print('Average XS (mb): ', average_xs)
-				# print('Rad Products: ',rad_products.loc[rad_products['Compound'] == row['compound'],'Product'].values)
-				# print('Half-life (s) :', rad_products.loc[rad_products['Compound'] == row['compound'],'Half-Life'].values)
-				# print(molar_mass_dict[row['compound']])
-				# print((row['areal_density'] ))
-				# print('Production term: ', (1-np.exp(-np.log(2)*irradiation_length / rad_products.loc[rad_products['Compound'] == row['compound'],'Half-Life'].values )))
-				# print('production term: ', (np.exp(-np.log(2)*irradiation_length / rad_products.loc[rad_products['Compound'] == row['compound'],'Half-Life'].values )))
 				print('Compound ', row['compound'], ' has molar mass ',molar_mass_dict[row['compound']])
 				A0 = average_xs *  ( (row['areal_density'] ) * 6.022E20 / molar_mass_dict[row['compound']]) * self.beam_current * (1-np.exp(-np.log(2)*self.irradiation_length / rad_products.loc[rad_products['Compound'] == row['compound'],'Half-Life'].values )) * (np.exp(-np.log(2)*self.cooling_length*3600 / rad_products.loc[rad_products['Compound'] == row['compound'],'Half-Life'].values ))  / (1.602E-10 * 1E27 * activity_scalar)  
-				# print('A0 (' + activity_units +'): ', A0)
 				rad_mass = A0 * activity_scalar * molar_mass_dict[row['compound']] * (rad_products.loc[rad_products['Compound'] == row['compound'],'Half-Life'].values / np.log(2)) * mass_scalar / 6.022E23
-				# print('EoB Mass (' + mass_units +'): ', rad_mass)
-				# print('Stable products: ', stable_products.loc[stable_products['Compound'] == row['compound'],'Product'].values)
 				N_stable = stable_xs * ( (row['areal_density'] ) * 6.022E20 / molar_mass_dict[row['compound']]) * self.beam_current * self.irradiation_length   / (1.602E-10 * 1E27 )  
 				stable_mass = N_stable * molar_mass_dict[row['compound']] * mass_scalar / 6.022E23
-				# print('EoB Stable Mass (' + mass_units +'): ', stable_mass)
-				# print(np.shape(rad_mass))
 				# 
 				# Update the dataframe
 				rad_products['A0_'+row['name']] = np.zeros(len(rad_products.index)) 
@@ -520,8 +418,6 @@ class Yield(object):
 					compound_xs_df.at[rad_indices,'Mass_'+row['name']] = rad_mass
 					compound_xs_df.at[stable_indices,'Mass_'+row['name']] = stable_mass
 				else:
-					# print(rad_indices)
-					# print('Mass_'+row['name'])
 					compound_xs_df.loc[rad_indices,'Mass_'+row['name']] = rad_mass
 					compound_xs_df.loc[stable_indices,'Mass_'+row['name']] = stable_mass
 				
@@ -540,12 +436,8 @@ class Yield(object):
 					largest = rad_products.nlargest(self.n_largest_products, column)
 					summary_string +=  column.replace('A0_', '', 1)  + ',' + "{:.2f}".format(avg_e) + ',' + "{:.2f}".format(E_bins[0]) + ',' + "{:.2f}".format(E_bins[1]) 
 					for i in np.arange(self.n_largest_products):
-						# summary_string +=  ',' + largest['Product'].iloc[i].replace('g', '', 1) +  ' (' + "{:.2f}".format(largest[column].iloc[i]) + ')' #,' + largest['Product'].iloc[1].replace('g', '', 1) + ', (' +  str(largest[column].iloc[1]) + '),' +  largest['Product'].iloc[2] + ', (' +  str(largest[column].iloc[2]) + '\n'
 						summary_string +=  ',' + largest['Product'].iloc[i].replace('g', '', 1) +  ',' + "{:.2f}".format(largest[column].iloc[i]) + ',' #,' + largest['Product'].iloc[1].replace('g', '', 1) + ', (' +  str(largest[column].iloc[1]) + '),' +  largest['Product'].iloc[2] + ', (' +  str(largest[column].iloc[2]) + '\n'
-					# summary_string.join(i for j in zip(column.strip('A0'), largest['Name'].iloc[0], largest[column].iloc[0],largest['Name'].iloc[1],largest[column].iloc[1],largest['Name'].iloc[2],largest[column].iloc[2]) for i in j)
-					# summary_string += str([x for x in itertools.chain(*itertools.zip_longest(column.strip('A0'), largest['Name'].iloc[0], largest[column].iloc[0],largest['Name'].iloc[1],largest[column].iloc[1],largest['Name'].iloc[2],largest[column].iloc[2])) if x is not None])
 					summary_string += '\n'
-					# print(summary_string)
 				text_file = open("activity_summary.csv", "w")
 				n = text_file.write(summary_string)
 				text_file.close()
@@ -562,9 +454,7 @@ class Yield(object):
 						largest = compound_xs_df.nlargest(self.n_largest_products, column)
 						summary_string +=  column.replace('Mass_', '', 1)  + ',' + "{:.2f}".format(avg_e)
 						for i in np.arange(self.n_largest_products):
-							# summary_string += ',' + largest['Product'].iloc[i].replace('g', '', 1) +  ' (' + "{:.2e}".format(largest[column].iloc[i]) + ')' #,' + largest['Product'].iloc[1].replace('g', '', 1) + ', (' +  str(largest[column].iloc[1]) + '),' +  largest['Product'].iloc[2] + ', (' +  str(largest[column].iloc[2]) + '\n'
 							summary_string += ',' + largest['Product'].iloc[i].replace('g', '', 1) +  ',' + "{:.2e}".format(largest[column].iloc[i]) + ',' #,' + largest['Product'].iloc[1].replace('g', '', 1) + ', (' +  str(largest[column].iloc[1]) + '),' +  largest['Product'].iloc[2] + ', (' +  str(largest[column].iloc[2]) + '\n'
-							# print(summary_string)
 						summary_string += '\n'
 					text_file = open("mass_summary.csv", "w")
 					n = text_file.write(summary_string)
@@ -598,18 +488,10 @@ class Yield(object):
 
 			# Assemble dataframe for elemental (p,x) reactions
 			# 
-			# for compound in ["Cu"]:
 			for compound in st.compounds:
 
-				# print(st.compounds[compound])
 				compound_df = data.loc[data['compound'] == compound]
-				# print(compound_df)
 				cm = ci.Compound(compound)
-				# print( cm.weights)
-
-				# # Make empty dataframe to hold reaction data
-				# reaction_df = pd.DataFrame(columns = ['Name', 'Target', 'Product', 'Energy', 'XS', 'Subreactions'])
-
 
 				# find all elements in the compound
 				for element_index, element_row in cm.weights.iterrows():
@@ -620,14 +502,10 @@ class Yield(object):
 						included_elements.append(element)
 						from_compound.append(st.compounds[compound])
 						em  = ci.Element(element)
-						# print('Abundances in element ', element, ':')
-						# print(em.abundances)
 
 						if(em.abundances.empty):
 							# Target likely has no stable elements
 							for compound_iterable, sub_dictionary in self.enriched_targets.items():
-									# print('Element index: ',element_index)
-									# print('Compound: ',compound)
 									if compound.lower() == compound_iterable.lower():
 										# Convert enrichment dictionary into a np_array to convert into the pandas df format used by Curie
 										# https://stackoverflow.com/questions/30740490/numpy-dtype-for-list-with-mixed-data-types
@@ -635,11 +513,8 @@ class Yield(object):
 										# Convert abundances from decimals to percentages
 										enriched_nparray[:,1] *= 100
 										# Assume zero uncertainty in abundance
-										# np.append(enriched_nparray,np.zeros([len(enriched_nparray),1]),1)
 										enriched_nparray = np.c_[enriched_nparray, np.zeros(len(enriched_nparray))]
-										# print('enriched_nparray: ', enriched_nparray)
 							em.abundances = pd.DataFrame(enriched_nparray, columns=['isotope', 'abundance', 'unc_abundance'])
-							# print(em.abundances)
 
 
 						is_compound_enriched = False
@@ -650,35 +525,19 @@ class Yield(object):
 							print('Grabbing abundances for isotope ',isotope_row['isotope'],' in element ',element)
 							# Use either natural abundances or enriched target abundances
 							if bool(self.enriched_targets):
-								# if compound in enriched_targets:
-								# print('This compound makes use of enriched targets, with abundances: ')
-								# print(enriched_targets)
 								# are we looking at enriched targets or not
 								isotope = isotope_row['isotope']
 								for compound_iterable, sub_dictionary in self.enriched_targets.items():
-									# print('Element index: ',element_index)
-									# print('Compound: ',compound)
 									if compound.lower() == compound_iterable.lower():
 										# is the current compound part of the enriched isotopes dictionary
-										# if compound in enriched_targets:
 										print('This compound makes use of enriched targets, with abundances: ')
 										print(self.enriched_targets)
-										# print('Enriched Isotope Abundances: ', sub_dictionary)
-										# print('Compound iterable: ',compound_iterable)
-										# print('Element: ',ci.Element(element_row['element']))
 										for enriched_isotope_iterator in sub_dictionary:
 											print('Enriched Isotope Iterator: ', enriched_isotope_iterator,' has enrichment ',sub_dictionary[enriched_isotope_iterator])
 											if enriched_isotope_iterator in ci.Element(element_row['element']).isotopes:
 												# is the current isotope part of stable abundances
 												if enriched_isotope_iterator.lower() == isotope_row['isotope'].lower():
 													# then adopt the manually-input abundance rather than natural abundance 
-													# 
-													# # print('Compound iterable: ',compound_iterable)
-													# # print('Subdictionary: ', sub_dictionary)
-													# print('Enriched Isotope Iterator: ', enriched_isotope_iterator,' has enrichment ',sub_dictionary[enriched_isotope_iterator])
-													# # print('Isotope ', enriched_isotope_iterator, ' found in element ', ci.Element(element_row['element']))
-													# # print('Elemental mass: ', ci.Element(element_row['element']).mass)
-													# print('Mass of Isotope ',enriched_isotope_iterator, ' : ', ci.Isotope(enriched_isotope_iterator).mass)
 													abundance = 100 * sub_dictionary[enriched_isotope_iterator]
 													is_compound_enriched = True
 													continue
@@ -686,13 +545,6 @@ class Yield(object):
 												# is the current isotope part of the enriched isotopes dictionary
 												if enriched_isotope_iterator.lower() == isotope_row['isotope'].lower():
 													# then adopt the manually-input abundance rather than natural abundance 
-													# 
-													# # print('Compound iterable: ',compound_iterable)
-													# # print('Subdictionary: ', sub_dictionary)
-													# print('Enriched Isotope Iterator: ', enriched_isotope_iterator,' has enrichment ',sub_dictionary[enriched_isotope_iterator])
-													# # print('Isotope ', enriched_isotope_iterator, ' found in element ', ci.Element(element_row['element']))
-													# # print('Elemental mass: ', ci.Element(element_row['element']).mass)
-													# print('Mass of Isotope ',enriched_isotope_iterator, ' : ', ci.Isotope(enriched_isotope_iterator).mass)
 													abundance = 100 * sub_dictionary[enriched_isotope_iterator]
 													is_compound_enriched = True
 													continue
@@ -714,12 +566,9 @@ class Yield(object):
 
 							# pull all available reactions on the target isotope
 							list_of_rxns = lb.search(target=isotope)
-							# print(list_of_rxns)
-							# print('# of Reactions: ', len(list_of_rxns))
 							i=0
 							# for rxn in list_of_rxns[-10:]:       # Debug mode testing on small number of channels  
 							for rxn in list_of_rxns:
-								# product = rxn.replace(isotope, "").replace("(p,x)", "")
 								product = rxn.strip(isotope).strip("("+self.particle+",x)")
 								# print(product)
 								# 
@@ -727,42 +576,25 @@ class Yield(object):
 								# This catches null values from Curie failing to find them
 								# 
 								try:
-									# print(product)
 									if ci.Isotope(product).half_life('s') >= self.lower_halflife_threshold:
 										if abundance != 0.0:
-
-											# reaction_name = element+'('+particle+',x)'+product
 											target = element
 
 											if is_compound_enriched:
 												reaction_name = 'enriched'+element+'('+self.particle+',x)'+product
-												# target = 'enriched'+element
 											else:
 												reaction_name = 'nat'+element+'('+self.particle+',x)'+product
-												# target = 'nat'+element
-											# if compound == 'Ti':
-												# print(rxn, product, reaction_name)
 
 											# check if exists in dataframe or not
-											# if reaction_name not in reaction_df['Name'] :
-											# print(reaction_name)
-											# print(reaction_df.values)
-											# print(type(reaction_name))
-											# print(type(reaction_df.values))
-											# test_bool = [np.any(x in element for x in reaction_name) for element in reaction_df.values]
-											# print(test_bool)
 											# 
 											# Deprecating this due to ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all()
 											# if reaction_name not in reaction_df.values :
 											if any(element in reaction_name for element in reaction_df.values[:,0]):
-												# print("\nThis value exists in Dataframe", reaction_name)
 												i+=1
 												update_index = reaction_df[reaction_df['Name']==reaction_name].index.tolist()
-												# print(update_index[0])
 												reaction_df.at[update_index[0],'XS']= reaction_df.at[update_index[0],'XS'] + ci.Reaction(rxn).xs*abundance*0.01
 												reaction_df.at[update_index[0],'Subreactions']= reaction_df.at[update_index[0],'Subreactions'] + ',' + isotope
 											else:
-												# print("\nThis value does not exist in Dataframe", reaction_name)
 												if version.parse(pd.__version__) < version.parse("2.0.0") :
 													reaction_df = reaction_df.append({'Name' : reaction_name, 'Target' : target, 'Product' : product, 'Energy' : ci.Reaction(rxn).eng, 'XS' : ci.Reaction(rxn).xs*abundance*0.01, 'Subreactions' : isotope}, ignore_index = True)
 												else :
@@ -781,8 +613,6 @@ class Yield(object):
 			
 					# Skip duplicates 
 					else :
-						# print(included_elements)
-						# print(from_compound)
 						index = included_elements.index(element)
 						print('Element ', element, ' in ', st.compounds[compound], ' already added in compound ', from_compound[index], ', skipping...')
 
@@ -808,19 +638,14 @@ class Yield(object):
 
 			# Make empty dataframe to hold compound reaction data
 			compound_rxn_df = pd.DataFrame(columns = ['Name', 'Compound', 'Product', 'Energy', 'XS',  'Half-Life', 'Subtargets'])
-			# print(compound_rxn_df)
 
 
 			for compound in st.compounds:
 
 				print(st.compounds[compound])
-				# compound_df = data[data['compound'].str.match(compound)]
 				compound_df = data.loc[data['compound'] == compound]
-				# print(compound_df)
 				cm = ci.Compound(compound)
 				rows, cols = np.shape(cm.weights)
-				# print( rows, cols)
-				# print('Compound name: ', cm.name)
 
 
 
@@ -829,10 +654,7 @@ class Yield(object):
 				for element_index, element_row in cm.weights.iterrows():
 					element = element_row['element']
 					atom_weight = element_row['atom_weight']
-					# print(element)
-					# test_df = reaction_df[reaction_df['Target'].str.match('nat'+element)]
 					test_df = self.reaction_df.loc[(self.reaction_df['Target'] == element)]
-					# test_df = reaction_df.loc[(reaction_df['Target'] == 'nat'+element) | (reaction_df['Target'] == 'enriched'+element)]
 					
 
 					# for rxn_string in reaction_name:
@@ -853,8 +675,6 @@ class Yield(object):
 							# This catches null values from Curie failing to find them
 							# 
 							try: 
-								# print(ci.Isotope(rxn_row['Product']))
-								# print(ci.Isotope(rxn_row['Product']).half_life('s') )
 								if version.parse(pd.__version__) < version.parse("2.0.0") :
 									compound_rxn_df = compound_rxn_df.append({'Name' : rxn_string, 'Compound' : cm.name, 'Product' : rxn_row['Product'], 'Energy' : rxn_row['Energy'], 'XS' : rxn_row['XS']*atom_weight, 'Half-Life' : ci.Isotope(rxn_row['Product']).half_life('s') , 'Subtargets' : element}, ignore_index = True)
 								else :
@@ -867,7 +687,6 @@ class Yield(object):
 					    					    	
 						 
 						else :
-						    # print("\nThis value exists in Dataframe", rxn_string)
 						    update_index = compound_rxn_df[compound_rxn_df['Name']==rxn_string].index.tolist()
 						    compound_rxn_df.at[update_index[0],'XS']= compound_rxn_df.at[update_index[0],'XS'] + rxn_row['XS']*atom_weight
 						    compound_rxn_df.at[update_index[0],'Subtargets']= compound_rxn_df.at[update_index[0],'Subtargets'] + ',' + element
@@ -885,8 +704,6 @@ class Yield(object):
 					else:
 						f.write('Note: all XS calculated using natural abundance targets ,,,,,\n')
 						self.compound_rxn_df.to_csv(f, index=False, mode='a')
-					# compound_rxn_df.to_csv(f, index=False, mode='a')
-					# compound_rxn_df.to_csv(compound_cross_sections_csv, index=False)
 				print('XS data for all compounds in this stack have been saved to ', self.compound_cross_sections_csv, '.  Run this script again to generate activity and yield estimates.')
 
 
