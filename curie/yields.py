@@ -12,7 +12,10 @@ class Yield(object):
 	"""Calculate activation yields
 
 	The Yield class performs calculations of yields for one or more targets, using the 
-	Stack class to perform transport calculations.
+	Stack class to perform transport calculations, based on TENDL data from the curie,Library() 
+	class. Yields are reported for both stable and radionuclide production for both EOB yields 
+	as well as after a user-specified decay time post-EOB. However, all yields are calculated 
+	as independent yields, i.e., no contributions from decay feeding are accounted for at present.
 	
 	Parameters
 	----------
@@ -34,91 +37,116 @@ class Yield(object):
 
 
 	particle : str
-		Incident ion.  For light ions, options are 'p' (default), 'd', 't', 'a' for proton, 
-		deuteron, triton and alpha, respectively.  Additionally, heavy ions can be
+		Incident ion.  For light ions, options are currently 'p' (default), 'd',  for proton, 
+		deuteron, respectively, based on TENDL data available in Curie.  Additionally, heavy ions can be
 		specified either by element or isotope, e.g. 'Fe', '40CA', 'U', 'Bi-209'.For 
 		light ions, the charge state is assumed to be fully stripped. For heavy ions
 		the charge state is handled by a Bohr/Northcliffe parameterization consistent
-		with the Anderson-Ziegler formalism.
+		with the Anderson-Ziegler formalism. 
 
 	E0 : float
-		Incident particle energy, in MeV.  If dE0 is not provided, it will
+		Incident particle energy, in MeV. E0 defaults to 30.0 MeV. If dE0 is not provided, it will
 		default to 1 percent of E0.
+
+	beam_current : float
+		Incident beam intensity, in particle nA (pnA). For beam currents in electrical nA (enA), 
+		multiply by the charge state of the beam ions.  For example, for a 2+ charge state He 
+		beam (He 2+), 1 pnA = 2 enA. Defaults to 1E3 nA.  
+
+	irradiation_length : float
+		The length of the irradiation, in s. Yield calculations assume that the input beam 
+		current remains constant for this duration of irradiation.  Defaults to 3600.0 s.  
 
 
 	Other Parameters
 	----------------
-	compounds : str, pandas.DataFrame, list or dict
-		Compound definitions for the compounds included in the foil stack.  If the compounds
-		are not natural elements, or `ci.COMPOUND_LIST`, or if different weights or densities
-		are required, they can be specified here. (Note specifying specific densities in the
-		'stack' argument is probably more appropriate.)  Also, if the 'compound' name in the
-		stack is a chemical formula, e.g. 'H2O', 'SrCO3', the weights can be inferred and 
-		'compounds' doesn't need to be given.
+	compound_cross_sections_csv : str, optional
+		Output file name for the .csv containing calculated data for compounds and non-monoisotopic 
+		targets. These are calculated from the TENDL monoisotopic target residual product cross 
+		section data during initial execution of Yield.calculate_yields(), and is the dominant source 
+		of computational time for yield calculations. Generation of this database takes much longer 
+		than doing the actual activity/yield calculations, so exporting and loading this file 
+		speeds up future runs, as long as this file contains data for all compounds in an input 
+		stack. This parameter also specifies the name of the file that Yield looks to read from in 
+		these subsequent runs. Defaults to 'compound_cross_sections.csv'
 
-		If compounds is a pandas DataFrame, it must have the columns 'compound', 'element', one of 
-		'weight', 'atom_weight', or 'mass_weight', and optionally 'density'.  If a str, it must be
-		a path to a .csv, .json or .db file, where .json files must be in the 'records' format and
-		.db files must have a 'compounds' table.  All must have the above information.  For .csv 
-		files, the compound only needs to be given for the first line of that compound definition.
+		Note: in future versions of Curie.Yield(), natural abundance cross sections will be 
+		pre-calculated from TENDL data. This will also add a user option to save calculated
+		cross sections for compounds to the user's local database.
 
-		If compounds is a list, it must be a list of ci.Element or ci.Compound classes.  If it is a
-		dict, it must have the compound names as keys, and weights as values, e.g. 
-		{'Water':{'H':2, 'O':1}, 'Brass':{'Cu':-66,'Zn':-33}}
+	enriched_targets : dict, optional
+		By default, yield calculations assume that all elements in stack compounds are present in their 
+		natural abundances. This parameter overrides these natural abundances for specified elements 
+		only, with a dictionary of enriched targets. Enrichments are specified in atom-basis fractions. 
+		These Will be automatically renormalized if the specified enrichments do not sum to 1.0. 
+		This supports radionuclides, and this this parameter can be used to run yields on radioactive 
+		targets. As these enrichments are used in generating the cross sections for compounds, the 
+		compound_cross_sections_csv file must be regenerated when changing target enrichment.   
+		Defaults to enriched_targets = {}.
 
-	dE0 : float
-		1-sigma width of the energy distribution from which the initial
-		particle energies are sampled, in MeV.  Default is to 1 percent of E0.
+		Dicts must be formatted as {'Element': {'Isotope': Enrichment}}, and an empty dict will default 
+		to enriched_targets = {}. Examples of enriched_targets include:
 
-	N : int
-		Number of particles to simulate. Default is 10000.
+		enriched_targets = {} - this assumes all elements in the stack are natural abundance.
 
-	dp : float
-		Density multiplier.  dp is uniformly multiplied to all areal densities in the stack.  Default 1.0.
+		enriched_targets = {'Yb': {'176YB': 1.0}} - this assumes that all Ytterbium in the stack is 
+		100% 176-Yb.
 
-	chunk_size : int
-		If N is large, split the stack calculation in to multiple "chunks" of size `chunk_size`. Default 1E7.
+		enriched_targets = {'W': {'180W': 0.0012, '182W': 0.2650, '183W': 0.1431, '184W': 0.3064, 
+		'186W': 0.2843}} - this assumes that all Tungsten in the stack is 0.12% 180-W, 26.50% 182-W, 
+		14.31% 183-W, and 30.64% 184-W - as this is the natural isotopic composition of W, the results
+		will be be identical to enriched_targets = {}.
 
-	accuracy : float
-		Maximum allowed (absolute) error in the predictor-corrector method. Default 0.01.  If error is
-		above `accuracy`, each foil in the stack will be solved with multiple steps, between `min_steps`
-		and `max_steps`.
-
-	min_steps : int
-		The minimum number of steps per foil, in the predictor-corrector solver.  Default 2.
-
-	max_steps : int
-		The maximum number of steps per foil, in the predictor-corrector solver.  Default 50.
-
-
-	# beam_current = 1e3               # nA
-	# irradiation_length = 1*3600        # s  - half-lives are being pulled in in units of s
-	# cooling_length = 24.0               # h  - time after EoB to report activities
-	# lower_halflife_threshold = 60    # s    - Remove any products which are unreasonably short
-	# show_plots = False               # Show plots of the compound-calculated cross sections
-	# save_csv = True                  # Export results to csv - MASSIVELY reduces computational time for subsequent runs
-	# summary_masses = True            # In addition to activity calculations, calculate masses of all reaction products
-	# particle = 'd'					 # Options are 'p',  'd'   (for now)
-	# # E0 = 29.1 						 # MeV  -  incident particle energy
-	# # E0 = 15.11 						 # MeV  -  incident particle energy
-	# E0 = 25.0 						 # MeV  -  incident particle energy
-	# compound_cross_sections_csv = 'compound_cross_sections.csv'    # Output file name for the csv containing XS data for compounds.  Generation of this takes 
-	#                                                                # much longer than doing the activity/yield calculations, so exporting and loading this files
-	#                                                                # speeds up runs, as long as this file contains data for all compounds in your stack
-	# n_largest_activities = 20         # Return the n largest (e.g., the largest 3) activities in each foil for summary 
-	# activity_units = 'uCi'           # Specifies activity unit output - options are 'Bq', 'kBq', 'MBq', 'GBq', 'uCi', 'mCi', 'Ci'
-	# mass_units = 'ug'                # Specifies mass unit output - options are 'fg', 'pg', 'ng', 'ug', 'mg'
+		enriched_targets = {'Ni': {'58NI': 3, '62NI': 1}} - this assumes all Nickel in the stack is 
+		3 parts 58-Ni to 1 part 62-Ni, and will be automatically renormalzied to enriched_targets = 
+		{'Ni': {'58NI': 0.75, '62NI': 0.25}}.
 
 
-	# # use_enriched_targets = False      # now auto-detected, based on if enriched_targets is empty or non-empty
-	# # enriched_targets = ['186W']  
-	# enriched_targets = {}  # Optional, overrides natural abundance elements with dictionary of enriched targets.  Will get renormalized if enrichments do not sum to 1.0
-	# # enriched_targets = {'W': {'180W': 0.0012, '182W': 0.2650, '183W': 0.1431, '184W': 0.3064, '186W': 0.2843}}  # Optional, overrides natural abundance elements with dictionary of enriched targets.  Will get renormalized if enrichments do not sum to 1.0
-	# # enriched_targets = {'W': {'186W': 1.0}} # Optional, overrides natural abundance elements with dictionary of enriched targets.  Will get renormalized if enrichments do not sum to 1.0
-	# # enriched_targets = {'Ti': {'186W': 1.0}} # Optional, overrides natural abundance elements with dictionary of enriched targets.  Will get renormalized if enrichments do not sum to 1.0
-	# # enriched_targets = {'Pa': {'231PA': 1.0}} # Optional, overrides natural abundance elements with dictionary of enriched targets.  Will get renormalized if enrichments do not sum to 1.0
-	# # enriched_targets = {'Ni': {'60NI': 1.0}} # Optional, overrides natural abundance elements with dictionary of enriched targets.  Will get renormalized if enrichments do not sum to 1.0
-	# # enriched_targets = {'Yb': {'176YB': 1.0}} # Optional, overrides natural abundance elements with dictionary of enriched targets.  Will get renormalized if enrichments do not sum to 1.0
+	cooling_length : float, optional
+		The duration of time after EOB at which yields are reported, in h. cooling_length = 0 will 
+		instead report all yields in saved reports at EOB. Defaults to 24.0 h.
+
+	lower_halflife_threshold : float, optional
+		A lower threshold for the half-life of product isotopes to be reported. All radionuclides
+		with half-lives shorter than lower_halflife_threshold will be excluded from generated reports, 
+		useful for removing the many radionuclides and isomers whose lifetimes are unreasonably
+		short for analysis of predicted yields.  Defaults to 60.0 s.
+
+	n_largest_products : int, optional
+		Truncates the output summary reports to return the n largest (e.g., the largest 3) activities 
+		in each foil for activity summaries, and the n largest masses for stable isotope production 
+		summaries. Defaults to 5.
+
+	activity_units : str, optional
+		Specifies the preferred units for activity in output reports - options are 'Bq', 'kBq', 'MBq', 
+		'GBq', 'uCi', 'mCi', 'Ci'. Defaults to 'uCi'.
+
+	mass_units : str, optional
+		Specifies the preferred units for mass (of both stable and radionuclide products) in output 
+		reports - options are 'fg', 'pg', 'ng', 'ug', 'mg'. Defaults to 'ug'.
+
+	save_csv : bool, optional
+		This flag (when save_csv = True) causes the results of calculated cross sections for all stack 
+		compounds to be saved to a local .csv file after execution, as specified with the 
+		compound_cross_sections_csv optional parameter. This is highly recommended, as reading these 
+		cross sections from this file MASSIVELY reduces computational time for subsequent runs. The file 
+		must be regenerated if new compounds are added to the stack, or if the isotopic enrichment of 
+		any materials changes for subsequent runs. Defaults to True.
+
+	show_plots : bool, optional
+		When generating the cross sections for stack compounds, this flag (when show_plots = True) 
+		enables the display of the excitation function plots of the compound-calculated cross sections. 
+		Defaults to False.
+
+	summary_masses : bool, optional
+		By default, Yield.calculate_yields() generates summary reports for the EOB yield activity for 
+		all radionuclide products with half-lives longer than lower_halflife_threshold, This flag (when 
+		summary_masses = True) also generates reports for the mass of both stable and radionuclide 
+		products. Defaults to True.
+
+
+	
+	
 
 	"""
 
@@ -135,15 +163,8 @@ class Yield(object):
 
 
 	def _parse_kwargs(self, **kwargs):
-		# self._dE0 = float(kwargs['dE0']) if 'dE0' in kwargs else 0.01*self._E0
-		# self._N = int(kwargs['N']) if 'N' in kwargs else 10000
-		# self._dp = float(kwargs['dp']) if 'dp' in kwargs else 1.0
-		# self._chunk_size = int(kwargs['chunk_size']) if 'chunk_size' in kwargs else int(1E7)
-		# self._accuracy = float(kwargs['accuracy']) if 'accuracy' in kwargs else 0.01
-		# self._min_steps = int(kwargs['min_steps']) if 'min_steps' in kwargs else 2
-
 		self._compound_cross_sections_csv = str(kwargs['compound_cross_sections_csv']) if 'compound_cross_sections_csv' in kwargs else 'compound_cross_sections.csv'
-		self._n_largest_activities = int(kwargs['n_largest_activities']) if 'n_largest_activities' in kwargs else 20
+		self._n_largest_products = int(kwargs['n_largest_products']) if 'n_largest_products' in kwargs else 5
 		self._activity_units = str(kwargs['activity_units']) if 'activity_units' in kwargs else str('uCi')
 		self._mass_units = str(kwargs['mass_units']) if 'mass_units' in kwargs else str('ug')
 		self._enriched_targets = dict(kwargs['enriched_targets']) if 'enriched_targets' in kwargs else {}
@@ -153,25 +174,8 @@ class Yield(object):
 		self._save_csv = bool(kwargs['save_csv']) if 'save_csv' in kwargs else True
 		self._summary_masses = bool(kwargs['summary_masses']) if 'summary_masses' in kwargs else True
 
-		# beam_current = 1e3               # nA
-		# irradiation_length = 1*3600        # s  - half-lives are being pulled in in units of s
-		# cooling_length = 24.0               # h  - time after EoB to report activities
-		# lower_halflife_threshold = 60    # s    - Remove any products which are unreasonably short
-		# show_plots = False               # Show plots of the compound-calculated cross sections
-		# save_csv = True                  # Export results to csv - MASSIVELY reduces computational time for subsequent runs
-		# summary_masses = True            # In addition to activity calculations, calculate masses of all reaction products
-		# particle = 'd'					 # Options are 'p',  'd'   (for now)
-		# # E0 = 29.1 						 # MeV  -  incident particle energy
-		# # E0 = 15.11 						 # MeV  -  incident particle energy
-		# E0 = 25.0 						 # MeV  -  incident particle energy
-		# compound_cross_sections_csv = 'compound_cross_sections.csv'    # Output file name for the csv containing XS data for compounds.  Generation of this takes 
-		#                                                                # much longer than doing the activity/yield calculations, so exporting and loading this files
-		#                                                                # speeds up runs, as long as this file contains data for all compounds in your stack
-		# n_largest_activities = 20         # Return the n largest (e.g., the largest 3) activities in each foil for summary 
-		# activity_units = 'uCi'           # Specifies activity unit output - options are 'Bq', 'kBq', 'MBq', 'GBq', 'uCi', 'mCi', 'Ci'
-		# mass_units = 'ug'                # Specifies mass unit output - options are 'fg', 'pg', 'ng', 'ug', 'mg'
+		
 
-	def calc_yields(self):
 
 		# Check to make sure that the requested incident particle has a TENDL library
 		if self._particle.lower() == 'p'.lower():
@@ -186,9 +190,13 @@ class Yield(object):
 			print('TENDL has (n,x) data, but this calculator only supports transport of incident charged particles!')
 			quit()
 		else:
-			print('Unsupported particle type \"', self._particle, '\" selected.')
+			print('Unsupported particle type \"'+str(self._particle)+'\" selected.')
 			print('Valid incident particles for TENDL data are currently limited to \"p\", \"d\".')
 			quit()
+
+	def calculate_yields(self):
+
+		
 
 		lb = ci.Library('tendl_'+self._particle)       # selection of reaction data library
 		st = ci.Stack(self._stack_file, E0=self._E0, particle=self._particle, dE0=(self._E0*0.015), N=1E5, max_steps=100)      # Load pre-defined stack
@@ -484,19 +492,19 @@ class Yield(object):
 				
 			
 			# Pull out largest few activities for summary 
-			if self._n_largest_activities > 0:
+			if self._n_largest_products > 0:
 				# First for activities
 				if self._cooling_length == 0:
-					summary_string = ",<E> (MeV),<E>-\u03B4E (MeV),<E>+\u03B4E (MeV),Note: all activities are in " + self._activity_units  +' - reported at EoB' + ' ,'*(self._n_largest_activities-1) +'\n'
+					summary_string = ",<E> (MeV),<E>-\u03B4E (MeV),<E>+\u03B4E (MeV),Note: all activities are in " + self._activity_units  +' - reported at EoB' + ' ,'*(self._n_largest_products-1) +'\n'
 				else:
-					summary_string = ",<E> (MeV),<E>-\u03B4E (MeV),<E>+\u03B4E (MeV),Note: all activities are in " + self._activity_units  +' - reported ' + str(self._cooling_length) + ' h after EoB' + ' ,'*(self._n_largest_activities-1) +'\n'
+					summary_string = ",<E> (MeV),<E>-\u03B4E (MeV),<E>+\u03B4E (MeV),Note: all activities are in " + self._activity_units  +' - reported ' + str(self._cooling_length) + ' h after EoB' + ' ,'*(self._n_largest_products-1) +'\n'
 				for column in rad_products.columns[7:]:
 					energy, flux = st.get_flux(column.replace('A0_', '', 1)  )
 					avg_e = np.trapz(np.multiply(energy,flux), x=energy)/np.trapz(flux, x=energy)
 					E_bins = half_max_x(energy,flux)
-					largest = rad_products.nlargest(self._n_largest_activities, column)
+					largest = rad_products.nlargest(self._n_largest_products, column)
 					summary_string +=  column.replace('A0_', '', 1)  + ',' + "{:.2f}".format(avg_e) + ',' + "{:.2f}".format(E_bins[0]) + ',' + "{:.2f}".format(E_bins[1]) 
-					for i in np.arange(self._n_largest_activities):
+					for i in np.arange(self._n_largest_products):
 						# summary_string +=  ',' + largest['Product'].iloc[i].replace('g', '', 1) +  ' (' + "{:.2f}".format(largest[column].iloc[i]) + ')' #,' + largest['Product'].iloc[1].replace('g', '', 1) + ', (' +  str(largest[column].iloc[1]) + '),' +  largest['Product'].iloc[2] + ', (' +  str(largest[column].iloc[2]) + '\n'
 						summary_string +=  ',' + largest['Product'].iloc[i].replace('g', '', 1) +  ',' + "{:.2f}".format(largest[column].iloc[i]) + ',' #,' + largest['Product'].iloc[1].replace('g', '', 1) + ', (' +  str(largest[column].iloc[1]) + '),' +  largest['Product'].iloc[2] + ', (' +  str(largest[column].iloc[2]) + '\n'
 					# summary_string.join(i for j in zip(column.strip('A0'), largest['Name'].iloc[0], largest[column].iloc[0],largest['Name'].iloc[1],largest[column].iloc[1],largest['Name'].iloc[2],largest[column].iloc[2]) for i in j)
@@ -510,15 +518,15 @@ class Yield(object):
 					# 
 					# Repeat for masses
 					if self._cooling_length == 0:
-						summary_string = ",<E> (MeV),Note: all masses are in " + self._mass_units +' - reported at EoB' + ' ,'*(self._n_largest_activities-1) +'\n'
+						summary_string = ",<E> (MeV),Note: all masses are in " + self._mass_units +' - reported at EoB' + ' ,'*(self._n_largest_products-1) +'\n'
 					else:
-						summary_string = ",<E> (MeV),Note: all masses are in " + self._mass_units +' - reported ' + str(self._cooling_length) + ' h after EoB' + ' ,'*(self._n_largest_activities-1) +'\n'
+						summary_string = ",<E> (MeV),Note: all masses are in " + self._mass_units +' - reported ' + str(self._cooling_length) + ' h after EoB' + ' ,'*(self._n_largest_products-1) +'\n'
 					for column in compound_xs_df.columns[7:]:
 						energy, flux = st.get_flux(column.replace('Mass_', '', 1)  )
 						avg_e = np.trapz(np.multiply(energy,flux), x=energy)/np.trapz(flux, x=energy)
-						largest = compound_xs_df.nlargest(self._n_largest_activities, column)
+						largest = compound_xs_df.nlargest(self._n_largest_products, column)
 						summary_string +=  column.replace('Mass_', '', 1)  + ',' + "{:.2f}".format(avg_e)
-						for i in np.arange(self._n_largest_activities):
+						for i in np.arange(self._n_largest_products):
 							# summary_string += ',' + largest['Product'].iloc[i].replace('g', '', 1) +  ' (' + "{:.2e}".format(largest[column].iloc[i]) + ')' #,' + largest['Product'].iloc[1].replace('g', '', 1) + ', (' +  str(largest[column].iloc[1]) + '),' +  largest['Product'].iloc[2] + ', (' +  str(largest[column].iloc[2]) + '\n'
 							summary_string += ',' + largest['Product'].iloc[i].replace('g', '', 1) +  ',' + "{:.2e}".format(largest[column].iloc[i]) + ',' #,' + largest['Product'].iloc[1].replace('g', '', 1) + ', (' +  str(largest[column].iloc[1]) + '),' +  largest['Product'].iloc[2] + ', (' +  str(largest[column].iloc[2]) + '\n'
 							# print(summary_string)
