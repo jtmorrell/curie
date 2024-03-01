@@ -54,4 +54,4 @@ setup(name='curie',
 	  packages=find_packages(),
 	  include_package_data=True,
 	  cmdclass={'install': install})#, 
-	  #install_requires=['numpy', 'matplotlib', 'scipy', 'pandas'])
+	  #install_requires=['numpy', 'matplotlib', 'scipy', 'pandas', 'x4i3'])

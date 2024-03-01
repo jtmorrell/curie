@@ -466,7 +466,7 @@ class Reaction(object):
 	# ---------------------------------------------------------------
 
 
-	def search_exfor(self, plot_results=False, plot_tendl=False, show_legend=False,xlim=[None,None], ylim=[0,None]):
+	def search_exfor(self, plot_results=False, plot_tendl=False, show_legend=False,xlim=[None,None], ylim=[0,None], verbose=False):
 		# print(self.name)
 		# self.exfor_target, self.exfor_rxn, self.exfor_product = self.curie_to_exfor()
 		db = exfor_manager.X4DBManagerDefault()
@@ -552,7 +552,8 @@ class Reaction(object):
 
 			else:
 				# Poorly-formatted EXFOR - multiple subentries for one entry
-				print('Number of datasets found in entry', next(iter(datasets))[1][0:5], ': ', num_of_sub_subentries)
+				if verbose:
+					print('Number of datasets found in entry', next(iter(datasets))[1][0:5], ': ', num_of_sub_subentries)
 				# print('Other datasets in this entry: ',datasets.keys())
 				# print(type(datasets))
 
@@ -674,7 +675,8 @@ class Reaction(object):
 										  unc_xs_col,  # 9
 										  subentry.reaction)  # 10
 
-		print('---------------------------')
+		if verbose:
+			print('---------------------------')
 		# print(plot_Dict)
 
 
