@@ -590,69 +590,79 @@ class Reaction(object):
 			# print (dir(s))
 
 			for subentry in subentry_list:
-				# print(subentry)
+				if  verbose:
+					print(subentry)
+					print(subentry.subent)
 				# print(subentry.data)
 				# print(dir(subentry))
 				# print(str(subentry.reaction))
+				# print(str(subentry.reaction).split('(')[2].split(')')[0])
+				# print(subentry.labels)
 				# print('SFC' in str(subentry.reaction))
 
-				try:
+				# try:
 
-					# Make sure data isn't actually RECOM or TTY
-					if "RECOM" in subentry.getSimplified().reaction[0].quantity:
-						print('RECOM data found, skipping...')
-						continue
-					elif "TTY" in subentry.getSimplified().reaction[0].quantity:
-						print('TTY data found, skipping...')
-						continue
-					elif "SFC" in str(subentry.reaction):
-						print('SFC data found, skipping...')
-						continue
-				except exfor_exceptions.NoValuesGivenError:
-					# print('test')
-					# print(subentry.reaction)
-					# ['__class__', '__delattr__', '__dict__', '__dir__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', 
-					# '__getitem__', '__getstate__', '__gt__', '__hash__', '__init__', '__init_subclass__', '__le__', '__lt__', '__module__', 
-					# '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__slotnames__', '__slots__', 
-					# '__str__', '__subclasshook__', '__weakref__', 'append', 'author', 'citation', 'coupled', 'csv', 'data', 'getSimplified', 
-					# 'institute', 'labels', 'legend', 'monitor', 'numcols', 'numrows', 'pubType', 'reaction', 'reference', 'reprHeader', 
-					# 'setData', 'simplified', 'sort', 'strHeader', 'subent', 'title', 'units', 'xmgraceHeader', 'year']
+				# Make sure data isn't actually RECOM or TTY
+				if "RECOM" in str(subentry.reaction):
+					print('RECOM data found in subentry',subentry.subent,', skipping...')
 					continue
+				elif "TTY" in str(subentry.reaction):
+					print('TTY data found in subentry',subentry.subent,', skipping...')
+					continue
+				elif "SFC" in str(subentry.reaction):
+					print('SFC data found in subentry',subentry.subent,', skipping...')
+					continue
+				# except NoValuesGivenError:
+				# 	# print('test')
+				# 	# print(subentry.reaction)
+				# 	# ['__class__', '__delattr__', '__dict__', '__dir__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', 
+				# 	# '__getitem__', '__getstate__', '__gt__', '__hash__', '__init__', '__init_subclass__', '__le__', '__lt__', '__module__', 
+				# 	# '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__slotnames__', '__slots__', 
+				# 	# '__str__', '__subclasshook__', '__weakref__', 'append', 'author', 'citation', 'coupled', 'csv', 'data', 'getSimplified', 
+				# 	# 'institute', 'labels', 'legend', 'monitor', 'numcols', 'numrows', 'pubType', 'reaction', 'reference', 'reprHeader', 
+				# 	# 'setData', 'simplified', 'sort', 'strHeader', 'subent', 'title', 'units', 'xmgraceHeader', 'year']
+				# 	continue
 				
 
 				# print(subentry.getSimplified().labels)
 				
-				for entry in subentry.getSimplified().labels:
+				for entry in subentry.labels:
 					# print(entry)
 					# Find what column the energy data are located in
-					if entry in ("Energy", "EN", "EN-CM"): 
-						energy_col = subentry.getSimplified().labels.index(entry)
+					if entry in ("Energy", "EN"): 
+						energy_col = subentry.labels.index(entry)
 						# print('Energy data found in column:',energy_col)
 					# Find what column the xs data are located in
 					if entry.casefold() == "Data".casefold(): 
-						xs_col = subentry.getSimplified().labels.index(entry)
+						xs_col = subentry.labels.index(entry)
 						# print('XS data found in column:',xs_col)
 					if entry in ("d(Data)", "DATA-ERR"): 
-						unc_xs_col = subentry.getSimplified().labels.index(entry)
+						unc_xs_col = subentry.labels.index(entry)
 						# print('XS data uncertainty found in column:',unc_xs_col)
 					if entry in ("d(Energy)", "EN-ERR"): 
-						unc_energy_col = subentry.getSimplified().labels.index(entry)
+						unc_energy_col = subentry.labels.index(entry)
 						# print('Energy data uncertainty found in column:',unc_energy_col)
 
+
+				if energy_col == -1: 
+					print('Center-of-mass data found in subentry',subentry.subent,', skipping...')
+					continue
 
 
 				# ...grab the energy units
 				# print(subentry.getSimplified().units[energy_col])
-				if subentry.getSimplified().units[energy_col] in ("MEV", "MeV"):
+				if subentry.units[energy_col] in ("MEV", "MeV"):
 					energy_unit_scalar = 1
 				else:
-					print("No energy units found for entry", next(iter(datasets))[1][0:5])
+					print("No energy units found for entry", subentry.subent)
 
 				# ...grab the xs units
-				if subentry.getSimplified().units[xs_col].casefold() == "mb".casefold():
+				if subentry.units[xs_col].casefold() == "mb".casefold():
 					xs_unit_scalar = 1
-				elif subentry.getSimplified().units[xs_col].casefold() in ("barns".casefold(), "barn".casefold()):
+				elif subentry.units[xs_col].casefold() in ("barns".casefold(), "barn".casefold()):
 					xs_unit_scalar = 1E3
+				elif subentry.units[xs_col].casefold() in ("ubarns".casefold(), "ub".casefold(), "MICRO-B".casefold()):
+					xs_unit_scalar = 1E-3
 				else:
 					print("No XS units found for entry", next(iter(datasets))[1][0:5])
 
@@ -665,7 +675,7 @@ class Reaction(object):
 				# print(type(subentry))
 				plot_Dict[author_name+year+subentry.subent] = (author_name, # 0
 										  year, # 1
-										  np.array(subentry.getSimplified().data, dtype=float),  # 2
+										  np.array(subentry.data, dtype=float),  # 2
 										  subentry.subent, # 3
 										  energy_unit_scalar, # 4
 										  xs_unit_scalar, # 5
@@ -713,12 +723,13 @@ class Reaction(object):
 
 				# print(type(subentry_reaction[0]))
 				# print(str(subentry_reaction[0])+'jjjjjjjjj')
+				# print(str(subentry_reaction).split('(')[2])
 
 				if multiple_product_subentries:
 					if subentry_reaction[0].residual == None:
 						label_string = author_name+' ('+year+') ['+str(subentry_reaction[0].targ)+'('+self.exfor_reaction.replace('*','X').lower()+')'+str(subentry_reaction[0]).split('Unspecified+')[1].strip(')')+']'
 					else:
-						label_string = author_name+' ('+year+') ['+str(subentry_reaction[0].targ)+'('+self.exfor_reaction.replace('*','X').lower()+')'+str(subentry_reaction[0].residual)+']'
+						label_string = author_name+' ('+year+') ['+str(subentry_reaction[0].targ)+'('+str(subentry_reaction).split('(')[2].split(')')[0].replace('*','X').lower()+')'+str(subentry_reaction[0].residual)+']'
 				else:
 					label_string = author_name+' ('+year+')'
 
