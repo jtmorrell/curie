@@ -448,7 +448,7 @@ class Reaction(object):
 
 
 
-		print(self.exfor_target)
+		# print(self.exfor_target)
 		# print(exfor_rxn)
 		# print(exfor_product)
 
@@ -460,15 +460,50 @@ class Reaction(object):
 
 
 
-	def query():
-		print('test!')
-
 	def search_exfor(self, plot_results=False, plot_tendl=False, show_legend=False,xlim=[0,None], ylim=[0,None], verbose=False):
+		print('test!')
+		# print('TARGET:',self.exfor_target)
+		# print('PRODUCT:',self.exfor_product)
+		# Check for *-targets (aka A=9999)
+		if '9999' in self.exfor_target:
+			# Loop over all stable isotopes of element, along with A=0 (natural abundance)
+			self.exfor_target = self.exfor_target.strip('9999')
+			# Avoid a spaghetti plot...
+			self.plot_tendl = False
+			self.multiple_product_subentries = True
+			element = Element(self.exfor_target)
+			abd = element.abundances
+			# print(element.isotopes)
+			# print(type(abd))
+			# abundances = abd.loc[:,'abundance'].to_numpy()
+			isotopes = abd.loc[:,'isotope'].to_numpy()
+			# print(np.size(isotopes))
+			isotopes = np.append(isotopes, '0'+self.exfor_target)
+
+			# print(abundances)
+			print(isotopes)
+
+			for itp in isotopes:
+				print('* Target Isotope: ',itp)
+				substrings = re.split('(\D+)',itp)
+				# exfor_target = (substrings[1]+'-'+substrings[0]).strip(' ').upper()
+				self.exfor_target = (substrings[1]+'-'+substrings[0]).upper()
+				self.query(plot_results, plot_tendl, show_legend, xlim, ylim, verbose)
+
+		else:
+			# Run an EXFOR query as normal
+			self.query(plot_results, plot_tendl, show_legend, xlim, ylim, verbose)
+		
+
+	def query(self, plot_results=False, plot_tendl=False, show_legend=False, xlim=[0,None], ylim=[0,None], verbose=False):
 		# print(self.name)
 		# self.exfor_target, self.exfor_rxn, self.exfor_product = self.curie_to_exfor()
 		db = exfor_manager.X4DBManagerDefault()
 		self.target_element = self.exfor_target.split('-')[0].capitalize()
 		self.multiple_product_subentries = False
+
+		print('TARGET:',self.exfor_target)
+		print('PRODUCT:',self.exfor_product)
 		
 
 		# Check for *-products (aka A=9999)
@@ -494,7 +529,7 @@ class Reaction(object):
 			else:
 				self.enriched = False
 
-		print('PRODUCT:',self.exfor_product)
+		# print('PRODUCT:',self.exfor_product)
 
 
 		x = db.retrieve(target=self.exfor_target,reaction=self.exfor_reaction,quantity='SIG' )
@@ -706,11 +741,13 @@ class Reaction(object):
 
 		plot_Dict = self.plot_Dict
 
-		fig, ax = plt.subplots(layout='constrained')
+		
 
 
 		if len(plot_Dict) != 0:
 			# Plot results
+			fig, ax = plt.subplots(layout='constrained')
+			
 			k=0
 			for index in plot_Dict:
 				# Need to set up list of marker sizes to iterate over with k
