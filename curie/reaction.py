@@ -96,6 +96,7 @@ class Reaction(object):
 		self.plot_tendl = False
 		self.plot_Dict = {}
 		self.multiple_product_subentries = False
+		self.enriched = False
 
 		if library.lower()=='best':
 			if self.incident=='n':
@@ -113,13 +114,18 @@ class Reaction(object):
 					elif self._check():
 						break
 			else:
-				self.library = Library('iaea')
-				self._check(True)
+				try:
+					self.library = Library('iaea')
+					self._check(True)
+				except ValueError:
+					self.library = Library('exfor')
 		else:
 			self.library = Library(library)
 			self._check(True)
 
-		if '*' not in self.name:
+		if 'a' in self.name:
+			self.library = Library('exfor')
+		elif '*' not in self.name:
 			self.name = self.library.search(*self._rx)[0]
 			q = self.library.retrieve(*self._rx)
 			self.eng = q[:,0]
@@ -394,6 +400,28 @@ class Reaction(object):
 	
 
 	def curie_to_exfor(self):
+		"""Reaction code conversion
+
+		Setter method to convert Curie-formatted reaction codes into EXFOR-formatted 
+		codes, used in the query(), search_exfor(), plot_exfor() methods. This method
+		is unlikely to be directly called in general use cases
+
+		Returns
+		-------
+		self.exfor_target : str
+			The target nucleus (or nuclei), in EXFOR notation.
+
+		self.exfor_reaction : str
+			The reaction code, in EXFOR notation.
+
+		self.exfor_product : str
+			The product nucleus (or nuclei), in EXFOR notation.
+
+		Examples
+		--------
+		>>> self.exfor_target, self.exfor_reaction, self.exfor_product = self.curie_to_exfor()
+
+		"""
 		# Parse curie reaction name components
 		parsed_target = self.name.split('(')[0].strip('g')
 		reaction_code = self.name.split('(')[1].split(')')[0].strip('g')
@@ -424,12 +452,8 @@ class Reaction(object):
 		if '*' in parsed_target:
 			# print('found!')
 			self.exfor_target = parsed_target.replace('*','9999')
-			# substrings = re.split('(\D+)',exfor_target)
-			# # exfor_target = (substrings[1]+'-'+substrings[0]).strip(' ').upper()
-			# exfor_target = (substrings[1]+'-'+substrings[0]).upper()
 		else:
 			substrings = re.split('(\D+)',parsed_target)
-			# exfor_target = (substrings[1]+'-'+substrings[0]).strip(' ').upper()
 			self.exfor_target = (substrings[1]+'-'+substrings[0]).upper()
 
 
@@ -441,37 +465,96 @@ class Reaction(object):
 			substrings = re.split('(\D+)',parsed_product)
 			self.exfor_product = (substrings[1]+'-'+substrings[0]).upper()
 
+
 		self.exfor_reaction = reaction_code.upper().replace('X','*')
-
-
-
-
-
-
-		# print(self.exfor_target)
-		# print(exfor_rxn)
-		# print(exfor_product)
-
-		# print('target: '+parsed_target)
-		# print('rxn: '+reaction_code)
-		# print('product: '+parsed_product)
 
 		return self.exfor_target, self.exfor_reaction, self.exfor_product
 
 
-
 	def search_exfor(self, plot_results=False, plot_tendl=False, show_legend=False,xlim=[0,None], ylim=[0,None], verbose=False):
-		# print('test!')
-		# print('TARGET:',self.exfor_target)
-		# print('PRODUCT:',self.exfor_product)
+		"""Search the EXFOR library for reaction data
+
+		Front-end method to search for EXFOR data for the reaction (or reactions) defined in
+		ci.Reaction(). Unlike reaction data retrieved from other Curie data libraries, this search
+		supports the use of natural abundance targets and the use of wildcards for both target, 
+		reaction channel, and product. Additional optional parameters control the plotting and 
+		level of verbose output. This provides an API-like access for EXFOR data, but users may 
+		want to compare against queries through the EXFOR web portal, due to the fact that EXFOR 
+		compilations may be entered inconsistently, particularly for older data sets.
+
+		The first time that Reaction.search_exfor() is called, Curie will download the most recent 
+		copy of the EXFOR database. The x4i3-tools Python package provides tools to manually update 
+		your local EXFOR database, but native upgrade support will be added in future updates.
+
+		Currently, supported targets include individual isotopes (as in the rest of Curie) (e.g., 
+		'226RA'), natural abundance targets (e.g., '0FE', '0PB'), and wildcards (e.g., '*LA', '*V'), 
+		which which includes both A=0 for the specified element, as well as all of its stable 
+		isotopes. The target element must still be specified, but support for wildcard elements (e.g., 
+		'*(p,x)56CO') will be added in future updates. 
+
+		Similarly, reaction channels may be specified as normal in Curie (e.g., '(p,x)', '(p,2n)', 
+		'd,a4n'), or using wildcards for exit channels (e.g., '(p,x)', '(p,*)', where 'x' and '*' 
+		serve interchangeably), though the incident particle must still be specified.
+
+		Currently, supported products include individual isotopes (as in the rest of Curie) (e.g., 
+		'225RA'), and wildcards (e.g., '*CO', '*CE', '*TL'), which will retrieve results for all  
+		isotopes of the specified target (or wildcard target). The product element must still be 
+		specified, but support for wildcard elements (e.g., '56FE(p,x)*') will be added in future 
+		updates. When plotting results for a wildcard product, the plot legend will provide extra 
+		metadata to specify the reaction channel for each dataset.
+
+		Combinations of any of the above supported wildcards may be used together and interchangeably, 
+		offering data retrieval power comparable to the EXFOR web portal, but with greater ease for
+		programmatic use.
+		
+
+		Parameters
+		----------
+		plot_results : bool, optional
+			When True, this parameter is used to plot results retrieved through Reaction.search_exfor(). 
+			Default 'False'.
+
+		plot_tendl : bool, optional
+			When True, this parameter is used to plot results retrieved through Reaction.search_exfor(). 
+			Default 'False'.
+
+		unc : bool, optional
+			If `True`, returns the both the flux average cross section and the uncertainty. If `False`,
+			just the average cross section is returned. Default `False`.
+
+
+			When plotting results for a wildcard target, 
+		
+
+
+		Examples
+		--------
+		>>> rx = ci.Reaction('Ni-58(n,p)')
+		>>> eng = np.linspace(1, 5, 20)
+		>>> phi = np.ones(20)
+		>>> print(rx.average(eng, phi))
+		208.3608978993537
+		>>> print(rx.average(eng, phi, unc=True))
+		(208.3608978993537, 4.979629859187442)
+
+		"""
+
 		# Check for *-targets (aka A=9999)
 		self.multiple_product_subentries = False
+
+		if '9999' not in self.exfor_product:
+			# Loop over all stable isotopes of element, along with A=0 (natural abundance)
+			self.plot_tendl = plot_tendl
 
 		if '9999' in self.exfor_target:
 			# Loop over all stable isotopes of element, along with A=0 (natural abundance)
 			self.exfor_target = self.exfor_target.strip('9999')
 			# Avoid a spaghetti plot...
-			self.plot_tendl = False
+			if '9999' not in self.exfor_product:
+				# Loop over all stable isotopes of element, along with A=0 (natural abundance)
+				self.plot_tendl = plot_tendl
+			else:
+				self.plot_tendl = False
 			self.multiple_product_subentries = True
 			element = Element(self.exfor_target)
 			abd = element.abundances
@@ -490,14 +573,48 @@ class Reaction(object):
 				substrings = re.split('(\D+)',itp)
 				# exfor_target = (substrings[1]+'-'+substrings[0]).strip(' ').upper()
 				self.exfor_target = (substrings[1]+'-'+substrings[0]).upper()
-				self.query(plot_results, plot_tendl, show_legend, xlim, ylim, verbose)
+				self.query(plot_results, self.plot_tendl, show_legend, xlim, ylim, verbose)
 
 		else:
 			# Run an EXFOR query as normal
-			self.query(plot_results, plot_tendl, show_legend, xlim, ylim, verbose)
+			self.query(plot_results, self.plot_tendl, show_legend, xlim, ylim, verbose)
 		
 
 	def query(self, plot_results=False, plot_tendl=False, show_legend=False, xlim=[0,None], ylim=[0,None], verbose=False):
+		"""Search the EXFOR library for reaction data
+
+		Front-end method to 
+
+		Parameters
+		----------
+		energy : array_like
+			Incident particle energy, in MeV.
+
+		flux : array_like
+			Incident particle flux as a function of the input energy grid.
+
+		unc : bool, optional
+			If `True`, returns the both the flux average cross section and the uncertainty. If `False`,
+			just the average cross section is returned. Default `False`.
+
+		Returns
+		-------
+		average_xs : float or tuple
+			Flux-averaged reaction cross section if `unc=False` (default), or average
+			and uncertainty, if `unc=True`.
+
+		Examples
+		--------
+		>>> rx = ci.Reaction('Ni-58(n,p)')
+		>>> eng = np.linspace(1, 5, 20)
+		>>> phi = np.ones(20)
+		>>> print(rx.average(eng, phi))
+		208.3608978993537
+		>>> print(rx.average(eng, phi, unc=True))
+		(208.3608978993537, 4.979629859187442)
+
+		"""
+
 		# print(self.name)
 		# self.exfor_target, self.exfor_rxn, self.exfor_product = self.curie_to_exfor()
 		db = exfor_manager.X4DBManagerDefault()
@@ -526,10 +643,13 @@ class Reaction(object):
 			self.multiple_product_subentries = True
 		else:
 			# Detect if target material is natural abundance
-			if self.exfor_target.split('-')[1] == 0:
+			# print(self.enriched)
+			# print(self.exfor_target.split('-'))
+			if self.exfor_target.split('-')[1] != 0:
 				self.enriched = True
 			else:
 				self.enriched = False
+			# print(self.enriched)
 
 		# print('PRODUCT:',self.exfor_product)
 
@@ -567,11 +687,13 @@ class Reaction(object):
 
 			# print(product)
 			# print(target)
+			# print(num_of_sub_subentries)
 
 			subentry_list = []
 
-
-			if num_of_sub_subentries == 1:
+			if num_of_sub_subentries == 0:
+				continue
+			elif num_of_sub_subentries == 1:
 				# We're all good...
 				# subentry = next(iter(datasets.values()))
 				i = next(iter(datasets.values()))
@@ -633,6 +755,7 @@ class Reaction(object):
 					print(str(subentry.reaction))
 				# print(subentry.data)
 				# print(dir(subentry))
+				# print(dir(subentry.reaction))
 				# print(str(subentry.reaction))
 				# print(str(subentry.reaction).split('(')[2].split(')')[0])
 				# print(subentry.labels)
@@ -732,6 +855,9 @@ class Reaction(object):
 				# print(subentry.subent)
 				# print(type(subentry))
 				# print(str(subentry.reaction[0].residual))
+				# print(subentry)
+				# print(subentry.subent)
+				# print(str(subentry.reaction))
 				if subentry.reaction[0].residual == None:
 					residual = str(subentry.reaction[0]).split('Unspecified+')[1].strip(')')
 				else:
@@ -813,15 +939,29 @@ class Reaction(object):
 					# print(plot_Dict[index][2][:,0])
 					plt.errorbar(plot_data[:,energy_col]*energy_unit_scalar,plot_data[:,xs_col]*xs_unit_scalar,  ls='none', capsize=3, label=label_string, marker='o', markersize=3, linewidth=1)
 					# 
-				elif unc_energy_col == -1:
+				elif unc_xs_col != -1 and unc_energy_col == -1:
 					# 3-column data, energy, xs, and xs uncertainty...
 					# print('plotting 3-column')
 					# print(plot_Dict[index][2][:,0])
+					# print('energy:', plot_data[:,energy_col]*energy_unit_scalar)
+					# print('xs: ',plot_data[:,xs_col]*xs_unit_scalar)
+					# print('xs unc: ',plot_data[:,unc_xs_col]*xs_unit_scalar)
 					plt.errorbar(plot_data[:,energy_col]*energy_unit_scalar,plot_data[:,xs_col]*xs_unit_scalar,  yerr=plot_data[:,unc_xs_col]*xs_unit_scalar, ls='none', capsize=3, label=label_string, marker='o', markersize=3, linewidth=1)
-				else:
+				elif unc_xs_col == -1 and unc_energy_col != -1:
+					# 3-column data, energy, xs, and energy uncertainty...
+					# print('plotting 3-column')
+					# print(plot_Dict[index][2][:,0])
+					# print('energy:', plot_data[:,energy_col]*energy_unit_scalar)
+					# print('xs: ',plot_data[:,xs_col]*xs_unit_scalar)
+					# print('xs unc: ',plot_data[:,unc_xs_col]*xs_unit_scalar)
+					plt.errorbar(plot_data[:,energy_col]*energy_unit_scalar,plot_data[:,xs_col]*xs_unit_scalar,  xerr=plot_data[:,unc_energy_col]*energy_unit_scalar, ls='none', capsize=3, label=label_string, marker='o', markersize=3, linewidth=1)
+				elif unc_xs_col != -1 and unc_energy_col != -1:
 				# 	# 4-column data, energy, xs,  xs uncertainty, and energy uncertainty...
 					# print('plotting 4-column')
 				# 	# print(plot_Dict[index][2][:,0])
+					# print('energy:', plot_data[:,energy_col]*energy_unit_scalar)
+					# print('xs: ',plot_data[:,xs_col]*xs_unit_scalar)
+					# print('xs unc: ',plot_data[:,unc_xs_col]*xs_unit_scalar)
 					plt.errorbar(plot_data[:,energy_col]*energy_unit_scalar,plot_data[:,xs_col]*xs_unit_scalar, xerr=plot_data[:,unc_energy_col]*energy_unit_scalar, yerr=plot_data[:,unc_xs_col]*xs_unit_scalar, ls='none', capsize=3, label=label_string, marker='o', markersize=3, linewidth=1)
 
 				
@@ -851,12 +991,15 @@ class Reaction(object):
 			# tendl_data = np.genfromtxt(urlopen(target_url_209po), delimiter=" ")
 
 
-
+			if self.incident not in ['p','d','n']:
+				print('Plotting TENDL data currently limited to p,d,n as incident particles, sorry!')
+				self.plot_tendl = False
 			
-
+			# print(self.plot_tendl)
 
 
 			if self.plot_tendl:
+				# print('projectile: ',self.incident)
 				element = Element(self.target_element)
 				abd = element.abundances
 				# print(element.isotopes)
@@ -874,17 +1017,20 @@ class Reaction(object):
 					abundances = 100.0
 					self.enriched = True
 
-				print(self.exfor_product)
+				# print(self.exfor_product)
 
 				product_tendl=self.exfor_product.split('-')[1]+self.exfor_product.split('-')[0]+'g'
+				# print(product_tendl)
+				# print(self.enriched)
 				if self.enriched:
-					rx = Reaction(self.exfor_target.split('-')[1]+self.exfor_target.split('-')[0]+'(p,x)'+product_tendl)
+					rx = Reaction(self.exfor_target.split('-')[1]+self.exfor_target.split('-')[0]+'('+self.incident+',x)'+product_tendl)
 					tendl_xs = rx.xs
 				else:
-					rx = Reaction(isotopes[0]+'(p,x)'+product_tendl)
+					rx = Reaction(isotopes[0]+'('+self.incident+',x)'+product_tendl)
+					# print(rx)
 					tendl_xs = np.zeros(len(rx.eng))
 					for (itp, abund) in zip(isotopes,abundances):
-						tendl_xs = tendl_xs + (Reaction(itp+'(p,x)'+product_tendl).xs * (abund/100))
+						tendl_xs = tendl_xs + (Reaction(itp+'('+self.incident+',x)'+product_tendl).xs * (abund/100))
 				# print(rx.xs)
 				# print(rx.eng)
 				# print(tendl_xs)
