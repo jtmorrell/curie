@@ -670,6 +670,11 @@ class Reaction(object):
 				# print(year)
 				# print(subentry.subent)
 				# print(type(subentry))
+				# print(str(subentry.reaction[0].residual))
+				if subentry.reaction[0].residual == None:
+					residual = str(subentry.reaction[0]).split('Unspecified+')[1].strip(')')
+				else:
+					residual = str(subentry.reaction[0].residual)
 				plot_Dict[author_name+year+subentry.subent] = (author_name, # 0
 										  year, # 1
 										  np.array(subentry.data, dtype=float),  # 2
@@ -680,7 +685,8 @@ class Reaction(object):
 										  xs_col, # 7
 										  unc_energy_col, # 8 
 										  unc_xs_col,  # 9
-										  subentry.reaction)  # 10
+										  subentry.reaction,  # 10
+										  residual)  #11
 
 		self.plot_Dict = plot_Dict
 
@@ -710,7 +716,7 @@ class Reaction(object):
 				# Need to set up list of marker sizes to iterate over with k
 				# print(k)
 				# Use local variables
-				author_name, year , plot_data , subent , energy_unit_scalar , xs_unit_scalar , energy_col , xs_col , unc_energy_col , unc_xs_col, subentry_reaction = plot_Dict[index]
+				author_name, year , plot_data , subent , energy_unit_scalar , xs_unit_scalar , energy_col , xs_col , unc_energy_col , unc_xs_col, subentry_reaction, residual = plot_Dict[index]
 
 				# print('subent ', subent)
 				# print('energy_col ', energy_col)
@@ -731,9 +737,9 @@ class Reaction(object):
 
 				if self.multiple_product_subentries:
 					if subentry_reaction[0].residual == None:
-						label_string = author_name+' ('+year+') ['+str(subentry_reaction[0].targ)+'('+self.exfor_reaction.replace('*','X').lower()+')'+str(subentry_reaction[0]).split('Unspecified+')[1].strip(')')+']'
+						label_string = author_name+' ('+year+') ['+str(subentry_reaction[0].targ)+'('+self.exfor_reaction.replace('*','X').lower()+')'+residual+']'
 					else:
-						label_string = author_name+' ('+year+') ['+str(subentry_reaction[0].targ)+'('+str(subentry_reaction).split('(')[2].split(')')[0].replace('*','X').lower()+')'+str(subentry_reaction[0].residual)+']'
+						label_string = author_name+' ('+year+') ['+str(subentry_reaction[0].targ)+'('+str(subentry_reaction).split('(')[2].split(')')[0].replace('*','X').lower()+')'+residual+']'
 				else:
 					label_string = author_name+' ('+year+')'
 
