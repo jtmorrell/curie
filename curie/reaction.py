@@ -461,10 +461,12 @@ class Reaction(object):
 
 
 	def search_exfor(self, plot_results=False, plot_tendl=False, show_legend=False,xlim=[0,None], ylim=[0,None], verbose=False):
-		print('test!')
+		# print('test!')
 		# print('TARGET:',self.exfor_target)
 		# print('PRODUCT:',self.exfor_product)
 		# Check for *-targets (aka A=9999)
+		self.multiple_product_subentries = False
+
 		if '9999' in self.exfor_target:
 			# Loop over all stable isotopes of element, along with A=0 (natural abundance)
 			self.exfor_target = self.exfor_target.strip('9999')
@@ -481,10 +483,10 @@ class Reaction(object):
 			isotopes = np.append(isotopes, '0'+self.exfor_target)
 
 			# print(abundances)
-			print(isotopes)
+			# print(isotopes)
 
 			for itp in isotopes:
-				print('* Target Isotope: ',itp)
+				# print('* Target Isotope: ',itp)
 				substrings = re.split('(\D+)',itp)
 				# exfor_target = (substrings[1]+'-'+substrings[0]).strip(' ').upper()
 				self.exfor_target = (substrings[1]+'-'+substrings[0]).upper()
@@ -500,10 +502,10 @@ class Reaction(object):
 		# self.exfor_target, self.exfor_rxn, self.exfor_product = self.curie_to_exfor()
 		db = exfor_manager.X4DBManagerDefault()
 		self.target_element = self.exfor_target.split('-')[0].capitalize()
-		self.multiple_product_subentries = False
+		# self.multiple_product_subentries = False
 
-		print('TARGET:',self.exfor_target)
-		print('PRODUCT:',self.exfor_product)
+		# print('TARGET:',self.exfor_target)
+		# print('PRODUCT:',self.exfor_product)
 		
 
 		# Check for *-products (aka A=9999)
@@ -606,6 +608,7 @@ class Reaction(object):
 			# 	continue
 			if len(subentry_list) == 0:
 				continue
+				
 
 			# print(len(subentry))
 			# print(subentry_list)
@@ -622,9 +625,12 @@ class Reaction(object):
 			# print (dir(s))
 
 			for subentry in subentry_list:
+				xs_col = -1
+				unc_xs_col = -1
 				if  verbose:
 					print(subentry)
 					print(subentry.subent)
+					print(str(subentry.reaction))
 				# print(subentry.data)
 				# print(dir(subentry))
 				# print(str(subentry.reaction))
@@ -643,6 +649,21 @@ class Reaction(object):
 					continue
 				elif "SFC" in str(subentry.reaction):
 					print('SFC data found in subentry',subentry.subent,', skipping...')
+					continue
+				elif "/" in str(subentry.reaction):
+					print('Ratio data found in subentry',subentry.subent,', skipping...')
+					continue
+				elif "PAR" in str(subentry.reaction):
+					print('Partial XS data found in subentry',subentry.subent,', skipping...')
+					continue
+				elif "REL" in str(subentry.reaction):
+					print('REL data found in subentry',subentry.subent,', skipping...')
+					continue
+				elif "DERIV" in str(subentry.reaction):
+					print('DERIV data found in subentry',subentry.subent,', skipping...')
+					continue
+				elif "RAW" in str(subentry.reaction):
+					print('RAW data found in subentry',subentry.subent,', skipping...')
 					continue
 				# except NoValuesGivenError:
 				# 	# print('test')
@@ -698,11 +719,16 @@ class Reaction(object):
 				else:
 					print("No XS units found for entry", next(iter(datasets))[1][0:5])
 
+				if xs_col == -1:
+					print('No XS able to be extracted for entry', next(iter(datasets))[1][0:5])
+					continue
+
 				# print(subentry.getSimplified().data)
 				author_name = subentry.author[0].split('.',-1)[-1]
 				year = subentry.year
 				# print(author_name)
 				# print(year)
+				# print(subentry)
 				# print(subentry.subent)
 				# print(type(subentry))
 				# print(str(subentry.reaction[0].residual))
@@ -710,7 +736,7 @@ class Reaction(object):
 					residual = str(subentry.reaction[0]).split('Unspecified+')[1].strip(')')
 				else:
 					residual = str(subentry.reaction[0].residual)
-				plot_Dict[author_name+year+subentry.subent] = (author_name, # 0
+				plot_Dict[author_name+year+subentry.subent+residual] = (author_name, # 0
 										  year, # 1
 										  np.array(subentry.data, dtype=float),  # 2
 										  subentry.subent, # 3
@@ -731,6 +757,7 @@ class Reaction(object):
 
 
 		if plot_results:
+			# print(plot_Dict)
 			self.plot_exfor(self.plot_tendl,show_legend, xlim=xlim, ylim=ylim)
 		
 
@@ -747,14 +774,14 @@ class Reaction(object):
 		if len(plot_Dict) != 0:
 			# Plot results
 			fig, ax = plt.subplots(layout='constrained')
-			
+
 			k=0
 			for index in plot_Dict:
 				# Need to set up list of marker sizes to iterate over with k
 				# print(k)
 				# Use local variables
 				author_name, year , plot_data , subent , energy_unit_scalar , xs_unit_scalar , energy_col , xs_col , unc_energy_col , unc_xs_col, subentry_reaction, residual = plot_Dict[index]
-
+				# print(plot_Dict[index])
 				# print('subent ', subent)
 				# print('energy_col ', energy_col)
 				# print('xs_col ', xs_col)
@@ -906,6 +933,8 @@ class Reaction(object):
 			plt.show()
 		else:
 			print('No matching datasets found!')
+
+		print('---------------------------')
 
 
 	
