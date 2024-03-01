@@ -782,9 +782,9 @@ class Reaction(object):
 				elif "REL" in str(subentry.reaction):
 					print('REL data found in subentry',subentry.subent,', skipping...')
 					continue
-				elif "DERIV" in str(subentry.reaction):
-					print('DERIV data found in subentry',subentry.subent,', skipping...')
-					continue
+				# elif "DERIV" in str(subentry.reaction):
+				# 	print('DERIV data found in subentry',subentry.subent,', skipping...')
+				# 	continue
 				elif "RAW" in str(subentry.reaction):
 					print('RAW data found in subentry',subentry.subent,', skipping...')
 					continue
@@ -1018,6 +1018,12 @@ class Reaction(object):
 					self.enriched = True
 
 				# print(self.exfor_product)
+				# print(self.target_element)
+
+				nearly_monoisotopic_elements = ['H', 'N', 'LA', 'HE', 'O', 'TA', 'C', 'V']
+				if self.target_element.upper() in nearly_monoisotopic_elements:
+					self.enriched = False
+
 
 				product_tendl=self.exfor_product.split('-')[1]+self.exfor_product.split('-')[0]+'g'
 				# print(product_tendl)
@@ -1078,7 +1084,7 @@ class Reaction(object):
 			# plt.savefig('165Er_XS.png', dpi=400)  
 			plt.show()
 		else:
-			print('No matching datasets found!')
+			print('No matching datasets found for '+self.exfor_target+'('+self.exfor_reaction.replace('*','X')+')'+self.exfor_product)
 
 		print('---------------------------')
 
