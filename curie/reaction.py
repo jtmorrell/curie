@@ -94,6 +94,7 @@ class Reaction(object):
 		self.name = reaction_name
 		self.exfor_target, self.exfor_reaction, self.exfor_product = self.curie_to_exfor()
 		self.plot_tendl = False
+		self.plot_Dict = {}
 		self.multiple_product_subentries = False
 
 		if library.lower()=='best':
@@ -685,19 +686,23 @@ class Reaction(object):
 										  unc_xs_col,  # 9
 										  subentry.reaction)  # 10
 
+		self.plot_Dict = plot_Dict
+
 		if verbose:
 			print('---------------------------')
 		# print(plot_Dict)
 
 
 		if plot_results:
-			self.plot_exfor(plot_Dict,self.plot_tendl,multiple_product_subentries,show_legend, xlim=xlim, ylim=ylim)
+			self.plot_exfor(self.plot_tendl,multiple_product_subentries,show_legend, xlim=xlim, ylim=ylim)
 		
 
 
-	def plot_exfor(self, plot_Dict, plot_tendl=False, multiple_product_subentries=False, show_legend=False, xlim=[None,None], ylim=[0,None]):
+	def plot_exfor(self, plot_tendl=False, multiple_product_subentries=False, show_legend=False, xlim=[None,None], ylim=[0,None]):
 		# plt.plot(tendl_data[:,0], tendl_data[:,1], label='TENDL-2021', color='k')
 		# plt.plot(tendl_data_208[:,0], tendl_data_208[:,1], label='209', color='r')
+
+		plot_Dict = self.plot_Dict
 
 		if len(plot_Dict) != 0:
 			# Plot results
