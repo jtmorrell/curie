@@ -5,7 +5,7 @@ from __future__ import print_function
 import numpy as np
 import pandas as pd
 from scipy.interpolate import interp1d
-from x4i3 import exfor_manager, exfor_entry
+from x4i3 import exfor_manager, exfor_entry, exfor_exceptions
 import re
 import matplotlib.pyplot as plt
 
@@ -587,15 +587,33 @@ class Reaction(object):
 			# print (dir(s))
 
 			for subentry in subentry_list:
-				print(subentry)
-				# print(subentry.getSimplified())
+				# print(subentry)
+				# print(subentry.data)
+				# print(dir(subentry))
+				# print(str(subentry.reaction))
+				# print('SFC' in str(subentry.reaction))
 
-				# Make sure data isn't actually RECOM or TTY
-				if "RECOM" in subentry.getSimplified().reaction[0].quantity:
-					print('RECOM data found, skipping...')
-					continue
-				elif "TTY" in subentry.getSimplified().reaction[0].quantity:
-					print('TTY data found, skipping...')
+				try:
+
+					# Make sure data isn't actually RECOM or TTY
+					if "RECOM" in subentry.getSimplified().reaction[0].quantity:
+						print('RECOM data found, skipping...')
+						continue
+					elif "TTY" in subentry.getSimplified().reaction[0].quantity:
+						print('TTY data found, skipping...')
+						continue
+					elif "SFC" in str(subentry.reaction):
+						print('SFC data found, skipping...')
+						continue
+				except exfor_exceptions.NoValuesGivenError:
+					# print('test')
+					# print(subentry.reaction)
+					# ['__class__', '__delattr__', '__dict__', '__dir__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', 
+					# '__getitem__', '__getstate__', '__gt__', '__hash__', '__init__', '__init_subclass__', '__le__', '__lt__', '__module__', 
+					# '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__slotnames__', '__slots__', 
+					# '__str__', '__subclasshook__', '__weakref__', 'append', 'author', 'citation', 'coupled', 'csv', 'data', 'getSimplified', 
+					# 'institute', 'labels', 'legend', 'monitor', 'numcols', 'numrows', 'pubType', 'reaction', 'reference', 'reprHeader', 
+					# 'setData', 'simplified', 'sort', 'strHeader', 'subent', 'title', 'units', 'xmgraceHeader', 'year']
 					continue
 				
 
@@ -699,8 +717,14 @@ class Reaction(object):
 				# print(subentry_reaction[0].getReactionType)
 				# print(type(subentry_reaction[0].parse_results))
 
+				# print(type(subentry_reaction[0]))
+				# print(str(subentry_reaction[0])+'jjjjjjjjj')
+
 				if multiple_product_subentries:
-					label_string = author_name+' ('+year+') ['+str(subentry_reaction[0].targ)+'('+self.exfor_reaction.replace('*','X').lower()+')'+str(subentry_reaction[0].residual)+']'
+					if subentry_reaction[0].residual == None:
+						label_string = author_name+' ('+year+') ['+str(subentry_reaction[0].targ)+'('+self.exfor_reaction.replace('*','X').lower()+')'+str(subentry_reaction[0]).split('Unspecified+')[1].strip(')')+']'
+					else:
+						label_string = author_name+' ('+year+') ['+str(subentry_reaction[0].targ)+'('+self.exfor_reaction.replace('*','X').lower()+')'+str(subentry_reaction[0].residual)+']'
 				else:
 					label_string = author_name+' ('+year+')'
 
