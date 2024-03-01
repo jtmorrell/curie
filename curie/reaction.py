@@ -129,6 +129,8 @@ class Reaction(object):
 				self.unc_xs = np.zeros(len(self.xs))
 			self._interp = None
 			self._interp_unc = None
+		else:
+			self.library = Library('exfor')
 
 		try:
 			if 'nat' not in self.target:
@@ -464,7 +466,7 @@ class Reaction(object):
 	# ---------------------------------------------------------------
 
 
-	def search_exfor(self, plot_results=False, plot_tendl=False):
+	def search_exfor(self, plot_results=False, plot_tendl=False, show_legend=False,xlim=[None,None], ylim=[0,None]):
 		# print(self.name)
 		# self.exfor_target, self.exfor_rxn, self.exfor_product = self.curie_to_exfor()
 		db = exfor_manager.X4DBManagerDefault()
@@ -677,11 +679,11 @@ class Reaction(object):
 
 
 		if plot_results:
-			self.plot_exfor(plot_Dict,self.plot_tendl,multiple_product_subentries)
+			self.plot_exfor(plot_Dict,self.plot_tendl,multiple_product_subentries,show_legend, xlim=xlim, ylim=ylim)
 		
 
 
-	def plot_exfor(self, plot_Dict, plot_tendl=False, multiple_product_subentries=False):
+	def plot_exfor(self, plot_Dict, plot_tendl=False, multiple_product_subentries=False, show_legend=False, xlim=[None,None], ylim=[0,None]):
 		# plt.plot(tendl_data[:,0], tendl_data[:,1], label='TENDL-2021', color='k')
 		# plt.plot(tendl_data_208[:,0], tendl_data_208[:,1], label='209', color='r')
 
@@ -692,17 +694,7 @@ class Reaction(object):
 				# Need to set up list of marker sizes to iterate over with k
 				# print(k)
 				# Use local variables
-				author_name = plot_Dict[index][0]
-				year = plot_Dict[index][1]
-				plot_data = plot_Dict[index][2]
-				subent = plot_Dict[index][3]
-				energy_unit_scalar = plot_Dict[index][4]
-				xs_unit_scalar = plot_Dict[index][5]
-				energy_col = plot_Dict[index][6]
-				xs_col = plot_Dict[index][7]
-				unc_energy_col = plot_Dict[index][8]
-				unc_xs_col = plot_Dict[index][9]
-				subentry_reaction = plot_Dict[index][10]
+				author_name, year , plot_data , subent , energy_unit_scalar , xs_unit_scalar , energy_col , xs_col , unc_energy_col , unc_xs_col, subentry_reaction = plot_Dict[index]
 
 				# print('subent ', subent)
 				# print('energy_col ', energy_col)
@@ -813,13 +805,14 @@ class Reaction(object):
 				plt.plot(rx.eng, tendl_xs, color="k", label='TENDL')
 
 			print('Plotting '+str(len(plot_Dict))+' datasets found in EXFOR for '+self.exfor_target+'('+self.exfor_reaction.replace('*','X')+')'+self.exfor_product)
-			plt.legend()
+			if show_legend:
+				plt.legend()
 			plt.xlabel('Incident Energy (MeV)')
 			plt.ylabel('Cross Section (mb)')
 			# plt.xlim(right=50)
-			# plt.xlim([0,50])
-			# plt.ylim(top=1000)
-			plt.ylim(bottom=0)
+			plt.xlim(xlim)
+			plt.ylim(ylim)
+			# plt.ylim(bottom=0)
 			plt.title(self.exfor_target.capitalize()+'('+self.exfor_reaction.lower().replace('*','x')+')'+self.exfor_product.capitalize())
 			# plt.show()
 			plt.grid(which='major', axis='both', color='w')
