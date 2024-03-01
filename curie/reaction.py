@@ -394,13 +394,10 @@ class Reaction(object):
 	
 
 	def curie_to_exfor(self):
+		# Parse curie reaction name components
 		parsed_target = self.name.split('(')[0].strip('g')
 		reaction_code = self.name.split('(')[1].split(')')[0].strip('g')
 		parsed_product = self.name.split('(')[1].split(')')[1].strip('g')
-
-		# print(parsed_target)
-
-		# target = ''
 
 		# convert natural abundance notation to EXFOR
 		if 'nat' in parsed_target:
@@ -463,16 +460,15 @@ class Reaction(object):
 
 
 
+	def query():
+		print('test!')
 
-	# ---------------------------------------------------------------
-
-
-	def search_exfor(self, plot_results=False, plot_tendl=False, show_legend=False,xlim=[None,None], ylim=[0,None], verbose=False):
+	def search_exfor(self, plot_results=False, plot_tendl=False, show_legend=False,xlim=[0,None], ylim=[0,None], verbose=False):
 		# print(self.name)
 		# self.exfor_target, self.exfor_rxn, self.exfor_product = self.curie_to_exfor()
 		db = exfor_manager.X4DBManagerDefault()
 		self.target_element = self.exfor_target.split('-')[0].capitalize()
-		multiple_product_subentries = False
+		self.multiple_product_subentries = False
 		
 
 		# Check for *-products (aka A=9999)
@@ -482,7 +478,7 @@ class Reaction(object):
 			self.exfor_product = self.exfor_product.strip('9999')
 			# Avoid a spaghetti plot...
 			self.plot_tendl = False
-			multiple_product_subentries = True
+			self.multiple_product_subentries = True
 		
 		# Check for *-targets (aka A=9999)
 		# print('TARGET:',target)
@@ -490,7 +486,7 @@ class Reaction(object):
 			self.exfor_target = self.exfor_target.strip('9999')
 			# Avoid a spaghetti plot...
 			self.plot_tendl = False
-			multiple_product_subentries = True
+			self.multiple_product_subentries = True
 		else:
 			# Detect if target material is natural abundance
 			if self.exfor_target.split('-')[1] == 0:
@@ -694,15 +690,18 @@ class Reaction(object):
 
 
 		if plot_results:
-			self.plot_exfor(self.plot_tendl,multiple_product_subentries,show_legend, xlim=xlim, ylim=ylim)
+			self.plot_exfor(self.plot_tendl,show_legend, xlim=xlim, ylim=ylim)
 		
 
 
-	def plot_exfor(self, plot_tendl=False, multiple_product_subentries=False, show_legend=False, xlim=[None,None], ylim=[0,None]):
+	def plot_exfor(self, plot_tendl=False, show_legend=False, xlim=[None,None], ylim=[0,None]):
 		# plt.plot(tendl_data[:,0], tendl_data[:,1], label='TENDL-2021', color='k')
 		# plt.plot(tendl_data_208[:,0], tendl_data_208[:,1], label='209', color='r')
 
 		plot_Dict = self.plot_Dict
+
+		fig, ax = plt.subplots(layout='constrained')
+
 
 		if len(plot_Dict) != 0:
 			# Plot results
@@ -730,7 +729,7 @@ class Reaction(object):
 				# print(str(subentry_reaction[0])+'jjjjjjjjj')
 				# print(str(subentry_reaction).split('(')[2])
 
-				if multiple_product_subentries:
+				if self.multiple_product_subentries:
 					if subentry_reaction[0].residual == None:
 						label_string = author_name+' ('+year+') ['+str(subentry_reaction[0].targ)+'('+self.exfor_reaction.replace('*','X').lower()+')'+str(subentry_reaction[0]).split('Unspecified+')[1].strip(')')+']'
 					else:
@@ -823,8 +822,20 @@ class Reaction(object):
 				plt.plot(rx.eng, tendl_xs, color="k", label='TENDL')
 
 			print('Plotting '+str(len(plot_Dict))+' datasets found in EXFOR for '+self.exfor_target+'('+self.exfor_reaction.replace('*','X')+')'+self.exfor_product)
+			ax = plt.gca()
 			if show_legend:
-				plt.legend()
+				legend = fig.legend(loc='outside right upper')
+				# plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+
+
+				# ax.set_aspect(2)
+				# plt.tight_layout()
+				# plt.tight_layout(rect=[0, 0, 0.75, 1])
+				fig_width, fig_height = plt.gcf().get_size_inches()
+				fig.set_figwidth(plt.rcParams['figure.figsize'][0]*(1+(legend.get_window_extent().width/(100*fig_width))))
+				# plt.tight_layout(rect=[0, 0, 0.75, 1])
+
+
 			plt.xlabel('Incident Energy (MeV)')
 			plt.ylabel('Cross Section (mb)')
 			# plt.xlim(right=50)
@@ -835,7 +846,7 @@ class Reaction(object):
 			# plt.show()
 			plt.grid(which='major', axis='both', color='w')
 
-			ax = plt.gca()
+			# ax = plt.gca()
 			ax.set_facecolor('#e5ecf6')
 
 			# # Set up second y-axis for plotting isotopic ratios
