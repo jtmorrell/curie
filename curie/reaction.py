@@ -98,18 +98,25 @@ class Reaction(object):
 		self.multiple_product_subentries = False
 		self.enriched = False
 
+		if '*' in self.name:
+			self.library = Library('exfor')
+
 		if library.lower()=='best':
 			if self.incident=='n':
 				for lb in ['irdff','endf','iaea','tendl','tendl_n_rp']:
 					self.library = Library(lb)
-					if lb=='tendl_n_rp':
+					if '*' in self.name:
+						self.library = Library('exfor')
+					elif lb=='tendl_n_rp':
 						self._check(True)
 					elif self._check():
 						break
 			elif self.incident in ['p','d']:
 				for lb in ['iaea','tendl_'+self.incident+'_rp']:
 					self.library = Library(lb)
-					if lb=='tendl_d_rp':
+					if '*' in self.name:
+						self.library = Library('exfor')
+					elif lb=='tendl_d_rp':
 						self._check(True)
 					elif self._check():
 						break
@@ -471,7 +478,7 @@ class Reaction(object):
 		return self.exfor_target, self.exfor_reaction, self.exfor_product
 
 
-	def search_exfor(self, plot_results=False, plot_tendl=False, show_legend=False,xlim=[0,None], ylim=[0,None], verbose=False):
+	def search_exfor(self, plot_results=False, plot_tendl=False, show_legend=False, xlim=[0,None], ylim=[0,None], verbose=False):
 		"""Search the EXFOR library for reaction data
 
 		Front-end method to search for EXFOR data for the reaction (or reactions) defined in
@@ -498,10 +505,9 @@ class Reaction(object):
 
 		Currently, supported products include individual isotopes (as in the rest of Curie) (e.g., 
 		'225RA'), and wildcards (e.g., '*CO', '*CE', '*TL'), which will retrieve results for all  
-		isotopes of the specified target (or wildcard target). The product element must still be 
-		specified, but support for wildcard elements (e.g., '56FE(p,x)*') will be added in future 
-		updates. When plotting results for a wildcard product, the plot legend will provide extra 
-		metadata to specify the reaction channel for each dataset.
+		isotopes of the specified product (or wildcard target). This also includes wildcard elements 
+		(e.g., '56FE(p,x)*'). When plotting results for a wildcard product, the plot legend will provide  
+		extra metadata to specify the reaction channel for each dataset.
 
 		Combinations of any of the above supported wildcards may be used together and interchangeably, 
 		offering data retrieval power comparable to the EXFOR web portal, but with greater ease for
@@ -511,28 +517,42 @@ class Reaction(object):
 		Parameters
 		----------
 		plot_results : bool, optional
-			When True, this parameter is used to plot results retrieved through Reaction.search_exfor(). 
+			When 'True', this parameter is used to plot results retrieved through Reaction.search_exfor(). 
 			Default 'False'.
 
 		plot_tendl : bool, optional
-			When True, this parameter is used to plot results retrieved through Reaction.search_exfor(). 
+			When 'True', this parameter is used to plot TENDL results for comparison with retrieved EXFOR 
+			data. Only works for non-wildcard products, and for incident p,d,n currently, as other 
+			incident particles are not available in Library() for TENDL currently. Default 'False'.
+
+		show_legend : bool, optional
+			When 'True', the plots generated in Reaction.plot_exfor() will have the legend displayed. 
 			Default 'False'.
 
-		unc : bool, optional
-			If `True`, returns the both the flux average cross section and the uncertainty. If `False`,
-			just the average cross section is returned. Default `False`.
+		xlim : arraylike, optional
+			An array that sets the x-axis plot limits in Reaction.plot_exfor(), implemented in 
+			matplotlib.  If len(xlim) == 1, this sets the lower bound only. If len(xlim) == 2, then 
+			xlim sets both upper and lower bounds as xlim = [lower, upper].
 
+		ylim : arraylike, optional
+			An array that sets the y-axis plot limits in Reaction.plot_exfor(), implemented in 
+			matplotlib.  If len(ylim) == 1, this sets the lower bound only. If len(ylim) == 2, then 
+			ylim sets both upper and lower bounds as ylim = [lower, upper].
 
-			When plotting results for a wildcard target, 
-		
+		verbose : bool, optional
+			This enables verbose output to the terminal for results retrieved from EXFOR. Useful for 
+			examining the raw data or for viewing metadata.		
 
 
 		Examples
 		--------
-		>>> rx = ci.Reaction('Ni-58(n,p)')
-		>>> eng = np.linspace(1, 5, 20)
-		>>> phi = np.ones(20)
-		>>> print(rx.average(eng, phi))
+		>>> rx = ci.Reaction('*LA(p,x)139CEg')
+		>>> rx.search_exfor()
+		>>> 
+		>>> rx = ci.Reaction('27AL(n,x)24NAg')
+		>>> rx.search_exfor(plot_results=True,plot_tendl=True, show_legend=True, xlim=[None,None], verbose=False)
+		>>>
+		>>> rx = ci.Reaction('*LA(d,*)*CEg')
 		208.3608978993537
 		>>> print(rx.average(eng, phi, unc=True))
 		(208.3608978993537, 4.979629859187442)
@@ -541,12 +561,15 @@ class Reaction(object):
 
 		# Check for *-targets (aka A=9999)
 		self.multiple_product_subentries = False
+		# original_product = self.exfor_product
+		# print(original_product)
 
 		if '9999' not in self.exfor_product:
 			# Loop over all stable isotopes of element, along with A=0 (natural abundance)
 			self.plot_tendl = plot_tendl
 
 		if '9999' in self.exfor_target:
+
 			# Loop over all stable isotopes of element, along with A=0 (natural abundance)
 			self.exfor_target = self.exfor_target.strip('9999')
 			# Avoid a spaghetti plot...
@@ -574,10 +597,12 @@ class Reaction(object):
 				# exfor_target = (substrings[1]+'-'+substrings[0]).strip(' ').upper()
 				self.exfor_target = (substrings[1]+'-'+substrings[0]).upper()
 				self.query(plot_results, self.plot_tendl, show_legend, xlim, ylim, verbose)
+			# self.exfor_product = original_product
 
 		else:
 			# Run an EXFOR query as normal
 			self.query(plot_results, self.plot_tendl, show_legend, xlim, ylim, verbose)
+			# self.exfor_product = original_product
 		
 
 	def query(self, plot_results=False, plot_tendl=False, show_legend=False, xlim=[0,None], ylim=[0,None], verbose=False):
@@ -620,6 +645,8 @@ class Reaction(object):
 		db = exfor_manager.X4DBManagerDefault()
 		self.target_element = self.exfor_target.split('-')[0].capitalize()
 		# self.multiple_product_subentries = False
+		is_true_wildcard_product = False
+		# original_product = self.exfor_product
 
 		# print('TARGET:',self.exfor_target)
 		# print('PRODUCT:',self.exfor_product)
@@ -630,6 +657,10 @@ class Reaction(object):
 		if '9999' in self.exfor_product:
 			# title_product = product.replace('9999','*')
 			self.exfor_product = self.exfor_product.strip('9999')
+			if self.exfor_product == '':
+				print('SUPER WILD MODE - querying ALL products')
+				is_true_wildcard_product = True
+			# print(self.exfor_product)
 			# Avoid a spaghetti plot...
 			self.plot_tendl = False
 			self.multiple_product_subentries = True
@@ -644,10 +675,12 @@ class Reaction(object):
 		else:
 			# Detect if target material is natural abundance
 			# print(self.enriched)
-			# print(self.exfor_target.split('-'))
-			if self.exfor_target.split('-')[1] != 0:
+			# print(self.exfor_target.split('-')[1])
+			if str(self.exfor_target.split('-')[1]) != str(0):
+				# print('Target ',self.exfor_target,' is enriched')
 				self.enriched = True
 			else:
+				# print('Target ',self.exfor_target,' is not enriched')
 				self.enriched = False
 			# print(self.enriched)
 
@@ -681,6 +714,8 @@ class Reaction(object):
 			unc_xs_col = -1
 			xs_unit_scalar = 1
 			energy_unit_scalar = 1
+			xs_unc_unit_scalar = 1
+			energy_unc_unit_scalar = 1
 
 			# Make sure only one subentry is retrieved per entry!
 			num_of_sub_subentries = len(list(datasets.keys()))
@@ -749,6 +784,8 @@ class Reaction(object):
 			for subentry in subentry_list:
 				xs_col = -1
 				unc_xs_col = -1
+				unc_energy_col = -1
+				energy_col = -1
 				if  verbose:
 					print(subentry)
 					print(subentry.subent)
@@ -812,10 +849,15 @@ class Reaction(object):
 					if entry.casefold() == "Data".casefold(): 
 						xs_col = subentry.labels.index(entry)
 						# print('XS data found in column:',xs_col)
-					if entry in ("d(Data)", "DATA-ERR"): 
-						unc_xs_col = subentry.labels.index(entry)
+					if entry in ("d(Data)", "DATA-ERR", "ERR-T"): 
+						if subentry.units[subentry.labels.index(entry)].casefold() not in ("NO-DIM".casefold()):
+							unc_xs_col = subentry.labels.index(entry)
+						else:
+							continue
 						# print('XS data uncertainty found in column:',unc_xs_col)
 					if entry in ("d(Energy)", "EN-ERR"): 
+						unc_energy_col = subentry.labels.index(entry)
+					elif entry in ("EN-RSL", "EN-RSL-FW"): 
 						unc_energy_col = subentry.labels.index(entry)
 						# print('Energy data uncertainty found in column:',unc_energy_col)
 
@@ -829,22 +871,65 @@ class Reaction(object):
 				# print(subentry.getSimplified().units[energy_col])
 				if subentry.units[energy_col] in ("MEV", "MeV"):
 					energy_unit_scalar = 1
+				elif subentry.units[energy_col] in ("KEV", "keV"):
+					energy_unit_scalar = 1E-3
+				elif subentry.units[energy_col] in ("EV", "eV"):
+					energy_unit_scalar = 1E-6
 				else:
 					print("No energy units found for entry", subentry.subent)
+					energy_unit_scalar = -1
+					continue
+
+				if subentry.units[unc_energy_col] in ("MEV", "MeV"):
+					energy_unc_unit_scalar = 1
+				elif subentry.units[unc_energy_col] in ("KEV", "keV"):
+					energy_unc_unit_scalar = 1E-3
+				else:
+					# print("No energy uncertainty units found for entry", subentry.subent)
+					energy_unc_unit_scalar = 0
 
 				# ...grab the xs units
 				if subentry.units[xs_col].casefold() == "mb".casefold():
 					xs_unit_scalar = 1
-				elif subentry.units[xs_col].casefold() in ("barns".casefold(), "barn".casefold()):
+				elif subentry.units[xs_col].casefold() in ("barns".casefold(), "barn".casefold(), "B".casefold()):
 					xs_unit_scalar = 1E3
 				elif subentry.units[xs_col].casefold() in ("ubarns".casefold(), "ub".casefold(), "MICRO-B".casefold()):
 					xs_unit_scalar = 1E-3
+				elif subentry.units[xs_col].casefold() in ("PER-CENT".casefold()):
+					xs_unit_scalar = np.array(subentry.data, dtype=float)[:,xs_col]
+					print('XS unc scalar', xs_unit_scalar)
 				else:
-					print("No XS units found for entry", next(iter(datasets))[1][0:5])
+					print("No XS units found for entry", subentry.subent)
+					# xs_unit_scalar = PER-CENT
+
+				if subentry.units[unc_xs_col].casefold() == "mb".casefold():
+					xs_unc_unit_scalar = 1
+				elif subentry.units[unc_xs_col].casefold() in ("barns".casefold(), "barn".casefold(), "B".casefold()):
+					xs_unc_unit_scalar = 1E3
+				elif subentry.units[unc_xs_col].casefold() in ("ubarns".casefold(), "ub".casefold(), "MICRO-B".casefold()):
+					xs_unc_unit_scalar = 1E-3
+				elif subentry.units[unc_xs_col].casefold() in ("PER-CENT".casefold()):
+					# print(subentry.data)
+					xs_unc_unit_scalar = np.array(subentry.data, dtype=float)[:,xs_col]*0.01*xs_unit_scalar
+					# print('XS unc scalar', xs_unc_unit_scalar)
+				else:
+					print("No XS uncertainty units found for entry", subentry.subent)
+					xs_unc_unit_scalar = -1
 
 				if xs_col == -1:
 					print('No XS able to be extracted for entry', next(iter(datasets))[1][0:5])
 					continue
+
+				try:
+					np.array(subentry.data, dtype=float)[:,unc_xs_col]
+				except IndexError:
+					unc_xs_col = -1
+
+				# print(np.array(subentry.data, dtype=float)[:,unc_xs_col])
+				# if np.array(subentry.data, dtype=float)[:,unc_xs_col] == None:
+				# 	unc_xs_col = -1
+				# 	print('beep')
+
 
 				# print(subentry.getSimplified().data)
 				author_name = subentry.author[0].split('.',-1)[-1]
@@ -858,28 +943,70 @@ class Reaction(object):
 				# print(subentry)
 				# print(subentry.subent)
 				# print(str(subentry.reaction))
-				if subentry.reaction[0].residual == None:
-					residual = str(subentry.reaction[0]).split('Unspecified+')[1].strip(')')
-				else:
-					residual = str(subentry.reaction[0].residual)
-				plot_Dict[author_name+year+subentry.subent+residual] = (author_name, # 0
-										  year, # 1
-										  np.array(subentry.data, dtype=float),  # 2
-										  subentry.subent, # 3
-										  energy_unit_scalar, # 4
-										  xs_unit_scalar, # 5
-										  energy_col, # 6
-										  xs_col, # 7
-										  unc_energy_col, # 8 
-										  unc_xs_col,  # 9
-										  subentry.reaction,  # 10
-										  residual)  #11
+				# print(str(subentry.reaction[0]))
+				# print(unc_xs_col)
+				if 'Mass' not in str(subentry.reaction[0]) and ')+()' not in str(subentry.reaction[0]) and 'Fission' not in str(subentry.reaction[0]) and 'Total' not in str(subentry.reaction[0]) and  'Elastic' not in str(subentry.reaction[0]): 
+					try:
+						if subentry.reaction[0].residual == None:
+							if 'Unspecified' not in str(subentry.reaction[0]):
+								continue
+							else:
+								residual = str(subentry.reaction[0]).split('Unspecified+')[1].strip(')')
+						else:
+							residual = str(subentry.reaction[0].residual)
+						# print('residual: ',residual)
+						# print(self.exfor_product)
+						if self.exfor_product == '':
+							# print('SUPER WILD MODE')
+							is_true_wildcard_product = True
+						# print(is_true_wildcard_product)
+						if is_true_wildcard_product:
+							# wildcard_substrings = re.split('(\D+)',self.exfor_product)
+							# print(str(wildcard_substrings[1]).upper())
+							# if str(wildcard_substrings[1]).upper().strip('-') in str(residual).upper():
+							# 	print('yay!')
+							plot_Dict[author_name+year+subentry.subent+residual] = (author_name, # 0
+													  year, # 1
+													  np.array(subentry.data, dtype=float),  # 2
+													  subentry.subent, # 3
+													  energy_unit_scalar, # 4
+													  xs_unit_scalar, # 5
+													  energy_col, # 6
+													  xs_col, # 7
+													  unc_energy_col, # 8 
+													  unc_xs_col,  # 9
+													  subentry.reaction,  # 10
+													  residual,  #11
+													  energy_unc_unit_scalar,   #12
+												      xs_unc_unit_scalar)   #13
+						else:
+							wildcard_substrings = re.split('(\D+)',self.exfor_product)
+							if str(wildcard_substrings[1]).upper().strip('-') in str(residual).upper():
+								# print('yay!')
+								plot_Dict[author_name+year+subentry.subent+residual] = (author_name, # 0
+														  year, # 1
+														  np.array(subentry.data, dtype=float),  # 2
+														  subentry.subent, # 3
+														  energy_unit_scalar, # 4
+														  xs_unit_scalar, # 5
+														  energy_col, # 6
+														  xs_col, # 7
+														  unc_energy_col, # 8 
+														  unc_xs_col,  # 9
+														  subentry.reaction,  # 10
+														  residual,  #11
+														  energy_unc_unit_scalar,   #12
+													      xs_unc_unit_scalar)   #13
+					except AttributeError:
+						continue
 
 		self.plot_Dict = plot_Dict
 
 		if verbose:
 			print('---------------------------')
 		# print(plot_Dict)
+
+		# self.exfor_product = original_product
 
 
 		if plot_results:
@@ -906,7 +1033,7 @@ class Reaction(object):
 				# Need to set up list of marker sizes to iterate over with k
 				# print(k)
 				# Use local variables
-				author_name, year , plot_data , subent , energy_unit_scalar , xs_unit_scalar , energy_col , xs_col , unc_energy_col , unc_xs_col, subentry_reaction, residual = plot_Dict[index]
+				author_name, year , plot_data , subent , energy_unit_scalar , xs_unit_scalar , energy_col , xs_col , unc_energy_col , unc_xs_col, subentry_reaction, residual, energy_unc_unit_scalar, xs_unc_unit_scalar = plot_Dict[index]
 				# print(plot_Dict[index])
 				# print('subent ', subent)
 				# print('energy_col ', energy_col)
@@ -945,24 +1072,33 @@ class Reaction(object):
 					# print(plot_Dict[index][2][:,0])
 					# print('energy:', plot_data[:,energy_col]*energy_unit_scalar)
 					# print('xs: ',plot_data[:,xs_col]*xs_unit_scalar)
-					# print('xs unc: ',plot_data[:,unc_xs_col]*xs_unit_scalar)
-					plt.errorbar(plot_data[:,energy_col]*energy_unit_scalar,plot_data[:,xs_col]*xs_unit_scalar,  yerr=plot_data[:,unc_xs_col]*xs_unit_scalar, ls='none', capsize=3, label=label_string, marker='o', markersize=3, linewidth=1)
+					# print('xs unc: ',plot_data[:,unc_xs_col]*xs_unc_unit_scalar)
+					plt.errorbar(plot_data[:,energy_col]*energy_unit_scalar,plot_data[:,xs_col]*xs_unit_scalar,  yerr=plot_data[:,unc_xs_col]*xs_unc_unit_scalar, ls='none', capsize=3, label=label_string, marker='o', markersize=3, linewidth=1)
 				elif unc_xs_col == -1 and unc_energy_col != -1:
 					# 3-column data, energy, xs, and energy uncertainty...
 					# print('plotting 3-column')
 					# print(plot_Dict[index][2][:,0])
 					# print('energy:', plot_data[:,energy_col]*energy_unit_scalar)
 					# print('xs: ',plot_data[:,xs_col]*xs_unit_scalar)
-					# print('xs unc: ',plot_data[:,unc_xs_col]*xs_unit_scalar)
-					plt.errorbar(plot_data[:,energy_col]*energy_unit_scalar,plot_data[:,xs_col]*xs_unit_scalar,  xerr=plot_data[:,unc_energy_col]*energy_unit_scalar, ls='none', capsize=3, label=label_string, marker='o', markersize=3, linewidth=1)
+					# print('xs unc: ',plot_data[:,unc_xs_col]*xs_unc_unit_scalar)
+					# print('energy unc: ',plot_data[:,unc_energy_col]*energy_unc_unit_scalar)
+					plt.errorbar(plot_data[:,energy_col]*energy_unit_scalar,plot_data[:,xs_col]*xs_unit_scalar,  xerr=plot_data[:,unc_energy_col]*energy_unc_unit_scalar, ls='none', capsize=3, label=label_string, marker='o', markersize=3, linewidth=1)
 				elif unc_xs_col != -1 and unc_energy_col != -1:
-				# 	# 4-column data, energy, xs,  xs uncertainty, and energy uncertainty...
+					# 4-column data, energy, xs,  xs uncertainty, and energy uncertainty...
 					# print('plotting 4-column')
-				# 	# print(plot_Dict[index][2][:,0])
+					# # print(plot_Dict[index][2][:,0])
 					# print('energy:', plot_data[:,energy_col]*energy_unit_scalar)
 					# print('xs: ',plot_data[:,xs_col]*xs_unit_scalar)
-					# print('xs unc: ',plot_data[:,unc_xs_col]*xs_unit_scalar)
-					plt.errorbar(plot_data[:,energy_col]*energy_unit_scalar,plot_data[:,xs_col]*xs_unit_scalar, xerr=plot_data[:,unc_energy_col]*energy_unit_scalar, yerr=plot_data[:,unc_xs_col]*xs_unit_scalar, ls='none', capsize=3, label=label_string, marker='o', markersize=3, linewidth=1)
+					# print('xs unc: ',plot_data[:,unc_xs_col]*xs_unc_unit_scalar)
+					# print('energy unc: ',plot_data[:,unc_energy_col]*energy_unc_unit_scalar)
+					# print('XS un scalar: ',xs_unc_unit_scalar)
+					# # print(type(xs_unc_unit_scalar))
+					# print('xerr: ',plot_data[:,unc_energy_col]*energy_unc_unit_scalar)
+					# print('yerr: ',plot_data[:,unc_xs_col]*xs_unc_unit_scalar)
+					# print('y-unc: ',plot_data[:,unc_xs_col])
+					# if type(xs_unc_unit_scalar) == 'numpy.ndarray':
+					# 	print('true!!')
+					plt.errorbar(plot_data[:,energy_col]*energy_unit_scalar,plot_data[:,xs_col]*xs_unit_scalar, xerr=plot_data[:,unc_energy_col]*energy_unc_unit_scalar, yerr=plot_data[:,unc_xs_col]*xs_unc_unit_scalar, ls='none', capsize=3, label=label_string, marker='o', markersize=3, linewidth=1)
 
 				
 				# print(plot_Dict[index][2].shape[1])
@@ -1029,6 +1165,7 @@ class Reaction(object):
 				# print(product_tendl)
 				# print(self.enriched)
 				if self.enriched:
+					# print(self.exfor_target.split('-')[1]+self.exfor_target.split('-')[0]+'('+self.incident+',x)'+product_tendl)
 					rx = Reaction(self.exfor_target.split('-')[1]+self.exfor_target.split('-')[0]+'('+self.incident+',x)'+product_tendl)
 					tendl_xs = rx.xs
 				else:
@@ -1036,7 +1173,11 @@ class Reaction(object):
 					# print(rx)
 					tendl_xs = np.zeros(len(rx.eng))
 					for (itp, abund) in zip(isotopes,abundances):
-						tendl_xs = tendl_xs + (Reaction(itp+'('+self.incident+',x)'+product_tendl).xs * (abund/100))
+						try:
+							tendl_xs = tendl_xs + (Reaction(itp+'('+self.incident+',x)'+product_tendl).xs * (abund/100))
+						except ValueError:
+							# print(itp+'('+self.incident+',x)'+product_tendl+' not found in TENDL')
+							continue
 				# print(rx.xs)
 				# print(rx.eng)
 				# print(tendl_xs)
