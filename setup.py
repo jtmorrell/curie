@@ -43,7 +43,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(name='curie',
-	  version='0.0.30',
+	  version='0.0.31',
 	  description='Curie is a python toolkit to aid in the analysis of experimental nuclear data.',
 	  long_description=long_description,
 	  long_description_content_type="text/markdown",
@@ -54,4 +54,4 @@ setup(name='curie',
 	  packages=find_packages(),
 	  include_package_data=True,
 	  cmdclass={'install': install})#, 
-	  #install_requires=['numpy', 'matplotlib', 'scipy', 'pandas'])
+	  #install_requires=['numpy', 'matplotlib', 'scipy', 'pandas', 'x4i3'])

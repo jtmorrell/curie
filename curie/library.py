@@ -55,11 +55,14 @@ class Library(object):
 			self.db_name = 'irdff'
 		elif name in ['iaea','iaea-cpr','iaea-monitor','cpr','iaea_cpr','iaea_monitor','medical','iaea-medical','iaea_medical']:
 			self.db_name = 'iaea_medical'
+		elif name in ['exfor']:
+			self.db_name = 'exfor'
 		else:
 			raise ValueError('Library {} not recognized.'.format(name))
 
-		self._con = _get_connection(self.db_name)
-		self.name = {'endf':'ENDF/B-VII.1','tendl':'TENDL-2015','irdff':'IRDFF-II','iaea':'IAEA CP-Reference (2017)'}[self.db_name.split('_')[0]]
+		if self.db_name != 'exfor':
+			self._con = _get_connection(self.db_name)
+		self.name = {'endf':'ENDF/B-VII.1','tendl':'TENDL-2015','irdff':'IRDFF-II','iaea':'IAEA CP-Reference (2017)','exfor':'EXFOR'}[self.db_name.split('_')[0]]
 		self._warn = True
 
 	def __str__(self):
