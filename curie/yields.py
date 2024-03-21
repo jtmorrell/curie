@@ -178,6 +178,8 @@ class Yield(object):
 		self.E0 = E0
 		self.beam_current = beam_current
 		self.irradiation_length = irradiation_length
+
+		self.calculate_neutron_yields = False
 		
 
 		self._parse_kwargs(**kwargs)
@@ -188,6 +190,8 @@ class Yield(object):
 
 		self.product_activities = None
 		self.product_masses = None
+
+		
 		
 
 
@@ -217,8 +221,15 @@ class Yield(object):
 		elif self.particle.lower() == 'n'.lower():
 			# Running with incident neutrons
 			# self.particle = 'n'
+			self.calculate_neutron_yields = True
 			print('TENDL has (n,x) data, but this calculator only supports transport of incident charged particles!')
-			quit()
+			# print('Neutron compound', self.stack_file["compound"])
+			# print('Neutron solid_angle', self.stack_file["solid_angle"])
+			# print('Neutron spectrum', self.stack_file["neutron_spectrum"])
+			# print('Neutron stack_file', self.stack_file["stack_file"])
+			# print(self.stack_file)
+			# print(self.calculate_neutron_yields)
+			# quit()
 		else:
 			print('Unsupported particle type \"'+str(self.particle)+'\" selected.')
 			print('Valid incident particles for TENDL data are currently limited to \"p\", \"d\".')
@@ -229,8 +240,10 @@ class Yield(object):
 		
 
 		lb = ci.Library('tendl_'+self.particle)       # selection of reaction data library
-		st = ci.Stack(self.stack_file, E0=self.E0, particle=self.particle, dE0=(self.E0*0.015), N=1E5, max_steps=100)      # Load pre-defined stack
-
+		if not self.calculate_neutron_yields:
+			st = ci.Stack(self.stack_file, E0=self.E0, particle=self.particle, dE0=(self.E0*0.015), N=1E5, max_steps=100)      # Load pre-defined stack
+		else:
+			st = ci.Stack(self.stack_file["stack_file"], E0=self.E0, particle=self.particle, dE0=(self.E0*0.015), N=1E5, max_steps=100)      # Run dummy stack
 
 
 		# Make sure target enrichments are normalized
@@ -276,9 +289,25 @@ class Yield(object):
 			if len(df.index) == 0:
 				return 0.0
 			else:
+				# print('flux:', flux)
 				old_energy = np.array(df['Energy'].iloc[0])
 				f_out = interpolate.interp1d(old_energy, np.stack(df['XS'].to_numpy()), axis=1)
-				avg_xs = np.trapz(np.multiply(f_out(energy),flux), axis=1, x=energy)/np.trapz(flux, x=energy)
+				if self.calculate_neutron_yields:
+					# print('f_out:', f_out(energy)[0,:])
+					avg_xs = np.trapz(np.multiply(f_out(energy),flux), axis=1, x=energy)
+					# print(df)
+					# print(df.columns.tolist())
+					# print(df["XS"])
+					# plt.plot(old_energy,df.iloc[24,4], label='TENDL')
+					# plt.plot(energy, f_out(energy)[24,:], label='Interpolated')
+					# plt.plot(15.5, avg_xs[24], marker='o', label='avg')
+					# plt.xlabel('Energy (MeV)')
+					# plt.ylabel('XS')
+					# plt.legend()
+					# plt.show()
+					# print(avg_xs[24])
+				else:
+					avg_xs = np.trapz(np.multiply(f_out(energy),flux), axis=1, x=energy)/np.trapz(flux, x=energy)
 				avg_e = np.trapz(np.multiply(energy,flux), x=energy)/np.trapz(flux, x=energy)
 				E_bins = half_max_x(energy,flux)
 				if self.show_plots:
@@ -399,13 +428,35 @@ class Yield(object):
 
 
 
-			    # Column structure: A0_compound_df = pd.DataFrame(columns = ['Name', 'Target', 'Product', 'Energy', 'XS', 'Subreactions'])
+				# Column structure: A0_compound_df = pd.DataFrame(columns = ['Name', 'Target', 'Product', 'Energy', 'XS', 'Subreactions'])
 
-				energy, flux = st.get_flux(row['name'])
+				if not self.calculate_neutron_yields:
+					energy, flux = st.get_flux(row['name'])
+				else:
+					# print('energy: ',self.stack_file["neutron_spectrum"][:,0].data)
+					# print(type(self.stack_file["neutron_spectrum"][:,0]).data)
+					energy = self.stack_file["neutron_spectrum"][:,0].data
+					flux = self.stack_file["neutron_spectrum"][:,1].data
+					if self.show_plots:
+						plt.plot(energy, flux)
+						plt.xlabel('Neutron Energy (MeV)')
+						plt.ylabel('Neutron Yield (n/MeV/uC/Sr)')
+						plt.show()
+					# energy, flux = self.stack_file["neutron_spectrum"][0,:], self.stack_file["neutron_spectrum"][1,:]
 				average_xs = interp_along_df(rad_products[rad_products['Compound'] == row['compound']],energy, flux)
 				stable_xs  = interp_along_df(stable_products[stable_products['Compound'] == row['compound']],energy, flux)
 				print('Compound ', row['compound'], ' has molar mass ',molar_mass_dict[row['compound']])
-				A0 = average_xs *  ( (row['areal_density'] ) * 6.022E20 / molar_mass_dict[row['compound']]) * self.beam_current * (1-np.exp(-np.log(2)*self.irradiation_length / rad_products.loc[rad_products['Compound'] == row['compound'],'Half-Life'].values )) * (np.exp(-np.log(2)*self.cooling_length*3600 / rad_products.loc[rad_products['Compound'] == row['compound'],'Half-Life'].values ))  / (1.602E-10 * 1E27 * activity_scalar)  
+				if not self.calculate_neutron_yields:
+					A0 = average_xs *  ( (row['areal_density'] ) * 6.022E20 / molar_mass_dict[row['compound']]) * self.beam_current * (1-np.exp(-np.log(2)*self.irradiation_length / rad_products.loc[rad_products['Compound'] == row['compound'],'Half-Life'].values )) * (np.exp(-np.log(2)*self.cooling_length*3600 / rad_products.loc[rad_products['Compound'] == row['compound'],'Half-Life'].values ))  / (1.602E-10 * 1E27 * activity_scalar)  
+				else:
+					# avg_xs * d_current * solid_angle * areal density * unit_conv * saturation_term 
+					print('average xs: ',average_xs[24])
+					print('solid angle',self.stack_file["solid_angle"])
+					print('rho r', ( (row['areal_density'] ) * 6.022E20 / molar_mass_dict[row['compound']]))
+					print('beam current', self.beam_current)
+					print('production term', (1-np.exp(-np.log(2)*self.irradiation_length / rad_products.loc[rad_products['Compound'] == row['compound'],'Half-Life'].values ))[24])
+					A0 = average_xs * self.stack_file["solid_angle"] * ( (row['areal_density'] ) * 6.022E20 / molar_mass_dict[row['compound']]) * self.beam_current * 1E-3 * (1-np.exp(-np.log(2)*self.irradiation_length / rad_products.loc[rad_products['Compound'] == row['compound'],'Half-Life'].values )) * (np.exp(-np.log(2)*self.cooling_length*3600 / rad_products.loc[rad_products['Compound'] == row['compound'],'Half-Life'].values ))  / (1E27 * activity_scalar)  
+					print('A0', A0[24])
 				rad_mass = A0 * activity_scalar * molar_mass_dict[row['compound']] * (rad_products.loc[rad_products['Compound'] == row['compound'],'Half-Life'].values / np.log(2)) * mass_scalar / 6.022E23
 				N_stable = stable_xs * ( (row['areal_density'] ) * 6.022E20 / molar_mass_dict[row['compound']]) * self.beam_current * self.irradiation_length   / (1.602E-10 * 1E27 )  
 				stable_mass = N_stable * molar_mass_dict[row['compound']] * mass_scalar / 6.022E23
@@ -430,7 +481,11 @@ class Yield(object):
 				else:
 					summary_string = ",<E> (MeV),<E>-\u03B4E (MeV),<E>+\u03B4E (MeV),Note: all activities are in " + self.activity_units  +' - reported ' + str(self.cooling_length) + ' h after EoB' + ' ,'*(self.n_largest_products-1) +'\n'
 				for column in rad_products.columns[7:]:
-					energy, flux = st.get_flux(column.replace('A0_', '', 1)  )
+					if not self.calculate_neutron_yields:
+						energy, flux = st.get_flux(column.replace('A0_', '', 1)  )
+					else:
+						energy = self.stack_file["neutron_spectrum"][:,0].data
+						flux = self.stack_file["neutron_spectrum"][:,1].data
 					avg_e = np.trapz(np.multiply(energy,flux), x=energy)/np.trapz(flux, x=energy)
 					E_bins = half_max_x(energy,flux)
 					largest = rad_products.nlargest(self.n_largest_products, column)
@@ -449,7 +504,11 @@ class Yield(object):
 					else:
 						summary_string = ",<E> (MeV),Note: all masses are in " + self.mass_units +' - reported ' + str(self.cooling_length) + ' h after EoB' + ' ,'*(self.n_largest_products-1) +'\n'
 					for column in compound_xs_df.columns[7:]:
-						energy, flux = st.get_flux(column.replace('Mass_', '', 1)  )
+						if not self.calculate_neutron_yields:
+							energy, flux = st.get_flux(column.replace('Mass_', '', 1)  )
+						else:
+							energy = self.stack_file["neutron_spectrum"][:,0].data
+						flux = self.stack_file["neutron_spectrum"][:,1].data
 						avg_e = np.trapz(np.multiply(energy,flux), x=energy)/np.trapz(flux, x=energy)
 						largest = compound_xs_df.nlargest(self.n_largest_products, column)
 						summary_string +=  column.replace('Mass_', '', 1)  + ',' + "{:.2f}".format(avg_e)
