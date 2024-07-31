@@ -119,7 +119,7 @@ class Yield(object):
 
 	activity_units : str, optional
 		Specifies the preferred units for activity in output reports - options are 'Bq', 'kBq', 'MBq', 
-		'GBq', 'uCi', 'mCi', 'Ci'. Defaults to 'uCi'.
+		'GBq', 'nCi', 'uCi', 'mCi', 'Ci'. Defaults to 'uCi'.
 
 	mass_units : str, optional
 		Specifies the preferred units for mass (of both stable and radionuclide products) in output 
@@ -243,7 +243,11 @@ class Yield(object):
 		if not self.calculate_neutron_yields:
 			st = ci.Stack(self.stack_file, E0=self.E0, particle=self.particle, dE0=(self.E0*0.015), N=1E5, max_steps=100)      # Load pre-defined stack
 		else:
-			st = ci.Stack(self.stack_file["stack_file"], E0=self.E0, particle=self.particle, dE0=(self.E0*0.015), N=1E5, max_steps=100)      # Run dummy stack
+			print(self.stack_file["compound"])
+			print(type(self.stack_file["compound"]))
+			# print(self.stack_file["compound"].weights)
+			# print(type(self.stack_file["compound"].weights))
+			st = ci.Stack(self.stack_file["stack_file"], compounds=self.stack_file["compound_weights"], E0=self.E0, particle=self.particle, dE0=(self.E0*0.015), N=1E5, max_steps=100)      # Run dummy stack
 
 
 		# Make sure target enrichments are normalized
@@ -291,10 +295,21 @@ class Yield(object):
 			else:
 				# print('flux:', flux)
 				old_energy = np.array(df['Energy'].iloc[0])
-				f_out = interpolate.interp1d(old_energy, np.stack(df['XS'].to_numpy()), axis=1)
+				# f_out = interpolate.interp1d(old_energy, np.stack(df['XS'].to_numpy()), axis=1)
 				if self.calculate_neutron_yields:
-					# print('f_out:', f_out(energy)[0,:])
-					avg_xs = np.trapz(np.multiply(f_out(energy),flux), axis=1, x=energy)
+					num_rows_in_df = df.shape[0]
+					avg_xs = np.zeros(num_rows_in_df)
+					i=0
+					for index, row in df.iterrows():
+						# print(row['c1'], row['c2'])
+						# print('index:', index )
+						# print(type(row['XS']))
+						# print('row xs: ', row['XS'])
+
+						f_out = interpolate.interp1d(row['Energy'], row['XS'])
+						# print('f_out:', f_out(energy))
+						avg_xs[i] = np.trapz(np.multiply(f_out(energy),flux),  x=energy)
+						i=i+1
 					# print(df)
 					# print(df.columns.tolist())
 					# print(df["XS"])
@@ -307,6 +322,7 @@ class Yield(object):
 					# plt.show()
 					# print(avg_xs[24])
 				else:
+					f_out = interpolate.interp1d(old_energy, np.stack(df['XS'].to_numpy()), axis=1)
 					avg_xs = np.trapz(np.multiply(f_out(energy),flux), axis=1, x=energy)/np.trapz(flux, x=energy)
 				avg_e = np.trapz(np.multiply(energy,flux), x=energy)/np.trapz(flux, x=energy)
 				E_bins = half_max_x(energy,flux)
@@ -328,7 +344,9 @@ class Yield(object):
 
 		# Parse unit selection for later output
 
-		if self.activity_units == 'uCi':
+		if self.activity_units == 'nCi':
+			activity_scalar = 3.7E1
+		elif self.activity_units == 'uCi':
 			activity_scalar = 3.7E4
 		elif self.activity_units == 'Bq':
 			activity_scalar = 1
@@ -392,7 +410,10 @@ class Yield(object):
 			molar_mass_dict = {}
 
 			for compound in st.compounds:
-				cm = ci.Compound(compound)
+				if self.calculate_neutron_yields:
+					cm = self.stack_file["compound"]
+				else:
+					cm = ci.Compound(compound)
 				molar_mass = 0.0
 				# find all elements in the compound
 				for element_index, element_row in cm.weights.iterrows():
@@ -489,6 +510,8 @@ class Yield(object):
 					avg_e = np.trapz(np.multiply(energy,flux), x=energy)/np.trapz(flux, x=energy)
 					E_bins = half_max_x(energy,flux)
 					largest = rad_products.nlargest(self.n_largest_products, column)
+					print(largest)
+					print(self.n_largest_products)
 					summary_string +=  column.replace('A0_', '', 1)  + ',' + "{:.2f}".format(avg_e) + ',' + "{:.2f}".format(E_bins[0]) + ',' + "{:.2f}".format(E_bins[1]) 
 					for i in np.arange(self.n_largest_products):
 						summary_string +=  ',' + largest['Product'].iloc[i].replace('g', '', 1) +  ',' + "{:.2f}".format(largest[column].iloc[i]) + ',' #,' + largest['Product'].iloc[1].replace('g', '', 1) + ', (' +  str(largest[column].iloc[1]) + '),' +  largest['Product'].iloc[2] + ', (' +  str(largest[column].iloc[2]) + '\n'
@@ -550,7 +573,10 @@ class Yield(object):
 			for compound in st.compounds:
 
 				compound_df = data.loc[data['compound'] == compound]
-				cm = ci.Compound(compound)
+				if self.calculate_neutron_yields:
+					cm = self.stack_file["compound"]
+				else:
+					cm = ci.Compound(compound)
 
 				# find all elements in the compound
 				for element_index, element_row in cm.weights.iterrows():
@@ -648,11 +674,32 @@ class Yield(object):
 											# 
 											# Deprecating this due to ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all()
 											# if reaction_name not in reaction_df.values :
+											# print(reaction_df)
 											if any(element in reaction_name for element in reaction_df.values[:,0]):
 												i+=1
 												update_index = reaction_df[reaction_df['Name']==reaction_name].index.tolist()
-												reaction_df.at[update_index[0],'XS']= reaction_df.at[update_index[0],'XS'] + ci.Reaction(rxn).xs*abundance*0.01
+												# print(ci.Reaction(rxn).xs)
+												# print('---------------------------------------------------------------------------')
+												# print(np.shape(ci.Reaction(rxn).xs)[0])
+												# print(ci.Reaction(rxn))
+												# print(abundance)
+												# print(self.calculate_neutron_yields)
+												if self.calculate_neutron_yields:
+													# print(ci.Reaction(rxn))
+													# print(ci.Reaction(rxn).xs)
+													if np.shape(ci.Reaction(rxn).xs)[0] != np.shape(reaction_df.iloc[update_index[0]]['Energy'])[0]:
+														# print('Product ',ci.Reaction(rxn), ' has ', np.shape(reaction_df.iloc[update_index[0]]['Energy'])[0], 'energy points, adding interpolated XS data with ',np.shape(ci.Reaction(rxn).xs)[0], ' more...')
+														f_out = interpolate.interp1d(ci.Reaction(rxn).eng, ci.Reaction(rxn).xs)
+														reaction_df.at[update_index[0],'XS']= reaction_df.at[update_index[0],'XS'] + f_out(reaction_df.iloc[update_index[0]]['Energy'])*abundance*0.01
+													else:
+														# print('Product ',ci.Reaction(rxn), ' has ', np.shape(reaction_df.iloc[update_index[0]]['Energy'])[0], 'energy points, adding interpolated XS data with ',np.shape(ci.Reaction(rxn).xs)[0], ' more...')
+														reaction_df.at[update_index[0],'XS']= reaction_df.at[update_index[0],'XS'] + ci.Reaction(rxn).xs*abundance*0.01
+												else:
+													# print('Product ',ci.Reaction(rxn), ' has ', np.shape(reaction_df.iloc[update_index[0]]['Energy'])[0], 'energy points, adding interpolated XS data with ',np.shape(ci.Reaction(rxn).xs)[0], ' more...')
+													reaction_df.at[update_index[0],'XS']= reaction_df.at[update_index[0],'XS'] + ci.Reaction(rxn).xs*abundance*0.01
+
 												reaction_df.at[update_index[0],'Subreactions']= reaction_df.at[update_index[0],'Subreactions'] + ',' + isotope
+												# print(reaction_df.at[update_index[0],'Subreactions'] + ',' + isotope)
 											else:
 												if version.parse(pd.__version__) < version.parse("2.0.0") :
 													reaction_df = reaction_df.append({'Name' : reaction_name, 'Target' : target, 'Product' : product, 'Energy' : ci.Reaction(rxn).eng, 'XS' : ci.Reaction(rxn).xs*abundance*0.01, 'Subreactions' : isotope}, ignore_index = True)
@@ -662,11 +709,11 @@ class Yield(object):
 								except KeyError:
 									# pass
 									# return np.nan
-									print('Curie appears to be missing data for isotope ', product)
+									print('KeyError: Curie appears to be missing data for isotope ', product)
 								except IndexError:
 									# pass
 									# return np.nan
-									print('Curie appears to be missing data for isotope ', product)
+									print('IndexError: Curie appears to be missing data for isotope ', product)
 								except TypeError:
 									print('Curie appears to be missing data for isotope ', product, ' float() argument must be a string or a number, not ''NoneType''')
 			
@@ -703,7 +750,10 @@ class Yield(object):
 
 				print(st.compounds[compound])
 				compound_df = data.loc[data['compound'] == compound]
-				cm = ci.Compound(compound)
+				if self.calculate_neutron_yields:
+					cm = self.stack_file["compound"]
+				else:
+					cm = ci.Compound(compound)
 				rows, cols = np.shape(cm.weights)
 
 
@@ -743,12 +793,23 @@ class Yield(object):
 								# compound_rxn_df = compound_rxn_df.append({'Name' : rxn_string, 'Compound' : cm.name, 'Product' : rxn_row['Product'], 'Energy' : rxn_row['Energy'], 'XS' : rxn_row['XS']*atom_weight, 'Half-Life' : 0.0 , 'Subtargets' : element}, ignore_index = True)
 							except TypeError:
 								print('Curie appears to be missing data for isotope ', rxn_row['Product'], ' float() argument must be a string or a number, not ''NoneType''')
-					    					    	
+											    	
 						 
 						else :
-						    update_index = compound_rxn_df[compound_rxn_df['Name']==rxn_string].index.tolist()
-						    compound_rxn_df.at[update_index[0],'XS']= compound_rxn_df.at[update_index[0],'XS'] + rxn_row['XS']*atom_weight
-						    compound_rxn_df.at[update_index[0],'Subtargets']= compound_rxn_df.at[update_index[0],'Subtargets'] + ',' + element
+							update_index = compound_rxn_df[compound_rxn_df['Name']==rxn_string].index.tolist()
+							if self.calculate_neutron_yields:
+								# print(ci.Reaction(rxn))
+								# print(ci.Reaction(rxn).xs)
+								if np.shape(rxn_row['XS'])[0] != np.shape(compound_rxn_df.iloc[update_index[0]]['Energy'])[0]:
+									# print('Product ',ci.Reaction(rxn), ' has ', np.shape(reaction_df.iloc[update_index[0]]['Energy'])[0], 'energy points, adding interpolated XS data with ',np.shape(ci.Reaction(rxn).xs)[0], ' more...')
+									f_out = interpolate.interp1d(rxn_row['Energy'], rxn_row['XS'])
+									compound_rxn_df.at[update_index[0],'XS']= compound_rxn_df.at[update_index[0],'XS'] + f_out(compound_rxn_df.iloc[update_index[0]]['Energy'])*atom_weight
+								else:
+									# print('Product ',ci.Reaction(rxn), ' has ', np.shape(reaction_df.iloc[update_index[0]]['Energy'])[0], 'energy points, adding interpolated XS data with ',np.shape(ci.Reaction(rxn).xs)[0], ' more...')
+									compound_rxn_df.at[update_index[0],'XS']= compound_rxn_df.at[update_index[0],'XS'] + rxn_row['XS']*atom_weight
+							else:
+								compound_rxn_df.at[update_index[0],'XS']= compound_rxn_df.at[update_index[0],'XS'] + rxn_row['XS']*atom_weight
+							compound_rxn_df.at[update_index[0],'Subtargets']= compound_rxn_df.at[update_index[0],'Subtargets'] + ',' + element
 
 
 			self.compound_rxn_df = compound_rxn_df
