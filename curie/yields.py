@@ -471,13 +471,13 @@ class Yield(object):
 					A0 = average_xs *  ( (row['areal_density'] ) * 6.022E20 / molar_mass_dict[row['compound']]) * self.beam_current * (1-np.exp(-np.log(2)*self.irradiation_length / rad_products.loc[rad_products['Compound'] == row['compound'],'Half-Life'].values )) * (np.exp(-np.log(2)*self.cooling_length*3600 / rad_products.loc[rad_products['Compound'] == row['compound'],'Half-Life'].values ))  / (1.602E-10 * 1E27 * activity_scalar)  
 				else:
 					# avg_xs * d_current * solid_angle * areal density * unit_conv * saturation_term 
-					print('average xs: ',average_xs[24])
-					print('solid angle',self.stack_file["solid_angle"])
-					print('rho r', ( (row['areal_density'] ) * 6.022E20 / molar_mass_dict[row['compound']]))
-					print('beam current', self.beam_current)
-					print('production term', (1-np.exp(-np.log(2)*self.irradiation_length / rad_products.loc[rad_products['Compound'] == row['compound'],'Half-Life'].values ))[24])
+					# print('average xs: ',average_xs[24])
+					# print('solid angle',self.stack_file["solid_angle"])
+					# print('rho r', ( (row['areal_density'] ) * 6.022E20 / molar_mass_dict[row['compound']]))
+					# print('beam current', self.beam_current)
+					# print('production term', (1-np.exp(-np.log(2)*self.irradiation_length / rad_products.loc[rad_products['Compound'] == row['compound'],'Half-Life'].values ))[24])
 					A0 = average_xs * self.stack_file["solid_angle"] * ( (row['areal_density'] ) * 6.022E20 / molar_mass_dict[row['compound']]) * self.beam_current * 1E-3 * (1-np.exp(-np.log(2)*self.irradiation_length / rad_products.loc[rad_products['Compound'] == row['compound'],'Half-Life'].values )) * (np.exp(-np.log(2)*self.cooling_length*3600 / rad_products.loc[rad_products['Compound'] == row['compound'],'Half-Life'].values ))  / (1E27 * activity_scalar)  
-					print('A0', A0[24])
+					# print('A0', A0[24])
 				rad_mass = A0 * activity_scalar * molar_mass_dict[row['compound']] * (rad_products.loc[rad_products['Compound'] == row['compound'],'Half-Life'].values / np.log(2)) * mass_scalar / 6.022E23
 				N_stable = stable_xs * ( (row['areal_density'] ) * 6.022E20 / molar_mass_dict[row['compound']]) * self.beam_current * self.irradiation_length   / (1.602E-10 * 1E27 )  
 				stable_mass = N_stable * molar_mass_dict[row['compound']] * mass_scalar / 6.022E23
@@ -531,7 +531,7 @@ class Yield(object):
 							energy, flux = st.get_flux(column.replace('Mass_', '', 1)  )
 						else:
 							energy = self.stack_file["neutron_spectrum"][:,0].data
-						flux = self.stack_file["neutron_spectrum"][:,1].data
+							flux = self.stack_file["neutron_spectrum"][:,1].data
 						avg_e = np.trapz(np.multiply(energy,flux), x=energy)/np.trapz(flux, x=energy)
 						largest = compound_xs_df.nlargest(self.n_largest_products, column)
 						summary_string +=  column.replace('Mass_', '', 1)  + ',' + "{:.2f}".format(avg_e)
