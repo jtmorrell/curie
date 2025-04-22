@@ -344,7 +344,9 @@ class Yield(object):
 
 		# Parse unit selection for later output
 
-		if self.activity_units == 'nCi':
+		if self.activity_units == 'pCi':
+			activity_scalar = 3.7E-2
+		elif self.activity_units == 'nCi':
 			activity_scalar = 3.7E1
 		elif self.activity_units == 'uCi':
 			activity_scalar = 3.7E4
@@ -472,6 +474,7 @@ class Yield(object):
 				else:
 					# avg_xs * d_current * solid_angle * areal density * unit_conv * saturation_term 
 					# print('average xs: ',average_xs[24])
+					print('areal density:',row['areal_density'])
 					# print('solid angle',self.stack_file["solid_angle"])
 					# print('rho r', ( (row['areal_density'] ) * 6.022E20 / molar_mass_dict[row['compound']]))
 					# print('beam current', self.beam_current)
