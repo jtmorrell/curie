@@ -12,6 +12,22 @@ from .data import _get_connection
 class Query(object):
 
 	def __init__(self, **kwargs):
+		self.mode = str(kwargs['mode']) if 'mode' in kwargs else 'None'
+
+		# Check to get the right decay library
+		if self.mode.lower() == 'gammas'.lower():
+			# Decay gammas
+			self.mode = 'gammas'
+		elif self.mode.lower() == 'alphas'.lower():
+			# Decay alphas
+			self.mode = 'alphas'
+		elif self.mode == 'None':
+			self.mode = 'gammas'
+		else:
+			print('Unsupported decay radiation type \"'+str(self.mode)+'\" selected.')
+			print('Valid options are currently limited to \"gammas\", \"alphas\".')
+			quit()
+
 
 		# Grab half-life db
 		ISOTOPE_LIST = np.asarray(list(map(str, pd.read_sql('SELECT name FROM chart', _get_connection('decay'))['name'])),dtype=str)
@@ -23,12 +39,12 @@ class Query(object):
 		old_df = pd.DataFrame({'name': ISOTOPE_LIST, 'A': A_LIST, 'Z': Z_LIST, 'N': N_LIST, 'half_life': HALF_LIFE_LIST})
 
 		# Grab decay gamma db
-		NAME_LIST = np.asarray(list(map(str, pd.read_sql('SELECT isotope FROM '+mode, _get_connection('decay'))['isotope'])),dtype=str)
-		ISOMER_LIST = np.asarray(list(map(str, pd.read_sql('SELECT isomer FROM '+mode, _get_connection('decay'))['isomer'])),dtype=str)
-		ENERGY_LIST = np.asarray(list(map(str, pd.read_sql('SELECT energy FROM '+mode, _get_connection('decay'))['energy'])),dtype=np.float64)
-		INTENSITY_LIST = np.asarray(list(map(str, pd.read_sql('SELECT intensity FROM '+mode, _get_connection('decay'))['intensity'])),dtype=np.float64)
-		UNC_INTENSITY_LIST = np.asarray(list(map(str, pd.read_sql('SELECT unc_intensity FROM '+mode, _get_connection('decay'))['unc_intensity'])),dtype=np.float64)
-		DECAY_MODE_LIST = np.asarray(list(map(str, pd.read_sql('SELECT decay_mode FROM '+mode, _get_connection('decay'))['decay_mode'])),dtype=str)
+		NAME_LIST = np.asarray(list(map(str, pd.read_sql('SELECT isotope FROM '+self.mode, _get_connection('decay'))['isotope'])),dtype=str)
+		ISOMER_LIST = np.asarray(list(map(str, pd.read_sql('SELECT isomer FROM '+self.mode, _get_connection('decay'))['isomer'])),dtype=str)
+		ENERGY_LIST = np.asarray(list(map(str, pd.read_sql('SELECT energy FROM '+self.mode, _get_connection('decay'))['energy'])),dtype=np.float64)
+		INTENSITY_LIST = np.asarray(list(map(str, pd.read_sql('SELECT intensity FROM '+self.mode, _get_connection('decay'))['intensity'])),dtype=np.float64)
+		UNC_INTENSITY_LIST = np.asarray(list(map(str, pd.read_sql('SELECT unc_intensity FROM '+self.mode, _get_connection('decay'))['unc_intensity'])),dtype=np.float64)
+		DECAY_MODE_LIST = np.asarray(list(map(str, pd.read_sql('SELECT decay_mode FROM '+self.mode, _get_connection('decay'))['decay_mode'])),dtype=str)
 
 		new_list = [name+isomer for name,isomer in zip(NAME_LIST,ISOMER_LIST)]
 
@@ -44,49 +60,6 @@ class Query(object):
 		result = result.drop(columns=['isotope', 'isomer'])
 
 
-		self.filename = filename
-		if 'cb' in kwargs:
-			if type(kwargs['cb']==str):
-				self._cb = Calibration(kwargs['cb'])
-			else:
-				self._cb = copy.deepcopy(kwargs['cb'])
-		else:
-			self._cb = Calibration()
-
-		self._fit_config = {'snip_adj':1.0, 'R':0.1, 'alpha':0.9,
-							'step':0.00, 'bg':'snip', 'skew_fit':False,
-							'step_fit':False, 'SNR_min':4.0, 'A_bound':1.0,
-							'mu_bound':1.0, 'sig_bound':1.0, 'xrays':False,
-							'pk_width':7.5, 'E_min':75.0, 'I_min':0.05,
-							'dE_511':3.5, 'multi_max':8, 'ident_idx':0}
-		if 'fit_config' in kwargs:
-			self.fit_config = kwargs['fit_config']
-		self._ortec_metadata = {}
-
-		if filename is not None:
-			if os.path.exists(filename):
-				print('Reading Spectrum {}'.format(filename))
-				if filename.endswith('.Spe'):
-					self._read_Spe(filename)
-				elif filename.endswith('.Chn'):
-					self._read_Chn(filename)
-				else:
-					raise ValueError('File type not supported: {}'.format(filename))
-				self._snip_bg()
-			else:
-				raise ValueError('File does not exist: {}'.format(filename))
-
-		if 'isotopes' in kwargs:
-			self.isotopes = kwargs['isotopes']
-		else:
-			self.isotopes = []
-
-		self._peaks = None
-		self._fits = None
-		self._geom_corr = 1.0
-		self._atten_corr = None
-
-		self._gmls = None
 
 
 	def bg_thread(ip, spectrum, exit_event):
@@ -173,7 +146,7 @@ class Query(object):
 			return False
 			# print('Beam/Target \''+particle+'\' not parsed correctly.')
 
-	def decay_search(mode='gammas',sort_by='intensity', energy=[],min_half_life='',max_half_life='',time_since_eob='',min_A=1,max_A=400,min_Z=1,max_Z=200,min_N=1,max_N=400,A=[],Z=[],N=[],solver = {"beam": None, "target": None, "energy": None},interactive=False,verbose=True):
+	def decay_search(sort_by='intensity', energy=[],min_half_life='',max_half_life='',time_since_eob='',min_A=1,max_A=400,min_Z=1,max_Z=200,min_N=1,max_N=400,A=[],Z=[],N=[],solver = {"beam": None, "target": None, "energy": None},interactive=False,verbose=True):
 
 		""" Searches through the Curie decay database, to identidy possible candidates for gamma lines
 		or alpha peaks seen in a spectrum, along with tools to narrow down that range.
