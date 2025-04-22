@@ -53,8 +53,10 @@ from .reaction import Reaction
 
 from .stack import Stack
 
+from .query import Query
+
 __version__ = '0.0.30'
 __all__ = ['download', 'colormap', 'set_style', 
           'Isotope', 'Element', 'Compound', 
           'Spectrum', 'Calibration', 'DecayChain', 
-          'Library', 'Reaction', 'Stack']
+          'Library', 'Reaction', 'Stack', 'Query']
