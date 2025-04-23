@@ -289,7 +289,7 @@ class Yield(object):
 		    return np.array([lower_bound, upper_bound])
 
 
-		def interp_along_df(df,energy, flux):
+		def interp_along_df(df,energy, flux,state,name=''):
 			if len(df.index) == 0:
 				return 0.0
 			else:
@@ -322,8 +322,16 @@ class Yield(object):
 					# plt.show()
 					# print(avg_xs[24])
 				else:
-					f_out = interpolate.interp1d(old_energy, np.stack(df['XS'].to_numpy()), axis=1)
-					avg_xs = np.trapz(np.multiply(f_out(energy),flux), axis=1, x=energy)/np.trapz(flux, x=energy)
+					try:
+						f_out = interpolate.interp1d(old_energy, np.stack(df['XS'].to_numpy()), axis=1)
+						avg_xs = np.trapz(np.multiply(f_out(energy),flux), axis=1, x=energy)/np.trapz(flux, x=energy)
+					except ValueError:
+						if (max(energy) > 200.0) & (state == 0):
+							print('WARNING: Potentially trying to interpolate raw cross section data for stack element',name,'above the 200 MeV limit of the TENDL energy grid.')
+							print('Attempting to smoothly extrapolate, but verify that results are not obviously erroneous.')
+							state +=1
+						f_out = interpolate.interp1d(old_energy, np.stack(df['XS'].to_numpy()), axis=1, fill_value='extrapolate')
+						avg_xs = np.trapz(np.multiply(f_out(energy),flux), axis=1, x=energy)/np.trapz(flux, x=energy)
 				avg_e = np.trapz(np.multiply(energy,flux), x=energy)/np.trapz(flux, x=energy)
 				E_bins = half_max_x(energy,flux)
 				if self.show_plots:
@@ -335,7 +343,7 @@ class Yield(object):
 					plt.xlabel('Beam Energy (MeV)')
 					plt.ylabel('Cross Section (mb)')
 					plt.show()
-				return avg_xs
+				return avg_xs,state
 
 
 	
@@ -441,6 +449,8 @@ class Yield(object):
 			# Get fluxes for each row in compound_df
 			for index, row in data.iterrows():
 
+				state = 0
+
 				rad_indices    = compound_xs_df[(compound_xs_df['Half-Life'] <  np.inf) & (compound_xs_df['Compound'] == row['compound'])].index.values
 				stable_indices = compound_xs_df[(compound_xs_df['Half-Life'] == np.inf) & (compound_xs_df['Compound'] == row['compound'])].index.values
 				# 
@@ -466,8 +476,8 @@ class Yield(object):
 						plt.ylabel('Neutron Yield (n/MeV/uC/Sr)')
 						plt.show()
 					# energy, flux = self.stack_file["neutron_spectrum"][0,:], self.stack_file["neutron_spectrum"][1,:]
-				average_xs = interp_along_df(rad_products[rad_products['Compound'] == row['compound']],energy, flux)
-				stable_xs  = interp_along_df(stable_products[stable_products['Compound'] == row['compound']],energy, flux)
+				average_xs,state = interp_along_df(rad_products[rad_products['Compound'] == row['compound']],energy, flux,state,name=row['name'])
+				stable_xs,state  = interp_along_df(stable_products[stable_products['Compound'] == row['compound']],energy, flux,state,name=row['name'])
 				print('Compound ', row['compound'], ' has molar mass ',molar_mass_dict[row['compound']])
 				if not self.calculate_neutron_yields:
 					A0 = average_xs *  ( (row['areal_density'] ) * 6.022E20 / molar_mass_dict[row['compound']]) * self.beam_current * (1-np.exp(-np.log(2)*self.irradiation_length / rad_products.loc[rad_products['Compound'] == row['compound'],'Half-Life'].values )) * (np.exp(-np.log(2)*self.cooling_length*3600 / rad_products.loc[rad_products['Compound'] == row['compound'],'Half-Life'].values ))  / (1.602E-10 * 1E27 * activity_scalar)  
@@ -513,8 +523,8 @@ class Yield(object):
 					avg_e = np.trapz(np.multiply(energy,flux), x=energy)/np.trapz(flux, x=energy)
 					E_bins = half_max_x(energy,flux)
 					largest = rad_products.nlargest(self.n_largest_products, column)
-					print(largest)
-					print(self.n_largest_products)
+					# print(largest)
+					# print(self.n_largest_products)
 					summary_string +=  column.replace('A0_', '', 1)  + ',' + "{:.2f}".format(avg_e) + ',' + "{:.2f}".format(E_bins[0]) + ',' + "{:.2f}".format(E_bins[1]) 
 					for i in np.arange(self.n_largest_products):
 						summary_string +=  ',' + largest['Product'].iloc[i].replace('g', '', 1) +  ',' + "{:.2f}".format(largest[column].iloc[i]) + ',' #,' + largest['Product'].iloc[1].replace('g', '', 1) + ', (' +  str(largest[column].iloc[1]) + '),' +  largest['Product'].iloc[2] + ', (' +  str(largest[column].iloc[2]) + '\n'
