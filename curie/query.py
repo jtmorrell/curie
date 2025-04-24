@@ -7,6 +7,9 @@ import time
 
 
 from .data import _get_connection
+from .isotope import Isotope
+from .compound import Compound
+from .element import Element
 
 
 class Query(object):
@@ -57,12 +60,40 @@ class Query(object):
 		result = pd.merge(df,old_df,how="left",on=["name"])#.convert_dtypes()#.astype({'energy': 'float64','intensity': 'float64','unc_intensity': 'float64','A': 'Int64','Z': 'Int64','half_life': 'float64'}).convert_dtypes()
 
 		# Drop unneeded columns
-		result = result.drop(columns=['isotope', 'isomer'])
+		self.result = result.drop(columns=['isotope', 'isomer'])
+
+	# @property
+	# def result(self):
+	# 	# Cleanup formatting for 'pretty' output	
+	# 	# print(self._result)	
+	# 	result = self._result
+	# 	# print(result)
+	# 	result["energy"] = result["energy"].astype(str)
+	# 	result["Intensity (%)"] = result["intensity"].astype(str)# + result["unc_intensity"].astype(str)
+	# 	result["Isotope"] = result["name"].astype(str).str.replace('g',' g').str.replace('m',' m')
+	# 	result["decay_mode"] = result["decay_mode"].astype(str).str.replace('A',' Alpha').str.replace('B',' Beta-').str.replace('E',' Beta+/E.C.').str.replace('IT',' Isomeric Transition')
+	# 	# Grab half life data, and convert to "pretty" units
+	# 	half_lives_array = result.half_life.to_numpy()
+
+	# 	# Append to results dataframe
+	# 	result["Half-Life"] = self.optimum_units(half_lives_array)
+
+	# 	result = result.rename(columns={"energy": "Energy (keV)","decay_mode": "Decay Mode"}).drop(columns=['half_life',"name",'intensity','unc_intensity']).reindex(columns=['Energy (keV)','Intensity (%)','Half-Life','Isotope','A','Z','N','Decay Mode'])
+	# 	# return result
+	# 	return result.to_string(index=False)
+	# 	# return self._result
+
+	# @result.setter
+	# def result(self, _result):
+	# 	print("setter of x called")
+	# 	self._result = _result
 
 
 
 
-	def bg_thread(ip, spectrum, exit_event):
+
+
+	def bg_thread(self,ip, spectrum, exit_event):
 		spectrum.isotopes = [str(ip.name)]
 		for i in range(1, 10):
 			time.sleep(0.1)  # do some work...
@@ -70,12 +101,12 @@ class Query(object):
 			if exit_event.is_set():
 				break
 
-	def signal_handler(signum, frame):
+	def signal_handler(self,signum, frame):
 		print()
 		raise KeyboardInterrupt
 		exit_event.set()
 
-	def half_life(data, units='s', unc=False):
+	def half_life(self,data, units='s', unc=False):
 		half_conv = {'ns':1E-9, 'us':1E-6, 'ms':1E-3, 'sec':1.0,
 					's':1.0, 'm':60.0, 'min':60.0, 'h':3600.0, 'hr':3600.0,
 					'd':86400.0, 'y':31557.6E3, 'yr':31557.6E3,  'ky':31557.6E6,
@@ -90,19 +121,19 @@ class Query(object):
 			return data/[half_conv[x] for x in units]
 
 
-	def optimum_units(array):
+	def optimum_units(self,array):
 		units_array = np.empty(np.size(array), dtype=object)
 		i=0
 		for data in array:
 			for units in ['ns','us','ms','s','m','h','d','y']:
-				if half_life(data, units)>1.0:
+				if self.half_life(data, units)>1.0:
 					units_array[i] = units
 			i=i+1
 
-		optimum_half_lives = half_life(array,units=units_array)
+		optimum_half_lives = self.half_life(array,units=units_array)
 		return ["%.2f " % value+str(unit) for unit,value in zip(units_array,optimum_half_lives)]
 
-	def parse_particle(particle):
+	def parse_particle(self,particle):
 		### Return Z, A, N of incident particle
 		try:
 			# Check for basic particles
@@ -110,17 +141,17 @@ class Query(object):
 				return {'p':(1, 1, 0), 'd':(1, 2, 1), 't':(1, 3, 2), 'a':(2, 4, 2), 'n':(0, 1, 1)}[particle]
 
 			# Check if Curie compound
-			if isinstance(particle, ci.Compound):
+			if isinstance(particle, Compound):
 				elements = list(map(str, particle.elements))
 
-				min_A_isotope = [int(min(row)) for row in [[ci.Isotope(x).A for x in ci.Element(el).isotopes] for el in elements]]
-				max_A_isotope = [int(max(row)) for row in [[ci.Isotope(x).A for x in ci.Element(el).isotopes] for el in elements]]
+				min_A_isotope = [int(min(row)) for row in [[Isotope(x).A for x in Element(el).isotopes] for el in elements]]
+				max_A_isotope = [int(max(row)) for row in [[Isotope(x).A for x in Element(el).isotopes] for el in elements]]
 
-				min_Z_isotope = [int(min(row)) for row in [[ci.Isotope(x).Z for x in ci.Element(el).isotopes] for el in elements]]
-				max_Z_isotope = [int(max(row)) for row in [[ci.Isotope(x).Z for x in ci.Element(el).isotopes] for el in elements]]
+				min_Z_isotope = [int(min(row)) for row in [[Isotope(x).Z for x in Element(el).isotopes] for el in elements]]
+				max_Z_isotope = [int(max(row)) for row in [[Isotope(x).Z for x in Element(el).isotopes] for el in elements]]
 
-				min_N_isotope = [int(min(row)) for row in [[ci.Isotope(x).N for x in ci.Element(el).isotopes] for el in elements]]
-				max_N_isotope = [int(max(row)) for row in [[ci.Isotope(x).N for x in ci.Element(el).isotopes] for el in elements]]
+				min_N_isotope = [int(min(row)) for row in [[Isotope(x).N for x in Element(el).isotopes] for el in elements]]
+				max_N_isotope = [int(max(row)) for row in [[Isotope(x).N for x in Element(el).isotopes] for el in elements]]
 
 				return max_Z_isotope, min_A_isotope,  min_N_isotope, max_A_isotope,  max_N_isotope
 
@@ -130,14 +161,14 @@ class Query(object):
 					print("WARNING: Assumed particle type P (phosphorus). If proton, use beam='p' (lower case).")
 				elif particle=='N':
 					print("WARNING: Assumed particle type N (nitrogen). If neutron, use beam='n' (lower case).")
-				el = ci.Element(particle.title())
-				min_A_isotope = int(min([ci.Isotope(x).A] for x in el.isotopes)[0])
-				max_A_isotope = int(max([ci.Isotope(x).A] for x in el.isotopes)[0])
+				el = Element(particle.title())
+				min_A_isotope = int(min([Isotope(x).A] for x in el.isotopes)[0])
+				max_A_isotope = int(max([Isotope(x).A] for x in el.isotopes)[0])
 
 				return el.Z, min_A_isotope,  min_A_isotope-el.Z, max_A_isotope,  max_A_isotope-el.Z
 
 			else:
-				ip = ci.Isotope(particle)
+				ip = Isotope(particle)
 				return ip.Z, ip.A, ip.N
 		except ValueError:
 			return False
@@ -146,7 +177,7 @@ class Query(object):
 			return False
 			# print('Beam/Target \''+particle+'\' not parsed correctly.')
 
-	def decay_search(sort_by='intensity', energy=[],min_half_life='',max_half_life='',time_since_eob='',min_A=1,max_A=400,min_Z=1,max_Z=200,min_N=1,max_N=400,A=[],Z=[],N=[],solver = {"beam": None, "target": None, "energy": None},interactive=False,verbose=True):
+	def decay_search(self,sort_by='intensity', energy=[],min_half_life='',max_half_life='',time_since_eob='',min_A=1,max_A=400,min_Z=1,max_Z=200,min_N=1,max_N=400,A=[],Z=[],N=[],solver = {"beam": None, "target": None, "energy": None},interactive=False,verbose=True):
 
 		""" Searches through the Curie decay database, to identidy possible candidates for gamma lines
 		or alpha peaks seen in a spectrum, along with tools to narrow down that range.
@@ -314,7 +345,7 @@ class Query(object):
 		"""
 
 
-		
+		result = self.result
 
 
 
@@ -341,7 +372,7 @@ class Query(object):
 		
 		# Use beam info to smart-select possible products
 		if any(solver.values()):
-			beam_info = parse_particle(solver["beam"])
+			beam_info = self.parse_particle(solver["beam"])
 			if np.size(beam_info) == 3:
 				A_beam = beam_info[1]
 				Z_beam = beam_info[0]
@@ -353,7 +384,7 @@ class Query(object):
 			else:
 				print('Beam \''+solver["beam"]+'\' not properly parsed')
 
-			target_info = parse_particle(solver["target"])
+			target_info = self.parse_particle(solver["target"])
 			if np.size(target_info) == 3:
 				# single isotope
 				A_target = target_info[1]
@@ -478,9 +509,9 @@ class Query(object):
 		try:
 			if np.size(A_target) == 1:
 				if isinstance(min_A, str):
-					min_A = int(min([ci.Isotope(x).A] for x in ci.Element(min_A).isotopes)[0])
+					min_A = int(min([Isotope(x).A] for x in Element(min_A).isotopes)[0])
 				if isinstance(max_A, str):
-					max_A = int(max([ci.Isotope(x).A] for x in ci.Element(max_A).isotopes)[0])
+					max_A = int(max([Isotope(x).A] for x in Element(max_A).isotopes)[0])
 				min_A = int(min_A)
 				max_A = int(max_A)
 
@@ -492,9 +523,9 @@ class Query(object):
 
 				# Filter on Z range
 				if isinstance(min_Z, str):
-					min_Z = ci.Element(min_Z).Z
+					min_Z = Element(min_Z).Z
 				if isinstance(max_Z, str):
-					max_Z = ci.Element(max_Z).Z
+					max_Z = Element(max_Z).Z
 				min_Z = int(min_Z)
 				max_Z = int(max_Z)
 				result = result[result.Z.ge(min_Z)]
@@ -505,9 +536,9 @@ class Query(object):
 
 				# Filter on N range
 				if isinstance(min_N, str):
-					min_N = int(min([ci.Isotope(x).N] for x in ci.Element(min_N).isotopes)[0])
+					min_N = int(min([Isotope(x).N] for x in Element(min_N).isotopes)[0])
 				if isinstance(max_N, str):
-					max_N = int(max([ci.Isotope(x).N] for x in ci.Element(max_N).isotopes)[0])
+					max_N = int(max([Isotope(x).N] for x in Element(max_N).isotopes)[0])
 				min_N = int(min_N)
 				max_N = int(max_N)
 				result = result[result.N.ge(min_N)]
@@ -521,29 +552,33 @@ class Query(object):
 
 
 
-		# Sort output\
-		# User-specified sort orders
-		if sort_by[1] in [True, False]:
-			if np.size(sort_by) > 2:
-				result = result.sort_values(list(sort_by[0::2]),ascending=list(sort_by[1::2]))
-			elif sort_by[0] == 'intensity':
-				result = result.sort_values(sort_by[0],ascending=sort_by[1])
-			elif sort_by[0] == 'energy':
-				result = result.sort_values(sort_by[0],ascending=sort_by[1])
-			elif sort_by[0] == 'A':
-				result = result.sort_values([sort_by[0],'intensity'],ascending=[sort_by[1],False])
-			elif sort_by[0] == 'Z':
-				result = result.sort_values([sort_by[0],'intensity'],ascending=[sort_by[1],False])
-			elif sort_by[0] == 'N':
-				result = result.sort_values([sort_by[0],'intensity'],ascending=[sort_by[1],False])
-			elif sort_by[0] == 'half_life':
-				result = result.sort_values(sort_by[0],ascending=sort_by[1])
-			elif sort_by[0] == 'decay_mode':
-				result = result.sort_values(sort_by[0],ascending=sort_by[1])
-			elif sort_by[0] == 'name':
-				result = result.sort_values(sort_by[0],ascending=sort_by[1])
-			else:
-				print('Invalid sorting option \''+str(sort_by)+'\', sorting by intensity instead.')
+		# Sort output
+		print(sort_by)
+		print(isinstance(sort_by, tuple))
+		print(np.size(sort_by))
+		if isinstance(sort_by, tuple):
+			# User-specified sort orders
+			if sort_by[1] in [True, False]:
+				if np.size(sort_by) > 2:
+					result = result.sort_values(list(sort_by[0::2]),ascending=list(sort_by[1::2]))
+				elif sort_by[0] == 'intensity':
+					result = result.sort_values(sort_by[0],ascending=sort_by[1])
+				elif sort_by[0] == 'energy':
+					result = result.sort_values(sort_by[0],ascending=sort_by[1])
+				elif sort_by[0] == 'A':
+					result = result.sort_values([sort_by[0],'intensity'],ascending=[sort_by[1],False])
+				elif sort_by[0] == 'Z':
+					result = result.sort_values([sort_by[0],'intensity'],ascending=[sort_by[1],False])
+				elif sort_by[0] == 'N':
+					result = result.sort_values([sort_by[0],'intensity'],ascending=[sort_by[1],False])
+				elif sort_by[0] == 'half_life':
+					result = result.sort_values(sort_by[0],ascending=sort_by[1])
+				elif sort_by[0] == 'decay_mode':
+					result = result.sort_values(sort_by[0],ascending=sort_by[1])
+				elif sort_by[0] == 'name':
+					result = result.sort_values(sort_by[0],ascending=sort_by[1])
+				else:
+					print('Invalid sorting option \''+str(sort_by)+'\', sorting by intensity instead.')
 		else:
 			if sort_by == 'intensity':
 				result = result.sort_values(sort_by,ascending=False)
@@ -570,9 +605,10 @@ class Query(object):
 		
 		# Grab half life data, and convert to "pretty" units
 		half_lives_array = result.half_life.to_numpy()
+		print(half_lives_array)
 
 		# Append to results dataframe
-		result["Half-Life"] = optimum_units(half_lives_array)
+		result["Half-Life"] = self.optimum_units(half_lives_array)
 
 
 		# # look for lines with mising unc_intensity
@@ -629,7 +665,7 @@ class Query(object):
 				print(len(result.index), 'gamma matched your criteria:')
 				print(result.to_string(index=False))
 			elif len(result.index) == 0:
-				print('No matching gammas found!')
+				print('No matching', self.mode ,'found!')
 				return False
 			else:
 				if interactive:
@@ -641,48 +677,69 @@ class Query(object):
 		# Guided exploration to eliminate candidates
 		if (interactive and isinstance(interactive, bool)) or isinstance(interactive, str) or isinstance(interactive, tuple):
 			if isinstance(interactive, str) or isinstance(interactive, tuple):
-				# Look for peaks in spectrum
-				if isinstance(interactive, tuple):
-					sp = ci.Spectrum(interactive[0])
-					if isinstance(interactive[1], str):
-						sp.cb = interactive[1]
-					else:
-						print('Using calibration data from spectrum header...')
-				else:
-					sp = ci.Spectrum(interactive)
 				candidates = sorted(list(set(result.Isotope.tolist())))
 				best_chi2 = 1.0E10
 				best_candidate = ''
 				try:
 					print('Press Ctrl-c at any point to end interactive mode.\n')
+					if (isinstance(interactive, tuple) and (not isinstance(interactive[1], str))):
+						print('Using calibration data from spectrum header...')
+					elif (not isinstance(interactive, tuple)):
+						print('Using calibration data from spectrum header...')
 					for itp in candidates:
+						# Look for peaks in spectrum
+						if isinstance(interactive, tuple):
+							sp = Spectrum(interactive[0])
+							if isinstance(interactive[1], str):
+								sp.cb = interactive[1]
+
+						else:
+							sp = Spectrum(interactive)
+
 						pks = []
-						ip = ci.Isotope(itp.replace(' ',''))
+						ip = Isotope(itp.replace(' ',''))
 						gamma_list = ip.gammas().sort_values('intensity',ascending=False,ignore_index=True)
 						j = 0
 						bool_list = []
-						sp_loop = sp
+						# sp_loop = sp
 						print('Looking for',str(ip.name))
 
 						# Patch to work around ci.Spectrum not handling KeyboardInterrupt exceptions
 						exit_event = threading.Event()
 
 						signal.signal(signal.SIGINT, signal_handler)
-						th = threading.Thread(target=bg_thread(ip,sp_loop,exit_event))
+						th = threading.Thread(target=bg_thread(ip,sp,exit_event))
 						th.start()
 						th.join()
+
+
+						# Look for peaks in spectrum
+						if (isinstance(interactive, tuple) and (not isinstance(interactive[1], str))):
+							sp.auto_calibrate()
+						elif (not isinstance(interactive, tuple)):
+							sp.auto_calibrate()
 
 						# Show Curie spectrum plots if desired
 						try:
 							if isinstance(interactive, tuple):
-								if len(interactive) > 2:
-									if interactive[2]:
-										sp_loop.plot()
+								if len(interactive) == 2:
+									if interactive[1] == False:
+										pass 
+									else:
+										sp.plot()
+								elif len(interactive) > 2:
+									if interactive[2] == False:
+										pass	
+									else:
+										sp.plot()							
 								else:
-									if interactive[1] and not isinstance(interactive[1], str):
-										sp_loop.plot()
+									sp.plot()
+							else:
+								sp.plot()
 
-							pks = sp_loop.peaks
+
+
+							pks = sp.peaks
 
 							# Remove candidates...
 							if pks is None:
@@ -732,7 +789,7 @@ class Query(object):
 				candidates = list(set(result.Isotope.tolist()))
 				try:
 					for itp in candidates:
-						ip = ci.Isotope(itp.replace(' ',''))
+						ip = Isotope(itp.replace(' ',''))
 						gamma_list = ip.gammas().sort_values('intensity',ascending=False,ignore_index=True)
 						j = 0
 						bool_list = []
@@ -774,7 +831,7 @@ class Query(object):
 					print(len(result.index), 'gamma matched your criteria:')
 					print(result.to_string(index=False))
 				elif len(result.index) == 0:
-					print('No matching gammas found!')
+					print('No matching', self.mode ,'found!')
 				else:
 					print(len(result.index), 'gammas matched your criteria:')
 					print(result.to_string(index=False))
