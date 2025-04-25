@@ -641,7 +641,7 @@ class Query(object):
 			elif len(result.index) == 1:
 				if interactive:
 					print('Initial Results:')
-				print(len(result.index), str(self.mode).repace('s',''), 'matched your criteria:')
+				print(len(result.index), str(self.mode).replace('s',''), 'matched your criteria:')
 				print(result.to_string(index=False))
 			elif len(result.index) == 0:
 				print('No matching', self.mode ,'found!')
@@ -774,6 +774,7 @@ class Query(object):
 						gamma_list = ip.gammas().sort_values('intensity',ascending=False,ignore_index=True)
 						j = 0
 						bool_list = []
+						print('Looking for',str(itp).replace(' ',''))
 						for i in np.arange(3):
 							if (np.size(energy) == 2) & (gamma_list.loc[i,'energy'] >= (energy[0]-energy[1]) ) & (gamma_list.loc[i,'energy'] <= (energy[0]+energy[1]) ):
 								print('The',str(gamma_list.loc[i,'energy']),'keV peak from',ip, 'falls within the energy search window of',energy[0],'+/-',energy[1],'keV. Skipping....')
@@ -809,7 +810,7 @@ class Query(object):
 					print('Truncating to the first 300 results:')
 					print(result.head(3000).to_string(index=False))
 				elif len(result.index) == 1:
-					print(len(result.index),  str(self.mode).repace('s','') ,'matched your criteria:')
+					print(len(result.index),  str(self.mode).replace('s','') ,'matched your criteria:')
 					print(result.to_string(index=False))
 				elif len(result.index) == 0:
 					print('No matching', self.mode ,'found!')
