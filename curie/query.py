@@ -7,6 +7,7 @@ import time
 
 
 from .data import _get_connection
+from .data import download
 from .isotope import Isotope
 from .compound import Compound
 from .element import Element
@@ -65,6 +66,19 @@ class Query(object):
 		HALF_LIFE_LIST = np.asarray(list(map(str, pd.read_sql('SELECT half_life FROM chart', _get_connection('decay'))['half_life'])),dtype=np.float64)
 
 		old_df = pd.DataFrame({'name': ISOTOPE_LIST, 'A': A_LIST, 'Z': Z_LIST, 'N': N_LIST, 'half_life': HALF_LIFE_LIST})
+
+		# Look for outdated decay database and prompt the user to patch it
+		if len(ISOTOPE_LIST) < 4369:
+			print('The local version of decay.db appears to be out of date.')
+			print('WARNING: This will write over your current database, please back it up if you have made local changes.')
+			input_response = input('Would you like to update your local version? (y/N)')
+			if input_response.lower() in ["yes", "y"]:
+				# bool_list.append(True)
+				download('decay',True) 
+				print('decay.db has been updated!')
+				quit()
+			else:
+				print('Keeping local version of decay.db.')
 
 		# Grab decay gamma db
 		NAME_LIST = np.asarray(list(map(str, pd.read_sql('SELECT isotope FROM '+self.mode, _get_connection('decay'))['isotope'])),dtype=str)
