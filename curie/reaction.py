@@ -612,6 +612,11 @@ class Reaction(object):
 		# Check for *-targets (aka A=9999)
 		self.multiple_product_subentries = False
 
+		# Set up dictionaries for returning values
+		self.return_fig = []
+		self.return_ax = []
+		self.return_plot_Dict = []
+
 
 		if '9999' not in self.exfor_product:
 			# Loop over all stable isotopes of element, along with A=0 (natural abundance)
@@ -636,11 +641,21 @@ class Reaction(object):
 			for itp in isotopes:
 				substrings = re.split('(\D+)',itp)
 				self.exfor_target = (substrings[1]+'-'+substrings[0]).upper()
-				self.query(plot_results, self.plot_tendl, show_legend, xlim, ylim, verbose)
+				try:
+					fig, ax, plot_Dict = self.query(plot_results, self.plot_tendl, show_legend, xlim, ylim, verbose)
+				except TypeError:
+					pass
 
 		else:
 			# Run an EXFOR query as normal
-			self.query(plot_results, self.plot_tendl, show_legend, xlim, ylim, verbose)
+			if plot_results:
+				fig, ax, plot_Dict = self.query(plot_results, self.plot_tendl, show_legend, xlim, ylim, verbose)
+				return self.return_fig, self.return_ax, self.return_plot_Dict
+			else:
+				self.query(plot_results, self.plot_tendl, show_legend, xlim, ylim, verbose)
+				return self.return_plot_Dict
+
+		return self.return_fig, self.return_ax, self.return_plot_Dict
 		
 
 	def query(self, plot_results=False, plot_tendl=False, show_legend=False, xlim=[0,None], ylim=[0,None], verbose=False):
@@ -966,7 +981,9 @@ class Reaction(object):
 						continue
 
 		# Update selected data in dictionary, caching it for later plotting
+		plot_Dict = dict(sorted(plot_Dict.items(), key=lambda x:x[1][1], reverse=True))
 		self.plot_Dict = plot_Dict
+		# self.plot_Dict = dict(sorted(plot_Dict.items(), key=lambda x:x[1][1], reverse=True))
 
 		# Adds divider liens to break up the LONG verbose output
 		if verbose:
@@ -975,7 +992,14 @@ class Reaction(object):
 
 		# If specified by user, go ahead and plot results
 		if plot_results:
-			self.plot_exfor(self.plot_tendl,show_legend, xlim=xlim, ylim=ylim)
+			try:
+				fig, ax = self.plot_exfor(self.plot_tendl,show_legend, xlim=xlim, ylim=ylim)
+				self.return_fig.append(fig)
+				self.return_ax.append(ax)
+				self.return_plot_Dict.append(plot_Dict)
+				return fig, ax, plot_Dict
+			except TypeError:
+				pass
 		
 
 
@@ -1123,7 +1147,10 @@ class Reaction(object):
 			plt.grid(which='major', axis='both', color='w')
 
 			ax.set_facecolor('#e5ecf6')
+			plt.savefig('exfor_plot.pdf', dpi=400)
+			plt.savefig('exfor_plot.png', dpi=600) 
 			plt.show()
+			return fig, ax
 		else:
 			print('No matching datasets found for '+self.exfor_target+'('+self.exfor_reaction.replace('*','X')+')'+self.exfor_product)
 
