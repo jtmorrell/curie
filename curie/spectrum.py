@@ -8,6 +8,9 @@ import numpy as np
 import pandas as pd
 import datetime as dtm
 import copy
+import struct
+import time
+
 
 from scipy.optimize import curve_fit
 from scipy.special import erfc
@@ -116,6 +119,8 @@ class Spectrum(object):
 					self._read_Spe(filename)
 				elif filename.endswith('.Chn'):
 					self._read_Chn(filename)
+				elif filename.lower().endswith('.cnf'):
+					self._read_CNF(filename)
 				else:
 					raise ValueError('File type not supported: {}'.format(filename))
 				self._snip_bg()
@@ -191,6 +196,224 @@ class Spectrum(object):
 			if L:
 				sample_desc = np.frombuffer(f.read(L),dtype='S{}'.format(L))[0].decode('utf-8')
 				self._ortec_metadata['SPEC_ID'] = [sample_desc]
+
+	def _read_CNF(self, filename):
+
+		def uint8_at(f, pos):
+			f.seek(pos)
+			return np.fromfile(f, dtype=np.dtype('<u1'), count=1)[0]
+
+
+		def uint16_at(f, pos):
+			f.seek(pos)
+			return np.fromfile(f, dtype=np.dtype('<u2'), count=1)[0]
+
+
+		def uint32_at(f, pos):
+			f.seek(pos)
+			return np.fromfile(f, dtype=np.dtype('<u4'), count=1)[0]
+
+
+		def uint64_at(f, pos):
+			f.seek(pos)
+			return np.fromfile(f, dtype=np.dtype('<u8'), count=1)[0]
+
+
+		def pdp11f_at(f, pos):
+			"""
+			Convert PDP11 32bit floating point format to
+			IEE 754 single precision (32bits)
+			"""
+			f.seek(pos)
+			# Read two int16 numbers
+			tmp16 = np.fromfile(f, dtype=np.dtype('<u2'), count=2)
+			# Swap positions
+			mypack = struct.pack('HH', tmp16[1], tmp16[0])
+			f = struct.unpack('f', mypack)[0]/4.0
+			return f
+
+
+		def time_at(f, pos):
+			return ~uint64_at(f, pos)*1e-7
+
+
+		def datetime_at(f, pos):
+			return uint64_at(f, pos) / 10000000 - 3506716800
+
+
+		def string_at(f, pos, length):
+			f.seek(pos)
+			# In order to avoid characters with not utf8 encoding
+			try:
+				read_string = f.read(length).decode('utf8').rstrip('\00').rstrip()
+			except UnicodeDecodeError:
+				read_string = "READ ERROR"
+			return read_string
+
+		with open(filename, 'rb') as f:
+			i = 0
+			while True:
+				# List of available section headers
+				sec_header = 0x70 + i*0x30
+				i += 1
+				# Section id in header
+				sec_id_header = uint32_at(f, sec_header)
+
+				# End of section list
+				if sec_id_header == 0x00:
+					break
+
+				# Location of the begining of each sections
+				sec_loc = uint32_at(f, sec_header+0x0a)
+				# Known section id's:
+				# Parameter section (times, energy calibration, etc)
+				if sec_id_header == 0x00012000:
+					offs_param = sec_loc
+
+					# Read energy calibration coefficients
+					offs_calib = offs_param + 0x30 + uint16_at(f, offs_param + 0x22)
+					self.cb.engcal = np.array([pdp11f_at(f, offs_calib + 0x44), pdp11f_at(f, offs_calib + 0x48), pdp11f_at(f, offs_calib + 0x4c)])#, pdp11f_at(f, offs_calib + 0x50)])
+
+					# Assuming a maximum length of 0x11 for the energy unit
+					energy_unit = string_at(f, offs_calib + 0x5c, 0x11)
+
+					# MCA type
+					MCA_type = string_at(f, offs_calib + 0x9c, 0x10)
+
+					# Data source
+					data_source = string_at(f, offs_calib + 0x108, 0x10)
+					detector_type = string_at(f, offs_calib + 0x30C, 0x06)
+					# print(detector_type, type(detector_type))
+
+					# Get date and time
+					offs_times = offs_param + 0x30 + uint16_at(f, offs_param + 0x24)
+
+					start_time = datetime_at(f, offs_times + 0x01)
+					self.real_time = time_at(f, offs_times + 0x09)
+					self.live_time = time_at(f, offs_times + 0x11)
+
+					# Convert to formated date and time
+					self.start_time = dtm.datetime.strptime(time.strftime('%m/%d/%Y %H:%M:%S', time.gmtime(start_time)), '%m/%d/%Y %H:%M:%S')
+
+					# Get Shape Calibration Parameters :
+					# FWHM=B[0]+B[1]*E^(1/2)  . B[2] and B[3] are tail parameters
+
+					offs_calib = offs_param + 0x30 + uint16_at(f, offs_param + 0x22)
+					shape = np.array([pdp11f_at(f, offs_calib + 0xdc), pdp11f_at(f, offs_calib + 0xe0), pdp11f_at(f, offs_calib + 0xe4), pdp11f_at(f, offs_calib + 0xe8)])
+
+
+				# String section
+				elif sec_id_header == 0x00012001:
+					offs_str = sec_loc
+					sample_name = string_at(f, offs_str + 0x0030, 0x40)
+					sample_id = string_at(f, offs_str + 0x0070, 0x10)
+					# sample_id   = string_at(f, offs_str + 0x0070, 0x40)
+					sample_type = string_at(f, offs_str + 0x00b0, 0x10)
+					sample_units = string_at(f, offs_str + 0x00c4, 0x10)
+					sample_geometry = string_at(f, offs_str + 0x00d4, 0x10)
+					user_name = string_at(f, offs_str + 0x02d6, 0x18)
+					sample_desc = string_at(f, offs_str + 0x036e, 0x100)
+				
+				# Channel data section
+				elif sec_id_header == 0x00012005:
+					offs_chan = sec_loc
+					# Total number of channels
+					n_channels = uint8_at(f, offs_param + 0x00ba) * 256
+					# Data in each channel
+					f.seek(offs_chan + 0x200)
+					chan_data = np.fromfile(f, dtype='<u4', count=n_channels)
+					self.hist = chan_data
+					# Total counts of the channels
+					total_counts = np.sum(chan_data)
+					# Measurement mode
+					meas_mode = string_at(f, offs_param + 0xb0, 0x03)
+
+					# Create array with the correct channel numbering
+					channels = np.arange(1, n_channels+1, 1)
+
+				else:
+					continue
+
+				# For known sections: section header ir repeated in section block
+				if (sec_id_header != uint32_at(f, sec_loc)):
+					print('File {}: Format error\n'.format(filename))
+
+		# Once the file is read, some derived magnitudes can be obtained
+
+		# Convert channels to energy
+		# if set(('Channels', 'Energy coefficients')) <= set(read_dic):
+		# 	read_dic.update(chan_to_energy(read_dic))
+
+		# Compute ingegration between markers
+		# if set(('Channels', 'Left marker')) <= set(read_dic):
+		# 	read_dic.update(markers_integration(read_dic))
+
+		det_no = detector_type
+		print('det_no', det_no, type(det_no))
+		# sts = np.frombuffer(f.read(2), dtype='S2')[0].decode('utf-8')
+
+
+		# self.real_time, self.live_time = tuple(map(float, 0.02*np.frombuffer(f.read(8), dtype='i4')))
+		print('self.real_time, self.live_time')
+		print(self.real_time, self.live_time)
+		print(type(self.real_time), type(self.live_time))
+		# <class 'float'> <class 'float'>
+		# 397.52 375.68
+
+
+		# st = np.frombuffer(f.read(12), dtype='S12')[0].decode('utf-8')
+		# months = {'jan':'01','feb':'02','mar':'03','apr':'04',
+		# 			'may':'05','jun':'06','jul':'07','aug':'08',
+		# 			'sep':'09','oct':'10','nov':'11','dec':'12'}
+		# start_time = '{0}/{1}/{2} {3}:{4}:{5}'.format(months[st[2:5].lower()],st[:2],('20' if st[7]=='1' else '19')+st[5:7],st[8:10],st[10:],sts)
+		# # self.start_time = dtm.datetime.strptime(start_time, '%m/%d/%Y %H:%M:%S')
+		print('self.start_time')
+		print(self.start_time)
+		print(type(self.start_time))
+		# 2016-12-15 18:11:36
+		# <class 'datetime.datetime'>
+
+
+		# L = np.frombuffer(f.read(4), dtype='i2')[1]
+		# self.hist = np.asarray(np.frombuffer(f.read(4*L), dtype='i4'), dtype=np.int64)
+		print('self.hist')
+		print(self.hist)
+		print(type(self.hist))
+		# [0 0 0 ... 0 0 0]
+		# <class 'numpy.ndarray'>
+
+		# f.read(4)
+
+		# self.cb.engcal = np.frombuffer(f.read(12),dtype='f4').tolist()
+		print('self.cb.engcal ')
+		print(self.cb.engcal )
+		print(type(self.cb.engcal ))
+		# [0.        0.3888889 0.       ]
+		# <class 'numpy.ndarray'>
+
+		if str(det_no):
+			print('TRUE')
+
+
+
+		# shape = np.frombuffer(f.read(12), dtype='f4').tolist()
+		self._ortec_metadata['SHAPE_CAL'] = ['3', ' '.join(map(str, shape))]
+		# f.read(228)
+		# L = np.frombuffer(f.read(1), dtype='i1')[0]
+		# if L:
+			# det_desc = np.frombuffer(f.read(L), dtype='S{}'.format(L))[0].decode('utf-8')
+		self._ortec_metadata['SPEC_REM'] = ['DET# '+(str(det_no) if str(det_no) else '1'), 'DETDESC# '+ (str(det_no) if str(det_no) else '1'), 'AP# ' +data_source]
+		# if L<63:
+		# 	f.read(63-L)
+		# L = np.frombuffer(f.read(1), dtype='i1')[0]
+		# if L:
+		# 	sample_desc = np.frombuffer(f.read(L),dtype='S{}'.format(L))[0].decode('utf-8')
+		self._ortec_metadata['SPEC_ID'] = [sample_desc]
+		print('self._ortec_metadata')
+		print(self._ortec_metadata)
+		print(type(self._ortec_metadata))
+		# {'SHAPE_CAL': ['3', '0.0 0.0 0.0'], 'SPEC_REM': ['DET# 2', 'DETDESC# DETECTOR 2', 'AP# Maestro Version 7.01']}
+		# <class 'dict'>
 
 
 	@property
