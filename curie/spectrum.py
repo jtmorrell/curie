@@ -121,6 +121,8 @@ class Spectrum(object):
 					self._read_Chn(filename)
 				elif filename.lower().endswith('.cnf'):
 					self._read_CNF(filename)
+				elif filename.lower().endswith('.iec'):
+					self._read_IEC(filename)
 				else:
 					raise ValueError('File type not supported: {}'.format(filename))
 				self._snip_bg()
@@ -414,6 +416,74 @@ class Spectrum(object):
 		print(type(self._ortec_metadata))
 		# {'SHAPE_CAL': ['3', '0.0 0.0 0.0'], 'SPEC_REM': ['DET# 2', 'DETDESC# DETECTOR 2', 'AP# Maestro Version 7.01']}
 		# <class 'dict'>
+
+	def _read_IEC(self, filename):
+		counts = []
+
+		with open(filename) as f:
+			entry = 1
+			# loop over lines
+			for line in f:
+				# strip prefix and tokenize
+					line = line.strip("A004")
+					token = line.split()
+					
+
+					if entry == 1:
+						print(line)
+						print(token)
+						# Parse MCA metadata
+						data_source = str(token[0])
+						det_no = int(token[1])
+						self._ortec_metadata['SPEC_REM'] = ['DET# '+(str(det_no) if str(det_no) else '1'), 'DETDESC# '+ (str(det_no) if str(det_no) else '1'), 'AP# ' +data_source]
+						
+					elif entry == 2:
+						print(line)
+						print(token)
+						# Parse spectrum time and channel metadata
+						self.real_time = float(token[1])
+						self.live_time = float(token[0])
+						n_channels = int(token[2])
+						print('self.real_time, self.live_time')
+						print(self.real_time, self.live_time)
+						print(type(self.real_time), type(self.live_time))
+					elif entry == 3:
+						print(line)
+						print(token)
+						self.start_time = dtm.datetime.strptime(str(token[0])+' '+str(token[1]), '%d/%m/%y %H:%M:%S')
+						print('self.start_time')
+						print(self.start_time)
+						print(type(self.start_time))
+					elif entry == 4:
+						print(line)
+						print(token)
+						self.cb.engcal = np.array([float(token[0]), float(token[1]), float(token[2])])#, float(token[3])])
+						print('self.cb.engcal ')
+						print(self.cb.engcal )
+						print(type(self.cb.engcal ))
+					elif entry == 5:
+						print(line)
+						print(token)
+						shape = np.array([float(token[0]), float(token[1]), float(token[2]), float(token[3])])
+						self._ortec_metadata['SHAPE_CAL'] = ['3', ' '.join(map(str, shape))]
+						print('self._ortec_metadata')
+						print(self._ortec_metadata)
+						print(type(self._ortec_metadata))
+					elif entry >= 59:
+						for row in token[1:]:  # skip channel index
+							counts.append(int(row))
+					
+
+
+
+
+					entry += 1
+
+			self.hist = np.array(counts[:-3])
+			print('self.hist')
+			print(self.hist)
+			print(type(self.hist))
+
 
 
 	@property
