@@ -32,7 +32,7 @@ class Spectrum(object):
 	----------
 	filename : str
 		File path to the gamma-ray spectrum.  Supported file types are Ortec .Spe
-		and .Chn files.
+		and .Chn files, as well as Canberra .CNF and .IEC files.
 
 	Other Parameters
 	----------------
