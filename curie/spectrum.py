@@ -200,6 +200,7 @@ class Spectrum(object):
 				self._ortec_metadata['SPEC_ID'] = [sample_desc]
 
 	def _read_CNF(self, filename):
+		# Helper methods for accessing encoded binary data
 
 		def uint8_at(f, pos):
 			f.seek(pos)
@@ -299,7 +300,6 @@ class Spectrum(object):
 
 					# Get Shape Calibration Parameters :
 					# FWHM=B[0]+B[1]*E^(1/2)  . B[2] and B[3] are tail parameters
-
 					offs_calib = offs_param + 0x30 + uint16_at(f, offs_param + 0x22)
 					shape = np.array([pdp11f_at(f, offs_calib + 0xdc), pdp11f_at(f, offs_calib + 0xe0), pdp11f_at(f, offs_calib + 0xe4), pdp11f_at(f, offs_calib + 0xe8)])
 
@@ -340,82 +340,13 @@ class Spectrum(object):
 				if (sec_id_header != uint32_at(f, sec_loc)):
 					print('File {}: Format error\n'.format(filename))
 
-		# Once the file is read, some derived magnitudes can be obtained
-
-		# Convert channels to energy
-		# if set(('Channels', 'Energy coefficients')) <= set(read_dic):
-		# 	read_dic.update(chan_to_energy(read_dic))
-
-		# Compute ingegration between markers
-		# if set(('Channels', 'Left marker')) <= set(read_dic):
-		# 	read_dic.update(markers_integration(read_dic))
 
 		det_no = detector_type
-		print('det_no', det_no, type(det_no))
-		# sts = np.frombuffer(f.read(2), dtype='S2')[0].decode('utf-8')
 
-
-		# self.real_time, self.live_time = tuple(map(float, 0.02*np.frombuffer(f.read(8), dtype='i4')))
-		print('self.real_time, self.live_time')
-		print(self.real_time, self.live_time)
-		print(type(self.real_time), type(self.live_time))
-		# <class 'float'> <class 'float'>
-		# 397.52 375.68
-
-
-		# st = np.frombuffer(f.read(12), dtype='S12')[0].decode('utf-8')
-		# months = {'jan':'01','feb':'02','mar':'03','apr':'04',
-		# 			'may':'05','jun':'06','jul':'07','aug':'08',
-		# 			'sep':'09','oct':'10','nov':'11','dec':'12'}
-		# start_time = '{0}/{1}/{2} {3}:{4}:{5}'.format(months[st[2:5].lower()],st[:2],('20' if st[7]=='1' else '19')+st[5:7],st[8:10],st[10:],sts)
-		# # self.start_time = dtm.datetime.strptime(start_time, '%m/%d/%Y %H:%M:%S')
-		print('self.start_time')
-		print(self.start_time)
-		print(type(self.start_time))
-		# 2016-12-15 18:11:36
-		# <class 'datetime.datetime'>
-
-
-		# L = np.frombuffer(f.read(4), dtype='i2')[1]
-		# self.hist = np.asarray(np.frombuffer(f.read(4*L), dtype='i4'), dtype=np.int64)
-		print('self.hist')
-		print(self.hist)
-		print(type(self.hist))
-		# [0 0 0 ... 0 0 0]
-		# <class 'numpy.ndarray'>
-
-		# f.read(4)
-
-		# self.cb.engcal = np.frombuffer(f.read(12),dtype='f4').tolist()
-		print('self.cb.engcal ')
-		print(self.cb.engcal )
-		print(type(self.cb.engcal ))
-		# [0.        0.3888889 0.       ]
-		# <class 'numpy.ndarray'>
-
-		if str(det_no):
-			print('TRUE')
-
-
-
-		# shape = np.frombuffer(f.read(12), dtype='f4').tolist()
 		self._ortec_metadata['SHAPE_CAL'] = ['3', ' '.join(map(str, shape))]
-		# f.read(228)
-		# L = np.frombuffer(f.read(1), dtype='i1')[0]
-		# if L:
-			# det_desc = np.frombuffer(f.read(L), dtype='S{}'.format(L))[0].decode('utf-8')
 		self._ortec_metadata['SPEC_REM'] = ['DET# '+(str(det_no) if str(det_no) else '1'), 'DETDESC# '+ (str(det_no) if str(det_no) else '1'), 'AP# ' +data_source]
-		# if L<63:
-		# 	f.read(63-L)
-		# L = np.frombuffer(f.read(1), dtype='i1')[0]
-		# if L:
-		# 	sample_desc = np.frombuffer(f.read(L),dtype='S{}'.format(L))[0].decode('utf-8')
 		self._ortec_metadata['SPEC_ID'] = [sample_desc]
-		print('self._ortec_metadata')
-		print(self._ortec_metadata)
-		print(type(self._ortec_metadata))
-		# {'SHAPE_CAL': ['3', '0.0 0.0 0.0'], 'SPEC_REM': ['DET# 2', 'DETDESC# DETECTOR 2', 'AP# Maestro Version 7.01']}
-		# <class 'dict'>
+
 
 	def _read_IEC(self, filename):
 		counts = []
@@ -428,63 +359,34 @@ class Spectrum(object):
 					line = line.strip("A004")
 					token = line.split()
 					
-
 					if entry == 1:
-						print(line)
-						print(token)
 						# Parse MCA metadata
 						data_source = str(token[0])
 						det_no = int(token[1])
 						self._ortec_metadata['SPEC_REM'] = ['DET# '+(str(det_no) if str(det_no) else '1'), 'DETDESC# '+ (str(det_no) if str(det_no) else '1'), 'AP# ' +data_source]
-						
 					elif entry == 2:
-						print(line)
-						print(token)
 						# Parse spectrum time and channel metadata
 						self.real_time = float(token[1])
 						self.live_time = float(token[0])
 						n_channels = int(token[2])
-						print('self.real_time, self.live_time')
-						print(self.real_time, self.live_time)
-						print(type(self.real_time), type(self.live_time))
 					elif entry == 3:
-						print(line)
-						print(token)
+						# Parse spectrum starttime
 						self.start_time = dtm.datetime.strptime(str(token[0])+' '+str(token[1]), '%d/%m/%y %H:%M:%S')
-						print('self.start_time')
-						print(self.start_time)
-						print(type(self.start_time))
 					elif entry == 4:
-						print(line)
-						print(token)
+						# Parse MCA energy calibration
 						self.cb.engcal = np.array([float(token[0]), float(token[1]), float(token[2])])#, float(token[3])])
-						print('self.cb.engcal ')
-						print(self.cb.engcal )
-						print(type(self.cb.engcal ))
 					elif entry == 5:
-						print(line)
-						print(token)
+						# Parse MCA shape calibration
 						shape = np.array([float(token[0]), float(token[1]), float(token[2]), float(token[3])])
 						self._ortec_metadata['SHAPE_CAL'] = ['3', ' '.join(map(str, shape))]
-						print('self._ortec_metadata')
-						print(self._ortec_metadata)
-						print(type(self._ortec_metadata))
 					elif entry >= 59:
+						# Parse counts histogram
 						for row in token[1:]:  # skip channel index
 							counts.append(int(row))
-					
-
-
-
 
 					entry += 1
 
 			self.hist = np.array(counts[:-3])
-			print('self.hist')
-			print(self.hist)
-			print(type(self.hist))
-
-
 
 	@property
 	def cb(self):
