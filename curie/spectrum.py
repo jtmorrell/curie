@@ -840,11 +840,12 @@ class Spectrum(object):
 				ix = self.cb.map_channel(g['energy']) # g is already sorted by energy
 				for n,x in enumerate(ix[:-1]):
 					if abs(x-ix[n+1])<=self.fit_config['ident_idx']:
-						print('WARNING: Isotope',i,'has un-resolvable gammas at',g.loc[n]['energy'],'and',g.loc[n+1]['energy'],'... Intensities will be combined.')
-						drop,replace = (n,n+1) if g.loc[n]['intensity']<g.loc[n+1]['intensity'] else (n+1,n)
-						g.loc[replace]['intensity'] += g.loc[drop]['intensity']
-						g.loc[replace]['unc_intensity'] = np.sqrt(g.loc[drop]['unc_intensity']**2 + g.loc[replace]['unc_intensity']**2)
-						g.drop(drop,inplace=True)
+						if n in g.index:
+							print('WARNING: Isotope',i,'has un-resolvable gammas at',g.loc[n]['energy'],'and',g.loc[n+1]['energy'],'... Intensities will be combined.')
+							drop,replace = (n,n+1) if g.loc[n]['intensity']<g.loc[n+1]['intensity'] else (n+1,n)
+							g.loc[replace]['intensity'] += g.loc[drop]['intensity']
+							g.loc[replace]['unc_intensity'] = np.sqrt(g.loc[drop]['unc_intensity']**2 + g.loc[replace]['unc_intensity']**2)
+							g.drop(drop,inplace=True)
 
 				if len(g):
 					itps.append(i)
@@ -1390,6 +1391,7 @@ class Spectrum(object):
 			if os.path.exists(filename) and not replace:
 				df = pd.read_json(filename, orient='records')
 				df = df[df['filename']!=self.filename][self.peaks.columns]
+				df['start_time'] = df['start_time'].dt.strftime('%m/%d/%Y %H:%M:%S')
 				df = pd.concat([df, self.peaks])
 				json.dump(json.loads(df.to_json(orient='records')), open(filename, 'w'), indent=4)
 			else:
