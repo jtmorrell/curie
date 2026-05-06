@@ -242,19 +242,39 @@ class Reaction(object):
 		>>> eng = np.linspace(1, 5, 20)
 		>>> phi = np.ones(20)
 		>>> print(rx.integrate(eng, phi))
-		833.4435915974148
+		885.5690635272...
 		>>> print(rx.integrate(eng, phi, unc=True))
-		(833.4435915974148, 19.91851943674977)
+		(885.5690635272..., ...)
 
 		"""
 
-		E = np.asarray(energy)
-		phisig = np.asarray(flux)*self.interpolate(E)
+		E = np.asarray(energy, dtype=float)
+		phi = np.asarray(flux, dtype=float)
+		dE = self._bin_widths(E)
+		phisig = phi*self.interpolate(E)
 		if unc:
-			unc_phisig = np.asarray(flux)*self.interpolate_unc(E)
-			return np.sum(0.5*(E[1:]-E[:-1])*(phisig[:-1]+phisig[1:])), np.sum(0.5*(E[1:]-E[:-1])*(unc_phisig[:-1]+unc_phisig[1:]))
-		return np.sum(0.5*(E[1:]-E[:-1])*(phisig[:-1]+phisig[1:]))
-		
+			unc_phisig = phi*self.interpolate_unc(E)
+			return np.sum(phisig*dE), np.sum(unc_phisig*dE)
+		return np.sum(phisig*dE)
+
+	@staticmethod
+	def _bin_widths(E):
+		# Treat E values as bin centers; bin edges sit at midpoints between centers,
+		# endpoint bins get the one-sided width. For uniform grids this returns a
+		# constant dE, so flux-averages reduce to a PMF-style sum(phi*sigma)/sum(phi)
+		# and the result is independent of the (then-cancelling) dE. For histogram
+		# fluxes from Stack.get_flux this avoids the trapezoidal endpoint
+		# under-weighting that halves the contribution of bin 0 / bin -1 spikes.
+		E = np.asarray(E, dtype=float)
+		n = E.size
+		if n < 2:
+			return np.ones_like(E)
+		dE = np.empty(n)
+		dE[1:-1] = 0.5*(E[2:] - E[:-2])
+		dE[0]    = E[1] - E[0]
+		dE[-1]   = E[-1] - E[-2]
+		return dE
+
 	def average(self, energy, flux, unc=False):
 		"""Flux averaged reaction cross section
 
@@ -285,19 +305,21 @@ class Reaction(object):
 		>>> eng = np.linspace(1, 5, 20)
 		>>> phi = np.ones(20)
 		>>> print(rx.average(eng, phi))
-		208.3608978993537
+		210.3226525877...
 		>>> print(rx.average(eng, phi, unc=True))
-		(208.3608978993537, 4.979629859187442)
+		(210.3226525877..., ...)
 
 		"""
 
-		E, phi = np.asarray(energy), np.asarray(flux)
+		E = np.asarray(energy, dtype=float)
+		phi = np.asarray(flux, dtype=float)
+		dE = self._bin_widths(E)
 		phisig = phi*self.interpolate(E)
-		dE = E[1:]-E[:-1]
+		denom = np.sum(phi*dE)
 		if unc:
-			unc_phisig = np.asarray(flux)*self.interpolate_unc(E)
-			return np.sum(0.5*dE*(phisig[:-1]+phisig[1:]))/np.sum(0.5*dE*(phi[:-1]+phi[1:])), np.sum(0.5*dE*(unc_phisig[:-1]+unc_phisig[1:]))/np.sum(0.5*dE*(phi[:-1]+phi[1:]))
-		return np.sum(0.5*dE*(phisig[:-1]+phisig[1:]))/np.sum(0.5*dE*(phi[:-1]+phi[1:]))
+			unc_phisig = phi*self.interpolate_unc(E)
+			return np.sum(phisig*dE)/denom, np.sum(unc_phisig*dE)/denom
+		return np.sum(phisig*dE)/denom
 		
 	def plot(self, energy=None, label='reaction', title=False, **kwargs):
 		"""Plot the cross section
