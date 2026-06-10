@@ -1,0 +1,63 @@
+# Minimal CI (curie improvement plan, Stage 0): install from source, import smoke test,
+# and run the public test suite against the data-v1 CI fixture (ziegler + decay +
+# iaea_monitors + IRDFF, ~133 MB). Tests needing endf/tendl skip with reported reasons;
+# full data-touching CI arrives with the Stage-3 distribution redesign.
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.9', '3.10', '3.11', '3.12', '3.13']
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install curie and dependencies
+        # dependencies installed explicitly: install_requires is absent from setup.py
+        # until Stage 3 (pyproject migration). Editable install never runs the
+        # legacy post-install data hook.
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install numpy scipy pandas matplotlib pytest
+          python -m pip install -e .
+
+      - name: Restore nuclear data fixture
+        id: data-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/curie-ci-data
+          key: curie-data-v1-${{ hashFiles('data_manifest.toml') }}
+
+      - name: Fetch data fixture from the data-v1 release
+        if: steps.data-cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p ~/curie-ci-data && cd ~/curie-ci-data
+          base="https://github.com/jtmorrell/curie/releases/download/data-v1"
+          for f in SHA256SUMS ziegler.db decay.db iaea_monitors.db IRDFF.db; do
+            curl -sSL --retry 3 -O "$base/$f"
+          done
+
+      - name: Verify data checksums
+        run: cd ~/curie-ci-data && sha256sum -c SHA256SUMS --ignore-missing
+
+      - name: Install data fixture
+        run: |
+          mkdir -p curie/data
+          cp ~/curie-ci-data/*.db curie/data/
+
+      - name: Import smoke test
+        run: python -c "import curie; print('curie', curie.__version__)"
+
+      - name: Run public test suite
+        run: python -m pytest -ra

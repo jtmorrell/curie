@@ -53,5 +53,9 @@ setup(name='curie',
 	  license='MIT',
 	  packages=find_packages(),
 	  include_package_data=True,
-	  cmdclass={'install': install})#, 
+	  # nuclear data is distributed via GitHub data releases (data-v1), never in
+	  # wheels/sdists: a wheel built from a dev tree with curie/data/ populated would
+	  # otherwise swallow ~1 GB of .db files (and exceed PyPI's size limit)
+	  exclude_package_data={'curie': ['data/*.db'], '': ['*.db']},
+	  cmdclass={'install': install})#,
 	  #install_requires=['numpy', 'matplotlib', 'scipy', 'pandas'])
