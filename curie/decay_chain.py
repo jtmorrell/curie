@@ -498,7 +498,7 @@ class DecayChain(object):
 
 					if len(df):
 						start_time = df.iloc[0]['start_time']
-						if type(start_time)==str or type(start_time)==unicode:
+						if isinstance(start_time, str):
 							start_time = dtm.datetime.strptime(start_time, '%m/%d/%Y %H:%M:%S')
 						start = (start_time-EoB).total_seconds()*self._r_lm('s')
 						stop = start+(df.iloc[0]['real_time']*self._r_lm('s'))
