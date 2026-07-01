@@ -116,7 +116,12 @@ class Isotope(object):
 		if self.stable:
 			self.dc = 0.0
 			self.decay_products = {}
-		self.mass = float(df['amu'][0])
+		if df['amu'][0] is not None:
+			self.mass = float(df['amu'][0])
+		elif df['Delta'][0] is not None:
+			self.mass = self.A + float(df['Delta'][0])/931.49410242  # amu from mass excess
+		else:
+			self.mass = float(self.A)
 		if df['abundance'][0] is not None:
 			self.abundance = float(df['abundance'][0])
 		else:
@@ -134,9 +139,15 @@ class Isotope(object):
 
 		self._SFY = None
 
+		if not self.stable and df['half_life'][0] is None:
+			print('WARNING: {} has no half-life in the decay database, and will be treated as stable.'.format(self.name))
+			self.stable = True
+			self.dc = 0.0
+			self.decay_products = {}
+
 		if not self.stable:
 			self._t_half = float(df['half_life'][0])
-			self._unc_t_half = float(df['unc_half_life'][0])
+			self._unc_t_half = float(df['unc_half_life'][0]) if df['unc_half_life'][0] is not None else 0.0
 			self.dc = np.log(2.0)/self._t_half
 
 			self.decay_products = {}
