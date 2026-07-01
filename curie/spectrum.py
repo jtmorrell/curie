@@ -1324,10 +1324,12 @@ class Spectrum(object):
 			ss += np.array(self.hist, dtype='i4').tobytes()
 			ss += np.array([-102, 0], dtype='i2').tobytes()
 
-			ss += np.array(self.cb.engcal, dtype='f4').tobytes()
+			engcal = list(self.cb.engcal)[:3]
+			ss += np.array(engcal+[0.0]*(3-len(engcal)), dtype='f4').tobytes()
 
 			if 'SHAPE_CAL' in self._ortec_metadata:
-				ss += np.array(self._ortec_metadata['SHAPE_CAL'][1].split(' '), dtype='f4').tobytes()
+				shapecal = self._ortec_metadata['SHAPE_CAL'][1].split(' ')[:3]
+				ss += np.array(shapecal+['0']*(3-len(shapecal)), dtype='f4').tobytes()
 			else:
 				ss += np.array([0,0,0], dtype='f4').tobytes()
 			ss += np.zeros(228, dtype='i1').tobytes()
@@ -1336,21 +1338,20 @@ class Spectrum(object):
 				L = min((63, len(self._ortec_metadata['SPEC_REM'][1].split('# ')[1])))
 				ss += np.array(L, dtype='i1').tobytes()
 				ss += np.array(self._ortec_metadata['SPEC_REM'][1].split('# ')[1][:L], dtype='S{}'.format(L)).tobytes()
+				ss += np.zeros(63-L, dtype='i1').tobytes()
 			else:
 				ss += np.array(0, dtype='i1').tobytes()
+				ss += np.zeros(63, dtype='i1').tobytes()
 
-			if 'SPEC_ID' in self._ortec_metadata:
-				if self._ortec_metadata['SPEC_ID'][0]!='No sample description was entered.':
-					L = len(''.join(self._ortec_metadata['SPEC_ID']))
-					L = min((63, L))
-					ss += np.array(L, dtype='i1').tobytes()
-					ss += np.array(''.join(self._ortec_metadata['SPEC_ID'])[:L])
-				else:
-					ss += np.array(0, dtype='i1').tobytes()
-					ss += np.array('\x00'*63, dtype='S63').tobytes()
+			if 'SPEC_ID' in self._ortec_metadata and self._ortec_metadata['SPEC_ID'][0]!='No sample description was entered.':
+				L = len(''.join(self._ortec_metadata['SPEC_ID']))
+				L = min((63, L))
+				ss += np.array(L, dtype='i1').tobytes()
+				ss += np.array(''.join(self._ortec_metadata['SPEC_ID'])[:L], dtype='S{}'.format(L)).tobytes()
+				ss += np.zeros(63-L, dtype='i1').tobytes()
 			else:
 				ss += np.array(0, dtype='i1').tobytes()
-				ss += np.array('\x00'*63, dtype='S63').tobytes()
+				ss += np.zeros(63, dtype='i1').tobytes()
 
 			ss += np.array('\x00'*128, dtype='S128').tobytes()
 			with open(filename, 'wb') as f:
