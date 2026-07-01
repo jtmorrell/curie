@@ -69,9 +69,6 @@ def download(db='all', overwrite=False):
 		print('db={} not recognized.'.format(db))
 		return
 
-	addr = {'decay':'wwd6b1gk2ge5tgt', 'endf':'tkndjqs036piojm', 'tendl':'zkoi6t2jicc9yqs', 'tendl_d_rp':'x2vfjr7uv7ffex5', 'tendl_n_rp':'n0jjc0dv61j9of9',
-				'tendl_p_rp':'ib2a5lrhiwkcro5', 'ziegler':'kq07684wtp890v5', 'iaea_monitors':'lzn8zs6y8zu3v0s', 'IRDFF':'34sgcvt8n57b0aw'}
-	
 	if not os.path.isdir(_data_path()):
 		os.mkdir(_data_path())
 
@@ -88,7 +85,7 @@ def download(db='all', overwrite=False):
 			try:
 				print('Downloading {}'.format(fnm))
 				with open(tmp,'wb') as f:
-					f.write(urllib2.urlopen('https://www.dropbox.com/s/{0}/{1}?dl=1'.format(addr[i],fnm)).read())
+					f.write(urllib2.urlopen('https://github.com/jtmorrell/curie/releases/download/data-v1/{}'.format(fnm)).read())
 				os.replace(tmp, _data_path(fnm))
 			except Exception as e:
 				print(e)
