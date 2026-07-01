@@ -161,7 +161,7 @@ class Compound(object):
 						weights = weights[weights['compound']==self.name]
 
 				elif weights.endswith('.db'):
-					weights = pd.read_sql('SELECT * FROM compounds WHERE compound={}'.format(self.name), _get_connection(weights))
+					weights = pd.read_sql('SELECT * FROM compounds WHERE compound=?', _get_connection(weights), params=(self.name,))
 					weights.columns = map(str.lower, map(str, weights.columns))
 					if 'compound' in weights.columns:
 						weights = weights[weights['compound']==self.name]
@@ -275,12 +275,12 @@ class Compound(object):
 		if filename.endswith('.db'):
 			if os.path.exists(filename) and not replace:
 				con = _get_connection(filename)
-				df = pd.read_sql('SELECT * FROM weights', con)
+				df = pd.read_sql('SELECT * FROM compounds', con)
 				df = df[df['compound']!=self.name]
 				df = pd.concat([df, wts])
-				df.to_sql('weights', con, if_exists='replace', index=False)
+				df.to_sql('compounds', con, if_exists='replace', index=False)
 			else:
-				wts.to_sql('weights', _get_connection(filename), if_exists='replace', index=False)
+				wts.to_sql('compounds', _get_connection(filename), if_exists='replace', index=False)
 
 		if filename.endswith('.json'):
 			if os.path.exists(filename) and not replace:
