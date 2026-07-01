@@ -169,6 +169,7 @@ class Stack(object):
 					return 1E2*s['density']*s['thickness']
 				else:
 					return 1E2*self.compounds[s['compound']].density*s['thickness']
+			raise ValueError('Areal density of foil {} is undetermined: specify areal_density, mass and area, or thickness.'.format(s['name']))
 
 		ad = df.apply(_ad, axis=1)
 

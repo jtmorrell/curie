@@ -108,6 +108,8 @@ class Isotope(object):
 		self._parse_itp_name(isotope)
 
 		df = pd.read_sql('SELECT * FROM chart WHERE name="{}"'.format(self.name), _get_connection('decay'))
+		if not len(df):
+			raise ValueError('Isotope {} not found in the decay database. For a natural-abundance element, use ci.Element instead.'.format(self.name))
 		self.E_level = float(df['E_level'][0])
 		self.J_pi = str(df['J_pi'][0])
 		self.stable = bool(df['stable'][0])

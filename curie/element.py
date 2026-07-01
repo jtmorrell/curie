@@ -85,6 +85,8 @@ class Element(object):
 	def __init__(self, element):
 		self.name = element.title()
 		self.Z = ELEMENTS.index(self.name)
+		if self.Z>92:
+			raise ValueError('No stopping-power or attenuation data available for {} (Z={}): data covers Z=1 through Z=92 (U).'.format(self.name, self.Z))
 
 		df = pd.read_sql('SELECT * FROM weights WHERE Z={}'.format(self.Z), _get_connection('ziegler'))
 		self.mass = df['amu'][0]
