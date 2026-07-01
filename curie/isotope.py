@@ -719,7 +719,7 @@ class Isotope(object):
 		d_unit,t_unit = tuple(units.split('/'))
 
 		if 'Sv' in d_unit:
-			dose['alpha'] = 20.0*dose['alpha']
+			dose['alphas'] = 20.0*dose['alphas']  # ICRP radiation weighting factor w_R
 			d_unit = d_unit.replace('Sv','Gy')
 
 		if t_unit in ['hr','min','yr','sec']:
