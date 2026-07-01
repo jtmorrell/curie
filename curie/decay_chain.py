@@ -318,7 +318,7 @@ class DecayChain(object):
 				for j in range(i, L):
 					K = np.arange(i, L)
 					d_lm = lm[K[K!=j]]-lm[j]
-					C_j = np.prod(np.where(np.abs(d_lm)>1E-12, d_lm, 1E-12*np.sign(d_lm)))
+					C_j = np.prod(np.where(np.abs(d_lm)>1E-12, d_lm, np.where(d_lm>=0.0, 1E-12, -1E-12)))
 					A += A_i*B_i*np.exp(-lm[j]*time)/C_j
 					if _R_dict is not None:
 						if ip in _R_dict:
@@ -385,7 +385,7 @@ class DecayChain(object):
 				for j in range(i, len(chain)):
 					K = np.arange(i, len(chain))
 					d_lm = lm[K[K!=j]]-lm[j]
-					C_j = np.prod(np.where(np.abs(d_lm)>1E-12, d_lm, 1E-12*np.sign(d_lm)))
+					C_j = np.prod(np.where(np.abs(d_lm)>1E-12, d_lm, np.where(d_lm>=0.0, 1E-12, -1E-12)))
 					if lm[j]>1E-12:
 						D += A_i*B_i*(np.exp(-lm[j]*t_start)-np.exp(-lm[j]*t_stop))/(lm[j]*C_j)
 					else:
