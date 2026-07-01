@@ -471,17 +471,17 @@ class Compound(object):
 		--------
 		>>> cm = ci.Compound('Fe') # same behavior as element
 		>>> print(cm.range(60.0))
-		0.5858151125192633
+		0.5866312594085556
 		>>> cm = ci.Compound('SS_316') # preset compound
 		>>> print(cm.range(60.0))
-		0.5799450918147814
+		0.5807353363913145
 
 		"""
 
 		energy = np.asarray(energy, dtype=np.float64)
 		
 		dE = np.max(energy)/1E3
-		E_min = min((np.min(energy), 1.0))
+		E_min = min((np.min(energy), 1E-3))
 		E_grid = np.arange(E_min, np.max(energy)+dE, dE)
 
 		S = self.S(E_grid, particle=particle, density=density)
