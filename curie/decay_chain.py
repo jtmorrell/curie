@@ -308,7 +308,7 @@ class DecayChain(object):
 					# continue
 
 				ip = self.isotopes[chain[i]]
-				A0 = self.A0[ip] if _A_dict is None else _A_dict[ip]
+				A0 = self.A0.get(ip, 0.0) if _A_dict is None else _A_dict.get(ip, 0.0)
 				if A0==0.0 and _R_dict is None:
 					continue
 				A_i = lm[-1]*(A0/lm[i])
@@ -376,7 +376,9 @@ class DecayChain(object):
 					continue
 
 				ip = self.isotopes[chain[i]]
-				A0 = self.A0[ip] if _A_dict is None else _A_dict[ip]
+				A0 = self.A0.get(ip, 0.0) if _A_dict is None else _A_dict.get(ip, 0.0)
+				if A0==0.0:
+					continue
 				A_i = lm[-1]*(A0/lm[i])
 				B_i = np.prod(lm[i:-1]*BR[i:-1])
 
