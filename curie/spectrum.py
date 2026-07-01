@@ -1105,7 +1105,9 @@ class Spectrum(object):
 							'live_time':self.live_time, 'real_time':self.real_time}, columns=cols)
 
 			return p0, df
-		except:
+		except (ValueError, RuntimeError, np.linalg.LinAlgError):
+			f = p0['df']
+			print('WARNING: Peak fit failed for {0} ({1} keV)'.format(', '.join(map(str, f['isotope'])), ', '.join(map(str, f['energy']))))
 			return p0, p0['df']
 
 	def fit_peaks(self, gammas=None, **kwargs):
@@ -1232,7 +1234,10 @@ class Spectrum(object):
 		if len(p0):
 			multiplets = list(map(self._multi_fit, p0))
 			self._fits = [i[0] for i in multiplets if 'fit' in i[0]]
-			self._peaks = pd.concat([i[1] for i in multiplets if 'fit' in i[0]], ignore_index=True)
+			if len(self._fits):
+				self._peaks = pd.concat([i[1] for i in multiplets if 'fit' in i[0]], ignore_index=True)
+			else:
+				self._peaks = None
 		else:
 			self._fits = []
 			self._peaks = None
