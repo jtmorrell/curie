@@ -156,7 +156,7 @@ class Reaction(object):
 		--------
 		>>> rx = ci.Reaction('115IN(n,g)', 'IRDFF')
 		>>> print(rx.interpolate(0.5))
-		161.41656650941306
+		161.41646650941306
 		>>> print(rx.interpolate([0.5, 1.0, 5.0]))
 		[161.41646651 171.81486757 8.8822]
 
@@ -233,7 +233,7 @@ class Reaction(object):
 
 		Examples
 		--------
-		>>> x = ci.Reaction('Ni-58(n,p)')
+		>>> rx = ci.Reaction('Ni-58(n,p)')
 		>>> eng = np.linspace(1, 5, 20)
 		>>> phi = np.ones(20)
 		>>> print(rx.integrate(eng, phi))

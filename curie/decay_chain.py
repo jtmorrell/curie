@@ -92,7 +92,7 @@ class DecayChain(object):
 	0  1.708333  225RAg
 
 	>>> dc = ci.DecayChain('152EU', A0=3.7E3, units='h')
-	>>> print(ci.isotopes)
+	>>> print(dc.isotopes)
 	['152EUg', '152GDg', '152SMg']
 
 	"""
