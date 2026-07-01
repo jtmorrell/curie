@@ -149,13 +149,13 @@ class Compound(object):
 
 			elif type(weights)==str:
 				if weights.endswith('.json'):
-					weights = pd.read_json(weights, orient='records').fillna(method='ffill')
+					weights = pd.read_json(weights, orient='records').ffill()
 					weights.columns = map(str.lower, map(str, weights.columns))
 					if 'compound' in weights.columns:
 						weights = weights[weights['compound']==self.name]
 
 				elif weights.endswith('.csv'):
-					weights = pd.read_csv(weights, header=0).fillna(method='ffill')
+					weights = pd.read_csv(weights, header=0).ffill()
 					weights.columns = map(str.lower, map(str, weights.columns))
 					if 'compound' in weights.columns:
 						weights = weights[weights['compound']==self.name]

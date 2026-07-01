@@ -217,13 +217,13 @@ class Stack(object):
 			compounds = kwargs['compounds']
 			if type(compounds)==str:
 				if compounds.endswith('.json'):
-					df = pd.read_json(compounds, orient='records').fillna(method='ffill')
+					df = pd.read_json(compounds, orient='records').ffill()
 					df.columns = map(str.lower, map(str, df.columns))
 					cms = [str(i) for i in pd.unique(df['compound'])]
 					self.compounds = {cm:Compound(cm, weights=df[df['compound']==cm]) for cm in cms}
 
 				elif compounds.endswith('.csv'):
-					df = pd.read_csv(compounds, header=0).fillna(method='ffill')
+					df = pd.read_csv(compounds, header=0).ffill()
 					df.columns = map(str.lower, map(str, df.columns))
 					cms = [str(i) for i in pd.unique(df['compound'])]
 					self.compounds = {cm:Compound(cm, weights=df[df['compound']==cm]) for cm in cms}

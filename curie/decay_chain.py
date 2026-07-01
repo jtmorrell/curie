@@ -141,7 +141,7 @@ class DecayChain(object):
 				if R.endswith('.json'):
 					self.R = pd.DataFrame(json.loads(open(R).read()))
 				elif R.endswith('.csv'):
-					self.R = pd.read_csv(R, header=0).fillna(method='ffill')
+					self.R = pd.read_csv(R, header=0).ffill()
 				elif R.endswith('.db'):
 					self.R = pd.read_sql('SELECT * FROM R', _get_connection(R))
 
