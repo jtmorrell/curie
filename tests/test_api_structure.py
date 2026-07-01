@@ -2,8 +2,8 @@
 
 One test per public class, mirroring the documented (docstring) happy path and asserting
 structure, units, and physical invariants - never exact data values. These hold across
-nuclear-data library rebuilds; verbatim docstring execution (doctests) is a Stage-4
-deliverable once the known docstring errors are fixed in Stage 1.
+nuclear-data library rebuilds; verbatim docstring execution (doctests) is planned once
+the known docstring errors are fixed.
 """
 import numpy as np
 import pytest

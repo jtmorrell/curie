@@ -1,9 +1,9 @@
 """Shared fixtures and data-availability handling for the curie public test suite.
 
 Tests declare the databases they need via `requires_data`; a missing database produces an
-explicit, reported skip. Until the Stage-3 distribution redesign makes data fetching
-available in CI, the minimal CI job ships only ziegler.db (184 kB) and runs the subset that
-needs nothing else — everything data-dependent skips visibly rather than failing.
+explicit, reported skip. The CI job provides only a subset of the databases (see
+.github/workflows/ci.yml) — everything needing another database skips visibly rather
+than failing.
 """
 import os
 import pathlib

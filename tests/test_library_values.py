@@ -2,15 +2,15 @@
 
 Every value here is pinned to the *shipped* nuclear-data libraries, recorded 2026-06-09 on
 curie v0.0.34: IRDFF-II (IRDFF.db), ENDF/B-VII.1 (endf.db), IAEA charged-particle monitors
-(iaea_monitors.db, ~2017 baseline). They are EXPECTED to change at the Stage-6 data
-rebuild - that is what the `library_value` marker means: re-record each value deliberately
-against the new evaluation, per the re-baseline checklist. An unexpected shift at any
-other time is a regression in retrieval/interpolation/quadrature, not in data.
+(iaea_monitors.db, ~2017 baseline). They are EXPECTED to change whenever the shipped
+data libraries are rebuilt against newer evaluations - that is what the `library_value`
+marker means: re-record each value deliberately against the new evaluation. An unexpected
+shift at any other time is a regression in retrieval/interpolation/quadrature, not in data.
 
 Tolerances are tight (1E-6): these are deterministic database reads followed by linear
 interpolation and quadrature.
 
-Independent context for the Stage-6 reviewer (deliberately NOT asserted - evaluations
+Independent context for whoever re-records these values (deliberately NOT asserted - evaluations
 fluctuate): thermal 59Co(n,g) = 37.18 b is the classic activation standard, and thermal
 115In(n,g)116mIn ~ 162 b; the pinned values agree within evaluation differences.
 
@@ -82,7 +82,7 @@ class TestNatCuP63Zn:
     Chosen over natFE(p,x)51CR (maintainer decision 2026-06-09): the 63ZN energy grid is
     strictly increasing (verified, 4-100 MeV), so integrate/average are well-defined today;
     the natFE grid is one of the 9 unsorted groups and is covered as a known bug in the
-    curie-validation regression tree until the Stage-1 sort-on-load fix.
+    curie-validation regression tree until a sort-on-load fix lands.
     """
 
     @pytest.fixture(scope='class')

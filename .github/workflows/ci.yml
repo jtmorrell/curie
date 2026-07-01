@@ -1,7 +1,6 @@
-# Minimal CI (curie improvement plan, Stage 0): install from source, import smoke test,
-# and run the public test suite against the data-v1 CI fixture (ziegler + decay +
-# iaea_monitors + IRDFF, ~133 MB). Tests needing endf/tendl skip with reported reasons;
-# full data-touching CI arrives with the Stage-3 distribution redesign.
+# Minimal CI: install from source, import smoke test, and run the public test suite
+# against the data-v1 CI fixture (ziegler + decay + iaea_monitors + IRDFF, ~133 MB).
+# Tests needing endf/tendl skip with reported reasons.
 name: CI
 
 on:
@@ -24,9 +23,9 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install curie and dependencies
-        # dependencies installed explicitly: install_requires is absent from setup.py
-        # until Stage 3 (pyproject migration). Editable install never runs the
-        # legacy post-install data hook.
+        # dependencies installed explicitly: setup.py does not declare
+        # install_requires. Editable install never runs the legacy
+        # post-install data hook.
         run: |
           python -m pip install --upgrade pip
           python -m pip install numpy scipy pandas matplotlib pytest

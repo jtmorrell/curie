@@ -6,8 +6,8 @@ sealed-source spectrum at 7 cm that ships with the package. The reference is a r
 run, not an independent truth: an unexpected failure means fitting/calibration behavior
 changed - investigate, and re-record deliberately only for an intended change.
 
-Only counts and efficiency-curve values are pinned - never unc_* columns (the Stage-2
-uncertainty-model rework is expected to change those).
+Only counts and efficiency-curve values are pinned - never unc_* columns (a planned
+rework of the uncertainty model is expected to change those).
 
 The source activity (A0 = 3.7E4 Bq, ref 01/01/2009 12:00:00) follows the shipped
 spectroscopy_examples.py and is nominal, not certificate-traceable: the efficiency tests
