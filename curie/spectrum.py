@@ -95,7 +95,7 @@ class Spectrum(object):
 	def __init__(self, filename=None, **kwargs):
 		self.filename = filename
 		if 'cb' in kwargs:
-			if type(kwargs['cb']==str):
+			if type(kwargs['cb'])==str:
 				self._cb = Calibration(kwargs['cb'])
 			else:
 				self._cb = copy.deepcopy(kwargs['cb'])
