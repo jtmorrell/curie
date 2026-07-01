@@ -237,14 +237,22 @@ class Library(object):
 		if self.db_name in ['endf','tendl','tendl_n_rp','tendl_p_rp','tendl_d_rp']:
 			table = ''.join(re.findall('[A-Z]+', target))+'_'+''.join(re.findall('[0-9]+', target))+('m' if 'm' in target else '')
 
-			return pd.read_sql('SELECT energy,{0} FROM {1}'.format(labels[0], table), self._con).to_numpy()*(np.array([1E-6, 1E3]) if self.db_name=='endf' else np.ones(2))
+			q = pd.read_sql('SELECT energy,{0} FROM {1}'.format(labels[0], table), self._con).to_numpy()*(np.array([1E-6, 1E3]) if self.db_name=='endf' else np.ones(2))
 
 		elif self.db_name=='irdff':
-			return pd.read_sql('SELECT * FROM {}'.format(labels[0]), self._con).to_numpy()*np.array([1E-6, 1E3, 1E3])
+			q = pd.read_sql('SELECT * FROM {}'.format(labels[0]), self._con).to_numpy()*np.array([1E-6, 1E3, 1E3])
 
 		elif self.db_name=='iaea_medical':
 			if incident is None:
 				raise ValueError('Incident particle must be specified.')
 			table = {'n':'neutron','p':'proton','d':'deuteron','h':'helion','a':'alpha','g':'gamma'}[incident]
-			return pd.read_sql('SELECT energy,cross_section,unc_cross_section FROM {0} WHERE target LIKE ? AND product=?'.format(table), self._con, params=('%'+target+'%', labels[0])).to_numpy()
-		
+			q = pd.read_sql('SELECT energy,cross_section,unc_cross_section FROM {0} WHERE target LIKE ? AND product=?'.format(table), self._con, params=('%'+target+'%', labels[0])).to_numpy()
+
+		if len(q):
+			# Some library tables store points out of energy order, which corrupts
+			# integration/averaging; a stable sort preserves the duplicate-energy
+			# step representation used for e.g. (n,g) reactions. Exact duplicate
+			# rows are dropped.
+			q = q[np.argsort(q[:,0], kind='stable')]
+			q = q[np.concatenate(([True], np.any(np.diff(q, axis=0)!=0.0, axis=1)))]
+		return q
