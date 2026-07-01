@@ -82,14 +82,18 @@ def download(db='all', overwrite=False):
 
 	for i in d:
 		fnm = i+'.db'
-		if (not os.path.isfile(_data_path(fnm))) or overwrite:
-			
+		installed = os.path.isfile(_data_path(fnm)) and os.path.getsize(_data_path(fnm))>0
+		if (not installed) or overwrite:
+			tmp = _data_path(fnm)+'.part'
 			try:
 				print('Downloading {}'.format(fnm))
-				with open(_data_path(fnm),'wb') as f:
+				with open(tmp,'wb') as f:
 					f.write(urllib2.urlopen('https://www.dropbox.com/s/{0}/{1}?dl=1'.format(addr[i],fnm)).read())
+				os.replace(tmp, _data_path(fnm))
 			except Exception as e:
-					print(e)
+				print(e)
+				if os.path.isfile(tmp):
+					os.remove(tmp)
 		else:
 			print("{0}.db already installed. Run ci.download('{0}', overwrite=True) to overwrite these files.".format(i))
 
