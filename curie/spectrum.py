@@ -356,7 +356,7 @@ class Spectrum(object):
 			# loop over lines
 			for line in f:
 				# strip prefix and tokenize
-					line = line.strip("A004")
+					line = line.removeprefix('A004')
 					token = line.split()
 					
 					if entry == 1:
