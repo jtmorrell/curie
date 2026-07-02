@@ -13,11 +13,19 @@ out below. All other numbers are unchanged from 0.0.34.
   type check).
 - `Spectrum.saveas('*.Chn')` crashed for any spectrum with a real sample
   description; description and calibration fields are now padded to the fixed
-  widths the reader expects.
+  widths the reader expects, and zero-length descriptions no longer corrupt
+  the record layout.
+- Reading a `.Chn` file with 8192 or more channels truncated the histogram to
+  zero length under numpy 2 (16-bit integer overflow in the reader).
+- `235U(n,g)` and `235U(n,2n)` from the TENDL library crashed on interpolation
+  (a duplicated energy point in the stored grid); duplicate energies are now
+  dropped for the spline-interpolated TENDL libraries.
 - `DecayChain.activity()`/`decays()` raised `KeyError` for stable chain
   members; they now return 0.
 - Exactly equal decay constants in a chain produced inf/nan activities
-  (`sign(0)=0` defeated the degeneracy guard).
+  (`sign(0)=0` defeated the degeneracy guard). The tied pair's terms now
+  cancel, matching the guard's behavior for nearly-equal constants (an exact
+  confluent-eigenvalue solution is planned as a result-changing fix).
 - `Isotope.dose_rate(units='Sv/...')` raised `KeyError`, and the sievert
   weighting was discarded even when it evaluated; alpha dose is now weighted
   by w_R=20.
@@ -42,17 +50,32 @@ out below. All other numbers are unchanged from 0.0.34.
   stopping-power/attenuation data), and stack foils whose areal density
   cannot be determined.
 - Deprecated `fillna(method='ffill')` calls (pandas 3.x compatibility).
-- Four broken documentation examples.
+- Broken or stale documentation examples (`Reaction.interpolate`/`integrate`,
+  `DecayChain`, `Element.range`, `Compound.range`, `Isotope.dose_rate`, and
+  the decay example script's removed `N_plot` keyword).
 
 ### Changed — numerical results
 - **`Compound.range()`** now integrates from 1 keV instead of 1 MeV, matching
-  `Element.range()`. Low-energy ranges change by up to ~36% (at 2 MeV);
-  the change at 60 MeV is ~0.1%. The old values were wrong.
+  `Element.range()`. The old value at 2 MeV was ~36% low, with the discrepancy
+  growing rapidly below that (old values below ~1 MeV were essentially
+  meaningless); at 60 MeV the change is ~0.1%. The old values were wrong.
 - **`Library.retrieve`** (and therefore `Reaction`) now sorts energy grids on
   load and drops exact duplicate rows. Several `iaea_monitors` reactions
   (e.g. natFe(p,x)51Cr, 98Mo(n,g)99Mo) store points out of order, which
   corrupted `integrate`/`average`. Results for those reactions change; the
   old values were wrong.
+- **IAEA reactions with both a direct and a cumulative excitation function**
+  for the same target and product (124Xe(p,pn)/(p,x)123Xe and
+  176Yb(d,n)/(d,x)177Lu) previously returned the union of the two curves;
+  each channel now returns its own data.
+
+### Known data defects (deferred to the data-library rebuild)
+- Three `iaea_monitors` tables carry defective rows that survive sorting:
+  15N(p,n)15O and 98Mo(n,g)99Mo contain two conflicting copies of parts of
+  their evaluations, and natFe(p,x)51Cr has one spurious point
+  (4230 mb at 157 MeV) that distorts interpolation between 157.0 and
+  157.1 MeV. These are stored-data defects and will be corrected in the
+  rebuilt data libraries.
 
 ### Changed — packaging
 - All nuclear-data downloads (`ci.download()` and the install hook) now fetch
@@ -61,7 +84,13 @@ out below. All other numbers are unchanged from 0.0.34.
 - `setup.py` now declares `install_requires` (numpy, scipy, pandas,
   matplotlib) and `python_requires>=3.9`.
 
-## [0.0.34] - 2026-06-08
+### Added
+- Public test suite (`tests/`, run with `python -m pytest`) and a CI workflow
+  covering Python 3.9-3.13.
+- `data_manifest.toml`: size and SHA256 records for the shipped nuclear-data
+  databases, matching the `data-v1` release assets.
+
+## [0.0.34] - 2026-05-06
 
 ### Changed
 - `Reaction.average` and `Reaction.integrate` now use bin-center midpoint
@@ -69,12 +98,6 @@ out below. All other numbers are unchanged from 0.0.34.
   dependence in flux-averaged cross sections when the flux spectrum contains
   endpoint spikes (e.g. post-stop residence pile-up from over-stopping foils
   in `Stack`). Docstring example values shift by ~1%.
-
-### Added
-- Public test suite (`tests/`, run with `python -m pytest`) and a CI workflow
-  covering Python 3.9-3.13.
-- `data_manifest.toml`: size and SHA256 records for the shipped nuclear-data
-  databases, matching the `data-v1` release assets.
 
 ## Earlier releases
 

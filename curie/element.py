@@ -393,10 +393,10 @@ class Element(object):
 		--------
 		>>> el = ci.Element('Fe')
 		>>> print(el.range(60.0))
-		0.5858151125192633
+		0.5866312594085556
 		>>> el = ci.Element('U')
 		>>> print(el.range(60.0))
-		0.3763111404628591
+		0.37702082865831094
 
 		"""
 
