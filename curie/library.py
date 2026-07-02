@@ -246,7 +246,14 @@ class Library(object):
 			if incident is None:
 				raise ValueError('Incident particle must be specified.')
 			table = {'n':'neutron','p':'proton','d':'deuteron','h':'helion','a':'alpha','g':'gamma'}[incident]
-			q = pd.read_sql('SELECT energy,cross_section,unc_cross_section FROM {0} WHERE target LIKE ? AND product=?'.format(table), self._con, params=('%'+target+'%', labels[0])).to_numpy()
+			# outgoing must be part of the filter (as in search()): some (target, product)
+			# pairs carry both a direct and a cumulative excitation function
+			sql = 'SELECT energy,cross_section,unc_cross_section FROM {0} WHERE target LIKE ? AND product=?'.format(table)
+			params = ['%'+target+'%', labels[0]]
+			if outgoing is not None:
+				sql += ' AND outgoing=?'
+				params.append(outgoing)
+			q = pd.read_sql(sql, self._con, params=tuple(params)).to_numpy()
 
 		if len(q):
 			# Some library tables store points out of energy order, which corrupts
