@@ -838,14 +838,18 @@ class Spectrum(object):
 
 				# CHECK FOR IDENTICAL PEAKS
 				ix = self.cb.map_channel(g['energy']) # g is already sorted by energy
-				for n,x in enumerate(ix[:-1]):
-					if abs(x-ix[n+1])<=self.fit_config['ident_idx']:
-						if n in g.index:
-							print('WARNING: Isotope',i,'has un-resolvable gammas at',g.loc[n]['energy'],'and',g.loc[n+1]['energy'],'... Intensities will be combined.')
-							drop,replace = (n,n+1) if g.loc[n]['intensity']<g.loc[n+1]['intensity'] else (n+1,n)
-							g.loc[replace]['intensity'] += g.loc[drop]['intensity']
-							g.loc[replace]['unc_intensity'] = np.sqrt(g.loc[drop]['unc_intensity']**2 + g.loc[replace]['unc_intensity']**2)
-							g.drop(drop,inplace=True)
+				groups = [[0]] if len(ix) else []
+				for n in range(1, len(ix)):
+					if abs(ix[n]-ix[n-1])<=self.fit_config['ident_idx']:
+						groups[-1].append(n)
+					else:
+						groups.append([n])
+				for gp in [gp for gp in groups if len(gp)>1]:
+					print('WARNING: Isotope',i,'has un-resolvable gammas at',', '.join(map(str, g.loc[gp,'energy'])),'... Intensities will be combined.')
+					keep = g.loc[gp,'intensity'].idxmax()
+					g.loc[keep,'intensity'] = g.loc[gp,'intensity'].sum()
+					g.loc[keep,'unc_intensity'] = np.sqrt((g.loc[gp,'unc_intensity']**2).sum())
+					g.drop([p for p in gp if p!=keep], inplace=True)
 
 				if len(g):
 					itps.append(i)
