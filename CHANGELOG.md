@@ -3,6 +3,12 @@
 Notable changes to curie are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased] - 0.0.36
+
+Numerics-focused release: where 0.0.35 fixed crashes, 0.0.36 corrects numbers.
+Changed results are called out below with their magnitude and reason —
+re-check analyses that depend on them.
+
 ## [0.0.35] - 2026-07-01
 
 Crash-fix (hotfix) release. Two fixes change numerical results; they are called
