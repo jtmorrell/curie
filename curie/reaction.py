@@ -140,7 +140,8 @@ class Reaction(object):
 		"""Interpolated cross section
 
 		Linear interpolation of the reaction cross section along the
-		input energy grid.
+		input energy grid.  Energies outside the evaluated grid return 0
+		rather than an extrapolation.
 
 		Parameters
 		----------
@@ -164,7 +165,7 @@ class Reaction(object):
 
 		if self._interp is None:
 			kind = 'linear'
-			fv = 'extrapolate'
+			fv = 0.0
 			i = 0
 			if self.library.name.lower().startswith('tendl'):
 				kind = 'quadratic'
