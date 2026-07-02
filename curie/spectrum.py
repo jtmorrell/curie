@@ -858,7 +858,7 @@ class Spectrum(object):
 	def _chi2(self, fit, l ,h):
 		non_zero = np.where(self.hist[l:h]>0)
 		dof = float(len(non_zero[0])-len(fit)-1)
-		if dof==0:
+		if dof<=0:
 			return np.inf
 		resid = self.hist[l:h][non_zero]-self._multiplet(np.arange(l,h)[non_zero], *fit)
 		return np.sum(resid**2/self.hist[l:h][non_zero])/dof
