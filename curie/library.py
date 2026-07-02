@@ -262,4 +262,8 @@ class Library(object):
 			# rows are dropped.
 			q = q[np.argsort(q[:,0], kind='stable')]
 			q = q[np.concatenate(([True], np.any(np.diff(q, axis=0)!=0.0, axis=1)))]
+			if self.db_name.startswith('tendl'):
+				# TENDL is spline-interpolated pointwise data: a duplicate abscissa is a
+				# build artifact, not a step representation, and breaks the interpolator
+				q = q[np.concatenate(([True], np.diff(q[:,0])!=0.0))]
 		return q
