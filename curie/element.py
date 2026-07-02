@@ -85,6 +85,8 @@ class Element(object):
 	def __init__(self, element):
 		self.name = element.title()
 		self.Z = ELEMENTS.index(self.name)
+		if self.Z>92:
+			raise ValueError('No stopping-power or attenuation data available for {} (Z={}): data covers Z=1 through Z=92 (U).'.format(self.name, self.Z))
 
 		df = pd.read_sql('SELECT * FROM weights WHERE Z={}'.format(self.Z), _get_connection('ziegler'))
 		self.mass = df['amu'][0]
@@ -391,10 +393,10 @@ class Element(object):
 		--------
 		>>> el = ci.Element('Fe')
 		>>> print(el.range(60.0))
-		0.5858151125192633
+		0.5866312594085556
 		>>> el = ci.Element('U')
 		>>> print(el.range(60.0))
-		0.3763111404628591
+		0.37702082865831094
 
 		"""
 

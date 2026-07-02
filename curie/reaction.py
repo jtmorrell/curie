@@ -89,22 +89,17 @@ class Reaction(object):
 
 		if library.lower()=='best':
 			if self.incident=='n':
-				for lb in ['irdff','endf','iaea','tendl','tendl_n_rp']:
-					self.library = Library(lb)
-					if lb=='tendl_n_rp':
-						self._check(True)
-					elif self._check():
-						break
+				libs = ['irdff','endf','iaea','tendl','tendl_n_rp']
 			elif self.incident in ['p','d']:
-				for lb in ['iaea','tendl_'+self.incident+'_rp']:
-					self.library = Library(lb)
-					if lb=='tendl_d_rp':
-						self._check(True)
-					elif self._check():
-						break
+				libs = ['iaea','tendl_'+self.incident+'_rp']
 			else:
-				self.library = Library('iaea')
-				self._check(True)
+				libs = ['iaea']
+			for lb in libs:
+				self.library = Library(lb)
+				if lb==libs[-1]:
+					self._check(True)
+				elif self._check():
+					break
 		else:
 			self.library = Library(library)
 			self._check(True)
@@ -161,7 +156,7 @@ class Reaction(object):
 		--------
 		>>> rx = ci.Reaction('115IN(n,g)', 'IRDFF')
 		>>> print(rx.interpolate(0.5))
-		161.41656650941306
+		161.41646650941306
 		>>> print(rx.interpolate([0.5, 1.0, 5.0]))
 		[161.41646651 171.81486757 8.8822]
 
@@ -238,7 +233,7 @@ class Reaction(object):
 
 		Examples
 		--------
-		>>> x = ci.Reaction('Ni-58(n,p)')
+		>>> rx = ci.Reaction('Ni-58(n,p)')
 		>>> eng = np.linspace(1, 5, 20)
 		>>> phi = np.ones(20)
 		>>> print(rx.integrate(eng, phi))

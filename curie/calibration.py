@@ -509,7 +509,7 @@ class Calibration(object):
 			if sources.endswith('.json'):
 				sources = pd.DataFrame(json.loads(open(sources).read()))
 			elif sources.endswith('.csv'):
-				sources = pd.read_csv(sources, header=0).fillna(method='ffill')
+				sources = pd.read_csv(sources, header=0).ffill()
 			elif sources.endswith('.db'):
 				sources = pd.read_sql('SELECT * FROM sources', _get_connection(sources))
 		else:

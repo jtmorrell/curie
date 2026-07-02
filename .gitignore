@@ -41,3 +41,5 @@ curie_improvement_plan.md
 
 # Local Claude Code working notes (do not commit upstream)
 CLAUDE.md
+.claude/
+

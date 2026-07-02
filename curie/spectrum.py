@@ -95,7 +95,7 @@ class Spectrum(object):
 	def __init__(self, filename=None, **kwargs):
 		self.filename = filename
 		if 'cb' in kwargs:
-			if type(kwargs['cb']==str):
+			if type(kwargs['cb'])==str:
 				self._cb = Calibration(kwargs['cb'])
 			else:
 				self._cb = copy.deepcopy(kwargs['cb'])
@@ -178,7 +178,7 @@ class Spectrum(object):
 			start_time = '{0}/{1}/{2} {3}:{4}:{5}'.format(months[st[2:5].lower()],st[:2],('20' if st[7]=='1' else '19')+st[5:7],st[8:10],st[10:],sts)
 			self.start_time = dtm.datetime.strptime(start_time, '%m/%d/%Y %H:%M:%S')
 
-			L = np.frombuffer(f.read(4), dtype='i2')[1]
+			L = int(np.frombuffer(f.read(4), dtype='i2')[1])
 			self.hist = np.asarray(np.frombuffer(f.read(4*L), dtype='i4'), dtype=np.int64)
 			f.read(4)
 
@@ -1105,7 +1105,9 @@ class Spectrum(object):
 							'live_time':self.live_time, 'real_time':self.real_time}, columns=cols)
 
 			return p0, df
-		except:
+		except (ValueError, RuntimeError, np.linalg.LinAlgError):
+			f = p0['df']
+			print('WARNING: Peak fit failed for {0} ({1} keV)'.format(', '.join(map(str, f['isotope'])), ', '.join(map(str, f['energy']))))
 			return p0, p0['df']
 
 	def fit_peaks(self, gammas=None, **kwargs):
@@ -1232,7 +1234,10 @@ class Spectrum(object):
 		if len(p0):
 			multiplets = list(map(self._multi_fit, p0))
 			self._fits = [i[0] for i in multiplets if 'fit' in i[0]]
-			self._peaks = pd.concat([i[1] for i in multiplets if 'fit' in i[0]], ignore_index=True)
+			if len(self._fits):
+				self._peaks = pd.concat([i[1] for i in multiplets if 'fit' in i[0]], ignore_index=True)
+			else:
+				self._peaks = None
 		else:
 			self._fits = []
 			self._peaks = None
@@ -1324,10 +1329,12 @@ class Spectrum(object):
 			ss += np.array(self.hist, dtype='i4').tobytes()
 			ss += np.array([-102, 0], dtype='i2').tobytes()
 
-			ss += np.array(self.cb.engcal, dtype='f4').tobytes()
+			engcal = list(self.cb.engcal)[:3]
+			ss += np.array(engcal+[0.0]*(3-len(engcal)), dtype='f4').tobytes()
 
 			if 'SHAPE_CAL' in self._ortec_metadata:
-				ss += np.array(self._ortec_metadata['SHAPE_CAL'][1].split(' '), dtype='f4').tobytes()
+				shapecal = self._ortec_metadata['SHAPE_CAL'][1].split(' ')[:3]
+				ss += np.array(shapecal+['0']*(3-len(shapecal)), dtype='f4').tobytes()
 			else:
 				ss += np.array([0,0,0], dtype='f4').tobytes()
 			ss += np.zeros(228, dtype='i1').tobytes()
@@ -1335,22 +1342,24 @@ class Spectrum(object):
 			if 'SPEC_REM' in self._ortec_metadata:
 				L = min((63, len(self._ortec_metadata['SPEC_REM'][1].split('# ')[1])))
 				ss += np.array(L, dtype='i1').tobytes()
-				ss += np.array(self._ortec_metadata['SPEC_REM'][1].split('# ')[1][:L], dtype='S{}'.format(L)).tobytes()
+				if L:
+					# numpy silently promotes dtype 'S0' to 'S1' (one stray null byte)
+					ss += np.array(self._ortec_metadata['SPEC_REM'][1].split('# ')[1][:L], dtype='S{}'.format(L)).tobytes()
+				ss += np.zeros(63-L, dtype='i1').tobytes()
 			else:
 				ss += np.array(0, dtype='i1').tobytes()
+				ss += np.zeros(63, dtype='i1').tobytes()
 
-			if 'SPEC_ID' in self._ortec_metadata:
-				if self._ortec_metadata['SPEC_ID'][0]!='No sample description was entered.':
-					L = len(''.join(self._ortec_metadata['SPEC_ID']))
-					L = min((63, L))
-					ss += np.array(L, dtype='i1').tobytes()
-					ss += np.array(''.join(self._ortec_metadata['SPEC_ID'])[:L])
-				else:
-					ss += np.array(0, dtype='i1').tobytes()
-					ss += np.array('\x00'*63, dtype='S63').tobytes()
+			if 'SPEC_ID' in self._ortec_metadata and self._ortec_metadata['SPEC_ID'][0]!='No sample description was entered.':
+				L = len(''.join(self._ortec_metadata['SPEC_ID']))
+				L = min((63, L))
+				ss += np.array(L, dtype='i1').tobytes()
+				if L:
+					ss += np.array(''.join(self._ortec_metadata['SPEC_ID'])[:L], dtype='S{}'.format(L)).tobytes()
+				ss += np.zeros(63-L, dtype='i1').tobytes()
 			else:
 				ss += np.array(0, dtype='i1').tobytes()
-				ss += np.array('\x00'*63, dtype='S63').tobytes()
+				ss += np.zeros(63, dtype='i1').tobytes()
 
 			ss += np.array('\x00'*128, dtype='S128').tobytes()
 			with open(filename, 'wb') as f:

@@ -108,13 +108,20 @@ class Isotope(object):
 		self._parse_itp_name(isotope)
 
 		df = pd.read_sql('SELECT * FROM chart WHERE name="{}"'.format(self.name), _get_connection('decay'))
+		if not len(df):
+			raise ValueError('Isotope {} not found in the decay database. For a natural-abundance element, use ci.Element instead.'.format(self.name))
 		self.E_level = float(df['E_level'][0])
 		self.J_pi = str(df['J_pi'][0])
 		self.stable = bool(df['stable'][0])
 		if self.stable:
 			self.dc = 0.0
 			self.decay_products = {}
-		self.mass = float(df['amu'][0])
+		if df['amu'][0] is not None:
+			self.mass = float(df['amu'][0])
+		elif df['Delta'][0] is not None:
+			self.mass = self.A + float(df['Delta'][0])/931.49410242  # amu from mass excess
+		else:
+			self.mass = float(self.A)
 		if df['abundance'][0] is not None:
 			self.abundance = float(df['abundance'][0])
 		else:
@@ -132,9 +139,15 @@ class Isotope(object):
 
 		self._SFY = None
 
+		if not self.stable and df['half_life'][0] is None:
+			print('WARNING: {} has no half-life in the decay database, and will be treated as stable.'.format(self.name))
+			self.stable = True
+			self.dc = 0.0
+			self.decay_products = {}
+
 		if not self.stable:
 			self._t_half = float(df['half_life'][0])
-			self._unc_t_half = float(df['unc_half_life'][0])
+			self._unc_t_half = float(df['unc_half_life'][0]) if df['unc_half_life'][0] is not None else 0.0
 			self.dc = np.log(2.0)/self._t_half
 
 			self.decay_products = {}
@@ -677,8 +690,8 @@ class Isotope(object):
 		--------
 		>>> ip = ci.Isotope('Co-60')
 		>>> print(ip.dose_rate(activity=3.7E10, units='R/hr')) # 1 Ci of Co-60 at 30 cm
-		{'beta_plus': 0.0, 'alphas': 0.0, 'gammas': 52035.28424827692, 
-		'electrons': 65.66251805557148, 'beta_minus': 5536.541902410433, 'total': 57637.488668742924}
+		{'gammas': 14.454, 'alphas': 0.0, 'beta_minus': 1545.1658,
+		'beta_plus': 0.0, 'electrons': 18.3254, 'total': 1577.9452}
 
 		"""
 
@@ -719,7 +732,7 @@ class Isotope(object):
 		d_unit,t_unit = tuple(units.split('/'))
 
 		if 'Sv' in d_unit:
-			dose['alpha'] = 20.0*dose['alpha']
+			dose['alphas'] = 20.0*dose['alphas']  # ICRP radiation weighting factor w_R
 			d_unit = d_unit.replace('Sv','Gy')
 
 		if t_unit in ['hr','min','yr','sec']:

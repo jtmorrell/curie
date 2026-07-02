@@ -18,9 +18,8 @@ def _post_install(loc):
 	if not os.path.isdir(path('')):
 		os.mkdir(path(''))
 
-	for fl in ['wwd6b1gk2ge5tgt/decay.db','tkndjqs036piojm/endf.db','zkoi6t2jicc9yqs/tendl.db','x2vfjr7uv7ffex5/tendl_d_rp.db','n0jjc0dv61j9of9/tendl_n_rp.db',
-				'ib2a5lrhiwkcro5/tendl_p_rp.db','6jy0lns3vfun5vi/ziegler.db','lzn8zs6y8zu3v0s/iaea_monitors.db','34sgcvt8n57b0aw/IRDFF.db']:
-		fnm = fl.split('/')[1]
+	for fnm in ['decay.db','endf.db','tendl.db','tendl_d_rp.db','tendl_n_rp.db',
+				'tendl_p_rp.db','ziegler.db','iaea_monitors.db','IRDFF.db']:
 		if not os.path.isfile(path(fnm)):
 			try:
 				import urllib2
@@ -29,7 +28,7 @@ def _post_install(loc):
 			try:
 				print('Downloading {}'.format(fnm))
 				with open(path(fnm),'wb') as f:
-					f.write(urllib2.urlopen('https://www.dropbox.com/s/{}?dl=1'.format(fl)).read())
+					f.write(urllib2.urlopen('https://github.com/jtmorrell/curie/releases/download/data-v1/{}'.format(fnm)).read())
 			except:
 				print('ERROR: Unable to download {}. See https://jtmorrell.github.io/curie/build/html/quickinstall.html for more help.'.format(fnm))
 
@@ -43,7 +42,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(name='curie',
-	  version='0.0.34',
+	  version='0.0.35',
 	  description='Curie is a python toolkit to aid in the analysis of experimental nuclear data.',
 	  long_description=long_description,
 	  long_description_content_type="text/markdown",
@@ -57,5 +56,6 @@ setup(name='curie',
 	  # wheels/sdists: a wheel built from a dev tree with curie/data/ populated would
 	  # otherwise swallow ~1 GB of .db files (and exceed PyPI's size limit)
 	  exclude_package_data={'curie': ['data/*.db'], '': ['*.db']},
-	  cmdclass={'install': install})#,
-	  #install_requires=['numpy', 'matplotlib', 'scipy', 'pandas'])
+	  cmdclass={'install': install},
+	  python_requires='>=3.9',
+	  install_requires=['numpy', 'matplotlib', 'scipy', 'pandas'])

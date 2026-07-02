@@ -92,7 +92,7 @@ class DecayChain(object):
 	0  1.708333  225RAg
 
 	>>> dc = ci.DecayChain('152EU', A0=3.7E3, units='h')
-	>>> print(ci.isotopes)
+	>>> print(dc.isotopes)
 	['152EUg', '152GDg', '152SMg']
 
 	"""
@@ -141,7 +141,7 @@ class DecayChain(object):
 				if R.endswith('.json'):
 					self.R = pd.DataFrame(json.loads(open(R).read()))
 				elif R.endswith('.csv'):
-					self.R = pd.read_csv(R, header=0).fillna(method='ffill')
+					self.R = pd.read_csv(R, header=0).ffill()
 				elif R.endswith('.db'):
 					self.R = pd.read_sql('SELECT * FROM R', _get_connection(R))
 
@@ -308,7 +308,7 @@ class DecayChain(object):
 					# continue
 
 				ip = self.isotopes[chain[i]]
-				A0 = self.A0[ip] if _A_dict is None else _A_dict[ip]
+				A0 = self.A0.get(ip, 0.0) if _A_dict is None else _A_dict.get(ip, 0.0)
 				if A0==0.0 and _R_dict is None:
 					continue
 				A_i = lm[-1]*(A0/lm[i])
@@ -318,7 +318,10 @@ class DecayChain(object):
 				for j in range(i, L):
 					K = np.arange(i, L)
 					d_lm = lm[K[K!=j]]-lm[j]
-					C_j = np.prod(np.where(np.abs(d_lm)>1E-12, d_lm, 1E-12*np.sign(d_lm)))
+					# the coefficients of an exactly-tied pair are antisymmetric (d and -d), so
+					# the floor must give the two terms opposite signs (tie-break on index) for
+					# their near-singular contributions to cancel
+					C_j = np.prod(np.where(np.abs(d_lm)>1E-12, d_lm, np.where(d_lm!=0.0, 1E-12*np.sign(d_lm), np.where(K[K!=j]>j, 1E-12, -1E-12))))
 					A += A_i*B_i*np.exp(-lm[j]*time)/C_j
 					if _R_dict is not None:
 						if ip in _R_dict:
@@ -376,14 +379,19 @@ class DecayChain(object):
 					continue
 
 				ip = self.isotopes[chain[i]]
-				A0 = self.A0[ip] if _A_dict is None else _A_dict[ip]
+				A0 = self.A0.get(ip, 0.0) if _A_dict is None else _A_dict.get(ip, 0.0)
+				if A0==0.0:
+					continue
 				A_i = lm[-1]*(A0/lm[i])
 				B_i = np.prod(lm[i:-1]*BR[i:-1])
 
 				for j in range(i, len(chain)):
 					K = np.arange(i, len(chain))
 					d_lm = lm[K[K!=j]]-lm[j]
-					C_j = np.prod(np.where(np.abs(d_lm)>1E-12, d_lm, 1E-12*np.sign(d_lm)))
+					# the coefficients of an exactly-tied pair are antisymmetric (d and -d), so
+					# the floor must give the two terms opposite signs (tie-break on index) for
+					# their near-singular contributions to cancel
+					C_j = np.prod(np.where(np.abs(d_lm)>1E-12, d_lm, np.where(d_lm!=0.0, 1E-12*np.sign(d_lm), np.where(K[K!=j]>j, 1E-12, -1E-12))))
 					if lm[j]>1E-12:
 						D += A_i*B_i*(np.exp(-lm[j]*t_start)-np.exp(-lm[j]*t_stop))/(lm[j]*C_j)
 					else:
@@ -496,7 +504,7 @@ class DecayChain(object):
 
 					if len(df):
 						start_time = df.iloc[0]['start_time']
-						if type(start_time)==str or type(start_time)==unicode:
+						if isinstance(start_time, str):
 							start_time = dtm.datetime.strptime(start_time, '%m/%d/%Y %H:%M:%S')
 						start = (start_time-EoB).total_seconds()*self._r_lm('s')
 						stop = start+(df.iloc[0]['real_time']*self._r_lm('s'))

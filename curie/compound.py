@@ -149,19 +149,19 @@ class Compound(object):
 
 			elif type(weights)==str:
 				if weights.endswith('.json'):
-					weights = pd.read_json(weights, orient='records').fillna(method='ffill')
+					weights = pd.read_json(weights, orient='records').ffill()
 					weights.columns = map(str.lower, map(str, weights.columns))
 					if 'compound' in weights.columns:
 						weights = weights[weights['compound']==self.name]
 
 				elif weights.endswith('.csv'):
-					weights = pd.read_csv(weights, header=0).fillna(method='ffill')
+					weights = pd.read_csv(weights, header=0).ffill()
 					weights.columns = map(str.lower, map(str, weights.columns))
 					if 'compound' in weights.columns:
 						weights = weights[weights['compound']==self.name]
 
 				elif weights.endswith('.db'):
-					weights = pd.read_sql('SELECT * FROM compounds WHERE compound={}'.format(self.name), _get_connection(weights))
+					weights = pd.read_sql('SELECT * FROM compounds WHERE compound=?', _get_connection(weights), params=(self.name,))
 					weights.columns = map(str.lower, map(str, weights.columns))
 					if 'compound' in weights.columns:
 						weights = weights[weights['compound']==self.name]
@@ -275,12 +275,12 @@ class Compound(object):
 		if filename.endswith('.db'):
 			if os.path.exists(filename) and not replace:
 				con = _get_connection(filename)
-				df = pd.read_sql('SELECT * FROM weights', con)
+				df = pd.read_sql('SELECT * FROM compounds', con)
 				df = df[df['compound']!=self.name]
 				df = pd.concat([df, wts])
-				df.to_sql('weights', con, if_exists='replace', index=False)
+				df.to_sql('compounds', con, if_exists='replace', index=False)
 			else:
-				wts.to_sql('weights', _get_connection(filename), if_exists='replace', index=False)
+				wts.to_sql('compounds', _get_connection(filename), if_exists='replace', index=False)
 
 		if filename.endswith('.json'):
 			if os.path.exists(filename) and not replace:
@@ -471,17 +471,17 @@ class Compound(object):
 		--------
 		>>> cm = ci.Compound('Fe') # same behavior as element
 		>>> print(cm.range(60.0))
-		0.5858151125192633
+		0.5866312594085556
 		>>> cm = ci.Compound('SS_316') # preset compound
 		>>> print(cm.range(60.0))
-		0.5799450918147814
+		0.5807353363913145
 
 		"""
 
 		energy = np.asarray(energy, dtype=np.float64)
 		
 		dE = np.max(energy)/1E3
-		E_min = min((np.min(energy), 1.0))
+		E_min = min((np.min(energy), 1E-3))
 		E_grid = np.arange(E_min, np.max(energy)+dE, dE)
 
 		S = self.S(E_grid, particle=particle, density=density)

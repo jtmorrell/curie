@@ -14,7 +14,7 @@ def decay_examples():
 	### Find the scaled production rate that gives us these counts
 	dc.fit_R()
 	### Only plot the 5 most active isotopes in the decay chain
-	dc.plot(N_plot=5)
+	dc.plot(max_plot=5)
 
 
 def isotope_examples():
