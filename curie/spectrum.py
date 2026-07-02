@@ -680,7 +680,7 @@ class Spectrum(object):
 
 		x, dead = np.arange(len(self.hist)), int(7.5*adj*self.cb.res(len(self.hist)))
 		V_i, L = np.log(np.log(np.sqrt(self.hist+1.0)+1.0)+1.0), len(x)-dead
-		while self.hist[dead]==0:
+		while dead<len(self.hist) and self.hist[dead]==0:
 			dead += 1
 		
 		for M in np.linspace(0, 7.5*adj, 10):
