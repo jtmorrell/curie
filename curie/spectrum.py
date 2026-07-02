@@ -1289,7 +1289,7 @@ class Spectrum(object):
 		if filename.endswith('.Spe'):
 			### Maestro ASCII .Spe ###
 			self._ortec_metadata['DATE_MEA'] = [dtm.datetime.strftime(self.start_time, '%m/%d/%Y %H:%M:%S')]
-			self._ortec_metadata['MEAS_TIM'] = ['{0} {1}'.format(int(self.live_time), int(self.real_time))]
+			self._ortec_metadata['MEAS_TIM'] = ['{0} {1}'.format(self.live_time, self.real_time)]
 
 			self._ortec_metadata['ENER_FIT'] = ['{0} {1}'.format(self.cb.engcal[0], self.cb.engcal[1])]
 			self._ortec_metadata['MCA_CAL'] = ['3','{0} {1} {2} keV'.format(self.cb.engcal[0], self.cb.engcal[1], (self.cb.engcal[2] if len(self.cb.engcal)>2 else 0.0))]
