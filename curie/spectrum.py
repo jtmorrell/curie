@@ -178,7 +178,7 @@ class Spectrum(object):
 			start_time = '{0}/{1}/{2} {3}:{4}:{5}'.format(months[st[2:5].lower()],st[:2],('20' if st[7]=='1' else '19')+st[5:7],st[8:10],st[10:],sts)
 			self.start_time = dtm.datetime.strptime(start_time, '%m/%d/%Y %H:%M:%S')
 
-			L = np.frombuffer(f.read(4), dtype='i2')[1]
+			L = int(np.frombuffer(f.read(4), dtype='i2')[1])
 			self.hist = np.asarray(np.frombuffer(f.read(4*L), dtype='i4'), dtype=np.int64)
 			f.read(4)
 
@@ -1342,7 +1342,9 @@ class Spectrum(object):
 			if 'SPEC_REM' in self._ortec_metadata:
 				L = min((63, len(self._ortec_metadata['SPEC_REM'][1].split('# ')[1])))
 				ss += np.array(L, dtype='i1').tobytes()
-				ss += np.array(self._ortec_metadata['SPEC_REM'][1].split('# ')[1][:L], dtype='S{}'.format(L)).tobytes()
+				if L:
+					# numpy silently promotes dtype 'S0' to 'S1' (one stray null byte)
+					ss += np.array(self._ortec_metadata['SPEC_REM'][1].split('# ')[1][:L], dtype='S{}'.format(L)).tobytes()
 				ss += np.zeros(63-L, dtype='i1').tobytes()
 			else:
 				ss += np.array(0, dtype='i1').tobytes()
@@ -1352,7 +1354,8 @@ class Spectrum(object):
 				L = len(''.join(self._ortec_metadata['SPEC_ID']))
 				L = min((63, L))
 				ss += np.array(L, dtype='i1').tobytes()
-				ss += np.array(''.join(self._ortec_metadata['SPEC_ID'])[:L], dtype='S{}'.format(L)).tobytes()
+				if L:
+					ss += np.array(''.join(self._ortec_metadata['SPEC_ID'])[:L], dtype='S{}'.format(L)).tobytes()
 				ss += np.zeros(63-L, dtype='i1').tobytes()
 			else:
 				ss += np.array(0, dtype='i1').tobytes()
