@@ -300,7 +300,7 @@ class DecayChain(object):
 			lm = self._r_lm(units)*self._chain[chain, 0]
 			L = len(chain)
 			for i in range(L):
-				sub = ''.join(map(str, chain[i:]))
+				sub = tuple(chain[i:])
 				if sub in finished:
 					continue
 				finished.append(sub)
