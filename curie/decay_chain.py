@@ -605,7 +605,7 @@ class DecayChain(object):
 		p0 = np.where((p0>0)&(np.isfinite(p0)), p0, 1.0)
 
 		func = lambda X_f, *R_f: np.dot(np.asarray(R_f), X_f)
-		fit, cov = curve_fit(func, X, Y, sigma=dY, p0=p0, bounds=(0.0*p0, np.inf*p0))
+		fit, cov = curve_fit(func, X, Y, sigma=dY, p0=p0, bounds=(0.0, np.inf))
 
 
 		for n,ip in enumerate(R_isotopes):
@@ -684,7 +684,7 @@ class DecayChain(object):
 
 		func = lambda X_f, *R_f: np.dot(np.asarray(R_f), X_f)
 		p0 = np.ones(len(X))
-		fit, cov = curve_fit(func, X, Y, sigma=dY, p0=p0, bounds=(0.0*p0, np.inf*p0))
+		fit, cov = curve_fit(func, X, Y, sigma=dY, p0=p0, bounds=(0.0, np.inf))
 
 		for n,ip in enumerate(A0_isotopes):
 			self.A0[ip] *= fit[n]
