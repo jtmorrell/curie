@@ -539,7 +539,7 @@ class Calibration(object):
 				specs.append(sp)
 		spectra = specs
 
-		cb_dat = []
+		cb_dat, eff_meta = [], []
 		for sp in spectra:
 			if sp._fits is None:
 				sp.fit_peaks()
@@ -577,8 +577,18 @@ class Calibration(object):
 					unc_eff = eff*np.sqrt((pk['unc_counts']/pk['counts'])**2+(pk['unc_intensity']/pk['intensity'])**2+(unc_lm[pk['isotope']]/dc)**2+(unc_A0/A0)**2)
 
 					cb_dat.append([mu, eng, unc_mu, sig, unc_sig, eff, unc_eff])
+					# per-point uncertainty decomposition for the efficiency fit's
+					# covariance: counting is independent; the gamma intensity is
+					# common within a line; the decay constant and reference
+					# activity are common to every point of the source
+					eff_meta.append({'rel_stat':pk['unc_counts']/pk['counts'],
+									'rel_line':pk['unc_intensity']/pk['intensity'],
+									'rel_src':np.sqrt((unc_lm[pk['isotope']]/dc)**2+(unc_A0/A0)**2),
+									'line':pk['isotope']+':'+'{:.2f}'.format(eng),
+									'src':pk['isotope']})
 
 		cb_dat = np.array(cb_dat)
+		eff_meta = pd.DataFrame(eff_meta)
 		self._calib_data = {'engcal':{'channel':cb_dat[:,0], 'energy':cb_dat[:,1], 'unc_channel':cb_dat[:,2]},
 							'rescal':{'channel':cb_dat[:,0], 'width':cb_dat[:,3], 'unc_width':cb_dat[:,4]},
 							'effcal':{'energy':cb_dat[:,1], 'efficiency':cb_dat[:,5], 'unc_efficiency':cb_dat[:,6]}}
@@ -603,7 +613,31 @@ class Calibration(object):
 		x, y, yerr = self._calib_data['effcal']['energy'], self._calib_data['effcal']['efficiency'], self._calib_data['effcal']['unc_efficiency']
 		idx = np.where((0.33*y>yerr)&(yerr>0.0)&(np.isfinite(yerr)))
 		x, y, yerr = x[idx], y[idx], yerr[idx]
+		meta = eff_meta.iloc[idx[0]].reset_index(drop=True)
 		fn = lambda x, *A: self.eff(x, A)
+
+		def eff_cov(m):
+			# covariance of the efficiency points, with magnitudes from the fitted
+			# model values (measurement-weighted correlated fits bias low)
+			V = np.diag((m*meta['rel_stat'].to_numpy())**2)
+			for key, rel in [('line','rel_line'), ('src','rel_src')]:
+				r = m*meta[rel].to_numpy()
+				for g in meta[key].unique():
+					u = np.where((meta[key]==g).to_numpy(), r, 0.0)
+					V += np.outer(u, u)
+			d = np.diag(V)
+			V[np.diag_indices_from(V)] = d + 1E-12*np.max(d)
+			return V
+
+		def fit_eff(p0_, bounds_):
+			f0, _ = curve_fit(fn, x, y, sigma=yerr, p0=p0_, bounds=bounds_, absolute_sigma=True)
+			V = eff_cov(self.eff(x, f0))
+			f1, u1 = curve_fit(fn, x, y, sigma=V, p0=f0, bounds=bounds_, absolute_sigma=True)
+			r = y-self.eff(x, f1)
+			chi2n = float(r @ np.linalg.solve(V, r))/max(len(y)-len(f1), 1)
+			if np.isfinite(chi2n) and chi2n>1.0:
+				u1 = u1*chi2n
+			return f1, u1, chi2n
 
 		p0 = spectra[0].cb.effcal
 		p0 = p0.tolist() if len(p0)==7 else p0.tolist()+[0.5, 0.001]
@@ -612,20 +646,17 @@ class Calibration(object):
 
 		if any([sp.fit_config['xrays'] for sp in spectra]):
 			try:
-				fit5, unc5 = curve_fit(fn, x, y, sigma=yerr, p0=p0[:5], bounds=(bounds[0][:5], bounds[1][:5]))
-				fit7, unc7 = curve_fit(fn, x, y, sigma=yerr, p0=fit5.tolist()+p0[5:], bounds=bounds)
-				
-				chi7 = np.sum((y-self.eff(x, fit7))**2/yerr**2)
-				chi5 = np.sum((y-self.eff(x, fit5))**2/yerr**2)
+				fit5, unc5, chi5 = fit_eff(p0[:5], (bounds[0][:5], bounds[1][:5]))
+				fit7, unc7, chi7 = fit_eff(fit5.tolist()+p0[5:], bounds)
 				## Invert to find which is closer to one
 				chi7 = chi7 if chi7>1.0 else 1.0/chi7
 				chi5 = chi5 if chi5>1.0 else 1.0/chi5
 				fit, unc = (fit5, unc5) if chi5<=chi7 else (fit7, unc7)
-			except:
-				fit, unc = curve_fit(fn, x, y, sigma=yerr, p0=p0[:5], bounds=(bounds[0][:5], bounds[1][:5]))
+			except Exception:
+				fit, unc, _ = fit_eff(p0[:5], (bounds[0][:5], bounds[1][:5]))
 
 		else:
-			fit, unc = curve_fit(fn, x, y, sigma=yerr, p0=p0[:5], bounds=(bounds[0][:5], bounds[1][:5]))
+			fit, unc, _ = fit_eff(p0[:5], (bounds[0][:5], bounds[1][:5]))
 
 		idx = np.where((self.eff(x, fit)-y)**2/yerr**2 < 10.0)
 		self._calib_data['effcal'] = {'energy':x[idx], 'efficiency':y[idx], 'unc_efficiency':yerr[idx], 'fit':fit, 'unc':unc}
