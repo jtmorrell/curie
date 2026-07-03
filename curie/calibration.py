@@ -631,12 +631,20 @@ class Calibration(object):
 
 		def fit_eff(p0_, bounds_):
 			f0, _ = curve_fit(fn, x, y, sigma=yerr, p0=p0_, bounds=bounds_, absolute_sigma=True)
-			V = eff_cov(self.eff(x, f0))
-			f1, u1 = curve_fit(fn, x, y, sigma=V, p0=f0, bounds=bounds_, absolute_sigma=True)
-			r = y-self.eff(x, f1)
-			chi2n = float(r @ np.linalg.solve(V, r))/max(len(y)-len(f1), 1)
-			if np.isfinite(chi2n) and chi2n>1.0:
-				u1 = u1*chi2n
+			m0 = self.eff(x, f0)
+			Vi = np.diag((m0*meta['rel_stat'].to_numpy())**2)
+			V = eff_cov(m0)
+			# one-sided scale factor on the INDEPENDENT component only: inconsistency
+			# between points cannot indict the correlated modes
+			S2, f1, u1, chi2n = 1.0, f0, None, np.inf
+			for _ in range(4):
+				Vp = V if S2==1.0 else V+(S2-1.0)*Vi
+				f1, u1 = curve_fit(fn, x, y, sigma=Vp, p0=f1, bounds=bounds_, absolute_sigma=True)
+				r = y-self.eff(x, f1)
+				chi2n = float(r @ np.linalg.solve(Vp, r))/max(len(y)-len(f1), 1)
+				if not (np.isfinite(chi2n) and chi2n>1.0):
+					break
+				S2 = S2*chi2n
 			return f1, u1, chi2n
 
 		p0 = spectra[0].cb.effcal

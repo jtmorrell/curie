@@ -610,7 +610,8 @@ class DecayChain(object):
 						self._cal_data[cal] = (np.asarray(sp.cb.effcal, dtype=np.float64), np.asarray(sp.cb.unc_effcal, dtype=np.float64))
 						ct['cal'] = cal
 					elif 'effcal' in df.columns:
-						ct['cal'] = ('effcal:'+df['effcal'].astype(str)).to_numpy()
+						# rows from files predating the effcal column group conservatively
+						ct['cal'] = ('effcal:'+df['effcal'].fillna('').astype(str)).to_numpy()
 					else:
 						ct['cal'] = ''
 				counts.append(ct)
@@ -652,7 +653,8 @@ class DecayChain(object):
 		y = fc['counts'].to_numpy()
 		dec = ['unc_stat','unc_line','line','unc_corr','cal']
 		if all(c in fc.columns for c in dec) and fc[['unc_stat','unc_line','unc_corr']].notna().to_numpy().all():
-			V = np.diag((m*(fc['unc_stat']/y).to_numpy())**2)
+			Vi = np.diag((m*(fc['unc_stat']/y).to_numpy())**2)
+			V = Vi.copy()
 			r_line = m*(fc['unc_line']/y).to_numpy()
 			for key, frac in [('line', 1.0-norm_frac), ('isotope', norm_frac)]:
 				if frac<=0.0:
@@ -673,7 +675,8 @@ class DecayChain(object):
 		elif corr is not None:
 			c = min(float(corr), 0.999999)
 			u = m*(fc['unc_counts']/y).to_numpy()
-			V = np.diag((1.0-c)*u**2)
+			Vi = np.diag((1.0-c)*u**2)
+			V = Vi.copy()
 			if corr_group is not None and corr_group in fc.columns:
 				for g in pd.unique(fc[corr_group]):
 					ug = np.where((fc[corr_group]==g).to_numpy(), u, 0.0)
@@ -681,10 +684,10 @@ class DecayChain(object):
 			else:
 				V += c*np.outer(u, u)
 		else:
-			return None
+			return None, None
 		d = np.diag(V)
 		V[np.diag_indices_from(V)] = d + 1E-12*np.max(d)
-		return V
+		return V, Vi
 
 	def _gls_fit(self, X, Y, dY, fc, p0, corr, corr_group, norm_frac, scale_factor, cov):
 		# Shared fitting core for fit_R/fit_A0: diagonal absolute-sigma pre-fit
@@ -692,21 +695,31 @@ class DecayChain(object):
 		# assembled covariance, with a one-sided chi-square scale factor.
 		func = lambda X_f, *R_f: np.dot(np.asarray(R_f), X_f)
 		fit, cv = curve_fit(func, X, Y, sigma=dY, p0=p0, bounds=(0.0, np.inf), absolute_sigma=True)
+		dof = len(Y)-len(fit)
 		if cov is not None:
-			V = np.asarray(cov, dtype=np.float64)
+			V, Vi = np.asarray(cov, dtype=np.float64), None
 		else:
-			V = self._counts_covariance(fc, np.abs(np.dot(fit, X)), corr, corr_group, norm_frac)
+			V, Vi = self._counts_covariance(fc, np.abs(np.dot(fit, X)), corr, corr_group, norm_frac)
 		if V is None:
 			print('WARNING: counts carry only total uncertainties, so correlated systematics (shared gamma intensities, efficiencies) cannot be separated and unc_R may be underestimated. Provide decomposition columns (see get_counts) or the corr= option.')
 			r = Y-np.dot(fit, X)
-			chi2 = np.sum(r**2/dY**2)
-		else:
-			fit, cv = curve_fit(func, X, Y, sigma=V, p0=p0, bounds=(0.0, np.inf), absolute_sigma=True)
+			chi2n = np.sum(r**2/dY**2)/dof if dof>0 else np.inf
+			if scale_factor and dof>0 and np.isfinite(chi2n) and chi2n>1.0:
+				cv = cv*chi2n
+			return fit, cv
+		# One-sided scale factor: mutually inconsistent data can only indict the
+		# INDEPENDENT error components (the correlated modes do not contribute to
+		# point-to-point scatter), so only those are inflated, iterated until the
+		# whitened chi-square per degree of freedom is consistent with 1.
+		S2 = 1.0
+		for _ in range(4):
+			Vp = V if S2==1.0 else (V+(S2-1.0)*Vi if Vi is not None else V*S2)
+			fit, cv = curve_fit(func, X, Y, sigma=Vp, p0=p0, bounds=(0.0, np.inf), absolute_sigma=True)
 			r = Y-np.dot(fit, X)
-			chi2 = float(r @ np.linalg.solve(V, r))
-		dof = len(Y)-len(fit)
-		if scale_factor and dof>0 and np.isfinite(chi2) and chi2/dof>1.0:
-			cv = cv*(chi2/dof)
+			chi2n = float(r @ np.linalg.solve(Vp, r))/dof if dof>0 else np.inf
+			if not (scale_factor and dof>0 and np.isfinite(chi2n) and chi2n>1.0):
+				break
+			S2 = S2*chi2n
 		return fit, cv
 
 	@property	

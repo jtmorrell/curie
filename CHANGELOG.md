@@ -19,13 +19,16 @@ uncertainties feeding them (Monte Carlo coverage 13-35% vs 68% nominal;
   (default 1.0) representing the decay-scheme normalization; efficiency
   errors are correlated within one calibration, using the calibration's
   parameter covariance when available. Central values can shift within
-  their uncertainties (re-weighting; benchmark: thallium foils +3% to +16%,
-  all within 1.3 sigma), and uncertainties grow to include the correlated
-  floors. A one-sided chi-square scale factor (disable with
-  `scale_factor=False`) additionally inflates the uncertainty when the
-  count data are mutually inconsistent — fits against a badly-wrong
-  efficiency model now advertise it (the uncalibrated example workflow
-  reports 33% where the floors alone give 1%).
+  their uncertainties (re-weighting; benchmark: thallium foils shift within
+  1.1 sigma of the published rates), and uncertainties grow to include the
+  correlated floors (thallium: 3.8-6.8% before, 8.3-18.6% after). A
+  one-sided chi-square scale factor (disable with `scale_factor=False`)
+  additionally inflates the uncertainty when the count data are mutually
+  inconsistent; the inflation applies to the independent error component
+  only — inconsistency between points cannot indict the correlated modes —
+  iterated until the whitened chi-square is consistent with 1 (the
+  uncalibrated example workflow reports 6.8% where the floors alone give
+  1%, honestly pricing its chi2/dof of ~1000).
 - **`calibrate()` fits the efficiency curve against its block covariance**
   (intensity common per line; decay constant and reference activity common
   per source), with absolute sigmas and the one-sided scale factor. The
