@@ -94,7 +94,7 @@ class Spectrum(object):
 
 	def __init__(self, filename=None, **kwargs):
 		self.filename = filename
-		if 'cb' in kwargs:
+		if kwargs.get('cb') is not None:
 			if type(kwargs['cb'])==str:
 				self._cb = Calibration(kwargs['cb'])
 			else:
@@ -356,7 +356,7 @@ class Spectrum(object):
 			# loop over lines
 			for line in f:
 				# strip prefix and tokenize
-					line = line.strip("A004")
+					line = line.removeprefix('A004')
 					token = line.split()
 					
 					if entry == 1:
@@ -394,7 +394,9 @@ class Spectrum(object):
 
 	@cb.setter
 	def cb(self, _cb):
-		if type(_cb)==str:
+		if _cb is None:
+			self._cb = Calibration()
+		elif type(_cb)==str:
 			self._cb = Calibration(_cb)
 		else:
 			self._cb = copy.deepcopy(_cb)
@@ -680,7 +682,7 @@ class Spectrum(object):
 
 		x, dead = np.arange(len(self.hist)), int(7.5*adj*self.cb.res(len(self.hist)))
 		V_i, L = np.log(np.log(np.sqrt(self.hist+1.0)+1.0)+1.0), len(x)-dead
-		while self.hist[dead]==0:
+		while dead<len(self.hist) and self.hist[dead]==0:
 			dead += 1
 		
 		for M in np.linspace(0, 7.5*adj, 10):
@@ -838,14 +840,18 @@ class Spectrum(object):
 
 				# CHECK FOR IDENTICAL PEAKS
 				ix = self.cb.map_channel(g['energy']) # g is already sorted by energy
-				for n,x in enumerate(ix[:-1]):
-					if abs(x-ix[n+1])<=self.fit_config['ident_idx']:
-						if n in g.index:
-							print('WARNING: Isotope',i,'has un-resolvable gammas at',g.loc[n]['energy'],'and',g.loc[n+1]['energy'],'... Intensities will be combined.')
-							drop,replace = (n,n+1) if g.loc[n]['intensity']<g.loc[n+1]['intensity'] else (n+1,n)
-							g.loc[replace]['intensity'] += g.loc[drop]['intensity']
-							g.loc[replace]['unc_intensity'] = np.sqrt(g.loc[drop]['unc_intensity']**2 + g.loc[replace]['unc_intensity']**2)
-							g.drop(drop,inplace=True)
+				groups = [[0]] if len(ix) else []
+				for n in range(1, len(ix)):
+					if abs(ix[n]-ix[n-1])<=self.fit_config['ident_idx']:
+						groups[-1].append(n)
+					else:
+						groups.append([n])
+				for gp in [gp for gp in groups if len(gp)>1]:
+					print('WARNING: Isotope',i,'has un-resolvable gammas at',', '.join(map(str, g.loc[gp,'energy'])),'... Intensities will be combined.')
+					keep = g.loc[gp,'intensity'].idxmax()
+					g.loc[keep,'intensity'] = g.loc[gp,'intensity'].sum()
+					g.loc[keep,'unc_intensity'] = np.sqrt((g.loc[gp,'unc_intensity']**2).sum())
+					g.drop([p for p in gp if p!=keep], inplace=True)
 
 				if len(g):
 					itps.append(i)
@@ -858,7 +864,7 @@ class Spectrum(object):
 	def _chi2(self, fit, l ,h):
 		non_zero = np.where(self.hist[l:h]>0)
 		dof = float(len(non_zero[0])-len(fit)-1)
-		if dof==0:
+		if dof<=0:
 			return np.inf
 		resid = self.hist[l:h][non_zero]-self._multiplet(np.arange(l,h)[non_zero], *fit)
 		return np.sum(resid**2/self.hist[l:h][non_zero])/dof
@@ -912,7 +918,10 @@ class Spectrum(object):
 			corr = self._geom_corr*self._atten_corr(df['energy'])
 			
 		D = N/(df['intensity']*self.cb.eff(df['energy'])*corr*(self.live_time/self.real_time))
-		unc_D = D*np.sqrt((N/N**2)+(unc_N/N)**2+(self.cb.unc_eff(df['energy'])/self.cb.eff(df['energy']))**2+(df['unc_intensity']/df['intensity'])**2)
+		# unc_N is propagated from the weighted-least-squares covariance, which is the
+		# full sampling covariance under Poisson channel counts - it already contains
+		# the counting statistics of the peak area, so no separate 1/N term is added
+		unc_D = D*np.sqrt((unc_N/N)**2+(self.cb.unc_eff(df['energy'])/self.cb.eff(df['energy']))**2+(df['unc_intensity']/df['intensity'])**2)
 
 		A, unc_A = D/self.real_time, unc_D/self.real_time
 		return D, unc_D, A, unc_A
@@ -1083,12 +1092,20 @@ class Spectrum(object):
 	def _multi_fit(self, p0):
 		chan = np.arange(len(self.hist))
 		try:
-			fit, unc = curve_fit(self._multiplet, chan[p0['l']:p0['h']], self.hist[p0['l']:p0['h']], p0=p0['p0'], bounds=p0['bounds'], sigma=np.sqrt(self.hist[p0['l']:p0['h']]+0.1))
+			# absolute_sigma: the sigmas are true Poisson standard deviations, so the
+			# covariance carries the full counting statistics. Scipy's default rescale
+			# by the reduced chi-square is biased below 1 for clean peaks in wide
+			# windows of near-empty channels, pushing unc_counts under the sqrt(N)
+			# counting floor; instead, inflate by chi2/dof only when it exceeds 1
+			# (scale-factor convention for model mismatch), never deflate.
+			fit, unc = curve_fit(self._multiplet, chan[p0['l']:p0['h']], self.hist[p0['l']:p0['h']], p0=p0['p0'], bounds=p0['bounds'], sigma=np.sqrt(self.hist[p0['l']:p0['h']]+0.1), absolute_sigma=True)
+			chi2 = self._chi2(fit, p0['l'], p0['h'])
+			if np.isfinite(chi2) and chi2>1.0:
+				unc = unc*chi2
 			p0['fit'] = fit
 			p0['unc'] = unc
 			N, unc_N = self._counts(fit, unc)
 			D, unc_D, A, unc_A = self._decays(N, unc_N, p0['df'])
-			chi2 = self._chi2(fit, p0['l'], p0['h'])
 
 			f = p0['df']
 			cols = ['filename','isotope','energy','counts','unc_counts',
@@ -1289,7 +1306,7 @@ class Spectrum(object):
 		if filename.endswith('.Spe'):
 			### Maestro ASCII .Spe ###
 			self._ortec_metadata['DATE_MEA'] = [dtm.datetime.strftime(self.start_time, '%m/%d/%Y %H:%M:%S')]
-			self._ortec_metadata['MEAS_TIM'] = ['{0} {1}'.format(int(self.live_time), int(self.real_time))]
+			self._ortec_metadata['MEAS_TIM'] = ['{0} {1}'.format(self.live_time, self.real_time)]
 
 			self._ortec_metadata['ENER_FIT'] = ['{0} {1}'.format(self.cb.engcal[0], self.cb.engcal[1])]
 			self._ortec_metadata['MCA_CAL'] = ['3','{0} {1} {2} keV'.format(self.cb.engcal[0], self.cb.engcal[1], (self.cb.engcal[2] if len(self.cb.engcal)>2 else 0.0))]

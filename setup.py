@@ -42,7 +42,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(name='curie',
-	  version='0.0.35',
+	  version='0.0.36',
 	  description='Curie is a python toolkit to aid in the analysis of experimental nuclear data.',
 	  long_description=long_description,
 	  long_description_content_type="text/markdown",

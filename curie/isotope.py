@@ -119,7 +119,9 @@ class Isotope(object):
 		if df['amu'][0] is not None:
 			self.mass = float(df['amu'][0])
 		elif df['Delta'][0] is not None:
-			self.mass = self.A + float(df['Delta'][0])/931.49410242  # amu from mass excess
+			# Delta is the level mass excess (includes E_level); the amu column
+			# convention is the ground-state mass for isomers
+			self.mass = self.A + (float(df['Delta'][0])-self.E_level)/931.49410242
 		else:
 			self.mass = float(self.A)
 		if df['abundance'][0] is not None:
@@ -190,6 +192,8 @@ class Isotope(object):
 			self.element = ''.join(re.findall('[A-Z]+', istp)).title()
 			if istp.startswith('nat'):
 				self.A = 'nat'
+			elif not istp.split(self.element.upper())[0]:
+				raise ValueError('Isotope name {} has no mass number: use e.g. 60CO or Co-60, or ci.Element for a natural-abundance element.'.format(istp))
 			else:
 				self.A = int(istp.split(self.element.upper())[0])
 

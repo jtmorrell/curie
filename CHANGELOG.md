@@ -3,6 +3,84 @@
 Notable changes to curie are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.0.36] - 2026-07-03
+
+Numerics-focused release: where 0.0.35 fixed crashes, 0.0.36 corrects numbers.
+Changed results are called out below with their magnitude and reason —
+re-check analyses that depend on them. A before/after benchmark (the shipped
+152Eu spectrum end-to-end, plus the affected reactions and chains) is
+summarized per item.
+
+### Changed — numerical results
+- **Activity/decay uncertainties no longer double-count the Poisson term,
+  and the fit covariance now respects the counting floor.** The peak-fit
+  covariance (weighted least squares with sigma=sqrt(counts)) already carries
+  the full counting statistics of the fitted area — verified analytically and
+  by Monte Carlo — so the extra 1/N term in `unc_decays` was a duplicate.
+  The covariance is now absolute (`absolute_sigma=True`) with a one-sided
+  scale factor: inflated by chi2/dof when above 1 (model mismatch, as
+  before), but no longer deflated below the sqrt(N) counting floor when a
+  clean low-background peak fits with chi2/dof < 1. Benchmark: -0.3% to
+  -9.8% on the 152Eu lines. Central values are unchanged.
+- **Un-resolvable gamma lines are now actually merged.** The intensity
+  combination in `Spectrum._gammas` silently discarded the merged intensity
+  (pandas chained assignment) and left triplets partially merged. Decays and
+  decay rates derived from merged multiplets change accordingly (benchmark:
+  the 152Eu 719.3 keV pair's combined intensity rises 38%, its inferred
+  decays drop 27.5%; the eu fit_R production rate moves -0.8%).
+- **No cross-section extrapolation beyond the evaluated grid** (`Reaction.
+  interpolate` returns 0 off-grid for all libraries; ENDF, IRDFF, and the
+  IAEA monitors previously extrapolated linearly). Threshold reactions queried off-grid stop returning
+  fabricated values (90Zr(n,2n) at 30 MeV: 903.7 mb -> 0), and flux averages
+  over windows extending past a grid edge lose the fabricated contribution
+  (natTi(p,x)46Sc averaged over 40-95 MeV vs its 80 MeV grid ceiling: -22%).
+- **Exactly and nearly equal decay constants use the confluent Bateman
+  solution.** Chain members with relatively indistinguishable decay constants
+  (below 1E-9) are evaluated with the exact degenerate-eigenvalue terms
+  (t*exp(-lt) for a pair), replacing the 1E-12 floor. Real database ties
+  (e.g. 154Hf->154Lu, both stored as 2.0 s) now give the analytic in-growth
+  instead of 0.
+- **Decay-chain composition is unit-independent and extends to true
+  stability.** The chain-expansion cutoff compared decay constants to 1E-12
+  in the user's time units, so chains depended on `units=` (99Ru dropped for
+  'ns'; the 238U series never passed 234U for 's'). Chains now include all
+  unstable members in every unit; long-lived members appear with
+  correspondingly small activities, and e.g. the 152Eu chain now continues
+  past 152Gd (1.1E14 y) to 140Ce.
+- **Bateman evaluation is rescaled per branch** (decay constants divided by
+  their geometric mean, time scaled inversely — an exact invariance). This
+  keeps the partial-fraction products inside float64 for any time units
+  (previously up to 1E302 in 1/Gy on the deep 238U branches) and makes
+  activities unit-invariant at machine precision.
+- **`decays()` is correct for slow members at long times.** The
+  small-decay-constant branch selected the linear-in-time limit on lambda
+  alone, but the expansion parameter is lambda*t: interior members of the
+  extended 238U series (234U, 230Th, 226Ra) at geological times returned
+  sign-wrong, orders-of-magnitude-wrong decay counts. The exponential
+  differences are now evaluated with expm1, exact for every lambda, with no
+  threshold branch (verified against direct integration of the activity).
+
+### Fixed
+- `.Spe` saving no longer truncates live/real times to whole seconds.
+- The IEC reader no longer loses a final-line count value ending in 0 or 4.
+- An all-zero spectrum (valid input) no longer crashes at construction.
+- `_chi2` returns inf instead of a negative value for over-parameterized
+  fit windows.
+- `map_channel` raises a clear ValueError for non-invertible energy
+  calibrations (zero slope, negative discriminant) instead of returning
+  garbage int32 channels.
+- The chemical-formula parser aggregates repeated elements (CH3OH gave two
+  H rows).
+- `Element._eff_Z_ratio` no longer raises NameError for protons when called
+  directly.
+- Chain deduplication uses a tuple key (string-join collided for two-digit
+  member indices); `fit_R`/`fit_A0` bounds no longer produce NaN for a zero
+  initial guess.
+- `Isotope('Fe')` (bare element symbol) raises the natural-element guidance
+  instead of an opaque parse error; isomer masses reconstructed from the
+  mass excess use the ground-state convention; counts assigned to a stable
+  isotope raise a clear ValueError; `cb=None` yields a default Calibration.
+
 ## [0.0.35] - 2026-07-01
 
 Crash-fix (hotfix) release. Two fixes change numerical results; they are called

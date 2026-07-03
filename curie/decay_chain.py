@@ -2,6 +2,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import math
 import numpy as np
 import pandas as pd
 import datetime as dtm
@@ -86,14 +87,14 @@ class DecayChain(object):
 	--------
 	>>> dc = ci.DecayChain('Ra-225', R=[[1.0, 1.0], [0.5, 1.5], [2.0, 6]], units='d')
 	>>> print(dc.isotopes)
-	['225RAg', '225ACg', '221FRg', '217ATg', '213BIg', '217RNg', '209TLg', '213POg', '209PBg', '209BIg']
+	['225RAg', '225ACg', '221FRg', '217ATg', '213BIg', '217RNg', '209TLg', '213POg', '209PBg', '209BIg', '205TLg']
 	>>> print(dc.R_avg)
           R_avg isotope
 	0  1.708333  225RAg
 
 	>>> dc = ci.DecayChain('152EU', A0=3.7E3, units='h')
 	>>> print(dc.isotopes)
-	['152EUg', '152GDg', '152SMg']
+	['152EUg', '152GDg', '152SMg', '148SMg', '144NDg', '140CEg']
 
 	"""
 
@@ -122,7 +123,9 @@ class DecayChain(object):
 						istps.append(I)
 						self.isotopes.append(I.name)
 						self._chain.append([I.decay_const(units), [br], [n]])
-						stable_chain.append(self._chain[-1][0]<1E-12)
+						# chain expansion stops only at truly stable members, so chain
+						# composition is independent of the chosen time units
+						stable_chain.append(I.stable)
 						if not stable_chain[-1]:
 							self.A0[self.isotopes[-1]] = 0.0
 		self._chain = np.array(self._chain, dtype=object)
@@ -236,6 +239,50 @@ class DecayChain(object):
 					br_ratios.append(np.array(self._branches[1][n][:k] + [0.0]))
 		return br_ratios, branches
 
+	@staticmethod
+	def _lm_clusters(lm):
+		# Group indistinguishable decay constants (pairwise relative separation
+		# below 1E-9): the standard partial-fraction Bateman coefficients are
+		# singular for (near-)equal pairs, which occur in the database as
+		# identically rounded half-lives. Relative comparison keeps the grouping
+		# unit-independent.
+		clusters = []
+		for j in range(len(lm)):
+			for cl in clusters:
+				if abs(lm[j]-lm[cl[0]])<=1E-9*max(abs(lm[j]), abs(lm[cl[0]])):
+					cl.append(j)
+					break
+			else:
+				clusters.append([j])
+		return clusters
+
+	@staticmethod
+	def _confluent_dd(m, lam, others, time, inv_lam):
+		# (-1)^(m-1)/(m-1)! * (d/dlam)^(m-1) of exp(-lam*time)/(lam^inv_lam * P(lam)),
+		# with P(lam) = prod(others-lam): the exact confluent Bateman coefficient for
+		# a cluster of m equal decay constants (the divided difference of the
+		# partial-fraction terms collapses to this derivative as the constants
+		# coincide). Evaluated with the logarithmic-derivative recursion
+		# f^(k) = sum_r C(k-1,r-1) * (ln f)^(r) * f^(k-r), which is free of the
+		# catastrophic cancellation of the raw partial-fraction sum.
+		P = np.prod(others-lam) if len(others) else 1.0
+		f = np.exp(-lam*time)/((lam if inv_lam else 1.0)*P)
+		if m==1:
+			return f
+		w = [None]*m
+		for r in range(1, m):
+			w[r] = math.factorial(r-1)*(np.sum(1.0/(others-lam)**r) if len(others) else 0.0)
+			if inv_lam:
+				w[r] += (-1.0)**r*math.factorial(r-1)/lam**r
+		w[1] = w[1]-time
+		g = [f]
+		for k in range(1, m):
+			s = 0.0
+			for r in range(1, k+1):
+				s = s+math.comb(k-1, r-1)*w[r]*g[k-r]
+			g.append(s)
+		return (-1.0)**(m-1)/math.factorial(m-1)*g[m-1]
+
 	def _r_lm(self, units=None, r_half_conv=False):
 		if units is None:
 			return 1.0
@@ -297,10 +344,16 @@ class DecayChain(object):
 
 		finished = []
 		for m,(BR, chain) in enumerate(zip(*self._get_branches(isotope))):
-			lm = self._r_lm(units)*self._chain[chain, 0]
+			lm = np.asarray(self._r_lm(units)*self._chain[chain, 0], dtype=np.float64)
 			L = len(chain)
+			# every Bateman term is invariant under (lm, t) -> (lm/sc, t*sc), so a
+			# branch-wise geometric-mean rescale centers the partial-fraction
+			# products near unity and keeps long chains inside float64 range in
+			# any choice of time units
+			sc = np.exp(np.mean(np.log(lm[lm>0]))) if np.any(lm>0) else 1.0
+			lm_s, time_s = lm/sc, time*sc
 			for i in range(L):
-				sub = ''.join(map(str, chain[i:]))
+				sub = tuple(chain[i:])
 				if sub in finished:
 					continue
 				finished.append(sub)
@@ -309,26 +362,29 @@ class DecayChain(object):
 
 				ip = self.isotopes[chain[i]]
 				A0 = self.A0.get(ip, 0.0) if _A_dict is None else _A_dict.get(ip, 0.0)
-				if A0==0.0 and _R_dict is None:
+				if A0==0.0 and (_R_dict is None or lm[i]==0.0):
 					continue
-				A_i = lm[-1]*(A0/lm[i])
-				
-				B_i = np.prod(lm[i:-1]*BR[i:-1])
+				A_i = lm_s[-1]*(A0/lm_s[i])
 
-				for j in range(i, L):
-					K = np.arange(i, L)
-					d_lm = lm[K[K!=j]]-lm[j]
-					# the coefficients of an exactly-tied pair are antisymmetric (d and -d), so
-					# the floor must give the two terms opposite signs (tie-break on index) for
-					# their near-singular contributions to cancel
-					C_j = np.prod(np.where(np.abs(d_lm)>1E-12, d_lm, np.where(d_lm!=0.0, 1E-12*np.sign(d_lm), np.where(K[K!=j]>j, 1E-12, -1E-12))))
-					A += A_i*B_i*np.exp(-lm[j]*time)/C_j
+				B_i = np.prod(lm_s[i:-1]*BR[i:-1])
+
+				lms = lm_s[i:]
+				for cl in self._lm_clusters(lms):
+					lam, mc = np.mean(lms[cl]), len(cl)
+					others = np.array([lms[k] for k in range(len(lms)) if k not in cl])
+					A += A_i*B_i*self._confluent_dd(mc, lam, others, time_s, False)
 					if _R_dict is not None:
 						if ip in _R_dict:
-							if lm[j]>1E-12:
-								A += _R_dict[ip]*lm[-1]*B_i*(1.0-np.exp(-lm[j]*time))/(lm[j]*C_j)
+							if mc==1:
+								# expm1 makes (1-exp(-lam*t))/lam exact for every lam*t,
+								# with no threshold branch; lam==0 is the exact limit t
+								C = np.prod(others-lam) if len(others) else 1.0
+								if lam==0.0:
+									A += _R_dict[ip]*lm_s[-1]*B_i*time_s/C
+								else:
+									A += _R_dict[ip]*lm_s[-1]*B_i*(-np.expm1(-lam*time_s))/(lam*C)
 							else:
-								A += _R_dict[ip]*lm[-1]*B_i*time/C_j
+								A += _R_dict[ip]*lm_s[-1]*B_i*(self._confluent_dd(mc, lam, others, 0.0, True)-self._confluent_dd(mc, lam, others, time_s, True))
 		return A
 		
 	def decays(self, isotope, t_start, t_stop, units=None, _A_dict=None):
@@ -372,8 +428,12 @@ class DecayChain(object):
 		D = np.zeros(len(t_start)) if t_start.shape else (np.zeros(len(t_stop)) if t_stop.shape else np.array(0.0))
 
 		for m,(BR, chain) in enumerate(zip(*self._get_branches(isotope))):
-			lm = self._r_lm(units)*self._chain[chain,0]
+			lm = np.asarray(self._r_lm(units)*self._chain[chain,0], dtype=np.float64)
 			L = len(chain)
+			# branch-wise rescale as in activity(); the decay integral carries one
+			# net power of time, so each rescaled term is divided by sc
+			sc = np.exp(np.mean(np.log(lm[lm>0]))) if np.any(lm>0) else 1.0
+			lm_s, t1_s, t2_s = lm/sc, t_start*sc, t_stop*sc
 			for i in range(L):
 				if i==L-1 and m>0:
 					continue
@@ -382,20 +442,25 @@ class DecayChain(object):
 				A0 = self.A0.get(ip, 0.0) if _A_dict is None else _A_dict.get(ip, 0.0)
 				if A0==0.0:
 					continue
-				A_i = lm[-1]*(A0/lm[i])
-				B_i = np.prod(lm[i:-1]*BR[i:-1])
+				A_i = lm_s[-1]*(A0/lm_s[i])
+				B_i = np.prod(lm_s[i:-1]*BR[i:-1])
 
-				for j in range(i, len(chain)):
-					K = np.arange(i, len(chain))
-					d_lm = lm[K[K!=j]]-lm[j]
-					# the coefficients of an exactly-tied pair are antisymmetric (d and -d), so
-					# the floor must give the two terms opposite signs (tie-break on index) for
-					# their near-singular contributions to cancel
-					C_j = np.prod(np.where(np.abs(d_lm)>1E-12, d_lm, np.where(d_lm!=0.0, 1E-12*np.sign(d_lm), np.where(K[K!=j]>j, 1E-12, -1E-12))))
-					if lm[j]>1E-12:
-						D += A_i*B_i*(np.exp(-lm[j]*t_start)-np.exp(-lm[j]*t_stop))/(lm[j]*C_j)
+				lms = lm_s[i:]
+				for cl in self._lm_clusters(lms):
+					lam, mc = np.mean(lms[cl]), len(cl)
+					others = np.array([lms[k] for k in range(len(lms)) if k not in cl])
+					if mc==1:
+						# expm1 makes (exp(-lam*t1)-exp(-lam*t2))/lam exact for every
+						# lam*t - a threshold branch on lam alone misclassifies slow
+						# members at long times, where lam*t is order unity even though
+						# lam is tiny; lam==0 is the exact linear limit
+						C = np.prod(others-lam) if len(others) else 1.0
+						if lam==0.0:
+							D += A_i*B_i*(t2_s-t1_s)/(C*sc)
+						else:
+							D += A_i*B_i*np.exp(-lam*t1_s)*(-np.expm1(-lam*(t2_s-t1_s)))/(lam*C*sc)
 					else:
-						D += A_i*B_i*(t_stop-t_start)/C_j
+						D += A_i*B_i*(self._confluent_dd(mc, lam, others, t1_s, True)-self._confluent_dd(mc, lam, others, t2_s, True))/sc
 
 		return D*self._r_lm((self.units if units is None else units), True)
 
@@ -431,7 +496,11 @@ class DecayChain(object):
 										'unc_counts':ct[:,3]})
 					self._counts = pd.concat([self._counts, ct], ignore_index=True).reset_index(drop=True)
 
-			self._counts['activity'] = [p['counts']*self.activity(p['isotope'], p['start'])/self.decays(p['isotope'], p['start'], p['stop']) for n,p in self._counts.iterrows()]
+			dcy = [float(self.decays(p['isotope'], p['start'], p['stop'])) for n,p in self._counts.iterrows()]
+			for d,(n,p) in zip(dcy, self._counts.iterrows()):
+				if d==0.0:
+					raise ValueError('Cannot assign counts to {}: no decays in the given interval (stable isotope, or zero activity).'.format(p['isotope']))
+			self._counts['activity'] = [p['counts']*self.activity(p['isotope'], p['start'])/d for d,(n,p) in zip(dcy, self._counts.iterrows())]
 			self._counts['unc_activity'] = self._counts['unc_counts']*self.counts['activity']/self._counts['counts']
 			
 		
@@ -605,7 +674,7 @@ class DecayChain(object):
 		p0 = np.where((p0>0)&(np.isfinite(p0)), p0, 1.0)
 
 		func = lambda X_f, *R_f: np.dot(np.asarray(R_f), X_f)
-		fit, cov = curve_fit(func, X, Y, sigma=dY, p0=p0, bounds=(0.0*p0, np.inf*p0))
+		fit, cov = curve_fit(func, X, Y, sigma=dY, p0=p0, bounds=(0.0, np.inf))
 
 
 		for n,ip in enumerate(R_isotopes):
@@ -684,7 +753,7 @@ class DecayChain(object):
 
 		func = lambda X_f, *R_f: np.dot(np.asarray(R_f), X_f)
 		p0 = np.ones(len(X))
-		fit, cov = curve_fit(func, X, Y, sigma=dY, p0=p0, bounds=(0.0*p0, np.inf*p0))
+		fit, cov = curve_fit(func, X, Y, sigma=dY, p0=p0, bounds=(0.0, np.inf))
 
 		for n,ip in enumerate(A0_isotopes):
 			self.A0[ip] *= fit[n]
@@ -775,7 +844,7 @@ class DecayChain(object):
 
 		plot_time = time if self.R is None else np.append(T_grid-T_grid[-1], time.copy())
 		for n,istp in enumerate(self.isotopes):
-			if self._chain[n,0]>1E-12 and n<max_plot:
+			if self._chain[n,0]>1E-12*self._r_lm(self.units, True) and n<max_plot:
 				A = self.activity(istp, time)
 				if self.R is not None:
 					A = np.append(A_grid[istp], A)

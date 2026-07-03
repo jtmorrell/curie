@@ -138,7 +138,10 @@ class Compound(object):
 			if all([e in ELEMENTS for e in elements]):
 				wts = re.split('|'.join(sorted(elements, key=lambda i:-len(i))), compound)
 				atom_weights = np.array([float(wts[n+1]) if wts[n+1] else 1.0 for n,e in enumerate(elements)])
-				self._set_weights(elements, atom_weights=atom_weights)
+				# aggregate repeated elements (e.g. both H groups in CH3OH) into one row each
+				unique_elements = list(dict.fromkeys(elements))
+				atom_weights = np.array([sum(w for e,w in zip(elements, atom_weights) if e==u) for u in unique_elements])
+				self._set_weights(unique_elements, atom_weights=atom_weights)
 
 		if weights is not None:
 

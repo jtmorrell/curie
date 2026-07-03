@@ -469,8 +469,13 @@ class Calibration(object):
 
 		if len(engcal)==3:
 			if engcal[2]!=0.0:
-				return np.array(np.rint(0.5*(np.sqrt(engcal[1]**2-4.0*engcal[2]*(engcal[0]-energy))-engcal[1])/engcal[2]), dtype=np.int32)
+				disc = engcal[1]**2-4.0*engcal[2]*(engcal[0]-energy)
+				if np.any(disc<0.0):
+					raise ValueError('Energy calibration {0} cannot be inverted at energy {1} (negative discriminant).'.format(list(engcal), np.atleast_1d(energy)[np.atleast_1d(disc<0.0)].tolist()))
+				return np.array(np.rint(0.5*(np.sqrt(disc)-engcal[1])/engcal[2]), dtype=np.int32)
 
+		if engcal[1]==0.0:
+			raise ValueError('Energy calibration {} cannot be inverted (zero slope).'.format(list(engcal)))
 		return np.array(np.rint((energy-engcal[0])/engcal[1]), dtype=np.int32)
 		
 	def calibrate(self, spectra, sources):

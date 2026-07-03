@@ -290,7 +290,7 @@ class Element(object):
 
 	def _eff_Z_ratio(self, E_keV, z1, M1):
 		if z1==1:
-			return np.ones(len(eng))
+			return np.ones(len(E_keV))
 
 		elif z1==2:
 			Y = np.log(E_keV/M1)
