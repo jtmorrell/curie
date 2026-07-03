@@ -918,7 +918,10 @@ class Spectrum(object):
 			corr = self._geom_corr*self._atten_corr(df['energy'])
 			
 		D = N/(df['intensity']*self.cb.eff(df['energy'])*corr*(self.live_time/self.real_time))
-		unc_D = D*np.sqrt((N/N**2)+(unc_N/N)**2+(self.cb.unc_eff(df['energy'])/self.cb.eff(df['energy']))**2+(df['unc_intensity']/df['intensity'])**2)
+		# unc_N is propagated from the weighted-least-squares covariance, which is the
+		# full sampling covariance under Poisson channel counts - it already contains
+		# the counting statistics of the peak area, so no separate 1/N term is added
+		unc_D = D*np.sqrt((unc_N/N)**2+(self.cb.unc_eff(df['energy'])/self.cb.eff(df['energy']))**2+(df['unc_intensity']/df['intensity'])**2)
 
 		A, unc_A = D/self.real_time, unc_D/self.real_time
 		return D, unc_D, A, unc_A
