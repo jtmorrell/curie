@@ -1092,12 +1092,20 @@ class Spectrum(object):
 	def _multi_fit(self, p0):
 		chan = np.arange(len(self.hist))
 		try:
-			fit, unc = curve_fit(self._multiplet, chan[p0['l']:p0['h']], self.hist[p0['l']:p0['h']], p0=p0['p0'], bounds=p0['bounds'], sigma=np.sqrt(self.hist[p0['l']:p0['h']]+0.1))
+			# absolute_sigma: the sigmas are true Poisson standard deviations, so the
+			# covariance carries the full counting statistics. Scipy's default rescale
+			# by the reduced chi-square is biased below 1 for clean peaks in wide
+			# windows of near-empty channels, pushing unc_counts under the sqrt(N)
+			# counting floor; instead, inflate by chi2/dof only when it exceeds 1
+			# (scale-factor convention for model mismatch), never deflate.
+			fit, unc = curve_fit(self._multiplet, chan[p0['l']:p0['h']], self.hist[p0['l']:p0['h']], p0=p0['p0'], bounds=p0['bounds'], sigma=np.sqrt(self.hist[p0['l']:p0['h']]+0.1), absolute_sigma=True)
+			chi2 = self._chi2(fit, p0['l'], p0['h'])
+			if np.isfinite(chi2) and chi2>1.0:
+				unc = unc*chi2
 			p0['fit'] = fit
 			p0['unc'] = unc
 			N, unc_N = self._counts(fit, unc)
 			D, unc_D, A, unc_A = self._decays(N, unc_N, p0['df'])
-			chi2 = self._chi2(fit, p0['l'], p0['h'])
 
 			f = p0['df']
 			cols = ['filename','isotope','energy','counts','unc_counts',
