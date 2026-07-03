@@ -342,10 +342,6 @@ class DecayChain(object):
 		time = np.asarray(time)
 		A = np.zeros(len(time)) if time.shape else np.array(0.0)
 
-		# smallest decay constant treated as nonzero, fixed at 1E-12 1/s and
-		# expressed in the evaluation units so behavior is unit-independent
-		thr = 1E-12*self._r_lm((self.units if units is None else units), True)
-
 		finished = []
 		for m,(BR, chain) in enumerate(zip(*self._get_branches(isotope))):
 			lm = np.asarray(self._r_lm(units)*self._chain[chain, 0], dtype=np.float64)
@@ -355,7 +351,7 @@ class DecayChain(object):
 			# products near unity and keeps long chains inside float64 range in
 			# any choice of time units
 			sc = np.exp(np.mean(np.log(lm[lm>0]))) if np.any(lm>0) else 1.0
-			lm_s, time_s, thr_s = lm/sc, time*sc, thr/sc
+			lm_s, time_s = lm/sc, time*sc
 			for i in range(L):
 				sub = tuple(chain[i:])
 				if sub in finished:
@@ -379,11 +375,16 @@ class DecayChain(object):
 					A += A_i*B_i*self._confluent_dd(mc, lam, others, time_s, False)
 					if _R_dict is not None:
 						if ip in _R_dict:
-							if lam>thr_s:
-								A += _R_dict[ip]*lm_s[-1]*B_i*(self._confluent_dd(mc, lam, others, 0.0, True)-self._confluent_dd(mc, lam, others, time_s, True))
-							else:
+							if mc==1:
+								# expm1 makes (1-exp(-lam*t))/lam exact for every lam*t,
+								# with no threshold branch; lam==0 is the exact limit t
 								C = np.prod(others-lam) if len(others) else 1.0
-								A += _R_dict[ip]*lm_s[-1]*B_i*time_s/C
+								if lam==0.0:
+									A += _R_dict[ip]*lm_s[-1]*B_i*time_s/C
+								else:
+									A += _R_dict[ip]*lm_s[-1]*B_i*(-np.expm1(-lam*time_s))/(lam*C)
+							else:
+								A += _R_dict[ip]*lm_s[-1]*B_i*(self._confluent_dd(mc, lam, others, 0.0, True)-self._confluent_dd(mc, lam, others, time_s, True))
 		return A
 		
 	def decays(self, isotope, t_start, t_stop, units=None, _A_dict=None):
@@ -426,15 +427,13 @@ class DecayChain(object):
 		t_start, t_stop = np.asarray(t_start), np.asarray(t_stop)
 		D = np.zeros(len(t_start)) if t_start.shape else (np.zeros(len(t_stop)) if t_stop.shape else np.array(0.0))
 
-		thr = 1E-12*self._r_lm((self.units if units is None else units), True)
-
 		for m,(BR, chain) in enumerate(zip(*self._get_branches(isotope))):
 			lm = np.asarray(self._r_lm(units)*self._chain[chain,0], dtype=np.float64)
 			L = len(chain)
 			# branch-wise rescale as in activity(); the decay integral carries one
 			# net power of time, so each rescaled term is divided by sc
 			sc = np.exp(np.mean(np.log(lm[lm>0]))) if np.any(lm>0) else 1.0
-			lm_s, t1_s, t2_s, thr_s = lm/sc, t_start*sc, t_stop*sc, thr/sc
+			lm_s, t1_s, t2_s = lm/sc, t_start*sc, t_stop*sc
 			for i in range(L):
 				if i==L-1 and m>0:
 					continue
@@ -450,11 +449,18 @@ class DecayChain(object):
 				for cl in self._lm_clusters(lms):
 					lam, mc = np.mean(lms[cl]), len(cl)
 					others = np.array([lms[k] for k in range(len(lms)) if k not in cl])
-					if lam>thr_s:
-						D += A_i*B_i*(self._confluent_dd(mc, lam, others, t1_s, True)-self._confluent_dd(mc, lam, others, t2_s, True))/sc
-					else:
+					if mc==1:
+						# expm1 makes (exp(-lam*t1)-exp(-lam*t2))/lam exact for every
+						# lam*t - a threshold branch on lam alone misclassifies slow
+						# members at long times, where lam*t is order unity even though
+						# lam is tiny; lam==0 is the exact linear limit
 						C = np.prod(others-lam) if len(others) else 1.0
-						D += A_i*B_i*(t2_s-t1_s)/(C*sc)
+						if lam==0.0:
+							D += A_i*B_i*(t2_s-t1_s)/(C*sc)
+						else:
+							D += A_i*B_i*np.exp(-lam*t1_s)*(-np.expm1(-lam*(t2_s-t1_s)))/(lam*C*sc)
+					else:
+						D += A_i*B_i*(self._confluent_dd(mc, lam, others, t1_s, True)-self._confluent_dd(mc, lam, others, t2_s, True))/sc
 
 		return D*self._r_lm((self.units if units is None else units), True)
 
