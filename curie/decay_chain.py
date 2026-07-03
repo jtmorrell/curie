@@ -736,6 +736,32 @@ class DecayChain(object):
 			The minimum number of counts (decays) for a datum in self.counts to be included
 			in the fit. Default, 1.
 
+		corr : float, optional
+			Opt-in uniform-correlation mode for counts that carry only total
+			uncertainties: the fraction (0-1) of each point's variance treated as
+			fully correlated across points (or within `corr_group` groups).
+			Default `None` (off).
+
+		corr_group : str, optional
+			Name of a counts column defining the correlation groups for `corr`.
+			Default `None` (global).
+
+		norm_frac : float, optional
+			Fraction of each line's intensity variance treated as common to all
+			lines of the isotope (the decay-scheme normalization). Default 1.0
+			(fully common - conservative until the intensity data carry the
+			normalization uncertainty separately).
+
+		scale_factor : bool, optional
+			If `True` (default), the fitted covariance is inflated by chi-square
+			per degree of freedom when that exceeds 1 (mutually inconsistent
+			count data); it is never deflated.
+
+		cov : array_like, optional
+			Full covariance matrix of the count data, overriding the assembled
+			one. For advanced use.
+
+
 		Returns
 		-------
 		isotopes : list
@@ -823,6 +849,32 @@ class DecayChain(object):
 		min_counts : float or int, optional
 			The minimum number of counts (decays) for a datum in self.counts to be included
 			in the fit. Default, 1.
+
+		corr : float, optional
+			Opt-in uniform-correlation mode for counts that carry only total
+			uncertainties: the fraction (0-1) of each point's variance treated as
+			fully correlated across points (or within `corr_group` groups).
+			Default `None` (off).
+
+		corr_group : str, optional
+			Name of a counts column defining the correlation groups for `corr`.
+			Default `None` (global).
+
+		norm_frac : float, optional
+			Fraction of each line's intensity variance treated as common to all
+			lines of the isotope (the decay-scheme normalization). Default 1.0
+			(fully common - conservative until the intensity data carry the
+			normalization uncertainty separately).
+
+		scale_factor : bool, optional
+			If `True` (default), the fitted covariance is inflated by chi-square
+			per degree of freedom when that exceeds 1 (mutually inconsistent
+			count data); it is never deflated.
+
+		cov : array_like, optional
+			Full covariance matrix of the count data, overriding the assembled
+			one. For advanced use.
+
 
 		Returns
 		-------
