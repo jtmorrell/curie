@@ -119,7 +119,9 @@ class Isotope(object):
 		if df['amu'][0] is not None:
 			self.mass = float(df['amu'][0])
 		elif df['Delta'][0] is not None:
-			self.mass = self.A + float(df['Delta'][0])/931.49410242  # amu from mass excess
+			# Delta is the level mass excess (includes E_level); the amu column
+			# convention is the ground-state mass for isomers
+			self.mass = self.A + (float(df['Delta'][0])-self.E_level)/931.49410242
 		else:
 			self.mass = float(self.A)
 		if df['abundance'][0] is not None:
