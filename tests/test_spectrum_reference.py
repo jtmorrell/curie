@@ -33,12 +33,15 @@ REFERENCE_SINGLES = {
 # the 152EU 1457.64 / 40K 1460.82 doublet, fit as one multiplet
 REFERENCE_MULTIPLET = {1457.643: ('152EU', 1270.5), 1460.820: ('40K', 2985.8)}
 REFERENCE_N_PEAKS = 45
-# efficiency curve from the documented calibrate() workflow, evaluated at reference energies
+# efficiency curve from the documented calibrate() workflow, evaluated at reference energies.
+# Re-recorded 2026-07-04 (curie 0.0.37): calibrate() now fits against the block covariance
+# of the efficiency points (correlated intensity/decay-data/source terms, absolute sigma),
+# which re-weights the fit and moved the curve by up to ~7% on this spectrum.
 REFERENCE_EFF = {
-    121.7817: 0.033881,
-    344.2785: 0.015169,
-    778.9045: 0.0070933,
-    1408.0130: 0.0040089,
+    121.7817: 0.033668,
+    344.2785: 0.016283,
+    778.9045: 0.0075848,
+    1408.0130: 0.0038683,
 }
 REFERENCE_ENGCAL_SLOPE = 0.182647  # keV/channel
 
