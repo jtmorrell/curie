@@ -87,14 +87,14 @@ class DecayChain(object):
 	--------
 	>>> dc = ci.DecayChain('Ra-225', R=[[1.0, 1.0], [0.5, 1.5], [2.0, 6]], units='d')
 	>>> print(dc.isotopes)
-	['225RAg', '225ACg', '221FRg', '217ATg', '213BIg', '217RNg', '209TLg', '213POg', '209PBg', '209BIg']
+	['225RAg', '225ACg', '221FRg', '217ATg', '213BIg', '217RNg', '209TLg', '213POg', '209PBg', '209BIg', '205TLg']
 	>>> print(dc.R_avg)
           R_avg isotope
 	0  1.708333  225RAg
 
 	>>> dc = ci.DecayChain('152EU', A0=3.7E3, units='h')
 	>>> print(dc.isotopes)
-	['152EUg', '152GDg', '152SMg']
+	['152EUg', '152GDg', '152SMg', '148SMg', '144NDg', '140CEg']
 
 	"""
 
