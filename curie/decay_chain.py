@@ -2,6 +2,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import math
 import numpy as np
 import pandas as pd
 import datetime as dtm
@@ -238,6 +239,50 @@ class DecayChain(object):
 					br_ratios.append(np.array(self._branches[1][n][:k] + [0.0]))
 		return br_ratios, branches
 
+	@staticmethod
+	def _lm_clusters(lm):
+		# Group indistinguishable decay constants (pairwise relative separation
+		# below 1E-9): the standard partial-fraction Bateman coefficients are
+		# singular for (near-)equal pairs, which occur in the database as
+		# identically rounded half-lives. Relative comparison keeps the grouping
+		# unit-independent.
+		clusters = []
+		for j in range(len(lm)):
+			for cl in clusters:
+				if abs(lm[j]-lm[cl[0]])<=1E-9*max(abs(lm[j]), abs(lm[cl[0]])):
+					cl.append(j)
+					break
+			else:
+				clusters.append([j])
+		return clusters
+
+	@staticmethod
+	def _confluent_dd(m, lam, others, time, inv_lam):
+		# (-1)^(m-1)/(m-1)! * (d/dlam)^(m-1) of exp(-lam*time)/(lam^inv_lam * P(lam)),
+		# with P(lam) = prod(others-lam): the exact confluent Bateman coefficient for
+		# a cluster of m equal decay constants (the divided difference of the
+		# partial-fraction terms collapses to this derivative as the constants
+		# coincide). Evaluated with the logarithmic-derivative recursion
+		# f^(k) = sum_r C(k-1,r-1) * (ln f)^(r) * f^(k-r), which is free of the
+		# catastrophic cancellation of the raw partial-fraction sum.
+		P = np.prod(others-lam) if len(others) else 1.0
+		f = np.exp(-lam*time)/((lam if inv_lam else 1.0)*P)
+		if m==1:
+			return f
+		w = [None]*m
+		for r in range(1, m):
+			w[r] = math.factorial(r-1)*(np.sum(1.0/(others-lam)**r) if len(others) else 0.0)
+			if inv_lam:
+				w[r] += (-1.0)**r*math.factorial(r-1)/lam**r
+		w[1] = w[1]-time
+		g = [f]
+		for k in range(1, m):
+			s = 0.0
+			for r in range(1, k+1):
+				s = s+math.comb(k-1, r-1)*w[r]*g[k-r]
+			g.append(s)
+		return (-1.0)**(m-1)/math.factorial(m-1)*g[m-1]
+
 	def _r_lm(self, units=None, r_half_conv=False):
 		if units is None:
 			return 1.0
@@ -297,9 +342,13 @@ class DecayChain(object):
 		time = np.asarray(time)
 		A = np.zeros(len(time)) if time.shape else np.array(0.0)
 
+		# smallest decay constant treated as nonzero, fixed at 1E-12 1/s and
+		# expressed in the evaluation units so behavior is unit-independent
+		thr = 1E-12*self._r_lm((self.units if units is None else units), True)
+
 		finished = []
 		for m,(BR, chain) in enumerate(zip(*self._get_branches(isotope))):
-			lm = self._r_lm(units)*self._chain[chain, 0]
+			lm = np.asarray(self._r_lm(units)*self._chain[chain, 0], dtype=np.float64)
 			L = len(chain)
 			for i in range(L):
 				sub = tuple(chain[i:])
@@ -311,26 +360,24 @@ class DecayChain(object):
 
 				ip = self.isotopes[chain[i]]
 				A0 = self.A0.get(ip, 0.0) if _A_dict is None else _A_dict.get(ip, 0.0)
-				if A0==0.0 and _R_dict is None:
+				if A0==0.0 and (_R_dict is None or lm[i]==0.0):
 					continue
 				A_i = lm[-1]*(A0/lm[i])
-				
+
 				B_i = np.prod(lm[i:-1]*BR[i:-1])
 
-				for j in range(i, L):
-					K = np.arange(i, L)
-					d_lm = lm[K[K!=j]]-lm[j]
-					# the coefficients of an exactly-tied pair are antisymmetric (d and -d), so
-					# the floor must give the two terms opposite signs (tie-break on index) for
-					# their near-singular contributions to cancel
-					C_j = np.prod(np.where(np.abs(d_lm)>1E-12, d_lm, np.where(d_lm!=0.0, 1E-12*np.sign(d_lm), np.where(K[K!=j]>j, 1E-12, -1E-12))))
-					A += A_i*B_i*np.exp(-lm[j]*time)/C_j
+				lms = lm[i:]
+				for cl in self._lm_clusters(lms):
+					lam, mc = np.mean(lms[cl]), len(cl)
+					others = np.array([lms[k] for k in range(len(lms)) if k not in cl])
+					A += A_i*B_i*self._confluent_dd(mc, lam, others, time, False)
 					if _R_dict is not None:
 						if ip in _R_dict:
-							if lm[j]>1E-12:
-								A += _R_dict[ip]*lm[-1]*B_i*(1.0-np.exp(-lm[j]*time))/(lm[j]*C_j)
+							if lam>thr:
+								A += _R_dict[ip]*lm[-1]*B_i*(self._confluent_dd(mc, lam, others, 0.0, True)-self._confluent_dd(mc, lam, others, time, True))
 							else:
-								A += _R_dict[ip]*lm[-1]*B_i*time/C_j
+								C = np.prod(others-lam) if len(others) else 1.0
+								A += _R_dict[ip]*lm[-1]*B_i*time/C
 		return A
 		
 	def decays(self, isotope, t_start, t_stop, units=None, _A_dict=None):
@@ -373,8 +420,10 @@ class DecayChain(object):
 		t_start, t_stop = np.asarray(t_start), np.asarray(t_stop)
 		D = np.zeros(len(t_start)) if t_start.shape else (np.zeros(len(t_stop)) if t_stop.shape else np.array(0.0))
 
+		thr = 1E-12*self._r_lm((self.units if units is None else units), True)
+
 		for m,(BR, chain) in enumerate(zip(*self._get_branches(isotope))):
-			lm = self._r_lm(units)*self._chain[chain,0]
+			lm = np.asarray(self._r_lm(units)*self._chain[chain,0], dtype=np.float64)
 			L = len(chain)
 			for i in range(L):
 				if i==L-1 and m>0:
@@ -387,17 +436,15 @@ class DecayChain(object):
 				A_i = lm[-1]*(A0/lm[i])
 				B_i = np.prod(lm[i:-1]*BR[i:-1])
 
-				for j in range(i, len(chain)):
-					K = np.arange(i, len(chain))
-					d_lm = lm[K[K!=j]]-lm[j]
-					# the coefficients of an exactly-tied pair are antisymmetric (d and -d), so
-					# the floor must give the two terms opposite signs (tie-break on index) for
-					# their near-singular contributions to cancel
-					C_j = np.prod(np.where(np.abs(d_lm)>1E-12, d_lm, np.where(d_lm!=0.0, 1E-12*np.sign(d_lm), np.where(K[K!=j]>j, 1E-12, -1E-12))))
-					if lm[j]>1E-12:
-						D += A_i*B_i*(np.exp(-lm[j]*t_start)-np.exp(-lm[j]*t_stop))/(lm[j]*C_j)
+				lms = lm[i:]
+				for cl in self._lm_clusters(lms):
+					lam, mc = np.mean(lms[cl]), len(cl)
+					others = np.array([lms[k] for k in range(len(lms)) if k not in cl])
+					if lam>thr:
+						D += A_i*B_i*(self._confluent_dd(mc, lam, others, t_start, True)-self._confluent_dd(mc, lam, others, t_stop, True))
 					else:
-						D += A_i*B_i*(t_stop-t_start)/C_j
+						C = np.prod(others-lam) if len(others) else 1.0
+						D += A_i*B_i*(t_stop-t_start)/C
 
 		return D*self._r_lm((self.units if units is None else units), True)
 
