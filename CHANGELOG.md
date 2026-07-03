@@ -12,13 +12,16 @@ re-check analyses that depend on them. A before/after benchmark (the shipped
 summarized per item.
 
 ### Changed — numerical results
-- **Activity/decay uncertainties no longer double-count the Poisson term.**
-  The peak-fit covariance (weighted least squares with sigma=sqrt(counts))
-  already carries the full counting statistics of the fitted area — verified
-  analytically and by Monte Carlo — so the extra 1/N term in `unc_decays` was
-  a duplicate. Uncertainties shrink by up to sqrt(2) for statistics-dominated
-  peaks (benchmark: -1.2% to -10.2% on the 152Eu lines). Central values are
-  unchanged.
+- **Activity/decay uncertainties no longer double-count the Poisson term,
+  and the fit covariance now respects the counting floor.** The peak-fit
+  covariance (weighted least squares with sigma=sqrt(counts)) already carries
+  the full counting statistics of the fitted area — verified analytically and
+  by Monte Carlo — so the extra 1/N term in `unc_decays` was a duplicate.
+  The covariance is now absolute (`absolute_sigma=True`) with a one-sided
+  scale factor: inflated by chi2/dof when above 1 (model mismatch, as
+  before), but no longer deflated below the sqrt(N) counting floor when a
+  clean low-background peak fits with chi2/dof < 1. Benchmark: -0.3% to
+  -9.8% on the 152Eu lines. Central values are unchanged.
 - **Un-resolvable gamma lines are now actually merged.** The intensity
   combination in `Spectrum._gammas` silently discarded the merged intensity
   (pandas chained assignment) and left triplets partially merged. Decays and
@@ -26,8 +29,8 @@ summarized per item.
   the 152Eu 719.3 keV pair's combined intensity rises 38%, its inferred
   decays drop 27.5%; the eu fit_R production rate moves -0.8%).
 - **No cross-section extrapolation beyond the evaluated grid** (`Reaction.
-  interpolate` returns 0 off-grid for all libraries; ENDF/IRDFF previously
-  extrapolated linearly). Threshold reactions queried off-grid stop returning
+  interpolate` returns 0 off-grid for all libraries; ENDF, IRDFF, and the
+  IAEA monitors previously extrapolated linearly). Threshold reactions queried off-grid stop returning
   fabricated values (90Zr(n,2n) at 30 MeV: 903.7 mb -> 0), and flux averages
   over windows extending past a grid edge lose the fabricated contribution
   (natTi(p,x)46Sc averaged over 40-95 MeV vs its 80 MeV grid ceiling: -22%).
@@ -49,6 +52,13 @@ summarized per item.
   keeps the partial-fraction products inside float64 for any time units
   (previously up to 1E302 in 1/Gy on the deep 238U branches) and makes
   activities unit-invariant at machine precision.
+- **`decays()` is correct for slow members at long times.** The
+  small-decay-constant branch selected the linear-in-time limit on lambda
+  alone, but the expansion parameter is lambda*t: interior members of the
+  extended 238U series (234U, 230Th, 226Ra) at geological times returned
+  sign-wrong, orders-of-magnitude-wrong decay counts. The exponential
+  differences are now evaluated with expm1, exact for every lambda, with no
+  threshold branch (verified against direct integration of the activity).
 
 ### Fixed
 - `.Spe` saving no longer truncates live/real times to whole seconds.
