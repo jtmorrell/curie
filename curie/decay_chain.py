@@ -122,7 +122,9 @@ class DecayChain(object):
 						istps.append(I)
 						self.isotopes.append(I.name)
 						self._chain.append([I.decay_const(units), [br], [n]])
-						stable_chain.append(self._chain[-1][0]<1E-12)
+						# chain expansion stops only at truly stable members, so chain
+						# composition is independent of the chosen time units
+						stable_chain.append(I.stable)
 						if not stable_chain[-1]:
 							self.A0[self.isotopes[-1]] = 0.0
 		self._chain = np.array(self._chain, dtype=object)
@@ -778,7 +780,7 @@ class DecayChain(object):
 
 		plot_time = time if self.R is None else np.append(T_grid-T_grid[-1], time.copy())
 		for n,istp in enumerate(self.isotopes):
-			if self._chain[n,0]>1E-12 and n<max_plot:
+			if self._chain[n,0]>1E-12*self._r_lm(self.units, True) and n<max_plot:
 				A = self.activity(istp, time)
 				if self.R is not None:
 					A = np.append(A_grid[istp], A)
