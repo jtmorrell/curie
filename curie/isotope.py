@@ -190,6 +190,8 @@ class Isotope(object):
 			self.element = ''.join(re.findall('[A-Z]+', istp)).title()
 			if istp.startswith('nat'):
 				self.A = 'nat'
+			elif not istp.split(self.element.upper())[0]:
+				raise ValueError('Isotope name {} has no mass number: use e.g. 60CO or Co-60, or ci.Element for a natural-abundance element.'.format(istp))
 			else:
 				self.A = int(istp.split(self.element.upper())[0])
 
