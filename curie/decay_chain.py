@@ -107,6 +107,7 @@ class DecayChain(object):
 		istps = [Isotope(parent_isotope)]
 		self.isotopes = [istps[0].name]
 		self.R, self.A0, self._counts = None, {self.isotopes[0]:0.0}, None
+		self._cal_data = {}
 		self._chain = [[istps[0].decay_const(units), [], []]]
 		stable_chain = [False]
 
@@ -592,10 +593,121 @@ class DecayChain(object):
 					start = (sp.start_time-EoB).total_seconds()*self._r_lm('s')
 					stop = start+(sp.real_time*self._r_lm('s'))
 			if len(df):
-				counts.append(pd.DataFrame({'isotope':df['isotope'], 'start':start, 'stop':stop, 'counts':df['decays'], 'unc_counts':df['unc_decays']}))
+				ct = pd.DataFrame({'isotope':df['isotope'], 'start':start, 'stop':stop, 'counts':df['decays'], 'unc_counts':df['unc_decays']})
+				# decompose the uncertainty by correlation class where the peak data
+				# carries the provenance: counting (independent), gamma intensity
+				# (correlated within a line), efficiency (correlated within a
+				# calibration) - used by the generalized-least-squares fits
+				dec_cols = {'counts','unc_counts','intensity','unc_intensity','efficiency','unc_efficiency','energy'}
+				if dec_cols.issubset(df.columns):
+					ct['energy'] = df['energy'].to_numpy()
+					ct['unc_stat'] = (df['decays']*df['unc_counts']/df['counts']).to_numpy()
+					ct['unc_line'] = (df['decays']*df['unc_intensity']/df['intensity']).to_numpy()
+					ct['line'] = [i+':'+'{:.2f}'.format(e) for i,e in zip(df['isotope'], df['energy'])]
+					ct['unc_corr'] = (df['decays']*df['unc_efficiency']/df['efficiency']).to_numpy()
+					if type(sp)!=str:
+						cal = 'effcal:'+','.join('{:.9g}'.format(p) for p in sp.cb.effcal)
+						self._cal_data[cal] = (np.asarray(sp.cb.effcal, dtype=np.float64), np.asarray(sp.cb.unc_effcal, dtype=np.float64))
+						ct['cal'] = cal
+					elif 'effcal' in df.columns:
+						ct['cal'] = ('effcal:'+df['effcal'].astype(str)).to_numpy()
+					else:
+						ct['cal'] = ''
+				counts.append(ct)
 
 		self.counts = pd.concat(counts, sort=True, ignore_index=True).sort_values(by=['start']).reset_index(drop=True)
 
+
+	@staticmethod
+	def _eff_correlation(cal, energies):
+		# correlation of efficiency errors between energies, from the efficiency
+		# calibration's parameter covariance; falls back to full correlation when
+		# the covariance is unusable
+		from .calibration import Calibration
+		effcal, unc_effcal = cal
+		if unc_effcal.shape != (len(effcal), len(effcal)) or not np.all(np.isfinite(unc_effcal)):
+			return np.ones((len(energies), len(energies)))
+		cb = Calibration()
+		eps = 1E-8
+		f0 = cb.eff(energies, effcal)
+		G = []
+		for i in range(len(effcal)):
+			p = np.array(effcal, dtype=np.float64)
+			p[i] += eps
+			G.append((cb.eff(energies, p)-f0)/eps)
+		G = np.array(G)
+		C = G.T @ unc_effcal @ G
+		d = np.sqrt(np.clip(np.diag(C), 1E-300, None))
+		return np.clip(C/np.outer(d, d), -1.0, 1.0)
+
+	def _counts_covariance(self, fc, m, corr=None, corr_group=None, norm_frac=1.0):
+		# Covariance of the count data for the generalized-least-squares fits:
+		# diagonal counting variance plus correlated blocks for shared gamma
+		# intensities (within a line; the isotope-common normalization fraction
+		# norm_frac defaults to fully common) and shared efficiencies (within a
+		# calibration, using its parameter covariance when captured by
+		# get_counts). Magnitudes come from the fitted model values m rather than
+		# the measured counts, which would bias correlated fits low (Peelle's
+		# pertinent puzzle). Returns None if only total uncertainties are known.
+		y = fc['counts'].to_numpy()
+		dec = ['unc_stat','unc_line','line','unc_corr','cal']
+		if all(c in fc.columns for c in dec) and fc[['unc_stat','unc_line','unc_corr']].notna().to_numpy().all():
+			V = np.diag((m*(fc['unc_stat']/y).to_numpy())**2)
+			r_line = m*(fc['unc_line']/y).to_numpy()
+			for key, frac in [('line', 1.0-norm_frac), ('isotope', norm_frac)]:
+				if frac<=0.0:
+					continue
+				for g in pd.unique(fc[key]):
+					u = np.where((fc[key]==g).to_numpy(), r_line, 0.0)*np.sqrt(frac)
+					V += np.outer(u, u)
+			r_eff = m*(fc['unc_corr']/y).to_numpy()
+			for g in pd.unique(fc['cal']):
+				msk = (fc['cal']==g).to_numpy()
+				if g in self._cal_data and 'energy' in fc.columns:
+					ix = np.where(msk)[0]
+					rho = self._eff_correlation(self._cal_data[g], fc['energy'].to_numpy()[ix])
+					V[np.ix_(ix, ix)] += np.outer(r_eff[ix], r_eff[ix])*rho
+				else:
+					u = np.where(msk, r_eff, 0.0)
+					V += np.outer(u, u)
+		elif corr is not None:
+			c = min(float(corr), 0.999999)
+			u = m*(fc['unc_counts']/y).to_numpy()
+			V = np.diag((1.0-c)*u**2)
+			if corr_group is not None and corr_group in fc.columns:
+				for g in pd.unique(fc[corr_group]):
+					ug = np.where((fc[corr_group]==g).to_numpy(), u, 0.0)
+					V += c*np.outer(ug, ug)
+			else:
+				V += c*np.outer(u, u)
+		else:
+			return None
+		d = np.diag(V)
+		V[np.diag_indices_from(V)] = d + 1E-12*np.max(d)
+		return V
+
+	def _gls_fit(self, X, Y, dY, fc, p0, corr, corr_group, norm_frac, scale_factor, cov):
+		# Shared fitting core for fit_R/fit_A0: diagonal absolute-sigma pre-fit
+		# (also the bare-counts path), then the generalized fit against the
+		# assembled covariance, with a one-sided chi-square scale factor.
+		func = lambda X_f, *R_f: np.dot(np.asarray(R_f), X_f)
+		fit, cv = curve_fit(func, X, Y, sigma=dY, p0=p0, bounds=(0.0, np.inf), absolute_sigma=True)
+		if cov is not None:
+			V = np.asarray(cov, dtype=np.float64)
+		else:
+			V = self._counts_covariance(fc, np.abs(np.dot(fit, X)), corr, corr_group, norm_frac)
+		if V is None:
+			print('WARNING: counts carry only total uncertainties, so correlated systematics (shared gamma intensities, efficiencies) cannot be separated and unc_R may be underestimated. Provide decomposition columns (see get_counts) or the corr= option.')
+			r = Y-np.dot(fit, X)
+			chi2 = np.sum(r**2/dY**2)
+		else:
+			fit, cv = curve_fit(func, X, Y, sigma=V, p0=p0, bounds=(0.0, np.inf), absolute_sigma=True)
+			r = Y-np.dot(fit, X)
+			chi2 = float(r @ np.linalg.solve(V, r))
+		dof = len(Y)-len(fit)
+		if scale_factor and dof>0 and np.isfinite(chi2) and chi2/dof>1.0:
+			cv = cv*(chi2/dof)
+		return fit, cv
 
 	@property	
 	def R_avg(self):
