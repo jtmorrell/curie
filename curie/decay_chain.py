@@ -717,7 +717,7 @@ class DecayChain(object):
 			df.append({'isotope':ip, 'R_avg':np.average(self.R[self.R['isotope']==ip]['R'], weights=time[1:]-time[:-1])})
 		return pd.DataFrame(df)
 		
-	def fit_R(self, max_error=0.4, min_counts=1):
+	def fit_R(self, max_error=0.4, min_counts=1, corr=None, corr_group=None, norm_frac=1.0, scale_factor=True, cov=None):
 		"""Fit the production rate to count data
 
 		Fits a scalar multiplier to the production rate (as a function of time) for
@@ -785,8 +785,7 @@ class DecayChain(object):
 		p0 = np.average(Y[wh]/X[:,wh], axis=1)
 		p0 = np.where((p0>0)&(np.isfinite(p0)), p0, 1.0)
 
-		func = lambda X_f, *R_f: np.dot(np.asarray(R_f), X_f)
-		fit, cov = curve_fit(func, X, Y, sigma=dY, p0=p0, bounds=(0.0, np.inf))
+		fit, cov = self._gls_fit(X, Y, dY, filter_counts, p0, corr, corr_group, norm_frac, scale_factor, cov)
 
 
 		for n,ip in enumerate(R_isotopes):
@@ -806,7 +805,7 @@ class DecayChain(object):
 			cov = np.ones(cov.shape)*((np.average(dY/Y))*fit)**2
 		return R_isotopes, R_norm, cov*(R_norm/fit)**2
 		
-	def fit_A0(self, max_error=0.4, min_counts=1):
+	def fit_A0(self, max_error=0.4, min_counts=1, corr=None, corr_group=None, norm_frac=1.0, scale_factor=True, cov=None):
 		"""Fit the initial activity to count data
 
 		Fits a scalar multiplier to the initial activity for
@@ -863,9 +862,8 @@ class DecayChain(object):
 		Y = filter_counts['counts'].to_numpy()
 		dY = filter_counts['unc_counts'].to_numpy()
 
-		func = lambda X_f, *R_f: np.dot(np.asarray(R_f), X_f)
 		p0 = np.ones(len(X))
-		fit, cov = curve_fit(func, X, Y, sigma=dY, p0=p0, bounds=(0.0, np.inf))
+		fit, cov = self._gls_fit(X, Y, dY, filter_counts, p0, corr, corr_group, norm_frac, scale_factor, cov)
 
 		for n,ip in enumerate(A0_isotopes):
 			self.A0[ip] *= fit[n]
