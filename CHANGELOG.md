@@ -3,6 +3,45 @@
 Notable changes to curie are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.0.37] - 2026-07-04
+
+Correlated-uncertainty release: `fit_R`, `fit_A0`, and `calibrate()` now
+propagate the correlation structure of their inputs, so fitted uncertainties
+no longer average away systematic floors. Reviewer-raised: production-rate
+uncertainties could previously undercut the nuclear-data (gamma-intensity)
+uncertainties feeding them (Monte Carlo coverage 13-35% vs 68% nominal;
+64-68% after this release).
+
+### Changed — numerical results
+- **`fit_R`/`fit_A0` are generalized-least-squares fits** under a block
+  covariance: counting errors are independent; gamma-intensity errors are
+  common within a line, with an isotope-common fraction `norm_frac`
+  (default 1.0) representing the decay-scheme normalization; efficiency
+  errors are correlated within one calibration, using the calibration's
+  parameter covariance when available. Central values can shift within
+  their uncertainties (re-weighting; benchmark: thallium foils +3% to +16%,
+  all within 1.3 sigma), and uncertainties grow to include the correlated
+  floors. A one-sided chi-square scale factor (disable with
+  `scale_factor=False`) additionally inflates the uncertainty when the
+  count data are mutually inconsistent — fits against a badly-wrong
+  efficiency model now advertise it (the uncalibrated example workflow
+  reports 33% where the floors alone give 1%).
+- **`calibrate()` fits the efficiency curve against its block covariance**
+  (intensity common per line; decay constant and reference activity common
+  per source), with absolute sigmas and the one-sided scale factor. The
+  fitted curve re-weights (shipped-spectrum benchmark: up to ~7%), and
+  `unc_eff` no longer averages below the source-activity floor.
+- Counts assembled by `get_counts` carry optional uncertainty-decomposition
+  columns (`unc_stat`, `unc_line`/`line`, `unc_corr`/`cal`, `energy`), and
+  the peaks table records the efficiency-calibration identity (`effcal`
+  column), so the correlated fits work from spectra and saved peak files
+  alike. Bare counts with only totals fit diagonally with a printed
+  warning; an opt-in uniform-correlation mode (`corr=`, `corr_group=`) and
+  a full-covariance override (`cov=`) are available.
+- Covariance magnitudes are taken from fitted model values rather than the
+  measured counts, avoiding the downward bias of measurement-weighted
+  correlated fits (Peelle's pertinent puzzle).
+
 ## [0.0.36] - 2026-07-03
 
 Numerics-focused release: where 0.0.35 fixed crashes, 0.0.36 corrects numbers.
