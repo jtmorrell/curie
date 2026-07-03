@@ -431,6 +431,9 @@ class DecayChain(object):
 										'unc_counts':ct[:,3]})
 					self._counts = pd.concat([self._counts, ct], ignore_index=True).reset_index(drop=True)
 
+			for n,p in self._counts.iterrows():
+				if float(self.decays(p['isotope'], p['start'], p['stop']))==0.0:
+					raise ValueError('Cannot assign counts to {}: no decays in the given interval (stable isotope, or zero activity).'.format(p['isotope']))
 			self._counts['activity'] = [p['counts']*self.activity(p['isotope'], p['start'])/self.decays(p['isotope'], p['start'], p['stop']) for n,p in self._counts.iterrows()]
 			self._counts['unc_activity'] = self._counts['unc_counts']*self.counts['activity']/self._counts['counts']
 			
