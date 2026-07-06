@@ -45,13 +45,20 @@ If your data files are stale or corrupted, re-download them with::
 
 	ci.download(overwrite=True)
 
-The cache location follows your platform's convention (e.g.
-``~/.cache/curie`` on Linux).  To place the data somewhere else — a shared
-network drive, an air-gapped machine's data directory — set the
+The data directory follows your platform's convention: ``~/.local/share/curie``
+on Linux, ``~/Library/Application Support/curie`` on macOS, and
+``%LOCALAPPDATA%\curie`` on Windows.  To place the data somewhere else — a
+shared network drive, an air-gapped machine's data directory — set the
 ``CURIE_DATA_DIR`` environment variable; curie will use that directory for
-all of its data.  On an air-gapped machine, copy the cache directory from a
+all of its data.  On an air-gapped machine, copy the data directory from a
 connected machine (or the individual ``.db`` files from the `curie data
 release`_) into ``CURIE_DATA_DIR``.
+
+On a shared (multi-user) machine, an administrator can instead populate the
+site-wide data directory once — ``/usr/local/share/curie`` on Linux,
+``/Library/Application Support/curie`` on macOS, ``C:\ProgramData\curie`` on
+Windows — and curie will use those files read-only in place from every
+account, with nothing downloaded or duplicated per user.
 
 Data installed by curie versions before 0.1.0 (inside the package's own
 directory) is found and adopted into the cache automatically — nothing is

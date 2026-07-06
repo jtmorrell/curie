@@ -1,15 +1,20 @@
 """Nuclear-data acquisition and connection layer.
 
-Curie's databases live in a per-user cache directory (override with the
-CURIE_DATA_DIR environment variable) and are fetched on first use from the
-GitHub data release recorded in data_registry.json, with SHA256 verification.
-The ENDF library is additionally published as per-target shards, so looking up
-one reaction downloads ~2 MB instead of the full 748 MB file; shards are
-assembled into the local endf.db as they arrive.
+Curie's databases live in a per-user data directory (~/.local/share/curie on
+Linux, ~/Library/Application Support/curie on macOS, %LOCALAPPDATA%\\curie on
+Windows; override with the CURIE_DATA_DIR environment variable) and are
+fetched on first use from the GitHub data release recorded in
+data_registry.json, with SHA256 verification. The ENDF library is additionally
+published as per-target shards, so looking up one reaction downloads ~2 MB
+instead of the full 748 MB file; shards are assembled into the local endf.db
+as they arrive.
 
-Data installed by earlier curie versions (in the package's own data directory)
-is adopted into the cache on first use, so existing installations re-download
-nothing.
+Databases found in the platform's site-wide data directory (e.g.
+/usr/local/share/curie, C:\\ProgramData\\curie) are used read-only in place, so
+an administrator of a shared machine can populate that directory once and
+every account works without downloading anything. Data installed by earlier
+curie versions (in the package's own data directory) is adopted into the user
+directory on first use, so existing installations re-download nothing.
 """
 
 import os
@@ -55,14 +60,21 @@ def _canonical(db):
 
 
 def _data_path(db=''):
-	"""Local nuclear-data cache directory (CURIE_DATA_DIR overrides)."""
+	"""The writable nuclear-data directory (CURIE_DATA_DIR overrides)."""
 	path = os.environ.get('CURIE_DATA_DIR')
 	if not path:
-		import pooch
-		path = str(pooch.os_cache('curie'))
+		import platformdirs
+		path = platformdirs.user_data_dir('curie', appauthor=False)
 	if not os.path.isdir(path):
 		os.makedirs(path, exist_ok=True)
 	return os.path.join(path, db) if db else path
+
+
+def _site_data_paths(db=''):
+	"""Site-wide data directories, consulted read-only for shared installs."""
+	import platformdirs
+	dirs = platformdirs.site_data_dir('curie', appauthor=False, multipath=True)
+	return [os.path.join(d, db) for d in dirs.split(os.pathsep)]
 
 
 def _legacy_data_path(db=''):
@@ -75,7 +87,7 @@ def _db_available(db):
 	fnm = _canonical(db)
 	if fnm is None:
 		return False
-	for path in [_data_path(fnm), _legacy_data_path(fnm)]:
+	for path in [_data_path(fnm)] + _site_data_paths(fnm) + [_legacy_data_path(fnm)]:
 		if os.path.isfile(path) and os.path.getsize(path) > 0:
 			return True
 	return False
@@ -121,14 +133,20 @@ def _adopt_legacy(fnm):
 
 
 def _ensure_file(fnm):
-	"""Make a managed database file present in the cache; returns its path.
+	"""Make a managed database file available; returns the path to use.
 
-	Sharded libraries (endf) are not fetched whole here: absent a local copy,
-	an empty database is created and populated per-target by _ensure_table.
+	Lookup order: the user data directory (writable), then any site-wide data
+	directory (used read-only in place), then data from a pre-0.1.0 install
+	(adopted into the user directory), then a download. Sharded libraries
+	(endf) are not fetched whole here: absent a local copy, an empty database
+	is created and populated per-target by _ensure_table.
 	"""
 	path = _data_path(fnm)
 	if os.path.isfile(path) and os.path.getsize(path) > 0:
 		return path
+	for site in _site_data_paths(fnm):
+		if os.path.isfile(site) and os.path.getsize(site) > 0:
+			return site
 	if _adopt_legacy(fnm):
 		return path
 	if fnm[:-3] in _registry().get('shards', {}):
@@ -149,6 +167,9 @@ def _ensure_table(db, table):
 	group = _registry().get('shards', {}).get(fnm[:-3])
 	if group is None:
 		return
+	path = _ensure_file(fnm)
+	if os.path.exists(path) and not os.access(path, os.W_OK):
+		return  # a read-only (site-wide) copy cannot be assembled into
 	con = _get_connection(db)
 	if con.execute("SELECT name FROM sqlite_master WHERE type='table' AND name=?", (table,)).fetchone():
 		return

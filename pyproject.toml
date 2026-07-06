@@ -16,6 +16,7 @@ dependencies = [
     "pandas",
     "matplotlib",
     "pooch",
+    "platformdirs",
 ]
 classifiers = [
     "Development Status :: 4 - Beta",

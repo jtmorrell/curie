@@ -26,13 +26,16 @@ def _make_db(path, table='t', rows=((1, 2.0), (2, 3.0))):
 
 @pytest.fixture
 def sandbox(tmp_path, monkeypatch):
-	"""Isolated cache dir, legacy dir, registry, and connection cache."""
+	"""Isolated data dir, site dir, legacy dir, registry, and connection cache."""
 	cache = tmp_path / 'cache'
 	legacy = tmp_path / 'legacy'
+	site = tmp_path / 'site'
 	cache.mkdir()
 	legacy.mkdir()
+	site.mkdir()
 	monkeypatch.setenv('CURIE_DATA_DIR', str(cache))
 	monkeypatch.setattr(data, '_legacy_data_path', lambda db='': str(legacy / db))
+	monkeypatch.setattr(data, '_site_data_paths', lambda db='': [str(site / db)])
 	registry = {'base_url': 'test://', 'files': {}, 'shards': {}}
 	monkeypatch.setattr(data, '_registry', lambda: registry)
 	monkeypatch.setattr(data, 'GLOB_CONNECTIONS_DICT', {})
@@ -49,8 +52,8 @@ def sandbox(tmp_path, monkeypatch):
 
 	monkeypatch.setattr(data, '_retrieve', fake_retrieve)
 	(tmp_path / 'remote').mkdir()
-	return {'cache': cache, 'legacy': legacy, 'remote': tmp_path / 'remote',
-			'registry': registry, 'fetched': fetched}
+	return {'cache': cache, 'legacy': legacy, 'site': site,
+			'remote': tmp_path / 'remote', 'registry': registry, 'fetched': fetched}
 
 
 def test_data_path_honors_env_override(sandbox):
@@ -130,6 +133,25 @@ def test_ensure_table_unknown_table_left_to_sql(sandbox):
 	sandbox['registry']['shards']['endf'] = {}
 	data._get_connection('endf')
 	data._ensure_table('endf', 'NOT_A_TARGET')
+
+
+def test_site_file_used_readonly_in_place(sandbox):
+	"""A site-wide data file (shared/common install) is used where it is,
+	without fetching and without copying into the user directory."""
+	sha = _make_db(sandbox['site'] / 'decay.db', 'chart')
+	sandbox['registry']['files']['decay.db'] = sha
+	con = data._get_connection('decay')
+	assert con.execute('SELECT COUNT(*) FROM chart').fetchone()[0] == 2
+	assert sandbox['fetched'] == []
+	assert not (sandbox['cache'] / 'decay.db').exists()
+
+
+def test_user_file_preferred_over_site(sandbox):
+	_make_db(sandbox['site'] / 'decay.db', 'chart', rows=((9, 9.0),))
+	_make_db(sandbox['cache'] / 'decay.db', 'chart')
+	con = data._get_connection('decay')
+	assert con.execute('SELECT COUNT(*) FROM chart').fetchone()[0] == 2
+	assert sandbox['fetched'] == []
 
 
 def test_failed_overwrite_preserves_existing_db(sandbox, monkeypatch):

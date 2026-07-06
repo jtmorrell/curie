@@ -11,12 +11,18 @@ on-demand downloads, and the package itself becomes a standard PEP 621
 project.
 
 ### Changed — distribution
-- **Nuclear data is fetched on first use** into a per-user cache directory
-  (`~/.cache/curie` on Linux; override with the `CURIE_DATA_DIR` environment
-  variable). Every download is SHA256-verified against
-  `curie/data_registry.json`, which records the checksums of the exact files
-  published in the GitHub data release. The setup.py post-install download
-  hook is gone; `pip install curie` is now a small, fast, pure-Python install.
+- **Nuclear data is fetched on first use** into a per-user data directory
+  (`~/.local/share/curie` on Linux, `~/Library/Application Support/curie` on
+  macOS, `%LOCALAPPDATA%\curie` on Windows; override with the
+  `CURIE_DATA_DIR` environment variable — a data directory rather than a
+  cache, so OS cache cleaners never evict a machine prepared for offline
+  work). Files found in the platform's site-wide data directory (e.g.
+  `/usr/local/share/curie`, `C:\ProgramData\curie`) are used read-only in
+  place, so shared machines can be provisioned once by an administrator.
+  Every download is SHA256-verified against `curie/data_registry.json`, which
+  records the checksums of the exact files published in the GitHub data
+  release. The setup.py post-install download hook is gone;
+  `pip install curie` is now a small, fast, pure-Python install.
 - **The ENDF library is sharded per target**: looking up one reaction fetches
   a ~2 MB per-target file instead of the full 748 MB endf.db. Shards assemble
   incrementally into the local cache database; `ci.download('endf')` still
