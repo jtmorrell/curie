@@ -132,6 +132,20 @@ def test_ensure_table_unknown_table_left_to_sql(sandbox):
 	data._ensure_table('endf', 'NOT_A_TARGET')
 
 
+def test_failed_overwrite_preserves_existing_db(sandbox, monkeypatch):
+	"""A failed fetch must never destroy the existing data file."""
+	sha = _make_db(sandbox['cache'] / 'ziegler.db', 'compounds')
+	sandbox['registry']['files']['ziegler.db'] = sha
+	good = (sandbox['cache'] / 'ziegler.db').read_bytes()
+
+	def failing_retrieve(fnm):
+		raise IOError('synthetic network failure')
+
+	monkeypatch.setattr(data, '_retrieve', failing_retrieve)
+	data.download('ziegler', overwrite=True)
+	assert (sandbox['cache'] / 'ziegler.db').read_bytes() == good
+
+
 def test_download_prefetches_whole_file(sandbox, capsys):
 	sha = _make_db(sandbox['remote'] / 'ziegler.db', 'compounds')
 	sandbox['registry']['files']['ziegler.db'] = sha

@@ -228,11 +228,9 @@ def download(db='all', overwrite=False):
 		if installed and not overwrite:
 			print("{0} already installed. Run ci.download('{0}', overwrite=True) to overwrite these files.".format(fnm.replace('.db', '')))
 			continue
-		if os.path.isfile(path) and (overwrite or not installed):
-			if fnm in GLOB_CONNECTIONS_DICT or path in GLOB_CONNECTIONS_DICT:
-				GLOB_CONNECTIONS_DICT.pop(fnm, None)
-				GLOB_CONNECTIONS_DICT.pop(path, None)
-			os.remove(path)
+		# the existing file (if any) is left in place: the fetch verifies and
+		# replaces it atomically, so a failed download never destroys data
+		GLOB_CONNECTIONS_DICT.pop(path, None)
 		try:
 			_retrieve(fnm)
 		except Exception as e:
