@@ -33,13 +33,20 @@ def sha256(path):
 
 def shard(source, out_dir):
 	os.makedirs(out_dir, exist_ok=True)
+	# stale shards from a previous run would be uploaded as assets the
+	# registry never references
+	for old in os.listdir(out_dir):
+		if old.startswith('endf_') and old.endswith('.db'):
+			os.remove(os.path.join(out_dir, old))
 	src = sqlite3.connect(source)
-	tables = [r[0] for r in src.execute("SELECT name, sql FROM sqlite_master WHERE type='table'").fetchall()]
-	schemas = dict(src.execute("SELECT name, sql FROM sqlite_master WHERE type='table'").fetchall())
+	# SQLite-internal tables (sqlite_sequence etc.) and schemaless rows are
+	# not shardable content
+	schemas = {n: s for n, s in src.execute("SELECT name, sql FROM sqlite_master WHERE type='table'")
+			   if s and not n.startswith('sqlite_')}
 	src.close()
 
 	entries = {}
-	for n, tb in enumerate(sorted(tables)):
+	for n, tb in enumerate(sorted(schemas)):
 		if not re.fullmatch(r'[A-Za-z0-9_]+', tb):
 			raise ValueError('table name {!r} is not filename-safe'.format(tb))
 		fnm = 'endf_{}.db'.format(tb)
@@ -55,8 +62,8 @@ def shard(source, out_dir):
 		con.execute("VACUUM")
 		con.close()
 		entries[fnm] = sha256(path)
-		if (n + 1) % 50 == 0 or n + 1 == len(tables):
-			print('{}/{} shards written'.format(n + 1, len(tables)))
+		if (n + 1) % 50 == 0 or n + 1 == len(schemas):
+			print('{}/{} shards written'.format(n + 1, len(schemas)))
 	return entries
 
 
@@ -68,10 +75,18 @@ def main():
 	args = ap.parse_args()
 
 	registry_path = os.path.join(root, 'curie', 'data_registry.json')
-	registry = {}
-	if os.path.exists(registry_path):
-		with open(registry_path) as f:
-			registry = json.load(f)
+	if not os.path.exists(registry_path):
+		raise SystemExit('{} not found: run from a curie checkout (the registry carries the base_url and whole-file hashes).'.format(registry_path))
+	with open(registry_path) as f:
+		registry = json.load(f)
+
+	# the whole-file entry and the shards are two representations of the same
+	# library; pin both to this source so they can never silently diverge
+	source_sha = sha256(args.source)
+	recorded = registry['files'].get('endf.db')
+	if recorded and recorded != source_sha:
+		print('NOTE: whole-file endf.db hash updated ({}... -> {}...); publish the new endf.db alongside the shards.'.format(recorded[:12], source_sha[:12]))
+	registry['files']['endf.db'] = source_sha
 
 	entries = shard(args.source, args.out)
 	registry.setdefault('shards', {})['endf'] = entries

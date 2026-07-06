@@ -60,6 +60,30 @@ def test_data_path_honors_env_override(sandbox):
 	assert data._data_path('x.db') == str(sandbox['cache'] / 'x.db')
 
 
+def test_shipped_registry_is_self_consistent():
+	"""The shipped registry, the endf shard naming, and the runtime table
+	derivation are a load-bearing three-way coupling: every shard filename
+	must round-trip through the '<LETTERS>_<DIGITS>[m]' table name that
+	library.py derives and the 'endf_<table>.db' name data.py fetches."""
+	import json
+	import re
+	with open(os.path.join(os.path.dirname(data.__file__), 'data_registry.json')) as f:
+		reg = json.load(f)
+	assert reg['base_url'].startswith('https://')
+	hexre = re.compile(r'^[0-9a-f]{64}$')
+	assert set(reg['files']) == {'decay.db', 'ziegler.db', 'endf.db', 'tendl.db',
+								 'tendl_n_rp.db', 'tendl_p_rp.db', 'tendl_d_rp.db',
+								 'IRDFF.db', 'iaea_monitors.db'}
+	assert all(hexre.match(h) for h in reg['files'].values())
+	shards = reg['shards']['endf']
+	assert 'endf_all_reactions.db' in shards
+	namere = re.compile(r'^endf_([A-Z]+_[0-9]+m?|all_reactions)\.db$')
+	bad = [s for s in shards if not namere.match(s)]
+	assert not bad, 'shard names that the runtime table derivation cannot produce: {}'.format(bad)
+	assert all(hexre.match(h) for h in shards.values())
+	assert len(shards) > 400
+
+
 def test_canonical_aliases():
 	for alias in ['decay', 'DECAY', 'decay.db']:
 		assert data._canonical(alias) == 'decay.db'
