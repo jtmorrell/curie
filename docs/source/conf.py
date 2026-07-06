@@ -23,11 +23,13 @@ project = u'Curie'
 copyright = u'2024, Jonathan Morrell'
 author = u'Jonathan Morrell'
 
-# version is single-sourced from the installed package metadata
-from importlib.metadata import version as _dist_version
-# The full version, including alpha/beta/rc tags
-release = _dist_version('curie')
-# The short X.Y version
+# version is single-sourced from curie/__init__.py, read directly: the docs
+# always sit next to the source, and installed-package metadata can lag a
+# development checkout
+import re
+with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'curie', '__init__.py')) as _f:
+	release = re.search(r"__version__ = '([^']+)'", _f.read()).group(1)
+# curie versions are short; the displayed version is the full release string
 version = release
 
 

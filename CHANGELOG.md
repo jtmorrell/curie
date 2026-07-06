@@ -41,9 +41,9 @@ project.
 
 ### Changed — packaging
 - PEP 621 `pyproject.toml` with the hatchling backend replaces `setup.py`;
-  dependencies (numpy, scipy, pandas, matplotlib, pooch) are declared, the
-  version is single-sourced from `curie/__init__.py`, and Python 2
-  compatibility code is removed. Requires Python >= 3.9.
+  dependencies (numpy, scipy, pandas, matplotlib, pooch, platformdirs) are
+  declared, the version is single-sourced from `curie/__init__.py`, and
+  Python 2 compatibility code is removed. Requires Python >= 3.9.
 - Releases publish to PyPI from CI via trusted publishing on `v*` version
   tags (wheel + sdist); data-release tags (`data-v*`) can never trigger a
   publish.
