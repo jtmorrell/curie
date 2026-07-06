@@ -61,10 +61,12 @@ def test_data_path_honors_env_override(sandbox):
 
 
 def test_shipped_registry_is_self_consistent():
-	"""The shipped registry, the endf shard naming, and the runtime table
-	derivation are a load-bearing three-way coupling: every shard filename
-	must round-trip through the '<LETTERS>_<DIGITS>[m]' table name that
-	library.py derives and the 'endf_<table>.db' name data.py fetches."""
+	"""The shipped registry, the shard naming, and the runtime table derivation
+	are a load-bearing three-way coupling: every shard filename must round-trip
+	through the '<LETTERS>_<DIGITS>[m]' table name that library.py derives and
+	the '<library>_<table>.db' name data.py fetches. Each shard group carries
+	its own release base_url (GitHub caps assets per release), and every
+	sharded library must also have a whole-file entry (the eager path)."""
 	import json
 	import re
 	with open(os.path.join(os.path.dirname(data.__file__), 'data_registry.json')) as f:
@@ -75,13 +77,19 @@ def test_shipped_registry_is_self_consistent():
 								 'tendl_n_rp.db', 'tendl_p_rp.db', 'tendl_d_rp.db',
 								 'IRDFF.db', 'iaea_monitors.db'}
 	assert all(hexre.match(h) for h in reg['files'].values())
-	shards = reg['shards']['endf']
-	assert 'endf_all_reactions.db' in shards
-	namere = re.compile(r'^endf_([A-Z]+_[0-9]+m?|all_reactions)\.db$')
-	bad = [s for s in shards if not namere.match(s)]
-	assert not bad, 'shard names that the runtime table derivation cannot produce: {}'.format(bad)
-	assert all(hexre.match(h) for h in shards.values())
-	assert len(shards) > 400
+	assert set(reg['shards']) == {'endf', 'tendl', 'tendl_n_rp', 'tendl_p_rp', 'tendl_d_rp'}
+	for lib, group in reg['shards'].items():
+		assert lib + '.db' in reg['files'], '{} has shards but no whole-file entry'.format(lib)
+		assert group['base_url'].startswith('https://'), lib
+		shards = group['files']
+		assert '{}_all_reactions.db'.format(lib) in shards, lib
+		namere = re.compile(r'^{}_([A-Z]+_[0-9]+m?|all_reactions)\.db$'.format(lib))
+		bad = [s for s in shards if not namere.match(s)]
+		assert not bad, '{} shard names the runtime table derivation cannot produce: {}'.format(lib, bad)
+		assert all(hexre.match(h) for h in shards.values()), lib
+		assert len(shards) > 400, lib
+	# GitHub caps a release at 1000 assets: each group is one release
+	assert all(len(g['files']) <= 900 for g in reg['shards'].values()), 'shard group too close to the per-release asset cap: split it'
 
 
 def test_canonical_aliases():
@@ -134,7 +142,7 @@ def test_corrupt_legacy_file_refetched(sandbox):
 
 def test_ensure_table_assembles_shard(sandbox):
 	sha = _make_db(sandbox['remote'] / 'endf_XX_1.db', 'XX_1')
-	sandbox['registry']['shards']['endf'] = {'endf_XX_1.db': sha}
+	sandbox['registry']['shards']['endf'] = {'base_url': 'test://', 'files': {'endf_XX_1.db': sha}}
 	con = data._get_connection('endf')  # starts empty: no whole file anywhere
 	data._ensure_table('endf', 'XX_1')
 	assert con.execute('SELECT COUNT(*) FROM XX_1').fetchone()[0] == 2
@@ -149,7 +157,7 @@ def test_zero_byte_sharded_db_recovers_across_restart(sandbox):
 	the next session must treat it as a fresh assembled database, not an error."""
 	(sandbox['cache'] / 'endf.db').write_bytes(b'')
 	sha = _make_db(sandbox['remote'] / 'endf_XX_1.db', 'XX_1')
-	sandbox['registry']['shards']['endf'] = {'endf_XX_1.db': sha}
+	sandbox['registry']['shards']['endf'] = {'base_url': 'test://', 'files': {'endf_XX_1.db': sha}}
 	con = data._get_connection('endf')
 	data._ensure_table('endf', 'XX_1')
 	assert con.execute('SELECT COUNT(*) FROM XX_1').fetchone()[0] == 2
@@ -159,7 +167,7 @@ def test_failed_assembly_leaves_no_partial_table(sandbox):
 	"""An assembly that dies mid-way must leave no committed empty table
 	(which the existence check would forever treat as complete)."""
 	sha = _make_db(sandbox['remote'] / 'endf_XX_1.db', 'WRONG_NAME')
-	sandbox['registry']['shards']['endf'] = {'endf_XX_1.db': sha}
+	sandbox['registry']['shards']['endf'] = {'base_url': 'test://', 'files': {'endf_XX_1.db': sha}}
 	con = data._get_connection('endf')
 	with pytest.raises(Exception):
 		data._ensure_table('endf', 'XX_1')
@@ -174,7 +182,7 @@ def test_sharded_site_copy_never_assembled_into(sandbox):
 	"""A site-provided endf.db is used as-is: a missing table must not
 	trigger a shard fetch or any write to the site file."""
 	_make_db(sandbox['site'] / 'endf.db', 'YY_1')
-	sandbox['registry']['shards']['endf'] = {'endf_XX_1.db': '0' * 64}
+	sandbox['registry']['shards']['endf'] = {'base_url': 'test://', 'files': {'endf_XX_1.db': '0' * 64}}
 	con = data._get_connection('endf')
 	before = (sandbox['site'] / 'endf.db').read_bytes()
 	data._ensure_table('endf', 'XX_1')
@@ -193,7 +201,7 @@ def test_ensure_table_noop_for_whole_file_dbs(sandbox):
 
 def test_ensure_table_unknown_table_left_to_sql(sandbox):
 	"""A table with no shard must not raise here: the caller's SQL reports it."""
-	sandbox['registry']['shards']['endf'] = {}
+	sandbox['registry']['shards']['endf'] = {'base_url': 'test://', 'files': {}}
 	data._get_connection('endf')
 	data._ensure_table('endf', 'NOT_A_TARGET')
 

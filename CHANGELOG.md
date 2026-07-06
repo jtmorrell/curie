@@ -23,10 +23,14 @@ project.
   records the checksums of the exact files published in the GitHub data
   release. The setup.py post-install download hook is gone;
   `pip install curie` is now a small, fast, pure-Python install.
-- **The ENDF library is sharded per target**: looking up one reaction fetches
-  a ~2 MB per-target file instead of the full 748 MB endf.db. Shards assemble
-  incrementally into the local cache database; `ci.download('endf')` still
-  fetches the complete library in one file for offline use.
+- **The ENDF and TENDL libraries are sharded per target**: looking up one
+  reaction fetches a small per-target file (~2 MB for ENDF, ~0.1 MB for
+  TENDL) instead of the whole library (748 MB endf.db, 37-56 MB per TENDL
+  variant). Shards assemble incrementally into the local database;
+  `ci.download()` still fetches each complete library in one
+  checksum-verified file for offline use. Each sharded library's ~420 shard
+  assets live on their own data-release tag, keeping every release well
+  under GitHub's 1000-assets cap with room for growth.
 - **Data from earlier curie versions is adopted automatically**: files found
   in the old in-package data directory are checksum-verified and
   hardlinked/copied into the cache, so existing installations re-download

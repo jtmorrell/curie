@@ -29,14 +29,15 @@ Nuclear data
 
 Curie downloads the nuclear data files it needs the first time they are used:
 each database is fetched from the `curie data release`_ on first access,
-verified against its published SHA256 checksum, and stored in a per-user cache
-directory.  The large ENDF cross-section library is fetched in small
-per-target pieces, so looking up one reaction downloads a couple of MB rather
-than the full 748 MB library.  No action is needed to make this happen —
-the first ``ci.Reaction(...)`` or ``ci.Isotope(...)`` just works.
+verified against its published SHA256 checksum, and stored in a per-user data
+directory.  The large cross-section libraries (ENDF and the TENDL variants)
+are fetched in small per-target pieces, so looking up one reaction downloads
+well under a MB rather than a 40-748 MB library.  No action is needed to
+make this happen — the first ``ci.Reaction(...)`` or ``ci.Isotope(...)``
+just works.
 
-To prepare a machine for offline use (or to pre-populate the cache in one
-step), download everything explicitly::
+To prepare a machine for offline use (or to pre-populate the data directory
+in one step), download everything explicitly::
 
 	import curie as ci
 	ci.download()

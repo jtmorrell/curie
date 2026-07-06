@@ -4,10 +4,11 @@ Curie's databases live in a per-user data directory (~/.local/share/curie on
 Linux, ~/Library/Application Support/curie on macOS, %LOCALAPPDATA%\\curie on
 Windows; override with the CURIE_DATA_DIR environment variable) and are
 fetched on first use from the GitHub data release recorded in
-data_registry.json, with SHA256 verification. The ENDF library is additionally
-published as per-target shards, so looking up one reaction downloads ~2 MB
-instead of the full 748 MB file; shards are assembled into the local endf.db
-as they arrive.
+data_registry.json, with SHA256 verification. The ENDF and TENDL libraries
+are additionally published as per-target shards (each library's shards on
+their own release tag), so looking up one reaction downloads a fraction of a
+MB instead of a 40-750 MB file; shards are assembled into the local library
+database as they arrive.
 
 Databases found in the platform's site-wide data directory (e.g.
 /usr/local/share/curie, C:\\ProgramData\\curie) are used read-only in place, so
@@ -111,16 +112,23 @@ def _sha256(path):
 
 
 def _retrieve(fnm):
-	"""Download one data-release asset into the data directory, verifying its SHA256."""
+	"""Download one data-release asset into the data directory, verifying its SHA256.
+
+	Whole files live on the main data release (top-level base_url); each
+	sharded library's shards live on their own release tag (the group's
+	base_url), keeping every release well under GitHub's assets-per-release
+	limit.
+	"""
 	import pooch
 	reg = _registry()
-	known = reg['files'].get(fnm)
+	url, known = reg['base_url'] + fnm, reg['files'].get(fnm)
 	if known is None:
 		for group in reg.get('shards', {}).values():
-			known = group.get(fnm, known)
+			if fnm in group['files']:
+				url, known = group['base_url'] + fnm, group['files'][fnm]
+				break
 	print('Downloading {} from the curie data release...'.format(fnm))
-	return pooch.retrieve(url=reg['base_url'] + fnm, known_hash=known,
-						  fname=fnm, path=_data_path())
+	return pooch.retrieve(url=url, known_hash=known, fname=fnm, path=_data_path())
 
 
 def _adopt_legacy(fnm):
@@ -185,7 +193,7 @@ def _ensure_table(db, table):
 	if con.execute("SELECT name FROM sqlite_master WHERE type='table' AND name=?", (table,)).fetchone():
 		return
 	shard_fnm = '{}_{}.db'.format(fnm[:-3], table)
-	if shard_fnm not in group:
+	if shard_fnm not in group['files']:
 		return
 	shard_path = _retrieve(shard_fnm)
 	con.execute("ATTACH DATABASE ? AS shard", (shard_path,))
