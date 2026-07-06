@@ -90,7 +90,7 @@ jobs:
           assert len(xs) > 10, 'endf retrieve failed'
           # iaea: whole-file fetch (4 MB)
           lb = ci.Library('iaea')
-          assert lb.search(target='63CU'), 'iaea search failed'
+          assert lb.search(target='natCU', incident='p', product='62ZN'), 'iaea search failed'
           import os
           print('cache contents:', sorted(os.listdir(_data_path())))
           "
