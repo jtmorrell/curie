@@ -1,5 +1,5 @@
 {
- "base_url": "https://github.com/jtmorrell/curie/releases/download/data-v1/",
+ "base_url": "https://github.com/jtmorrell/curie-data/releases/download/v1/",
  "files": {
   "IRDFF.db": "fe36f5797cadc05f4fb9643e03c812d1811382158cacf27f4ab8751b07556cfb",
   "decay.db": "8095e8d2d4cabfb10b05c1d8c21b8a2ebfc1c9f4c96dcfda22704c6787c3aa46",
@@ -13,7 +13,7 @@
  },
  "shards": {
   "endf": {
-   "base_url": "https://github.com/jtmorrell/curie/releases/download/data-v1-endf/",
+   "base_url": "https://github.com/jtmorrell/curie-data/releases/download/v1-endf/",
    "files": {
     "endf_AC_225.db": "29fbf2237ffab1a181e35cd152eb879338220c237529b8711bcf8d291906d233",
     "endf_AC_226.db": "314da6aff3a1186370d9c4b26d502682a96f0d363327736ecfddfa8e53196f71",
@@ -443,7 +443,7 @@
    }
   },
   "tendl": {
-   "base_url": "https://github.com/jtmorrell/curie/releases/download/data-v1-tendl/",
+   "base_url": "https://github.com/jtmorrell/curie-data/releases/download/v1-tendl/",
    "files": {
     "tendl_AC_225.db": "3293d25faecf6c8678f921009646ded8310da053023e4b920917498f47289cf9",
     "tendl_AC_226.db": "39c69818ac16de1fd56bde0b8abd4ca7f6abcca70e978e7f2a210fe5bb6a2280",
@@ -867,7 +867,7 @@
    }
   },
   "tendl_d_rp": {
-   "base_url": "https://github.com/jtmorrell/curie/releases/download/data-v1-tendl-d-rp/",
+   "base_url": "https://github.com/jtmorrell/curie-data/releases/download/v1-tendl-d-rp/",
    "files": {
     "tendl_d_rp_AC_225.db": "6d1191b5524446f39ac29ac45bd26d942e5b48e9e0368e559e0f05dc5d545ab4",
     "tendl_d_rp_AC_226.db": "e081d1928862e77b6ace6b4e127ae54629177058b2ea595997b4d421feb23357",
@@ -1289,7 +1289,7 @@
    }
   },
   "tendl_n_rp": {
-   "base_url": "https://github.com/jtmorrell/curie/releases/download/data-v1-tendl-n-rp/",
+   "base_url": "https://github.com/jtmorrell/curie-data/releases/download/v1-tendl-n-rp/",
    "files": {
     "tendl_n_rp_AC_225.db": "e80e7693cce80b3ec9de362bbe1aac79626e8d016077ee7380410325b27af608",
     "tendl_n_rp_AC_226.db": "88a4258bc3db5c62a24fe925ec792d2cc523714e81bff3402d587b197da942ff",
@@ -1712,7 +1712,7 @@
    }
   },
   "tendl_p_rp": {
-   "base_url": "https://github.com/jtmorrell/curie/releases/download/data-v1-tendl-p-rp/",
+   "base_url": "https://github.com/jtmorrell/curie-data/releases/download/v1-tendl-p-rp/",
    "files": {
     "tendl_p_rp_AC_225.db": "7fded920f8e3936b97c5d3e0165e2eedf12784b32ad7ba7edd458ce57bcdc22c",
     "tendl_p_rp_AC_226.db": "c475328dabb2a7eaf89464bd23bcb871de0c7a88b3db4c5db0886bc97646e3c4",

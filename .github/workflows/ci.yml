@@ -36,13 +36,13 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/curie-ci-data
-          key: curie-data-v1-${{ hashFiles('data_manifest.toml') }}
+          key: curie-data-v1-${{ hashFiles('curie/data_registry.json') }}
 
-      - name: Fetch data fixture from the data-v1 release
+      - name: Fetch data fixture from the curie-data v1 release
         if: steps.data-cache.outputs.cache-hit != 'true'
         run: |
           mkdir -p ~/curie-ci-data && cd ~/curie-ci-data
-          base="https://github.com/jtmorrell/curie/releases/download/data-v1"
+          base="https://github.com/jtmorrell/curie-data/releases/download/v1"
           for f in SHA256SUMS ziegler.db decay.db iaea_monitors.db IRDFF.db; do
             curl -sSL --retry 3 -O "$base/$f"
           done

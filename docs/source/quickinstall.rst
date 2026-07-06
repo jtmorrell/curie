@@ -68,4 +68,4 @@ Data installed by curie versions before 0.1.0 (inside the package's own
 directory) is found and adopted into the cache automatically — nothing is
 re-downloaded after an upgrade.
 
-.. _curie data release: https://github.com/jtmorrell/curie/releases/tag/data-v1
+.. _curie data release: https://github.com/jtmorrell/curie-data/releases

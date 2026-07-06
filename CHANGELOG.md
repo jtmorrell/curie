@@ -28,9 +28,11 @@ project.
   TENDL) instead of the whole library (748 MB endf.db, 37-56 MB per TENDL
   variant). Shards assemble incrementally into the local database;
   `ci.download()` still fetches each complete library in one
-  checksum-verified file for offline use. Each sharded library's ~420 shard
-  assets live on their own data-release tag, keeping every release well
-  under GitHub's 1000-assets cap with room for growth.
+  checksum-verified file for offline use. Data releases live in the
+  dedicated [curie-data](https://github.com/jtmorrell/curie-data)
+  repository (one release tag per sharded library, keeping every release
+  well under GitHub's 1000-assets cap), which also hosts the data tooling;
+  the curie repository's releases are software releases only.
 - **Data from earlier curie versions is adopted automatically**: files found
   in the old in-package data directory are checksum-verified and
   hardlinked/copied into the cache, so existing installations re-download
