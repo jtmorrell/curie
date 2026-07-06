@@ -27,18 +27,16 @@ GLOB_CONNECTIONS_DICT = {}
 
 _REGISTRY_CACHE = None
 
+_FILES = ['decay.db', 'ziegler.db', 'endf.db', 'tendl.db', 'tendl_n_rp.db',
+		  'tendl_p_rp.db', 'tendl_d_rp.db', 'IRDFF.db', 'iaea_monitors.db']
+
+# accepted spellings beyond the filename stem itself
 _ALIASES = {
-	'decay.db': ['decay'],
-	'ziegler.db': ['ziegler'],
-	'endf.db': ['endf'],
-	'tendl.db': ['tendl'],
-	'tendl_n_rp.db': ['tendl_n_rp', 'tendl_nrp', 'tendl_n', 'nrp', 'rpn'],
-	'tendl_p_rp.db': ['tendl_p_rp', 'tendl_prp', 'tendl_p', 'prp', 'rpp'],
-	'tendl_d_rp.db': ['tendl_d_rp', 'tendl_drp', 'tendl_d', 'drp', 'rpd'],
-	'IRDFF.db': ['irdff'],
+	'tendl_n_rp.db': ['tendl_nrp', 'tendl_n', 'nrp', 'rpn'],
+	'tendl_p_rp.db': ['tendl_prp', 'tendl_p', 'prp', 'rpp'],
+	'tendl_d_rp.db': ['tendl_drp', 'tendl_d', 'drp', 'rpd'],
 	'iaea_monitors.db': ['iaea', 'iaea-cpr', 'iaea-monitor', 'cpr', 'iaea_cpr',
-						 'iaea_monitor', 'medical', 'iaea-medical', 'iaea_medical',
-						 'iaea_monitors'],
+						 'iaea_monitor', 'medical', 'iaea-medical', 'iaea_medical'],
 }
 
 
@@ -53,8 +51,11 @@ def _registry():
 def _canonical(db):
 	"""Registry filename for a managed database name, or None for user paths."""
 	nm = db.lower().replace('.db', '')
+	for fnm in _FILES:
+		if nm == fnm.lower().replace('.db', ''):
+			return fnm
 	for fnm, aliases in _ALIASES.items():
-		if nm == fnm.lower().replace('.db', '') or nm in aliases:
+		if nm in aliases:
 			return fnm
 	return None
 
@@ -110,7 +111,7 @@ def _sha256(path):
 
 
 def _retrieve(fnm):
-	"""Download one data-release asset into the cache, verifying its SHA256."""
+	"""Download one data-release asset into the data directory, verifying its SHA256."""
 	import pooch
 	reg = _registry()
 	known = reg['files'].get(fnm)
@@ -123,7 +124,7 @@ def _retrieve(fnm):
 
 
 def _adopt_legacy(fnm):
-	"""Bring a pre-0.1.0 data file into the cache if its checksum still matches."""
+	"""Bring a pre-0.1.0 data file into the data directory if its checksum still matches."""
 	legacy = _legacy_data_path(fnm)
 	if not (os.path.isfile(legacy) and os.path.getsize(legacy) > 0):
 		return False
@@ -214,8 +215,8 @@ def download(db='all', overwrite=False):
 
 	Data files are fetched automatically the first time they are needed, so
 	calling this function is only necessary to prepare an offline machine, to
-	pre-populate a fresh cache, or to repair/update existing data with
-	`overwrite=True`.  Files are stored in a per-user cache directory
+	pre-populate a fresh data directory, or to repair/update existing data
+	with `overwrite=True`.  Files are stored in a per-user data directory
 	(printed by `ci.data._data_path()`), which can be overridden with the
 	`CURIE_DATA_DIR` environment variable.  Every download is verified against
 	the SHA256 recorded for the curie data release.
@@ -252,8 +253,7 @@ def download(db='all', overwrite=False):
 	"""
 
 	if db.lower() in ['all', '*']:
-		d = ['decay.db', 'ziegler.db', 'endf.db', 'tendl.db', 'tendl_n_rp.db',
-			 'tendl_p_rp.db', 'tendl_d_rp.db', 'IRDFF.db', 'iaea_monitors.db']
+		d = list(_FILES)
 	else:
 		fnm = _canonical(db)
 		if fnm is None:
@@ -264,6 +264,9 @@ def download(db='all', overwrite=False):
 	for fnm in d:
 		path = _data_path(fnm)
 		installed = os.path.isfile(path) and os.path.getsize(path) > 0
+		if not installed and not overwrite and _site_file(fnm) is not None:
+			print('{} is provided by the site-wide data directory; nothing to download.'.format(fnm))
+			continue
 		if installed and fnm[:-3] in _registry().get('shards', {}):
 			# a partially assembled library is present, not installed
 			installed = _sha256(path) == _registry()['files'].get(fnm)
