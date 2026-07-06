@@ -3,7 +3,7 @@
 Notable changes to curie are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [0.0.37] - 2026-07-04
+## [0.0.37] - 2026-07-06
 
 Correlated-uncertainty release: `fit_R`, `fit_A0`, and `calibrate()` now
 propagate the correlation structure of their inputs, so fitted uncertainties
