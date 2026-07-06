@@ -6,7 +6,7 @@ import re
 import numpy as np
 import pandas as pd
 
-from .data import _get_connection
+from .data import _get_connection, _ensure_table
 from .isotope import Isotope
 
 class Library(object):
@@ -128,6 +128,7 @@ class Library(object):
 				else:
 					product = Isotope(product)._short_name
 
+		_ensure_table(self.db_name, 'all_reactions')
 		ss = 'SELECT * FROM all_reactions'
 
 		if self.db_name in ['endf','tendl','irdff']:
@@ -237,6 +238,7 @@ class Library(object):
 		if self.db_name in ['endf','tendl','tendl_n_rp','tendl_p_rp','tendl_d_rp']:
 			table = ''.join(re.findall('[A-Z]+', target))+'_'+''.join(re.findall('[0-9]+', target))+('m' if 'm' in target else '')
 
+			_ensure_table(self.db_name, table)
 			q = pd.read_sql('SELECT energy,{0} FROM {1}'.format(labels[0], table), self._con).to_numpy()*(np.array([1E-6, 1E3]) if self.db_name=='endf' else np.ones(2))
 
 		elif self.db_name=='irdff':
