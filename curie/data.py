@@ -77,6 +77,14 @@ def _site_data_paths(db=''):
 	return [os.path.join(d, db) for d in dirs.split(os.pathsep)]
 
 
+def _site_file(fnm):
+	"""Path of a usable site-wide copy of the file, or None."""
+	for p in _site_data_paths(fnm):
+		if os.path.isfile(p) and os.path.getsize(p) > 0:
+			return p
+	return None
+
+
 def _legacy_data_path(db=''):
 	"""Data directory used by curie < 0.1.0 (inside the installed package)."""
 	return os.path.realpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data', db))
@@ -144,9 +152,9 @@ def _ensure_file(fnm):
 	path = _data_path(fnm)
 	if os.path.isfile(path) and os.path.getsize(path) > 0:
 		return path
-	for site in _site_data_paths(fnm):
-		if os.path.isfile(site) and os.path.getsize(site) > 0:
-			return site
+	site = _site_file(fnm)
+	if site is not None:
+		return site
 	if _adopt_legacy(fnm):
 		return path
 	if fnm[:-3] in _registry().get('shards', {}):
@@ -158,8 +166,11 @@ def _ensure_file(fnm):
 def _ensure_table(db, table):
 	"""Make `table` queryable in a managed database, fetching its shard if needed.
 
-	No-op for whole-file databases and for unknown table names (the caller's
-	own SQL then reports the missing table).
+	No-op for whole-file databases, for site-provided copies (used as-is,
+	never assembled into), and for unknown table names (the caller's own SQL
+	then reports the missing table). Assembly is a single transaction, so an
+	interrupted insert leaves no half-built table behind, and the write lock
+	serializes concurrent assemblers of the same table.
 	"""
 	fnm = _canonical(db)
 	if fnm is None:
@@ -167,9 +178,8 @@ def _ensure_table(db, table):
 	group = _registry().get('shards', {}).get(fnm[:-3])
 	if group is None:
 		return
-	path = _ensure_file(fnm)
-	if os.path.exists(path) and not os.access(path, os.W_OK):
-		return  # a read-only (site-wide) copy cannot be assembled into
+	if _ensure_file(fnm) != _data_path(fnm):
+		return  # served from a site-wide copy: use as-is
 	con = _get_connection(db)
 	if con.execute("SELECT name FROM sqlite_master WHERE type='table' AND name=?", (table,)).fetchone():
 		return
@@ -179,13 +189,24 @@ def _ensure_table(db, table):
 	shard_path = _retrieve(shard_fnm)
 	con.execute("ATTACH DATABASE ? AS shard", (shard_path,))
 	try:
-		schema = con.execute("SELECT sql FROM shard.sqlite_master WHERE type='table' AND name=?", (table,)).fetchone()[0]
-		con.execute(schema)
-		con.execute('INSERT INTO "{0}" SELECT * FROM shard."{0}"'.format(table))
-		con.commit()
+		con.execute("BEGIN IMMEDIATE")
+		try:
+			# re-check under the write lock: a concurrent process may have
+			# assembled this table since the check above
+			if not con.execute("SELECT name FROM main.sqlite_master WHERE type='table' AND name=?", (table,)).fetchone():
+				schema = con.execute("SELECT sql FROM shard.sqlite_master WHERE type='table' AND name=?", (table,)).fetchone()[0]
+				con.execute(schema)
+				con.execute('INSERT INTO main."{0}" SELECT * FROM shard."{0}"'.format(table))
+			con.commit()
+		except:
+			con.rollback()
+			raise
 	finally:
 		con.execute("DETACH DATABASE shard")
-	os.remove(shard_path)
+	try:
+		os.remove(shard_path)
+	except OSError:
+		pass  # a concurrent assembler may have removed it already
 
 
 def download(db='all', overwrite=False):
@@ -282,8 +303,12 @@ def _get_connection(db='decay'):
 	if fnm is not None:
 		path = _ensure_file(fnm)
 		if path not in GLOB_CONNECTIONS_DICT:
-			# sharded libraries legitimately start as a new empty file
-			GLOB_CONNECTIONS_DICT[path] = sqlite3.connect(path) if not os.path.exists(path) else connector(path)
+			# a sharded library in the user directory legitimately starts as a
+			# new or still-empty file (e.g. a session that connected but never
+			# queried), to be populated per-target by _ensure_table
+			fresh = (fnm[:-3] in _registry().get('shards', {}) and path == _data_path(fnm)
+					 and (not os.path.exists(path) or os.path.getsize(path) == 0))
+			GLOB_CONNECTIONS_DICT[path] = sqlite3.connect(path) if fresh else connector(path)
 		return GLOB_CONNECTIONS_DICT[path]
 
 	else:

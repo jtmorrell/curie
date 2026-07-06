@@ -120,6 +120,45 @@ def test_ensure_table_assembles_shard(sandbox):
 	assert sandbox['fetched'] == ['endf_XX_1.db']
 
 
+def test_zero_byte_sharded_db_recovers_across_restart(sandbox):
+	"""A crash right after the first connection leaves a zero-byte endf.db;
+	the next session must treat it as a fresh assembled database, not an error."""
+	(sandbox['cache'] / 'endf.db').write_bytes(b'')
+	sha = _make_db(sandbox['remote'] / 'endf_XX_1.db', 'XX_1')
+	sandbox['registry']['shards']['endf'] = {'endf_XX_1.db': sha}
+	con = data._get_connection('endf')
+	data._ensure_table('endf', 'XX_1')
+	assert con.execute('SELECT COUNT(*) FROM XX_1').fetchone()[0] == 2
+
+
+def test_failed_assembly_leaves_no_partial_table(sandbox):
+	"""An assembly that dies mid-way must leave no committed empty table
+	(which the existence check would forever treat as complete)."""
+	sha = _make_db(sandbox['remote'] / 'endf_XX_1.db', 'WRONG_NAME')
+	sandbox['registry']['shards']['endf'] = {'endf_XX_1.db': sha}
+	con = data._get_connection('endf')
+	with pytest.raises(Exception):
+		data._ensure_table('endf', 'XX_1')
+	assert not con.execute("SELECT name FROM sqlite_master WHERE name='XX_1'").fetchone()
+	os.remove(str(sandbox['remote'] / 'endf_XX_1.db'))
+	sha = _make_db(sandbox['remote'] / 'endf_XX_1.db', 'XX_1')
+	data._ensure_table('endf', 'XX_1')  # a corrected shard then assembles fine
+	assert con.execute('SELECT COUNT(*) FROM XX_1').fetchone()[0] == 2
+
+
+def test_sharded_site_copy_never_assembled_into(sandbox):
+	"""A site-provided endf.db is used as-is: a missing table must not
+	trigger a shard fetch or any write to the site file."""
+	_make_db(sandbox['site'] / 'endf.db', 'YY_1')
+	sandbox['registry']['shards']['endf'] = {'endf_XX_1.db': '0' * 64}
+	con = data._get_connection('endf')
+	before = (sandbox['site'] / 'endf.db').read_bytes()
+	data._ensure_table('endf', 'XX_1')
+	assert sandbox['fetched'] == []
+	assert (sandbox['site'] / 'endf.db').read_bytes() == before
+	assert con.execute('SELECT COUNT(*) FROM YY_1').fetchone()[0] == 2
+
+
 def test_ensure_table_noop_for_whole_file_dbs(sandbox):
 	sha = _make_db(sandbox['remote'] / 'tendl.db', 'RB_85')
 	sandbox['registry']['files']['tendl.db'] = sha
