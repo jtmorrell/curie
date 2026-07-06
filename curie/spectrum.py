@@ -1111,7 +1111,7 @@ class Spectrum(object):
 			cols = ['filename','isotope','energy','counts','unc_counts',
 				'intensity','unc_intensity','efficiency','unc_efficiency',
 				'decays','unc_decays','decay_rate','unc_decay_rate','chi2',
-				'start_time', 'live_time', 'real_time']
+				'start_time', 'live_time', 'real_time', 'effcal']
 
 			df = pd.DataFrame({'filename':self.filename, 'isotope':f['isotope'], 'energy':f['energy'],
 							'counts':N, 'unc_counts':unc_N, 'intensity':f['intensity'],
@@ -1119,7 +1119,10 @@ class Spectrum(object):
 							'unc_efficiency':self.cb.unc_eff(f['energy']), 'decays':D,
 							'unc_decays':unc_D, 'decay_rate':A, 'unc_decay_rate':unc_A, 'chi2':chi2,
 							'start_time':dtm.datetime.strftime(self.start_time, '%m/%d/%Y %H:%M:%S'),
-							'live_time':self.live_time, 'real_time':self.real_time}, columns=cols)
+							'live_time':self.live_time, 'real_time':self.real_time,
+							# calibration identity: lets downstream fits group efficiency
+							# errors as correlated within one calibration (detector)
+							'effcal':','.join('{:.9g}'.format(p) for p in self.cb.effcal)}, columns=cols)
 
 			return p0, df
 		except (ValueError, RuntimeError, np.linalg.LinAlgError):
