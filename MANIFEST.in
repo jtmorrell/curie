@@ -1,6 +1,0 @@
-include README.md
-include LICENSE
-include pytest.ini
-recursive-include tests *.py
-recursive-include examples *.py *.Spe *.csv *.json
-global-exclude *.db

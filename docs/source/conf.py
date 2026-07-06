@@ -23,10 +23,12 @@ project = u'Curie'
 copyright = u'2024, Jonathan Morrell'
 author = u'Jonathan Morrell'
 
-# The short X.Y version
-version = u'0.0.37'
+# version is single-sourced from the installed package metadata
+from importlib.metadata import version as _dist_version
 # The full version, including alpha/beta/rc tags
-release = u'0.0.37'
+release = _dist_version('curie')
+# The short X.Y version
+version = release
 
 
 # -- General configuration ---------------------------------------------------
