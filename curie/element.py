@@ -92,12 +92,9 @@ class Element(object):
 		self.mass = df['amu'][0]
 		self.density = df['density'][0]
 
-		self.abundances = pd.read_sql('SELECT isotope, abundance, unc_abundance FROM chart WHERE Z={} AND abundance>0'.format(self.Z), _get_connection('decay'))
-		if self.name=='Ta': ### Ta has a naturally occuring isomer
-			self.abundances['isotope'] = list(map(lambda i:i.replace('180TA','180TAm1'), self.abundances['isotope']))
-		if self.name=='Bi':
-			self.abundances = pd.DataFrame([['209BI',100.0,0.0]], columns=self.abundances.columns)
-		self.isotopes = list(map(str, self.abundances['isotope']))
+		# abundances come from decay.db and are deferred (see the property below)
+		# so that pure stopping-power/attenuation work needs only ziegler.db
+		self._abundances = None
 
 		self.mass_coeff = pd.read_sql('SELECT energy, mu, mu_en FROM mass_coeff WHERE Z={}'.format(self.Z), _get_connection('ziegler'))
 		self._mc_interp, self._mc_en_interp = None, None
@@ -106,6 +103,27 @@ class Element(object):
 
 	def __str__(self):
 		return self.name
+
+	@property
+	def abundances(self):
+		"""Natural abundances of the element's isotopes
+
+		pd.DataFrame with columns 'isotope', 'abundance' (%) and
+		'unc_abundance'. Loaded from the decay library on first access.
+		"""
+		if self._abundances is None:
+			ab = pd.read_sql('SELECT isotope, abundance, unc_abundance FROM chart WHERE Z={} AND abundance>0'.format(self.Z), _get_connection('decay'))
+			if self.name=='Ta': ### Ta has a naturally occuring isomer
+				ab['isotope'] = list(map(lambda i:i.replace('180TA','180TAm1'), ab['isotope']))
+			if self.name=='Bi':
+				ab = pd.DataFrame([['209BI',100.0,0.0]], columns=ab.columns)
+			self._abundances = ab
+		return self._abundances
+
+	@property
+	def isotopes(self):
+		"""Isotopes with non-zero natural abundance, e.g. ['54FE', '56FE', ...]"""
+		return list(map(str, self.abundances['isotope']))
 
 	def mu(self, energy):
 		"""Mass-attenuation coefficient
