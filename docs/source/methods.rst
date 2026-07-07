@@ -277,3 +277,92 @@ energy-dependent uncertainties.
    spectrometry", *J. Phys. D: Appl. Phys.* **34** (2001) 2555,
    `doi:10.1088/0022-3727/34/16/323
    <https://doi.org/10.1088/0022-3727/34/16/323>`_.
+
+.. _methods_decay_chains:
+
+Radioactive Decay Chains
+------------------------
+
+The Bateman equations
+~~~~~~~~~~~~~~~~~~~~~
+
+A radioactive decay chain is governed by a system of coupled first-order
+differential equations: the number of atoms :math:`N_m` of each member
+changes through its own decay, through the decay of its parents, and
+through any external production,
+
+.. math::
+
+   \frac{dN_m}{dt} = R_m(t) - \lambda_m N_m
+       + \sum_{j} \mathrm{BR}_{j\to m}\,\lambda_j N_j
+
+where :math:`\lambda_m` is the decay constant, :math:`R_m(t)` the
+production rate (e.g. from a nuclear reaction during irradiation), and
+:math:`\mathrm{BR}_{j\to m}` the branching ratio for parent :math:`j`
+decaying to :math:`m`.  `DecayChain` builds the system automatically: it
+starts from the parent isotope and follows every decay branch in the
+decay database — alpha, beta, electron capture, isomeric transition,
+spontaneous fission — until it reaches stable nuclei.
+
+For a linear chain :math:`1 \to 2 \to \dots \to m`, the classic solution
+of Bateman [Bateman1910]_ expresses the activity
+:math:`A_m = \lambda_m N_m` as a sum of exponentials.  For an initial
+activity :math:`A_i(0)` of member :math:`i`,
+
+.. math::
+
+   A_m(t) = \sum_{i=1}^{m} A_i(0)\,\frac{\lambda_m}{\lambda_i}
+       \left(\prod_{k=i}^{m-1} \mathrm{BR}_k \lambda_k\right)
+       \sum_{j=i}^{m} \frac{e^{-\lambda_j t}}
+       {\prod_{k \neq j} (\lambda_k - \lambda_j)}
+
+and a constant production rate :math:`R_i` contributes the same terms
+with :math:`e^{-\lambda_j t}` replaced by
+:math:`(1 - e^{-\lambda_j t})/\lambda_j` — the saturation curve familiar
+from activation work.  When the decay graph branches, Curie enumerates
+every distinct path from the parent to the isotope of interest and sums
+the contributions, each weighted by its product of branching ratios.
+
+Production schedules are piecewise constant: within each time interval
+the production rates are held fixed and the solution above is applied,
+with the activities at the end of one interval becoming the initial
+activities of the next.  Time zero is defined as the *end* of production
+(the end of bombardment, for activation experiments); all subsequent
+times — counting intervals, activities — are measured from that point.
+
+Numerical treatment
+~~~~~~~~~~~~~~~~~~~
+
+The Bateman denominators :math:`\prod_{k \neq j}(\lambda_k - \lambda_j)`
+blow up when two members of a chain have (nearly) equal decay constants —
+which genuinely happens in the decay database, where two half-lives can
+be identical as rounded.  Rather than perturbing the values, Curie groups
+decay constants that agree to within one part in :math:`10^9` and
+evaluates the exact *confluent* form of the solution for each group (the
+mathematical limit of the Bateman coefficients as the constants
+coincide), computed with a recursion that avoids the catastrophic
+cancellation of the raw sum.  Each branch is additionally rescaled by the
+geometric mean of its decay constants — the solution is invariant under
+this rescaling — so that long chains with widely separated half-lives
+remain within floating-point range in any choice of time units.
+
+Fitting to measured decays
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+`fit_R()` and `fit_A0()` adjust one scalar multiplier per produced
+isotope — scaling the production-rate history :math:`R(t)` (its shape is
+preserved) or the initial activity — to match the observed number of
+decays in each counting interval.  The fit compares *decays per
+interval*, not instantaneous activities, so counts integrated over long
+measurements are treated exactly.  Where the count data come from fitted
+spectra (`get_counts()`), each measurement's uncertainty is decomposed
+into an independent counting part, a part shared by all measurements of
+the same gamma line (its intensity), and a part shared by all
+measurements using the same efficiency calibration; the fit is a
+generalized least squares with the resulting covariance, using the same
+one-sided scale-factor convention as the calibration fits (see
+:ref:`methods_calibration`).
+
+.. [Bateman1910] H. Bateman, "The solution of a system of differential
+   equations occurring in the theory of radio-active transformations",
+   *Proc. Cambridge Philos. Soc.* **15** (1910) 423.
