@@ -24,6 +24,10 @@ specified::
 	rx = ci.Reaction('Ra-226(n,2n)Ra-225')
 	rx = ci.Reaction('natTI(p,x)48V')          # any route from natTi to 48V
 
+A natural-abundance elemental target is written with the ``nat`` prefix
+(``natTI``, ``natCU``); this notation is specific to reaction targets —
+it is not a valid `Isotope` name.
+
 The product can be omitted when the outgoing particle determines it
 (``'115IN(n,g)'`` is ``'115IN(n,g)116IN'``), but is needed to select an
 isomer (``'115IN(n,inl)115INm1'``).  The data are attributes: ``rx.eng``
@@ -36,14 +40,14 @@ How Curie picks the library
 With the default ``library='best'``, Curie tries the libraries in a fixed
 priority order and keeps the first one that carries the reaction:
 
-=================  ====================================================
-Incident particle  Priority order
-=================  ====================================================
-neutron            IRDFF-II → ENDF/B-VII.1 → IAEA → TENDL-2015 →
-                   TENDL-2015 (residual product)
-proton, deuteron   IAEA → TENDL-2015 (residual product)
-alpha, helion      IAEA
-=================  ====================================================
+======================  ====================================================
+Incident particle       Priority order
+======================  ====================================================
+neutron                 IRDFF-II → ENDF/B-VII.1 → IAEA → TENDL-2015 →
+                        TENDL-2015 (residual product)
+proton, deuteron        IAEA → TENDL-2015 (residual product)
+alpha, helion, photon   IAEA
+======================  ====================================================
 
 The order reflects evaluation care: dosimetry and monitor standards
 first, general-purpose evaluations next, all-encompassing theoretical
@@ -59,18 +63,18 @@ Exclusive vs. residual-product libraries
 ----------------------------------------
 
 The neutron libraries (ENDF, TENDL, IRDFF) are organized by *exclusive
-reaction channel* — ``(n,2n)``, ``(n,p)``, ``(n,inl)`` — where the
-outgoing particles are specified.  The charged-particle libraries (IAEA,
-and the TENDL ``tendl_p``/``tendl_d``/``tendl_n`` variants) are organized
-by *residual product*: the reaction is written ``(p,x)`` and only the
-product nucleus matters, summing over every route to it.  This is why
-proton reactions are written ``'natTI(p,x)48V'`` rather than
-``'48TI(p,n)48V'``.
+reaction channel* — ``(n,2n)``, ``(n,p)``, ``(n,inl)`` (inelastic
+scattering) — where the outgoing particles are specified.  The
+residual-product libraries (the IAEA library, and the TENDL
+``tendl_n``/``tendl_p``/``tendl_d`` variants) are instead organized by
+what nucleus is produced: the reaction is written ``(p,x)`` and only the
+product matters, summing over every route to it.  This is why proton
+reactions are written ``'natTI(p,x)48V'`` rather than ``'48TI(p,n)48V'``.
 
-In the residual-product libraries every product state is a separate
-entry: ``86SR(p,x)86Yg`` and ``86SR(p,x)86Ym1`` are different reactions.
-If you give no isomer suffix, **the ground state is assumed** (a warning
-prints, once per library instance).
+In the TENDL residual-product libraries every product state is a
+separate entry: ``86SR(p,x)86Yg`` and ``86SR(p,x)86Ym1`` are different
+reactions.  If you give no isomer suffix, **the ground state is
+assumed** (a warning prints, once per library instance).
 
 Searching a library
 -------------------

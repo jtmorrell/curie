@@ -400,7 +400,8 @@ Name              Evaluation                  Particles  Organization    Uncerta
 ================  ==========================  =========  ==============  =============
 
 An *exclusive* library indexes reactions by their outgoing channel —
-(n,2n), (n,p), (n,inl) — while a *residual-product* library indexes by
+(n,2n), (n,p), (n,inl) (inelastic scattering) — while a
+*residual-product* library indexes by
 what nucleus is produced, written (p,x), summing all routes.  Independent
 of that split, a residual-product cross section may be *independent*
 (direct production of the state only — TENDL's convention, each isomer a
@@ -410,13 +411,13 @@ distinguish the two where both are useful).  IRDFF-II is a dosimetry
 standard: most of its entries are exclusive channels, with a few indexed
 by product.
 
-Energies are in MeV and cross sections in mb throughout (converted, where
-a source library uses eV and barns, when the databases are built).  On
+Energies are in MeV and cross sections in mb throughout (converted on
+retrieval from any source library that uses eV and barns).  On
 retrieval, energy grids are sorted and exact duplicate points dropped;
-duplicate abscissae that encode step discontinuities (e.g. threshold
-steps) are preserved for the exclusive libraries, while for TENDL —
-point-wise smooth model output — repeated abscissae are build artifacts
-and are removed.
+duplicated energy values that encode step discontinuities (e.g.
+threshold steps) are preserved for all libraries except TENDL, whose
+point-wise smooth model output makes a repeated energy value a build
+artifact, so there they are removed.
 
 Interpolation and flux averages
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -430,7 +431,8 @@ interpolated cross section is zero** — Curie never extrapolates
 evaluated data.
 
 Flux integrals treat the energy points as bin centers, with bin edges at
-the midpoints between them (one-sided at the endpoints):
+the midpoints between them; the first and last points take the full
+spacing to their single neighbor:
 
 .. math::
 
@@ -438,7 +440,9 @@ the midpoints between them (one-sided at the endpoints):
      \frac{\sum_i \sigma(E_i)\,\phi_i\,\Delta E_i}
           {\sum_i \phi_i\,\Delta E_i}
    \qquad
-   \Delta E_i = \tfrac{1}{2}(E_{i+1} - E_{i-1})
+   \Delta E_i = \tfrac{1}{2}(E_{i+1} - E_{i-1}),\quad
+   \Delta E_0 = E_1 - E_0,\quad
+   \Delta E_{n-1} = E_{n-1} - E_{n-2}
 
 For a uniform grid the widths cancel from the average, and
 histogram-like fluxes (such as those from `Stack`) are integrated
@@ -449,20 +453,22 @@ quadrature — which is the conservative choice for evaluated curves,
 whose errors are dominated by common normalization rather than
 point-to-point scatter.
 
-Data provenance and integrity
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. _methods_provenance:
+
+Data Provenance and Integrity
+-----------------------------
 
 Curie's nuclear data ship as pre-built databases, fetched on first use
 and verified against published SHA256 checksums (see
 :ref:`quickinstall`); the large cross-section libraries are fetched in
-per-target pieces.  The decay data (half-lives, branching ratios,
-emission energies and intensities) are compiled from NuDat 2.0,
+per-target pieces.  The reaction libraries are described in
+:ref:`methods_reaction_data`.  The decay data (half-lives, branching
+ratios, emission energies and intensities) are compiled from NuDat 2.0,
 ENDF/B-VII.0 and the nuclear wallet cards; photon attenuation
 coefficients derive from the NIST XCOM tabulations; charged-particle
-stopping powers use the Anderson–Ziegler formulation.  Every energy is
-in MeV (gamma-ray energies in keV in the spectroscopy classes), every
-cross section in mb, and every half-life in seconds unless a unit
-argument says otherwise.
+stopping powers use the Anderson–Ziegler formulation.  Gamma-ray
+energies are in keV in the spectroscopy classes, and every half-life is
+in seconds unless a unit argument says otherwise.
 
 .. [ENDF] M.B. Chadwick et al., "ENDF/B-VII.1 Nuclear Data for Science
    and Technology", *Nucl. Data Sheets* **112** (2011) 2887.

@@ -14,14 +14,16 @@ searches the underlying data libraries for what reactions exist.
    :width: 66%
    :align: center
 
-   The :sup:`115`\ In(n,g) capture cross section (IRDFF-II), spanning
-   from thermal energies through the resonance region.
+   The :sup:`115`\ In(n,g) capture cross section (IRDFF-II), across ten
+   orders of magnitude in incident energy.
 
-Reactions are named in standard nuclear reaction notation::
+Reactions are named in standard nuclear reaction notation — the pattern
+is ``TARGET(incident,outgoing)PRODUCT``, with isotopes written in either
+of Curie's name forms::
 
-	rx = ci.Reaction('115IN(n,g)')
-	rx = ci.Reaction('Ra-226(n,2n)Ra-225')
-	rx = ci.Reaction('natTI(p,x)48V')
+	rx = ci.Reaction('115IN(n,g)')             # neutron capture on 115In
+	rx = ci.Reaction('Ra-226(n,2n)Ra-225')     # (n,2n), naming the product
+	rx = ci.Reaction('natTI(p,x)48V')          # any route from natural Ti to 48V
 
 All cross sections are in mb, and all energies in MeV.
 
@@ -60,7 +62,7 @@ theory-driven (TALYS-based) evaluations whose strength is complete
 coverage — nearly every target and product, including reactions no one
 has measured.  Where they overlap, they will not agree perfectly; which
 to prefer, and what to watch out for (energy-grid limits, natural vs
-isotopic targets, cumulative vs independent yields), is the subject of
+isotopic targets, cumulative vs direct production), is the subject of
 the tutorial.
 
 .. toctree::

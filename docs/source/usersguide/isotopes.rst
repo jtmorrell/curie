@@ -56,9 +56,9 @@ are compiled from NuDat 2.0, ENDF/B-VII.0 and the nuclear wallet cards.
 :ref:`methods_decay_chains`), including chains with branching and
 same-half-life members, for one parent isotope at a time with a
 piecewise-constant production history.  Production physics is *not*
-computed — the production rate is an input, which you can estimate from
-cross sections and beam parameters (see :ref:`reactions`) or fit from
-measured counts.
+computed — the production rate is an input, which you can fit from
+measured counts, or estimate yourself from cross sections and particle
+fluxes (the :ref:`reactions` pages cover the cross-section side).
 
 .. toctree::
    :maxdepth: 1

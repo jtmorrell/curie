@@ -20,6 +20,9 @@ beam current and energy in each position.  The IAEA maintains the
 reference library for exactly this purpose, and it is where Curie's
 default library search sends charged-particle reactions::
 
+	>>> import curie as ci
+	>>> import numpy as np
+
 	>>> rx = ci.Reaction('natTI(p,x)48V')
 	>>> print(rx.library.name)
 	IAEA CP-Reference (2017)
@@ -41,7 +44,9 @@ Natural vs. isotopic targets
 The TENDL-2015 residual-product library also carries this reaction — but
 only for *isotopic* targets; it has no natural-element entries.  A
 natural-target cross section is the abundance-weighted sum over the
-stable isotopes, which takes a few lines::
+stable isotopes.  ``ci.Element('Ti').abundances`` provides exactly what
+the sum needs: a table of the stable isotopes with their percent
+abundances (columns ``isotope`` and ``abundance``)::
 
 	el = ci.Element('Ti')
 	eng = np.linspace(1, 100, 500)
@@ -49,10 +54,14 @@ stable isotopes, which takes a few lines::
 
 	for n, row in el.abundances.iterrows():
 		try:
-			r = ci.Reaction('{0}(p,x)48V'.format(row['isotope']), 'tendl_p')
+			r = ci.Reaction('{0}(p,x)48Vg'.format(row['isotope']), 'tendl_p')
 		except ValueError:
 			continue      # this isotope has no route to 48V
 		xs_nat += 1E-2*row['abundance']*r.interpolate(eng)
+
+(The explicit ``g`` on the product picks the ground state — leaving it
+off works, but prints the ground-state-assumed warning for every
+isotope.)
 
 The ``try``/``except`` is doing real physics: :sup:`46`\ Ti + p has only
 47 nucleons, so it cannot make :sup:`48`\ V at any energy, and TENDL has
@@ -84,6 +93,9 @@ evaluated::
 
 	ra = ci.Reaction('176YB(d,x)177LUg', 'iaea')   # cumulative
 	rb = ci.Reaction('176YB(d,n)177LUg', 'iaea')   # direct only
+
+	f, ax = ra.plot(return_plot=True, label='reaction')
+	rb.plot(f=f, ax=ax, label='reaction')
 
 .. figure:: ../images/lu177_direct_cumulative.png
    :width: 80%

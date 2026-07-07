@@ -12,8 +12,8 @@ isotopic (or vice versa).
 "Reaction ... not found or not unique"
 --------------------------------------
 
-**Symptom:** ``ValueError: Reaction 48TI(p,n)48V not found or not
-unique.`` for a reaction that certainly exists.
+**Symptom:** ``ValueError: Reaction 48TI(p,x) not found or not unique.``
+for a target the library certainly evaluates.
 
 **Cause:** the error covers two opposite situations — *nothing* matched
 (not found), or *several* things matched (not unique) — and each library
@@ -31,9 +31,9 @@ organizes its reactions in one particular form.  The common cases:
 * **The reaction genuinely isn't in that library** — the target isn't
   evaluated, or the product is out of reach.
 
-(Related, but not an error: a residual-product search without an isomer
-suffix quietly assumes the ground state — ``'86SR(p,x)86Y'`` means
-``86Yg``, with a warning that prints only once.)
+(Related, but not an error: a TENDL residual-product search without an
+isomer suffix quietly assumes the ground state — ``'86SR(p,x)86Y'``
+means ``86Yg``, with a warning that prints once per library instance.)
 
 **Fix:** ask the library what it has, with the loosest search that
 brackets your case::
@@ -68,9 +68,10 @@ in any analysis you intend to reproduce or publish.
 Natural target or isotopic target?
 ----------------------------------
 
-**Symptom:** ``'natTI(p,x)48V'`` works but ``'natTI(p,x)48V'`` with
-``library='tendl_p'`` raises "not found"; or an isotopic cross section
-is a factor of several above the measured production on a natural foil.
+**Symptom:** ``'natTI(p,x)48V'`` works by default (it resolves to the
+IAEA library) — but the same reaction with ``library='tendl_p'`` raises
+"not found".  Or: an isotopic cross section is a factor of several above
+the measured production on a natural foil.
 
 **Cause:** the libraries differ.  The IAEA monitor library evaluates
 *natural* targets (monitor foils are natural metal); TENDL's
