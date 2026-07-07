@@ -19,5 +19,6 @@ Welcome to Curie's documentation!
    intro
    quickinstall
    usersguide/index
+   methods
    api/index
    license

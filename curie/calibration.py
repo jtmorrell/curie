@@ -113,11 +113,12 @@ class Calibration(object):
 		is linear or quadratic.
 
 	effcal : np.ndarray
-		Efficiency calibration parameters. length 3 or 5 array, depending on whether the efficiency
-		fit includes a "dead-layer term".
+		Efficiency calibration parameters, for the semi-empirical efficiency model
+		(see the `eff` method).  Length 5 array, or length 7 if the two low-energy
+		attenuation terms (detector window and dead layer) are included.
 
 	unc_effcal : np.ndarray
-		Efficiency calibration covariance matrix. shape 3x3 or 5x5, depending on the length of effcal.
+		Efficiency calibration covariance matrix. shape 5x5 or 7x7, depending on the length of effcal.
 
 	rescal : np.ndarray
 		Resolution calibration parameters.  length 2 array if resolution calibration is of the form
@@ -127,15 +128,15 @@ class Calibration(object):
 	Examples
 	--------
 	>>> cb = Calibration()
-	>>> cb.engcal = [0.0, 0.25, 0.001]
 	>>> print(cb.engcal)
-	[0.0 0.3]
-	>>> print(cb.effcal)
-	[0.02 8.3 2.1 1.66 0.4]
+	[0.  0.3]
+	>>> cb.engcal = [0.1, 0.2, 0.003]
+	>>> print(cb.engcal)
+	[0.1   0.2   0.003]
 	>>> cb.saveas('test_calib.json')
 	>>> cb = Calibration('test_calib.json')
 	>>> print(cb.engcal)
-	[0.0 0.25 0.001]
+	[0.1   0.2   0.003]
 
 	"""
 
@@ -222,7 +223,7 @@ class Calibration(object):
 		Parameters
 		----------
 		channel : array_like
-			Spectrum channel number.  The maxi_MUm channel number should
+			Spectrum channel number.  The maximum channel number should
 			be the length of the spectrum.
 
 		engcal : array_like, optional
@@ -291,10 +292,11 @@ class Calibration(object):
 		--------
 		>>> cb = ci.Calibration()
 		>>> print(cb.effcal)
-		[0.02 8.3 2.1 1.66 0.4]
+		[1.87867638e-02 8.82671055e+01 2.09673703e+00 1.66193806e+00
+		 3.90089610e-01 3.79361265e+00 1.24058591e-02]
 		>>> print(cb.eff(50*np.arange(1,10)))
-		[0.04152215 0.06893742 0.07756411 0.07583971 0.07013108 0.06365222
-		 0.05762826 0.05236502 0.0478359 ]
+		[0.00469671 0.00553412 0.00502548 0.00436836 0.00369016 0.00315241
+		 0.002754   0.00245546 0.00222482]
 
 		"""
 
@@ -319,7 +321,7 @@ class Calibration(object):
 		Returns the calculated uncertainty in efficiency for an input
 		array of energies.  If `effcal` or `unc_effcal` are not none,
 		they are used instead of the calibration object's internal
-		values. (cb.unc_effcal)  unc_effcal _MUst be a covariance matrix of the
+		values. (cb.unc_effcal)  unc_effcal must be a covariance matrix of the
 		same dimension as effcal.
 
 		Parameters
@@ -342,20 +344,13 @@ class Calibration(object):
 		Examples
 		--------
 		>>> cb = ci.Calibration()
-		>>> print(cb.effcal)
-		[0.02 8.3 2.1 1.66 0.4]
-		>>> print(cb.unc_effcal)
-		[[ 5.038e-02  3.266e-02 -2.151e-02 -4.869e-05 -7.748e-03]
-		 [ 3.266e-02  2.144e-02 -1.416e-02 -3.416e-05 -4.137e-03]
-		 [-2.151e-02 -1.416e-02  9.367e-03  2.294e-05  2.569e-03]
-		 [-4.869e-05 -3.416e-05  2.294e-05  5.411e-07 -1.165e-04]
-		 [-7.748e-03 -4.137e-03  2.569e-03 -1.165e-04  3.332e-02]]
 		>>> print(cb.eff(50*np.arange(1,10)))
-		[0.04152215 0.06893742 0.07756411 0.07583971 0.07013108 0.06365222
-		 0.05762826 0.05236502 0.0478359 ]
+		[0.00469671 0.00553412 0.00502548 0.00436836 0.00369016 0.00315241
+		 0.002754   0.00245546 0.00222482]
 		>>> print(cb.unc_eff(50*np.arange(1,10)))
-		[0.00453714 0.00795861 0.00705099 0.00514765 0.00453579 0.00433504
-		 0.00394935 0.00347228 0.00304041]
+		[1.84927072e-05 2.06720560e-05 4.00073148e-05 3.34061820e-05
+		 1.49979136e-05 1.05818602e-05 9.72833934e-06 8.95311822e-06
+		 8.10774373e-06]
 
 		"""
 
@@ -393,7 +388,7 @@ class Calibration(object):
 		Parameters
 		----------
 		channel : array_like
-			Spectrum channel number.  The maxi_MUm channel number should
+			Spectrum channel number.  The maximum channel number should
 			be the length of the spectrum.
 
 		rescal : array_like, optional
@@ -479,7 +474,7 @@ class Calibration(object):
 		"""Generate calibration parameters from spectra
 
 		Performs an energy, resolution and efficiency calibration on peak fits
-		to a given list of spectra.  Reference activities _MUst be given for the
+		to a given list of spectra.  Reference activities must be given for the
 		efficiency calibration.  Spectra are allowed to have isotopes that are
 		not in `sources`, but these will not be included in the efficiency calibration.
 
@@ -500,9 +495,10 @@ class Calibration(object):
 		>>> sp.isotopes = ['152EU']
 
 		>>> cb = ci.Calibration()
-		>>> cb.calibrate([sp], sources=[{'isotope':'152EU', 'A0':3.5E4, 'ref_date':'01/01/2009 12:00:00'}])
+		>>> cb.calibrate([sp], sources=[{'isotope':'152EU', 'A0':3.7E4, 'ref_date':'01/01/2009 12:00:00'}])
 		>>> print(cb.effcal)
-		[4.33742771 2.28579733 0.15337749]
+		[5.02300989e-02 1.00000000e+02 2.82394962e+00 2.45721823e+00
+		 2.91455256e-01]
 		>>> cb.plot()
 
 		"""
@@ -696,14 +692,16 @@ class Calibration(object):
 		>>> sp.isotopes = ['152EU']
 
 		>>> cb = ci.Calibration()
-		>>> cb.calibrate([sp], sources=[{'isotope':'152EU', 'A0':3.5E4, 'ref_date':'01/01/2009 12:00:00'}])
+		>>> cb.calibrate([sp], sources=[{'isotope':'152EU', 'A0':3.7E4, 'ref_date':'01/01/2009 12:00:00'}])
 		>>> print(cb.effcal)
-		[4.33742771 2.28579733 0.15337749]
+		[5.02300989e-02 1.00000000e+02 2.82394962e+00 2.45721823e+00
+		 2.91455256e-01]
 		>>> cb.saveas('example_calib.json')
 
 		>>> cb = ci.Calibration('example_calib.json')
 		>>> print(cb.effcal)
-		[4.33742771 2.28579733 0.15337749]
+		[5.02300989e-02 1.00000000e+02 2.82394962e+00 2.45721823e+00
+		 2.91455256e-01]
 
 		"""
 
