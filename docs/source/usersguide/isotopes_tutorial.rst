@@ -69,21 +69,35 @@ that spectrum's fitted peaks, what was the source activity on the
 certificate date?
 
 Starting from the calibrated spectrum ``sp`` of that tutorial, build a
-decay-only chain (an ``A0`` guess rather than a production history),
-choose the certificate date as t = 0, and load the measured decays from
-the spectrum::
+decay-only chain (an ``A0`` guess rather than a production history) and
+load the measured decays from the spectrum.  The certificate date is our
+t = 0, passed as the ``EoB`` (end-of-bombardment) argument — despite the
+name, it is simply the t = 0 reference time, even when, as here, nothing
+was bombarded::
 
 	dc = ci.DecayChain('152EU', A0=3.7E4, units='y')
 	dc.get_counts([sp], EoB='01/01/2009 12:00:00')
-	print(dc.counts[['isotope', 'start', 'stop', 'counts', 'unc_counts']].head(3))
 
 ``get_counts()`` took each fitted gamma line's decays from ``sp.peaks``
-and placed the count interval on the chain's clock: it starts 9.7 years
-after t = 0.  Now fit the initial activity::
+and placed the count interval on the chain's clock — 9.7 years after
+t = 0::
+
+	>>> print(dc.counts[['isotope', 'start', 'stop', 'counts', 'unc_counts']].head(3))
+	  isotope     start      stop        counts    unc_counts
+	0  152EUg  9.697086  9.697163  5.537235e+07  1.366835e+07
+	1  152EUg  9.697086  9.697163  5.576780e+07  8.454064e+06
+	2  152EUg  9.697086  9.697163  4.874544e+07  1.161682e+07
+
+(The same works without the live spectrum: ``get_counts`` also accepts
+the peak file the spectroscopy tutorial saved, as
+``dc.get_counts(['eu_calib_7cm.Spe'], EoB=..., peak_data='eu_peaks.csv')``.)
+Now fit the initial activity::
 
 	>>> isotopes, A0_fit, cov = dc.fit_A0()
 	>>> print('{:.3g} +/- {:.2g} Bq'.format(A0_fit[0], np.sqrt(cov[0][0])))
 	3.63e+04 +/- 2.5e+03 Bq
+
+and plot the fitted decay curve against the measurements::
 
 	dc.plot(max_plot=1, max_plot_error=0.2)
 
@@ -93,11 +107,11 @@ after t = 0.  Now fit the initial activity::
 
 The fitted activity at the certificate date is 36.3 ± 2.5 kBq — in
 agreement with the certified 37.0 kBq.  Each point in the plot is one
-gamma line's independent estimate of the activity; the fit combines them,
-accounting for their shared uncertainties (the efficiency calibration and
-the line intensities), which is why the result is more certain than a
-naive average would suggest and honest about what the lines have in
-common.
+gamma line's estimate of the activity; the fit combines them while
+accounting for their shared uncertainties, the efficiency calibration and
+the line intensities.  Shared errors cannot be averaged away by adding
+more lines, so the combined uncertainty is larger — and more honest —
+than a naive average of the points would suggest.
 
 Here the source decayed freely, so ``fit_A0()`` was the right tool.  In
 an activation experiment you would instead give the chain your estimated

@@ -31,10 +31,12 @@ suffixes::
 	>>> print(dc.isotopes)
 	['99MOg', '99TCg', '99TCm1', '99RUg']
 
-This matters doubly for measured counts: ``get_counts()`` and the
-``dc.counts`` setter keep only isotopes that are in the chain, and they
-match by these exact names.  A peak table whose isotope column says
-``99TC`` contributes nothing to a fit of ``99TCm1`` — silently.
+This matters doubly for measured counts, which are matched by these
+exact names.  ``get_counts()`` keeps only isotopes that are in the chain,
+so a peak table whose isotope column says ``99TC`` feeds the ground state
+``99TCg`` and contributes nothing to a fit of ``99TCm1`` — silently.
+(Hand-entered ``dc.counts`` fails louder: naming an isotope that is not a
+radioactive chain member raises ``Cannot assign counts to ...``.)
 
 Everything is shifted: time zero and daylight-saving time
 ---------------------------------------------------------
@@ -58,9 +60,10 @@ things commonly corrupt it:
   subtracts wall-clock times.  If the irradiation happened in March and
   the count in July, and your EoB is written in winter (standard) time
   while the acquisition computer stamped summer time, every decay time is
-  off by one hour.  A one-hour error is 10% of a :sup:`99m`\ Tc
-  half-life — or negligible for :sup:`152`\ Eu.  Whether it matters
-  depends entirely on your shortest-lived isotope.
+  off by one hour.  A one-hour shift is about a sixth of a
+  :sup:`99m`\ Tc half-life — roughly an 11% error in activity — or
+  negligible for :sup:`152`\ Eu.  Whether it matters depends entirely on
+  your shortest-lived isotope.
 
 **Fix:** record EoB and verify the spectrum's ``start_time`` (printed
 from the file header: ``print(sp.start_time)``) on the *same* clock,

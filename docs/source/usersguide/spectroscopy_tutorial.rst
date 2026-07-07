@@ -90,7 +90,8 @@ rates across lines spanning 122 to 1408 keV::
 
 The ``decay_rate`` column — the activity of the source during the count —
 clusters around 22.6 kBq for every line: the 37 kBq source decayed for
-about one half-life (13.5 y) between the reference date and the count.
+9.7 years — a bit under one 13.5 y half-life — between the reference
+date and the count.
 (The large ``chi2`` on the very intense 122 keV peak is expected for a
 peak with half a million counts — see the note on high-statistics peaks in
 :ref:`spectroscopy_troubleshooting`.)  ``sp.summarize()`` prints the same

@@ -13,18 +13,18 @@ builds the full chain of decay products, computes every member's activity
 as a function of time — during production as well as decay — and can fit
 production rates or initial activities to measured data.
 
-.. figure:: ../images/ra225_chain.png
+.. figure:: ../images/ra225_overview.png
    :width: 66%
    :align: center
 
-   The :sup:`225`\ Ra decay chain during and after production: the
-   daughters (:sup:`225`\ Ac and its short-lived descendants) grow in as
-   the parent decays.
+   :sup:`225`\ Ra during and after production: the daughter
+   :sup:`225`\ Ac grows in as the parent decays.
 
 Workflow
 --------
 
-Decay-chain problems come in two directions:
+`Isotope` needs no workflow — construct it and read off the data (see
+:ref:`isotopes_tasks`).  Decay-chain problems come in two directions:
 
 * **Forward** — you know (or assume) how much of an isotope was made, and
   want activities at later times: build the chain with an initial activity

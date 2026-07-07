@@ -56,9 +56,10 @@ keV and intensities in percent (per decay).  Each accepts intensity
 	print(ip.beta_plus())                # beta+ (positron) emissions
 	print(ip.alphas(I_lim=1.0))
 
-``gammas()`` also takes ``xrays=True`` to include fluorescence x-rays and
-``dE_511`` to exclude lines near the annihilation energy — the same
-filters `Spectrum` applies when fitting peaks.
+``gammas()`` also takes ``xrays=True`` to include fluorescence x-rays,
+and ``dE_511`` (a width, in keV) to drop lines within that many keV of
+the 511 keV annihilation peak — the same filters `Spectrum` applies when
+fitting peaks.
 
 Fission yields
 --------------
@@ -84,11 +85,11 @@ activity (Bq) and distance (cm)::
 	print(ip.dose_rate(activity=3.7E10, distance=100.0, units='uSv/hr'))
 
 The result is a dictionary with the contribution of each particle type.
-Because nothing — not even air — attenuates the particles in this model,
-the charged-particle entries are near-contact estimates: at any realistic
-distance, alphas and betas would be stopped by the intervening air, so
-treat the ``total`` accordingly and use the ``gammas`` entry for
-distance-dose estimates.
+This model applies no attenuation, not even from air, so the
+charged-particle entries are near-contact estimates; at any realistic
+distance, alphas and betas are stopped by the air in between.  Use the
+``gammas`` entry for distance-dose estimates, and treat ``total``
+accordingly.
 
 Building a decay chain
 ----------------------
@@ -137,16 +138,19 @@ follows, at times measured from the end of production::
 	print(dc.activity('225AC', time=10))            # chain units
 	print(dc.decays('225AC', t_start=5, t_stop=5.1))
 	dc.plot()                                        # all members vs time
-	dc.plot(max_plot=5)                              # only the 5 most active
+	dc.plot(max_plot=5)                              # only the first 5 chain members
 
-Feeding in measured counts
+Feeding in measured decays
 --------------------------
 
-For the inverse problem, the chain needs measured decays.  The most
-direct route is from fitted spectra: ``get_counts()`` reads the
-``decays`` column of each spectrum's peak table, keeps the isotopes that
-are in this chain, and converts the count timestamps to decay times using
-the end-of-bombardment time you supply::
+For the inverse problem, the chain needs measured decays.  A note on
+words: in a decay chain, "counts" means the number of *nuclear decays* in
+a counting interval — what the spectrum's peak table calls ``decays``,
+not its ``counts`` (net peak areas).  The most direct route is from
+fitted spectra: ``get_counts()`` reads the ``decays`` column of each
+spectrum's peak table, keeps the isotopes that are in this chain, and
+converts the count timestamps to decay times using the
+end-of-bombardment time you supply::
 
 	dc.get_counts([sp1, sp2], EoB='06/12/2026 13:45:00')
 
@@ -166,8 +170,9 @@ Fitting production rates or activities
 ``fit_R()`` scales the production-rate history to best match the measured
 decays; ``fit_A0()`` does the same for the initial activity.  In both
 cases the *shape* of what you provided is preserved — the fit adjusts one
-overall multiplier per produced isotope, and returns the isotopes, fitted
-values and covariance::
+overall multiplier per produced isotope, and returns the isotopes, the
+fitted quantities (the time-averaged rate for ``fit_R``, the initial
+activity for ``fit_A0``) and their covariance::
 
 	dc = ci.DecayChain('225RA', R=[[9, 0.5], [2, 1.5], [5, 4.5]], units='d')
 	dc.counts = {'225AC': [[5.0, 5.1, 6E5, 2E4]]}

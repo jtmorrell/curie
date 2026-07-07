@@ -316,19 +316,30 @@ activity :math:`A_i(0)` of member :math:`i`,
        \sum_{j=i}^{m} \frac{e^{-\lambda_j t}}
        {\prod_{k \neq j} (\lambda_k - \lambda_j)}
 
-and a constant production rate :math:`R_i` contributes the same terms
-with :math:`e^{-\lambda_j t}` replaced by
-:math:`(1 - e^{-\lambda_j t})/\lambda_j` — the saturation curve familiar
-from activation work.  When the decay graph branches, Curie enumerates
+and a constant production rate :math:`R_i` into member :math:`i`
+contributes
+
+.. math::
+
+   A_m(t) = R_i\,\lambda_m
+       \left(\prod_{k=i}^{m-1} \mathrm{BR}_k \lambda_k\right)
+       \sum_{j=i}^{m} \frac{1 - e^{-\lambda_j t}}
+       {\lambda_j \prod_{k \neq j} (\lambda_k - \lambda_j)}
+
+which for a single isotope reduces to the saturation curve
+:math:`A(t) = R\,(1 - e^{-\lambda t})` familiar from activation work.
+When the decay graph branches, Curie enumerates
 every distinct path from the parent to the isotope of interest and sums
 the contributions, each weighted by its product of branching ratios.
 
 Production schedules are piecewise constant: within each time interval
 the production rates are held fixed and the solution above is applied,
 with the activities at the end of one interval becoming the initial
-activities of the next.  Time zero is defined as the *end* of production
-(the end of bombardment, for activation experiments); all subsequent
-times — counting intervals, activities — are measured from that point.
+activities of the next.  When a production schedule is given, time zero
+is the *end* of production (the end of bombardment, for activation
+experiments); for a chain specified only by initial activities, time zero
+is the moment those activities held.  All subsequent times — counting
+intervals, activities — are measured from that point.
 
 Numerical treatment
 ~~~~~~~~~~~~~~~~~~~
