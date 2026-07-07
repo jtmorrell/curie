@@ -453,6 +453,79 @@ quadrature — which is the conservative choice for evaluated curves,
 whose errors are dominated by common normalization rather than
 point-to-point scatter.
 
+.. _methods_stopping:
+
+Stopping Power and Particle Transport
+-------------------------------------
+
+Stopping powers
+~~~~~~~~~~~~~~~
+
+A charged particle moving through matter loses energy continuously, at a
+rate characterized by the stopping power :math:`S = -dE/dx`.  Curie uses
+the semi-empirical parameterization of Andersen and Ziegler
+[AZ1977]_ [Z1977]_: the electronic stopping power for protons in each
+element is a fitted piecewise form — a velocity-proportional regime at
+the lowest energies, an intermediate form joining smoothly to it, and a
+Bethe-like form with fitted corrections at high energy — with tabulated
+coefficients for every element up to uranium.  Alpha particles have
+their own coefficient set; deuterons and tritons use the proton stopping
+evaluated at the same velocity (i.e. scaled energy :math:`E/M`).  For
+heavier ions, the proton stopping is scaled by the square of an
+effective charge ratio (a Bohr/Northcliffe-type parameterization) that
+accounts for partial neutralization of the ion at low velocity.  A
+nuclear-stopping term, significant only at the lowest energies, is added
+in all cases.
+
+The stopping power of a compound is the mass-weighted sum of its
+elemental stopping powers (Bragg additivity), which neglects the
+influence of chemical bonds on the electronic structure — typically a
+percent-level approximation, largest for light compounds at low
+energies.  The range of a particle is the continuous-slowing-down
+integral
+
+.. math::
+
+   R(E_0) = \int_0^{E_0} \frac{dE}{S(E)}
+
+Photon attenuation coefficients — the mass-attenuation coefficient
+:math:`\mu/\rho` and the mass energy-absorption coefficient
+:math:`\mu_{en}/\rho` — are log-log interpolations of the NIST XCOM
+tabulations, with compound values likewise combined by mass-weighted
+additivity.
+
+Transport through a stack
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+`Stack` propagates a Monte Carlo ensemble of particles through the foils
+in beam order.  Initial energies are sampled from a Gaussian of mean
+``E0`` and width ``dE0`` (default 1% of ``E0``).  Within each foil the
+energy loss is integrated by a predictor–corrector (Heun) scheme: a
+trial step with the stopping power at the current energy, corrected by
+the average of the stopping powers at the start and trial energies, with
+the number of steps chosen adaptively from the expected fractional
+energy loss (bounded by ``min_steps`` and ``max_steps``).  The energy
+distribution — the "flux" — assigned to a foil is the histogram of the
+ensemble's energies over all integration steps inside that foil, i.e. a
+path-averaged distribution through the foil's thickness, from which the
+reported mean energy ``mu_E`` and width ``sig_E`` are the first two
+moments.
+
+The width of these distributions reflects the initial beam spread and
+the increasing divergence of particle energies as the ensemble slows
+(slower particles lose energy faster).  Collisional energy-loss
+straggling — the stochastic variance growth described by Bohr and
+Tschalär — is *not* added, so for very thick degraders the true energy
+spread is somewhat larger than computed.  Particles are neither absorbed
+nor deflected: the distributions describe the beam's energy, not its
+intensity, and lateral spread is not modeled.
+
+.. [AZ1977] H.H. Andersen and J.F. Ziegler, *Hydrogen: Stopping Powers
+   and Ranges in All Elements* (Pergamon, New York, 1977).
+
+.. [Z1977] J.F. Ziegler, *Helium: Stopping Powers and Ranges in All
+   Elemental Matter* (Pergamon, New York, 1977).
+
 .. _methods_provenance:
 
 Data Provenance and Integrity
