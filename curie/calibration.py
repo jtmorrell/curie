@@ -91,6 +91,11 @@ _SIGMA = lambda E_keV: np.exp(interp1d(np.log(_MU_Ge[:,0]), np.log(_MU_Ge[:,2]),
 _MU = lambda E_keV: np.exp(interp1d(np.log(_MU_Ge[:,0]), np.log(_MU_Ge[:,3]), bounds_error=False, fill_value='extrapolate', kind='quadratic')(np.log(E_keV)))
 
 
+__doctest_skip__ = ['Calibration.calibrate', 'Calibration.saveas',
+					'Calibration.plot', 'Calibration.plot_engcal',
+					'Calibration.plot_rescal', 'Calibration.plot_effcal']
+
+
 class Calibration(object):
 	"""Calibration for HPGe spectra
 

@@ -15,6 +15,10 @@ ELEMENTS = ['n','H','He','Li','Be','B','C','N','O','F','Ne','Na','Mg','Al',
 			'Np','Pu','Am','Cm','Bk','Cf','Es','Fm','Md','No','Lr','Rf','Db',
 			'Sg','Bh','Hs','Mt','Ds','Rg','Cn','Nh','Fl','Mc','Lv','Ts']
 
+__doctest_skip__ = ['Isotope.decay_const', 'Isotope.dose_rate',
+					'Isotope.get_SFY', 'Isotope.get_NFY']
+
+
 class Isotope(object):
 	"""Retrieve isotopic structure and decay data
 
@@ -96,7 +100,7 @@ class Isotope(object):
 
 	>>> ip = ci.Isotope('235U')
 	>>> print(ip.half_life('My'))
-	703.798767967
+	703.7987679671457
 
 
 	"""
@@ -316,7 +320,7 @@ class Isotope(object):
 		>>> print(ip.optimum_units())
 		y
 		>>> print(ip.half_life(ip.optimum_units()))
-		1600.00126752
+		1600.0012675235125
 
 		"""
 

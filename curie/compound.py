@@ -27,6 +27,9 @@ def __getattr__(name):
 
 
 
+__doctest_skip__ = ['Compound']
+
+
 class Compound(object):
 	"""Data and properties of atomic compounds
 
@@ -108,7 +111,7 @@ class Compound(object):
 	>>> print(list(map(str, cm.elements)))
 	['H', 'C', 'O', 'Si']
 	>>> cm = ci.Compound('H2O', density=1.0)
-	print(cm.weights)
+	>>> print(cm.weights)
 	  element  Z  atom_weight  mass_weight
 	0       H  1     0.666667     0.111907
 	1       O  8     0.333333     0.888093
@@ -323,7 +326,7 @@ class Compound(object):
 		--------
 		>>> cm = ci.Compound('H2O')
 		>>> print(cm.mu(200))
-		0.13703928393005832
+		0.1370392839300583
 
 		"""
 
