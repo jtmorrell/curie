@@ -4,24 +4,24 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>curie.reaction &#8212; Curie 0.0.29 documentation</title>
+    <title>curie.reaction &#8212; Curie 0.1.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
-    <link rel="stylesheet" type="text/css" href="../../_static/classic.css?v=514cf933" />
+    <link rel="stylesheet" type="text/css" href="../../_static/classic.css?v=2bf1fcf8" />
     
-    <script src="../../_static/documentation_options.js?v=828725f0"></script>
-    <script src="../../_static/doctools.js?v=888ff710"></script>
-    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
   </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="../../genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">Curie 0.0.29 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Curie 0.1.0 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">curie.reaction</a></li> 
       </ul>
@@ -33,10 +33,7 @@
           <div class="body" role="main">
             
   <h1>Source code for curie.reaction</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
-
+<span></span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="kn">import</span> <span class="n">interp1d</span>
@@ -126,22 +123,17 @@
 
 		<span class="k">if</span> <span class="n">library</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">==</span><span class="s1">&#39;best&#39;</span><span class="p">:</span>
 			<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">incident</span><span class="o">==</span><span class="s1">&#39;n&#39;</span><span class="p">:</span>
-				<span class="k">for</span> <span class="n">lb</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;irdff&#39;</span><span class="p">,</span><span class="s1">&#39;endf&#39;</span><span class="p">,</span><span class="s1">&#39;iaea&#39;</span><span class="p">,</span><span class="s1">&#39;tendl&#39;</span><span class="p">,</span><span class="s1">&#39;tendl_n_rp&#39;</span><span class="p">]:</span>
-					<span class="bp">self</span><span class="o">.</span><span class="n">library</span> <span class="o">=</span> <span class="n">Library</span><span class="p">(</span><span class="n">lb</span><span class="p">)</span>
-					<span class="k">if</span> <span class="n">lb</span><span class="o">==</span><span class="s1">&#39;tendl_n_rp&#39;</span><span class="p">:</span>
-						<span class="bp">self</span><span class="o">.</span><span class="n">_check</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
-					<span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check</span><span class="p">():</span>
-						<span class="k">break</span>
+				<span class="n">libs</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;irdff&#39;</span><span class="p">,</span><span class="s1">&#39;endf&#39;</span><span class="p">,</span><span class="s1">&#39;iaea&#39;</span><span class="p">,</span><span class="s1">&#39;tendl&#39;</span><span class="p">,</span><span class="s1">&#39;tendl_n_rp&#39;</span><span class="p">]</span>
 			<span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">incident</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;p&#39;</span><span class="p">,</span><span class="s1">&#39;d&#39;</span><span class="p">]:</span>
-				<span class="k">for</span> <span class="n">lb</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;iaea&#39;</span><span class="p">,</span><span class="s1">&#39;tendl_&#39;</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">incident</span><span class="o">+</span><span class="s1">&#39;_rp&#39;</span><span class="p">]:</span>
-					<span class="bp">self</span><span class="o">.</span><span class="n">library</span> <span class="o">=</span> <span class="n">Library</span><span class="p">(</span><span class="n">lb</span><span class="p">)</span>
-					<span class="k">if</span> <span class="n">lb</span><span class="o">==</span><span class="s1">&#39;tendl_d_rp&#39;</span><span class="p">:</span>
-						<span class="bp">self</span><span class="o">.</span><span class="n">_check</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
-					<span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check</span><span class="p">():</span>
-						<span class="k">break</span>
+				<span class="n">libs</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;iaea&#39;</span><span class="p">,</span><span class="s1">&#39;tendl_&#39;</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">incident</span><span class="o">+</span><span class="s1">&#39;_rp&#39;</span><span class="p">]</span>
 			<span class="k">else</span><span class="p">:</span>
-				<span class="bp">self</span><span class="o">.</span><span class="n">library</span> <span class="o">=</span> <span class="n">Library</span><span class="p">(</span><span class="s1">&#39;iaea&#39;</span><span class="p">)</span>
-				<span class="bp">self</span><span class="o">.</span><span class="n">_check</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+				<span class="n">libs</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;iaea&#39;</span><span class="p">]</span>
+			<span class="k">for</span> <span class="n">lb</span> <span class="ow">in</span> <span class="n">libs</span><span class="p">:</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">library</span> <span class="o">=</span> <span class="n">Library</span><span class="p">(</span><span class="n">lb</span><span class="p">)</span>
+				<span class="k">if</span> <span class="n">lb</span><span class="o">==</span><span class="n">libs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+					<span class="bp">self</span><span class="o">.</span><span class="n">_check</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+				<span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check</span><span class="p">():</span>
+					<span class="k">break</span>
 		<span class="k">else</span><span class="p">:</span>
 			<span class="bp">self</span><span class="o">.</span><span class="n">library</span> <span class="o">=</span> <span class="n">Library</span><span class="p">(</span><span class="n">library</span><span class="p">)</span>
 			<span class="bp">self</span><span class="o">.</span><span class="n">_check</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
@@ -184,7 +176,8 @@
 <span class="w">		</span><span class="sd">&quot;&quot;&quot;Interpolated cross section</span>
 
 <span class="sd">		Linear interpolation of the reaction cross section along the</span>
-<span class="sd">		input energy grid.</span>
+<span class="sd">		input energy grid.  Energies outside the evaluated grid return 0</span>
+<span class="sd">		rather than an extrapolation.</span>
 
 <span class="sd">		Parameters</span>
 <span class="sd">		----------</span>
@@ -200,7 +193,7 @@
 <span class="sd">		--------</span>
 <span class="sd">		&gt;&gt;&gt; rx = ci.Reaction(&#39;115IN(n,g)&#39;, &#39;IRDFF&#39;)</span>
 <span class="sd">		&gt;&gt;&gt; print(rx.interpolate(0.5))</span>
-<span class="sd">		161.41656650941306</span>
+<span class="sd">		161.41646650941306</span>
 <span class="sd">		&gt;&gt;&gt; print(rx.interpolate([0.5, 1.0, 5.0]))</span>
 <span class="sd">		[161.41646651 171.81486757 8.8822]</span>
 
@@ -208,7 +201,7 @@
 
 		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
 			<span class="n">kind</span> <span class="o">=</span> <span class="s1">&#39;linear&#39;</span>
-			<span class="n">fv</span> <span class="o">=</span> <span class="s1">&#39;extrapolate&#39;</span>
+			<span class="n">fv</span> <span class="o">=</span> <span class="mf">0.0</span>
 			<span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
 			<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">library</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;tendl&#39;</span><span class="p">):</span>
 				<span class="n">kind</span> <span class="o">=</span> <span class="s1">&#39;quadratic&#39;</span>
@@ -283,24 +276,44 @@
 
 <span class="sd">		Examples</span>
 <span class="sd">		--------</span>
-<span class="sd">		&gt;&gt;&gt; x = ci.Reaction(&#39;Ni-58(n,p)&#39;)</span>
+<span class="sd">		&gt;&gt;&gt; rx = ci.Reaction(&#39;Ni-58(n,p)&#39;)</span>
 <span class="sd">		&gt;&gt;&gt; eng = np.linspace(1, 5, 20)</span>
 <span class="sd">		&gt;&gt;&gt; phi = np.ones(20)</span>
 <span class="sd">		&gt;&gt;&gt; print(rx.integrate(eng, phi))</span>
-<span class="sd">		833.4435915974148</span>
+<span class="sd">		885.5690635272...</span>
 <span class="sd">		&gt;&gt;&gt; print(rx.integrate(eng, phi, unc=True))</span>
-<span class="sd">		(833.4435915974148, 19.91851943674977)</span>
+<span class="sd">		(885.5690635272..., ...)</span>
 
 <span class="sd">		&quot;&quot;&quot;</span>
 
-		<span class="n">E</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span>
-		<span class="n">phisig</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">flux</span><span class="p">)</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">E</span><span class="p">)</span>
+		<span class="n">E</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+		<span class="n">phi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">flux</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+		<span class="n">dE</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bin_widths</span><span class="p">(</span><span class="n">E</span><span class="p">)</span>
+		<span class="n">phisig</span> <span class="o">=</span> <span class="n">phi</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">E</span><span class="p">)</span>
 		<span class="k">if</span> <span class="n">unc</span><span class="p">:</span>
-			<span class="n">unc_phisig</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">flux</span><span class="p">)</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">interpolate_unc</span><span class="p">(</span><span class="n">E</span><span class="p">)</span>
-			<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><span class="n">E</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">-</span><span class="n">E</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">*</span><span class="p">(</span><span class="n">phisig</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">phisig</span><span class="p">[</span><span class="mi">1</span><span class="p">:])),</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><span class="n">E</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">-</span><span class="n">E</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">*</span><span class="p">(</span><span class="n">unc_phisig</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">unc_phisig</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span>
-		<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><span class="n">E</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">-</span><span class="n">E</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">*</span><span class="p">(</span><span class="n">phisig</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">phisig</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span></div>
+			<span class="n">unc_phisig</span> <span class="o">=</span> <span class="n">phi</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">interpolate_unc</span><span class="p">(</span><span class="n">E</span><span class="p">)</span>
+			<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">phisig</span><span class="o">*</span><span class="n">dE</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">unc_phisig</span><span class="o">*</span><span class="n">dE</span><span class="p">)</span>
+		<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">phisig</span><span class="o">*</span><span class="n">dE</span><span class="p">)</span></div>
 
-		
+
+	<span class="nd">@staticmethod</span>
+	<span class="k">def</span> <span class="nf">_bin_widths</span><span class="p">(</span><span class="n">E</span><span class="p">):</span>
+		<span class="c1"># Treat E values as bin centers; bin edges sit at midpoints between centers,</span>
+		<span class="c1"># endpoint bins get the one-sided width. For uniform grids this returns a</span>
+		<span class="c1"># constant dE, so flux-averages reduce to a PMF-style sum(phi*sigma)/sum(phi)</span>
+		<span class="c1"># and the result is independent of the (then-cancelling) dE. For histogram</span>
+		<span class="c1"># fluxes from Stack.get_flux this avoids the trapezoidal endpoint</span>
+		<span class="c1"># under-weighting that halves the contribution of bin 0 / bin -1 spikes.</span>
+		<span class="n">E</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">E</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+		<span class="n">n</span> <span class="o">=</span> <span class="n">E</span><span class="o">.</span><span class="n">size</span>
+		<span class="k">if</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+			<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">E</span><span class="p">)</span>
+		<span class="n">dE</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+		<span class="n">dE</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><span class="n">E</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span> <span class="o">-</span> <span class="n">E</span><span class="p">[:</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span>
+		<span class="n">dE</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>    <span class="o">=</span> <span class="n">E</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">E</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+		<span class="n">dE</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>   <span class="o">=</span> <span class="n">E</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">E</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+		<span class="k">return</span> <span class="n">dE</span>
+
 <div class="viewcode-block" id="Reaction.average">
 <a class="viewcode-back" href="../../api/reaction.html#curie.Reaction.average">[docs]</a>
 	<span class="k">def</span> <span class="nf">average</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">flux</span><span class="p">,</span> <span class="n">unc</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -333,19 +346,21 @@
 <span class="sd">		&gt;&gt;&gt; eng = np.linspace(1, 5, 20)</span>
 <span class="sd">		&gt;&gt;&gt; phi = np.ones(20)</span>
 <span class="sd">		&gt;&gt;&gt; print(rx.average(eng, phi))</span>
-<span class="sd">		208.3608978993537</span>
+<span class="sd">		210.3226525877...</span>
 <span class="sd">		&gt;&gt;&gt; print(rx.average(eng, phi, unc=True))</span>
-<span class="sd">		(208.3608978993537, 4.979629859187442)</span>
+<span class="sd">		(210.3226525877..., ...)</span>
 
 <span class="sd">		&quot;&quot;&quot;</span>
 
-		<span class="n">E</span><span class="p">,</span> <span class="n">phi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">energy</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">flux</span><span class="p">)</span>
+		<span class="n">E</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+		<span class="n">phi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">flux</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+		<span class="n">dE</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bin_widths</span><span class="p">(</span><span class="n">E</span><span class="p">)</span>
 		<span class="n">phisig</span> <span class="o">=</span> <span class="n">phi</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">E</span><span class="p">)</span>
-		<span class="n">dE</span> <span class="o">=</span> <span class="n">E</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">-</span><span class="n">E</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+		<span class="n">denom</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">phi</span><span class="o">*</span><span class="n">dE</span><span class="p">)</span>
 		<span class="k">if</span> <span class="n">unc</span><span class="p">:</span>
-			<span class="n">unc_phisig</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">flux</span><span class="p">)</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">interpolate_unc</span><span class="p">(</span><span class="n">E</span><span class="p">)</span>
-			<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mf">0.5</span><span class="o">*</span><span class="n">dE</span><span class="o">*</span><span class="p">(</span><span class="n">phisig</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">phisig</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mf">0.5</span><span class="o">*</span><span class="n">dE</span><span class="o">*</span><span class="p">(</span><span class="n">phi</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">phi</span><span class="p">[</span><span class="mi">1</span><span class="p">:])),</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mf">0.5</span><span class="o">*</span><span class="n">dE</span><span class="o">*</span><span class="p">(</span><span class="n">unc_phisig</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">unc_phisig</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mf">0.5</span><span class="o">*</span><span class="n">dE</span><span class="o">*</span><span class="p">(</span><span class="n">phi</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">phi</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span>
-		<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mf">0.5</span><span class="o">*</span><span class="n">dE</span><span class="o">*</span><span class="p">(</span><span class="n">phisig</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">phisig</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mf">0.5</span><span class="o">*</span><span class="n">dE</span><span class="o">*</span><span class="p">(</span><span class="n">phi</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">phi</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span></div>
+			<span class="n">unc_phisig</span> <span class="o">=</span> <span class="n">phi</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">interpolate_unc</span><span class="p">(</span><span class="n">E</span><span class="p">)</span>
+			<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">phisig</span><span class="o">*</span><span class="n">dE</span><span class="p">)</span><span class="o">/</span><span class="n">denom</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">unc_phisig</span><span class="o">*</span><span class="n">dE</span><span class="p">)</span><span class="o">/</span><span class="n">denom</span>
+		<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">phisig</span><span class="o">*</span><span class="n">dE</span><span class="p">)</span><span class="o">/</span><span class="n">denom</span></div>
 
 		
 <div class="viewcode-block" id="Reaction.plot">
@@ -438,9 +453,9 @@
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../search.html" method="get">
@@ -448,26 +463,26 @@
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
+</search>
 <script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="../../genindex.html" title="General Index"
              >index</a></li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">Curie 0.0.29 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Curie 0.1.0 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">curie.reaction</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
     &#169; Copyright 2024, Jonathan Morrell.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     </div>
   </body>
 </html>

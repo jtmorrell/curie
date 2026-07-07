@@ -4,24 +4,24 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>curie.library &#8212; Curie 0.0.29 documentation</title>
+    <title>curie.library &#8212; Curie 0.1.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
-    <link rel="stylesheet" type="text/css" href="../../_static/classic.css?v=514cf933" />
+    <link rel="stylesheet" type="text/css" href="../../_static/classic.css?v=2bf1fcf8" />
     
-    <script src="../../_static/documentation_options.js?v=828725f0"></script>
-    <script src="../../_static/doctools.js?v=888ff710"></script>
-    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
   </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="../../genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">Curie 0.0.29 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Curie 0.1.0 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">curie.library</a></li> 
       </ul>
@@ -33,15 +33,12 @@
           <div class="body" role="main">
             
   <h1>Source code for curie.library</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
-
+<span></span>
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
-<span class="kn">from</span> <span class="nn">.data</span> <span class="kn">import</span> <span class="n">_get_connection</span>
+<span class="kn">from</span> <span class="nn">.data</span> <span class="kn">import</span> <span class="n">_get_connection</span><span class="p">,</span> <span class="n">_ensure_table</span>
 <span class="kn">from</span> <span class="nn">.isotope</span> <span class="kn">import</span> <span class="n">Isotope</span>
 
 <div class="viewcode-block" id="Library">
@@ -167,6 +164,7 @@
 				<span class="k">else</span><span class="p">:</span>
 					<span class="n">product</span> <span class="o">=</span> <span class="n">Isotope</span><span class="p">(</span><span class="n">product</span><span class="p">)</span><span class="o">.</span><span class="n">_short_name</span>
 
+		<span class="n">_ensure_table</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">db_name</span><span class="p">,</span> <span class="s1">&#39;all_reactions&#39;</span><span class="p">)</span>
 		<span class="n">ss</span> <span class="o">=</span> <span class="s1">&#39;SELECT * FROM all_reactions&#39;</span>
 
 		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;endf&#39;</span><span class="p">,</span><span class="s1">&#39;tendl&#39;</span><span class="p">,</span><span class="s1">&#39;irdff&#39;</span><span class="p">]:</span>
@@ -279,28 +277,48 @@
 		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;endf&#39;</span><span class="p">,</span><span class="s1">&#39;tendl&#39;</span><span class="p">,</span><span class="s1">&#39;tendl_n_rp&#39;</span><span class="p">,</span><span class="s1">&#39;tendl_p_rp&#39;</span><span class="p">,</span><span class="s1">&#39;tendl_d_rp&#39;</span><span class="p">]:</span>
 			<span class="n">table</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s1">&#39;[A-Z]+&#39;</span><span class="p">,</span> <span class="n">target</span><span class="p">))</span><span class="o">+</span><span class="s1">&#39;_&#39;</span><span class="o">+</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s1">&#39;[0-9]+&#39;</span><span class="p">,</span> <span class="n">target</span><span class="p">))</span><span class="o">+</span><span class="p">(</span><span class="s1">&#39;m&#39;</span> <span class="k">if</span> <span class="s1">&#39;m&#39;</span> <span class="ow">in</span> <span class="n">target</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
 
-			<span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s1">&#39;SELECT energy,</span><span class="si">{0}</span><span class="s1"> FROM </span><span class="si">{1}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">labels</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">table</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_con</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">*</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1E-6</span><span class="p">,</span> <span class="mf">1E3</span><span class="p">])</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_name</span><span class="o">==</span><span class="s1">&#39;endf&#39;</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+			<span class="n">_ensure_table</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">db_name</span><span class="p">,</span> <span class="n">table</span><span class="p">)</span>
+			<span class="n">q</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s1">&#39;SELECT energy,</span><span class="si">{0}</span><span class="s1"> FROM </span><span class="si">{1}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">labels</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">table</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_con</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">*</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1E-6</span><span class="p">,</span> <span class="mf">1E3</span><span class="p">])</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_name</span><span class="o">==</span><span class="s1">&#39;endf&#39;</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
 
 		<span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_name</span><span class="o">==</span><span class="s1">&#39;irdff&#39;</span><span class="p">:</span>
-			<span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s1">&#39;SELECT * FROM </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">labels</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_con</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1E-6</span><span class="p">,</span> <span class="mf">1E3</span><span class="p">,</span> <span class="mf">1E3</span><span class="p">])</span>
+			<span class="n">q</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s1">&#39;SELECT * FROM </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">labels</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_con</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1E-6</span><span class="p">,</span> <span class="mf">1E3</span><span class="p">,</span> <span class="mf">1E3</span><span class="p">])</span>
 
 		<span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_name</span><span class="o">==</span><span class="s1">&#39;iaea_medical&#39;</span><span class="p">:</span>
 			<span class="k">if</span> <span class="n">incident</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
 				<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Incident particle must be specified.&#39;</span><span class="p">)</span>
 			<span class="n">table</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;n&#39;</span><span class="p">:</span><span class="s1">&#39;neutron&#39;</span><span class="p">,</span><span class="s1">&#39;p&#39;</span><span class="p">:</span><span class="s1">&#39;proton&#39;</span><span class="p">,</span><span class="s1">&#39;d&#39;</span><span class="p">:</span><span class="s1">&#39;deuteron&#39;</span><span class="p">,</span><span class="s1">&#39;h&#39;</span><span class="p">:</span><span class="s1">&#39;helion&#39;</span><span class="p">,</span><span class="s1">&#39;a&#39;</span><span class="p">:</span><span class="s1">&#39;alpha&#39;</span><span class="p">,</span><span class="s1">&#39;g&#39;</span><span class="p">:</span><span class="s1">&#39;gamma&#39;</span><span class="p">}[</span><span class="n">incident</span><span class="p">]</span>
-			<span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s1">&#39;SELECT energy,cross_section,unc_cross_section FROM </span><span class="si">{0}</span><span class="s1"> WHERE target LIKE ? AND product=?&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">table</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_con</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;%&#39;</span><span class="o">+</span><span class="n">target</span><span class="o">+</span><span class="s1">&#39;%&#39;</span><span class="p">,</span> <span class="n">labels</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span></div>
+			<span class="c1"># outgoing must be part of the filter (as in search()): some (target, product)</span>
+			<span class="c1"># pairs carry both a direct and a cumulative excitation function</span>
+			<span class="n">sql</span> <span class="o">=</span> <span class="s1">&#39;SELECT energy,cross_section,unc_cross_section FROM </span><span class="si">{0}</span><span class="s1"> WHERE target LIKE ? AND product=?&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+			<span class="n">params</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;%&#39;</span><span class="o">+</span><span class="n">target</span><span class="o">+</span><span class="s1">&#39;%&#39;</span><span class="p">,</span> <span class="n">labels</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+			<span class="k">if</span> <span class="n">outgoing</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+				<span class="n">sql</span> <span class="o">+=</span> <span class="s1">&#39; AND outgoing=?&#39;</span>
+				<span class="n">params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">outgoing</span><span class="p">)</span>
+			<span class="n">q</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="n">sql</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_con</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">params</span><span class="p">))</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+
+		<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">q</span><span class="p">):</span>
+			<span class="c1"># Some library tables store points out of energy order, which corrupts</span>
+			<span class="c1"># integration/averaging; a stable sort preserves the duplicate-energy</span>
+			<span class="c1"># step representation used for e.g. (n,g) reactions. Exact duplicate</span>
+			<span class="c1"># rows are dropped.</span>
+			<span class="n">q</span> <span class="o">=</span> <span class="n">q</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">q</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;stable&#39;</span><span class="p">)]</span>
+			<span class="n">q</span> <span class="o">=</span> <span class="n">q</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(([</span><span class="kc">True</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">!=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)))]</span>
+			<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;tendl&#39;</span><span class="p">):</span>
+				<span class="c1"># TENDL is spline-interpolated pointwise data: a duplicate abscissa is a</span>
+				<span class="c1"># build artifact, not a step representation, and breaks the interpolator</span>
+				<span class="n">q</span> <span class="o">=</span> <span class="n">q</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(([</span><span class="kc">True</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">q</span><span class="p">[:,</span><span class="mi">0</span><span class="p">])</span><span class="o">!=</span><span class="mf">0.0</span><span class="p">))]</span>
+		<span class="k">return</span> <span class="n">q</span></div>
 </div>
 
-		
 </pre></div>
 
             <div class="clearer"></div>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../search.html" method="get">
@@ -308,26 +326,26 @@
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
+</search>
 <script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="../../genindex.html" title="General Index"
              >index</a></li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">Curie 0.0.29 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Curie 0.1.0 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">curie.library</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
     &#169; Copyright 2024, Jonathan Morrell.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     </div>
   </body>
 </html>

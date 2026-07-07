@@ -4,24 +4,24 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>curie.isotope &#8212; Curie 0.0.29 documentation</title>
+    <title>curie.isotope &#8212; Curie 0.1.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
-    <link rel="stylesheet" type="text/css" href="../../_static/classic.css?v=514cf933" />
+    <link rel="stylesheet" type="text/css" href="../../_static/classic.css?v=2bf1fcf8" />
     
-    <script src="../../_static/documentation_options.js?v=828725f0"></script>
-    <script src="../../_static/doctools.js?v=888ff710"></script>
-    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
   </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="../../genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">Curie 0.0.29 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Curie 0.1.0 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">curie.isotope</a></li> 
       </ul>
@@ -33,10 +33,7 @@
           <div class="body" role="main">
             
   <h1>Source code for curie.isotope</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
-
+<span></span>
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
@@ -145,13 +142,22 @@
 		<span class="bp">self</span><span class="o">.</span><span class="n">_parse_itp_name</span><span class="p">(</span><span class="n">isotope</span><span class="p">)</span>
 
 		<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s1">&#39;SELECT * FROM chart WHERE name=&quot;</span><span class="si">{}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">),</span> <span class="n">_get_connection</span><span class="p">(</span><span class="s1">&#39;decay&#39;</span><span class="p">))</span>
+		<span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
+			<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Isotope </span><span class="si">{}</span><span class="s1"> not found in the decay database. For a natural-abundance element, use ci.Element instead.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">E_level</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;E_level&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">J_pi</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;J_pi&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">stable</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;stable&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
 		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stable</span><span class="p">:</span>
 			<span class="bp">self</span><span class="o">.</span><span class="n">dc</span> <span class="o">=</span> <span class="mf">0.0</span>
 			<span class="bp">self</span><span class="o">.</span><span class="n">decay_products</span> <span class="o">=</span> <span class="p">{}</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">mass</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;amu&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+		<span class="k">if</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;amu&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">mass</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;amu&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+		<span class="k">elif</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;Delta&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="c1"># Delta is the level mass excess (includes E_level); the amu column</span>
+			<span class="c1"># convention is the ground-state mass for isomers</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">mass</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">A</span> <span class="o">+</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;Delta&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">E_level</span><span class="p">)</span><span class="o">/</span><span class="mf">931.49410242</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">mass</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">)</span>
 		<span class="k">if</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;abundance&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
 			<span class="bp">self</span><span class="o">.</span><span class="n">abundance</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;abundance&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
 		<span class="k">else</span><span class="p">:</span>
@@ -169,9 +175,15 @@
 
 		<span class="bp">self</span><span class="o">.</span><span class="n">_SFY</span> <span class="o">=</span> <span class="kc">None</span>
 
+		<span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">stable</span> <span class="ow">and</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;half_life&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;WARNING: </span><span class="si">{}</span><span class="s1"> has no half-life in the decay database, and will be treated as stable.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">stable</span> <span class="o">=</span> <span class="kc">True</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">dc</span> <span class="o">=</span> <span class="mf">0.0</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">decay_products</span> <span class="o">=</span> <span class="p">{}</span>
+
 		<span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">stable</span><span class="p">:</span>
 			<span class="bp">self</span><span class="o">.</span><span class="n">_t_half</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;half_life&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
-			<span class="bp">self</span><span class="o">.</span><span class="n">_unc_t_half</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;unc_half_life&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">_unc_t_half</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;unc_half_life&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="k">if</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;unc_half_life&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mf">0.0</span>
 			<span class="bp">self</span><span class="o">.</span><span class="n">dc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">_t_half</span>
 
 			<span class="bp">self</span><span class="o">.</span><span class="n">decay_products</span> <span class="o">=</span> <span class="p">{}</span>
@@ -214,6 +226,8 @@
 			<span class="bp">self</span><span class="o">.</span><span class="n">element</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s1">&#39;[A-Z]+&#39;</span><span class="p">,</span> <span class="n">istp</span><span class="p">))</span><span class="o">.</span><span class="n">title</span><span class="p">()</span>
 			<span class="k">if</span> <span class="n">istp</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;nat&#39;</span><span class="p">):</span>
 				<span class="bp">self</span><span class="o">.</span><span class="n">A</span> <span class="o">=</span> <span class="s1">&#39;nat&#39;</span>
+			<span class="k">elif</span> <span class="ow">not</span> <span class="n">istp</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">upper</span><span class="p">())[</span><span class="mi">0</span><span class="p">]:</span>
+				<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Isotope name </span><span class="si">{}</span><span class="s1"> has no mass number: use e.g. 60CO or Co-60, or ci.Element for a natural-abundance element.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">istp</span><span class="p">))</span>
 			<span class="k">else</span><span class="p">:</span>
 				<span class="bp">self</span><span class="o">.</span><span class="n">A</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">istp</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">upper</span><span class="p">())[</span><span class="mi">0</span><span class="p">])</span>
 
@@ -746,8 +760,8 @@
 <span class="sd">		--------</span>
 <span class="sd">		&gt;&gt;&gt; ip = ci.Isotope(&#39;Co-60&#39;)</span>
 <span class="sd">		&gt;&gt;&gt; print(ip.dose_rate(activity=3.7E10, units=&#39;R/hr&#39;)) # 1 Ci of Co-60 at 30 cm</span>
-<span class="sd">		{&#39;beta_plus&#39;: 0.0, &#39;alphas&#39;: 0.0, &#39;gammas&#39;: 52035.28424827692, </span>
-<span class="sd">		&#39;electrons&#39;: 65.66251805557148, &#39;beta_minus&#39;: 5536.541902410433, &#39;total&#39;: 57637.488668742924}</span>
+<span class="sd">		{&#39;gammas&#39;: 14.454, &#39;alphas&#39;: 0.0, &#39;beta_minus&#39;: 1545.1658,</span>
+<span class="sd">		&#39;beta_plus&#39;: 0.0, &#39;electrons&#39;: 18.3254, &#39;total&#39;: 1577.9452}</span>
 
 <span class="sd">		&quot;&quot;&quot;</span>
 
@@ -788,7 +802,7 @@
 		<span class="n">d_unit</span><span class="p">,</span><span class="n">t_unit</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">units</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">))</span>
 
 		<span class="k">if</span> <span class="s1">&#39;Sv&#39;</span> <span class="ow">in</span> <span class="n">d_unit</span><span class="p">:</span>
-			<span class="n">dose</span><span class="p">[</span><span class="s1">&#39;alpha&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">20.0</span><span class="o">*</span><span class="n">dose</span><span class="p">[</span><span class="s1">&#39;alpha&#39;</span><span class="p">]</span>
+			<span class="n">dose</span><span class="p">[</span><span class="s1">&#39;alphas&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">20.0</span><span class="o">*</span><span class="n">dose</span><span class="p">[</span><span class="s1">&#39;alphas&#39;</span><span class="p">]</span>  <span class="c1"># ICRP radiation weighting factor w_R</span>
 			<span class="n">d_unit</span> <span class="o">=</span> <span class="n">d_unit</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;Sv&#39;</span><span class="p">,</span><span class="s1">&#39;Gy&#39;</span><span class="p">)</span>
 
 		<span class="k">if</span> <span class="n">t_unit</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;hr&#39;</span><span class="p">,</span><span class="s1">&#39;min&#39;</span><span class="p">,</span><span class="s1">&#39;yr&#39;</span><span class="p">,</span><span class="s1">&#39;sec&#39;</span><span class="p">]:</span>
@@ -814,9 +828,9 @@
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../search.html" method="get">
@@ -824,26 +838,26 @@
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
+</search>
 <script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="../../genindex.html" title="General Index"
              >index</a></li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">Curie 0.0.29 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Curie 0.1.0 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">curie.isotope</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
     &#169; Copyright 2024, Jonathan Morrell.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     </div>
   </body>
 </html>

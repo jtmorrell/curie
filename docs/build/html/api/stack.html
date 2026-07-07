@@ -5,20 +5,20 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Stack &#8212; Curie 0.0.29 documentation</title>
+    <title>Stack &#8212; Curie 0.1.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
-    <link rel="stylesheet" type="text/css" href="../_static/classic.css?v=514cf933" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css?v=2bf1fcf8" />
     
-    <script src="../_static/documentation_options.js?v=828725f0"></script>
-    <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Library" href="library.html" />
     <link rel="prev" title="Compound" href="compound.html" /> 
   </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -30,7 +30,7 @@
         <li class="right" >
           <a href="compound.html" title="Compound"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">Curie 0.0.29 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Curie 0.1.0 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">API</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Stack</a></li> 
       </ul>
@@ -45,7 +45,7 @@
 <span id="id1"></span><h1>Stack<a class="headerlink" href="#stack" title="Link to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="curie.Stack">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">curie.</span></span><span class="sig-name descname"><span class="pre">Stack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stack</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">particle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'p'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">E0</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60.0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/stack.html#Stack"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Stack" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">curie.</span></span><span class="sig-name descname"><span class="pre">Stack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stack</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">particle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'p'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">E0</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60.0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/stack.html#Stack"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Stack" title="Link to this definition">¶</a></dt>
 <dd><p>Foil pack for stacked target calculations</p>
 <p>Computes the energy loss and (relative) charged particle flux through a stack
 of foils using the Anderson-Ziegler formulation for stopping powers.</p>
@@ -84,8 +84,38 @@ default to 1 percent of E0.</p>
 </dd>
 </dl>
 </dd>
-<dt class="field-even">Other Parameters<span class="colon">:</span></dt>
-<dd class="field-even"><dl>
+<dt class="field-even">Attributes<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>stack</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>‘name’, ‘compound’, ‘areal_density’, mean energy ‘mu_E’, and 1-sigma energy width ‘sig_E’
+for each foil in the stack (energies in MeV).</p>
+</dd>
+<dt><strong>fluxes</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>‘flux’ as a function of ‘energy’ for each foil in the stack where ‘name’ is not None.</p>
+</dd>
+<dt><strong>compounds</strong><span class="classifier">dict</span></dt><dd><p>Dictionary with compound names as keys, and ci.Compound classes as values.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#curie.Stack.get_flux" title="curie.Stack.get_flux"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_flux</span></code></a>(sample_name)</p></td>
+<td><p>Returns the computed energy grid and flux for a sample</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#curie.Stack.plot" title="curie.Stack.plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot</span></code></a>([filter_name])</p></td>
+<td><p>Plots the fluxes for each foil in the stack calculation</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#curie.Stack.saveas" title="curie.Stack.saveas"><code class="xref py py-obj docutils literal notranslate"><span class="pre">saveas</span></code></a>(filename[, save_fluxes, filter_name])</p></td>
+<td><p>Saves the results of the stack calculation</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#curie.Stack.summarize" title="curie.Stack.summarize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">summarize</span></code></a>([filter_name])</p></td>
+<td><p>Summarize the stack calculation</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="field-list">
+<dt class="field-odd">Other Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
 <dt><strong>compounds</strong><span class="classifier">str, pandas.DataFrame, list or dict</span></dt><dd><p>Compound definitions for the compounds included in the foil stack.  If the compounds
 are not natural elements, or <cite>ci.COMPOUND_LIST</cite>, or if different weights or densities
 are required, they can be specified here. (Note specifying specific densities in the
@@ -137,36 +167,6 @@ and <cite>max_steps</cite>.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">st</span><span class="o">.</span><span class="n">saveas</span><span class="p">(</span><span class="s1">&#39;stack_calc.csv&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-<dl class="field-list simple">
-<dt class="field-odd">Attributes<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>stack</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>‘name’, ‘compound’, ‘areal_density’, mean energy ‘mu_E’, and 1-sigma energy width ‘sig_E’
-for each foil in the stack (energies in MeV).</p>
-</dd>
-<dt><strong>fluxes</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>‘flux’ as a function of ‘energy’ for each foil in the stack where ‘name’ is not None.</p>
-</dd>
-<dt><strong>compounds</strong><span class="classifier">dict</span></dt><dd><p>Dictionary with compound names as keys, and ci.Compound classes as values.</p>
-</dd>
-</dl>
-</dd>
-</dl>
-<p class="rubric">Methods</p>
-<table class="autosummary longtable docutils align-default">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#curie.Stack.get_flux" title="curie.Stack.get_flux"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_flux</span></code></a>(sample_name)</p></td>
-<td><p>Returns the computed energy grid and flux for a sample</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#curie.Stack.plot" title="curie.Stack.plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot</span></code></a>([filter_name])</p></td>
-<td><p>Plots the fluxes for each foil in the stack calculation</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#curie.Stack.saveas" title="curie.Stack.saveas"><code class="xref py py-obj docutils literal notranslate"><span class="pre">saveas</span></code></a>(filename[, save_fluxes, filter_name])</p></td>
-<td><p>Saves the results of the stack calculation</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#curie.Stack.summarize" title="curie.Stack.summarize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">summarize</span></code></a>([filter_name])</p></td>
-<td><p>Summarize the stack calculation</p></td>
-</tr>
-</tbody>
-</table>
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.Stack.get_flux">
 <span class="sig-name descname"><span class="pre">get_flux</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sample_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/stack.html#Stack.get_flux"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Stack.get_flux" title="Link to this definition">¶</a></dt>
@@ -334,7 +334,7 @@ matching a regex search with filter_name are included. Default, True.</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
   <div>
     <h3><a href="../index.html">Table of Contents</a></h3>
@@ -369,7 +369,7 @@ matching a regex search with filter_name are included. Default, True.</p>
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
@@ -377,13 +377,13 @@ matching a regex search with filter_name are included. Default, True.</p>
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
+</search>
 <script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -395,14 +395,14 @@ matching a regex search with filter_name are included. Default, True.</p>
         <li class="right" >
           <a href="compound.html" title="Compound"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">Curie 0.0.29 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Curie 0.1.0 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" >API</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Stack</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
     &#169; Copyright 2024, Jonathan Morrell.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     </div>
   </body>
 </html>

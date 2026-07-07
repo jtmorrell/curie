@@ -4,24 +4,24 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>curie.element &#8212; Curie 0.0.29 documentation</title>
+    <title>curie.element &#8212; Curie 0.1.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
-    <link rel="stylesheet" type="text/css" href="../../_static/classic.css?v=514cf933" />
+    <link rel="stylesheet" type="text/css" href="../../_static/classic.css?v=2bf1fcf8" />
     
-    <script src="../../_static/documentation_options.js?v=828725f0"></script>
-    <script src="../../_static/doctools.js?v=888ff710"></script>
-    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
   </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="../../genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">Curie 0.0.29 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Curie 0.1.0 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">curie.element</a></li> 
       </ul>
@@ -33,10 +33,7 @@
           <div class="body" role="main">
             
   <h1>Source code for curie.element</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
-
+<span></span>
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
@@ -122,17 +119,16 @@
 	<span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">):</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">title</span><span class="p">()</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">Z</span> <span class="o">=</span> <span class="n">ELEMENTS</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">Z</span><span class="o">&gt;</span><span class="mi">92</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;No stopping-power or attenuation data available for </span><span class="si">{}</span><span class="s1"> (Z=</span><span class="si">{}</span><span class="s1">): data covers Z=1 through Z=92 (U).&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Z</span><span class="p">))</span>
 
 		<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s1">&#39;SELECT * FROM weights WHERE Z=</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Z</span><span class="p">),</span> <span class="n">_get_connection</span><span class="p">(</span><span class="s1">&#39;ziegler&#39;</span><span class="p">))</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">mass</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;amu&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">density</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
 
-		<span class="bp">self</span><span class="o">.</span><span class="n">abundances</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s1">&#39;SELECT isotope, abundance, unc_abundance FROM chart WHERE Z=</span><span class="si">{}</span><span class="s1"> AND abundance&gt;0&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Z</span><span class="p">),</span> <span class="n">_get_connection</span><span class="p">(</span><span class="s1">&#39;decay&#39;</span><span class="p">))</span>
-		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="o">==</span><span class="s1">&#39;Ta&#39;</span><span class="p">:</span> <span class="c1">### Ta has a naturally occuring isomer</span>
-			<span class="bp">self</span><span class="o">.</span><span class="n">abundances</span><span class="p">[</span><span class="s1">&#39;isotope&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;180TA&#39;</span><span class="p">,</span><span class="s1">&#39;180TAm1&#39;</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">abundances</span><span class="p">[</span><span class="s1">&#39;isotope&#39;</span><span class="p">]))</span>
-		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="o">==</span><span class="s1">&#39;Bi&#39;</span><span class="p">:</span>
-			<span class="bp">self</span><span class="o">.</span><span class="n">abundances</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([[</span><span class="s1">&#39;209BI&#39;</span><span class="p">,</span><span class="mf">100.0</span><span class="p">,</span><span class="mf">0.0</span><span class="p">]],</span> <span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">abundances</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">isotopes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">abundances</span><span class="p">[</span><span class="s1">&#39;isotope&#39;</span><span class="p">]))</span>
+		<span class="c1"># abundances come from decay.db and are deferred (see the property below)</span>
+		<span class="c1"># so that pure stopping-power/attenuation work needs only ziegler.db</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_abundances</span> <span class="o">=</span> <span class="kc">None</span>
 
 		<span class="bp">self</span><span class="o">.</span><span class="n">mass_coeff</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s1">&#39;SELECT energy, mu, mu_en FROM mass_coeff WHERE Z=</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Z</span><span class="p">),</span> <span class="n">_get_connection</span><span class="p">(</span><span class="s1">&#39;ziegler&#39;</span><span class="p">))</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_mc_interp</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mc_en_interp</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
@@ -141,6 +137,27 @@
 
 	<span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+
+	<span class="nd">@property</span>
+	<span class="k">def</span> <span class="nf">abundances</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">		</span><span class="sd">&quot;&quot;&quot;Natural abundances of the element&#39;s isotopes</span>
+
+<span class="sd">		pd.DataFrame with columns &#39;isotope&#39;, &#39;abundance&#39; (%) and</span>
+<span class="sd">		&#39;unc_abundance&#39;. Loaded from the decay library on first access.</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_abundances</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="n">ab</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s1">&#39;SELECT isotope, abundance, unc_abundance FROM chart WHERE Z=</span><span class="si">{}</span><span class="s1"> AND abundance&gt;0&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Z</span><span class="p">),</span> <span class="n">_get_connection</span><span class="p">(</span><span class="s1">&#39;decay&#39;</span><span class="p">))</span>
+			<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="o">==</span><span class="s1">&#39;Ta&#39;</span><span class="p">:</span> <span class="c1">### Ta has a naturally occuring isomer</span>
+				<span class="n">ab</span><span class="p">[</span><span class="s1">&#39;isotope&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;180TA&#39;</span><span class="p">,</span><span class="s1">&#39;180TAm1&#39;</span><span class="p">),</span> <span class="n">ab</span><span class="p">[</span><span class="s1">&#39;isotope&#39;</span><span class="p">]))</span>
+			<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="o">==</span><span class="s1">&#39;Bi&#39;</span><span class="p">:</span>
+				<span class="n">ab</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([[</span><span class="s1">&#39;209BI&#39;</span><span class="p">,</span><span class="mf">100.0</span><span class="p">,</span><span class="mf">0.0</span><span class="p">]],</span> <span class="n">columns</span><span class="o">=</span><span class="n">ab</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">_abundances</span> <span class="o">=</span> <span class="n">ab</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_abundances</span>
+
+	<span class="nd">@property</span>
+	<span class="k">def</span> <span class="nf">isotopes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">		</span><span class="sd">&quot;&quot;&quot;Isotopes with non-zero natural abundance, e.g. [&#39;54FE&#39;, &#39;56FE&#39;, ...]&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">abundances</span><span class="p">[</span><span class="s1">&#39;isotope&#39;</span><span class="p">]))</span>
 
 <div class="viewcode-block" id="Element.mu">
 <a class="viewcode-back" href="../../api/element.html#curie.Element.mu">[docs]</a>
@@ -334,7 +351,7 @@
 
 	<span class="k">def</span> <span class="nf">_eff_Z_ratio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">E_keV</span><span class="p">,</span> <span class="n">z1</span><span class="p">,</span> <span class="n">M1</span><span class="p">):</span>
 		<span class="k">if</span> <span class="n">z1</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
-			<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">eng</span><span class="p">))</span>
+			<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">E_keV</span><span class="p">))</span>
 
 		<span class="k">elif</span> <span class="n">z1</span><span class="o">==</span><span class="mi">2</span><span class="p">:</span>
 			<span class="n">Y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">E_keV</span><span class="o">/</span><span class="n">M1</span><span class="p">)</span>
@@ -442,10 +459,10 @@
 <span class="sd">		--------</span>
 <span class="sd">		&gt;&gt;&gt; el = ci.Element(&#39;Fe&#39;)</span>
 <span class="sd">		&gt;&gt;&gt; print(el.range(60.0))</span>
-<span class="sd">		0.5858151125192633</span>
+<span class="sd">		0.5866312594085556</span>
 <span class="sd">		&gt;&gt;&gt; el = ci.Element(&#39;U&#39;)</span>
 <span class="sd">		&gt;&gt;&gt; print(el.range(60.0))</span>
-<span class="sd">		0.3763111404628591</span>
+<span class="sd">		0.37702082865831094</span>
 
 <span class="sd">		&quot;&quot;&quot;</span>
 
@@ -670,9 +687,9 @@
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../search.html" method="get">
@@ -680,26 +697,26 @@
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
+</search>
 <script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="../../genindex.html" title="General Index"
              >index</a></li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">Curie 0.0.29 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Curie 0.1.0 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">curie.element</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
     &#169; Copyright 2024, Jonathan Morrell.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     </div>
   </body>
 </html>

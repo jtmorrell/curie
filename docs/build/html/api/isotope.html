@@ -5,20 +5,20 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Isotope &#8212; Curie 0.0.29 documentation</title>
+    <title>Isotope &#8212; Curie 0.1.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
-    <link rel="stylesheet" type="text/css" href="../_static/classic.css?v=514cf933" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css?v=2bf1fcf8" />
     
-    <script src="../_static/documentation_options.js?v=828725f0"></script>
-    <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Element" href="element.html" />
     <link rel="prev" title="API" href="index.html" /> 
   </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -30,7 +30,7 @@
         <li class="right" >
           <a href="index.html" title="API"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">Curie 0.0.29 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Curie 0.1.0 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">API</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Isotope</a></li> 
       </ul>
@@ -45,7 +45,7 @@
 <span id="id1"></span><h1>Isotope<a class="headerlink" href="#isotope" title="Link to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="curie.Isotope">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">curie.</span></span><span class="sig-name descname"><span class="pre">Isotope</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">isotope</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/isotope.html#Isotope"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Isotope" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">curie.</span></span><span class="sig-name descname"><span class="pre">Isotope</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">isotope</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/isotope.html#Isotope"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Isotope" title="Link to this definition">¶</a></dt>
 <dd><p>Retrieve isotopic structure and decay data</p>
 <p>The Isotope class provides isotope specific nuclear data, such as masses,
 abundances, half-lives, decay data and fission yields.  The main data souces 
@@ -62,28 +62,8 @@ and if just m is given, the first isomer is assumed.</p>
 </dd>
 </dl>
 </dd>
-</dl>
-<p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ip</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Isotope</span><span class="p">(</span><span class="s1">&#39;115INm&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">ip</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Isotope</span><span class="p">(</span><span class="s1">&#39;Co-60&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">ip</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Isotope</span><span class="p">(</span><span class="s1">&#39;58NI&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ip</span><span class="o">.</span><span class="n">abundance</span><span class="p">)</span>
-<span class="go">68.077</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ip</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Isotope</span><span class="p">(</span><span class="s1">&#39;135CEm&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ip</span><span class="o">.</span><span class="n">dc</span><span class="p">)</span>
-<span class="go">0.03465735902799726</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ip</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Isotope</span><span class="p">(</span><span class="s1">&#39;235U&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ip</span><span class="o">.</span><span class="n">half_life</span><span class="p">(</span><span class="s1">&#39;My&#39;</span><span class="p">))</span>
-<span class="go">703.798767967</span>
-</pre></div>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Attributes<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
+<dt class="field-even">Attributes<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
 <dt><strong>element</strong><span class="classifier">str</span></dt><dd><p>Elemental symbol, e.g. Xe, Ar, Kr</p>
 </dd>
 <dt><strong>A</strong><span class="classifier">int</span></dt><dd><p>Mass number A of isotope</p>
@@ -157,6 +137,24 @@ and if just m is given, the first isomer is assumed.</p>
 </tr>
 </tbody>
 </table>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ip</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Isotope</span><span class="p">(</span><span class="s1">&#39;115INm&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ip</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Isotope</span><span class="p">(</span><span class="s1">&#39;Co-60&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ip</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Isotope</span><span class="p">(</span><span class="s1">&#39;58NI&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ip</span><span class="o">.</span><span class="n">abundance</span><span class="p">)</span>
+<span class="go">68.077</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ip</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Isotope</span><span class="p">(</span><span class="s1">&#39;135CEm&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ip</span><span class="o">.</span><span class="n">dc</span><span class="p">)</span>
+<span class="go">0.03465735902799726</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ip</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Isotope</span><span class="p">(</span><span class="s1">&#39;235U&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ip</span><span class="o">.</span><span class="n">half_life</span><span class="p">(</span><span class="s1">&#39;My&#39;</span><span class="p">))</span>
+<span class="go">703.798767967</span>
+</pre></div>
+</div>
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.Isotope.alphas">
 <span class="sig-name descname"><span class="pre">alphas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">I_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">E_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/isotope.html#Isotope.alphas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Isotope.alphas" title="Link to this definition">¶</a></dt>
@@ -322,8 +320,8 @@ the <cite>Isotope.half_life()</cite> function. E.g. mR/hr, uSv/m, kGy/y. Default
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ip</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Isotope</span><span class="p">(</span><span class="s1">&#39;Co-60&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ip</span><span class="o">.</span><span class="n">dose_rate</span><span class="p">(</span><span class="n">activity</span><span class="o">=</span><span class="mf">3.7E10</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;R/hr&#39;</span><span class="p">))</span> <span class="c1"># 1 Ci of Co-60 at 30 cm</span>
-<span class="go">{&#39;beta_plus&#39;: 0.0, &#39;alphas&#39;: 0.0, &#39;gammas&#39;: 52035.28424827692, </span>
-<span class="go">&#39;electrons&#39;: 65.66251805557148, &#39;beta_minus&#39;: 5536.541902410433, &#39;total&#39;: 57637.488668742924}</span>
+<span class="go">{&#39;gammas&#39;: 14.454, &#39;alphas&#39;: 0.0, &#39;beta_minus&#39;: 1545.1658,</span>
+<span class="go">&#39;beta_plus&#39;: 0.0, &#39;electrons&#39;: 18.3254, &#39;total&#39;: 1577.9452}</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -536,7 +534,7 @@ ns, us, ms, s, m, h, d, y, ky, My, Gy</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
   <div>
     <h3><a href="../index.html">Table of Contents</a></h3>
@@ -578,7 +576,7 @@ ns, us, ms, s, m, h, d, y, ky, My, Gy</p>
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
@@ -586,13 +584,13 @@ ns, us, ms, s, m, h, d, y, ky, My, Gy</p>
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
+</search>
 <script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -604,14 +602,14 @@ ns, us, ms, s, m, h, d, y, ky, My, Gy</p>
         <li class="right" >
           <a href="index.html" title="API"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">Curie 0.0.29 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Curie 0.1.0 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" >API</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Isotope</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
     &#169; Copyright 2024, Jonathan Morrell.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     </div>
   </body>
 </html>
