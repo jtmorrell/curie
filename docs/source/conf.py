@@ -23,10 +23,14 @@ project = u'Curie'
 copyright = u'2024, Jonathan Morrell'
 author = u'Jonathan Morrell'
 
-# The short X.Y version
-version = u'0.0.37'
-# The full version, including alpha/beta/rc tags
-release = u'0.0.37'
+# version is single-sourced from curie/__init__.py, read directly: the docs
+# always sit next to the source, and installed-package metadata can lag a
+# development checkout
+import re
+with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'curie', '__init__.py')) as _f:
+	release = re.search(r"__version__ = '([^']+)'", _f.read()).group(1)
+# curie versions are short; the displayed version is the full release string
+version = release
 
 
 # -- General configuration ---------------------------------------------------
@@ -65,7 +69,7 @@ master_doc = 'index'
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = None
+language = 'en'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -92,7 +96,7 @@ html_theme = 'classic'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = []
 
 # Custom sidebar templates, must be a dictionary that maps document names
 # to template names.

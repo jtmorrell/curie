@@ -4,24 +4,24 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>curie.compound &#8212; Curie 0.0.29 documentation</title>
+    <title>curie.compound &#8212; Curie 0.1.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
-    <link rel="stylesheet" type="text/css" href="../../_static/classic.css?v=514cf933" />
+    <link rel="stylesheet" type="text/css" href="../../_static/classic.css?v=2bf1fcf8" />
     
-    <script src="../../_static/documentation_options.js?v=828725f0"></script>
-    <script src="../../_static/doctools.js?v=888ff710"></script>
-    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
   </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="../../genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">Curie 0.0.29 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Curie 0.1.0 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">curie.compound</a></li> 
       </ul>
@@ -33,10 +33,7 @@
           <div class="body" role="main">
             
   <h1>Source code for curie.compound</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
-
+<span></span>
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">json</span>
@@ -49,7 +46,19 @@
 <span class="kn">from</span> <span class="nn">.plotting</span> <span class="kn">import</span> <span class="n">_init_plot</span><span class="p">,</span> <span class="n">_draw_plot</span>
 <span class="kn">from</span> <span class="nn">.element</span> <span class="kn">import</span> <span class="n">ELEMENTS</span><span class="p">,</span> <span class="n">Element</span>
 
-<span class="n">COMPOUND_LIST</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s1">&#39;SELECT compound FROM compounds&#39;</span><span class="p">,</span> <span class="n">_get_connection</span><span class="p">(</span><span class="s1">&#39;ziegler&#39;</span><span class="p">))[</span><span class="s1">&#39;compound&#39;</span><span class="p">]))</span>
+<span class="n">_COMPOUND_LIST_CACHE</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="k">def</span> <span class="nf">_compound_list</span><span class="p">():</span>
+	<span class="c1"># deferred so that importing curie touches no database file</span>
+	<span class="k">global</span> <span class="n">_COMPOUND_LIST_CACHE</span>
+	<span class="k">if</span> <span class="n">_COMPOUND_LIST_CACHE</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+		<span class="n">_COMPOUND_LIST_CACHE</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s1">&#39;SELECT compound FROM compounds&#39;</span><span class="p">,</span> <span class="n">_get_connection</span><span class="p">(</span><span class="s1">&#39;ziegler&#39;</span><span class="p">))[</span><span class="s1">&#39;compound&#39;</span><span class="p">]))</span>
+	<span class="k">return</span> <span class="n">_COMPOUND_LIST_CACHE</span>
+
+<span class="k">def</span> <span class="fm">__getattr__</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+	<span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;COMPOUND_LIST&#39;</span><span class="p">:</span>
+		<span class="k">return</span> <span class="n">_compound_list</span><span class="p">()</span>
+	<span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;module </span><span class="si">{!r}</span><span class="s2"> has no attribute </span><span class="si">{!r}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
 
 
 
@@ -153,7 +162,7 @@
 		<span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">compound</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">density</span> <span class="o">=</span> <span class="kc">None</span>
 
-		<span class="k">if</span> <span class="n">compound</span> <span class="ow">in</span> <span class="n">COMPOUND_LIST</span><span class="p">:</span>
+		<span class="k">if</span> <span class="n">compound</span> <span class="ow">in</span> <span class="n">_compound_list</span><span class="p">():</span>
 			<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s1">&#39;SELECT * FROM compounds WHERE compound=&quot;</span><span class="si">{}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">compound</span><span class="p">),</span> <span class="n">_get_connection</span><span class="p">(</span><span class="s1">&#39;ziegler&#39;</span><span class="p">))</span>
 			<span class="bp">self</span><span class="o">.</span><span class="n">density</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
 
@@ -175,7 +184,10 @@
 			<span class="k">if</span> <span class="nb">all</span><span class="p">([</span><span class="n">e</span> <span class="ow">in</span> <span class="n">ELEMENTS</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">elements</span><span class="p">]):</span>
 				<span class="n">wts</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">elements</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">i</span><span class="p">:</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">i</span><span class="p">))),</span> <span class="n">compound</span><span class="p">)</span>
 				<span class="n">atom_weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">wts</span><span class="p">[</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span> <span class="k">if</span> <span class="n">wts</span><span class="p">[</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="k">else</span> <span class="mf">1.0</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span><span class="n">e</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">elements</span><span class="p">)])</span>
-				<span class="bp">self</span><span class="o">.</span><span class="n">_set_weights</span><span class="p">(</span><span class="n">elements</span><span class="p">,</span> <span class="n">atom_weights</span><span class="o">=</span><span class="n">atom_weights</span><span class="p">)</span>
+				<span class="c1"># aggregate repeated elements (e.g. both H groups in CH3OH) into one row each</span>
+				<span class="n">unique_elements</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">elements</span><span class="p">))</span>
+				<span class="n">atom_weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">sum</span><span class="p">(</span><span class="n">w</span> <span class="k">for</span> <span class="n">e</span><span class="p">,</span><span class="n">w</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">elements</span><span class="p">,</span> <span class="n">atom_weights</span><span class="p">)</span> <span class="k">if</span> <span class="n">e</span><span class="o">==</span><span class="n">u</span><span class="p">)</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">unique_elements</span><span class="p">])</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">_set_weights</span><span class="p">(</span><span class="n">unique_elements</span><span class="p">,</span> <span class="n">atom_weights</span><span class="o">=</span><span class="n">atom_weights</span><span class="p">)</span>
 
 		<span class="k">if</span> <span class="n">weights</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
 
@@ -186,19 +198,19 @@
 
 			<span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span><span class="o">==</span><span class="nb">str</span><span class="p">:</span>
 				<span class="k">if</span> <span class="n">weights</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.json&#39;</span><span class="p">):</span>
-					<span class="n">weights</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_json</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s1">&#39;records&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s1">&#39;ffill&#39;</span><span class="p">)</span>
+					<span class="n">weights</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_json</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s1">&#39;records&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">ffill</span><span class="p">()</span>
 					<span class="n">weights</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="o">.</span><span class="n">lower</span><span class="p">,</span> <span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">weights</span><span class="o">.</span><span class="n">columns</span><span class="p">))</span>
 					<span class="k">if</span> <span class="s1">&#39;compound&#39;</span> <span class="ow">in</span> <span class="n">weights</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
 						<span class="n">weights</span> <span class="o">=</span> <span class="n">weights</span><span class="p">[</span><span class="n">weights</span><span class="p">[</span><span class="s1">&#39;compound&#39;</span><span class="p">]</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
 
 				<span class="k">elif</span> <span class="n">weights</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.csv&#39;</span><span class="p">):</span>
-					<span class="n">weights</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s1">&#39;ffill&#39;</span><span class="p">)</span>
+					<span class="n">weights</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">ffill</span><span class="p">()</span>
 					<span class="n">weights</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="o">.</span><span class="n">lower</span><span class="p">,</span> <span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">weights</span><span class="o">.</span><span class="n">columns</span><span class="p">))</span>
 					<span class="k">if</span> <span class="s1">&#39;compound&#39;</span> <span class="ow">in</span> <span class="n">weights</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
 						<span class="n">weights</span> <span class="o">=</span> <span class="n">weights</span><span class="p">[</span><span class="n">weights</span><span class="p">[</span><span class="s1">&#39;compound&#39;</span><span class="p">]</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
 
 				<span class="k">elif</span> <span class="n">weights</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.db&#39;</span><span class="p">):</span>
-					<span class="n">weights</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s1">&#39;SELECT * FROM compounds WHERE compound=</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">),</span> <span class="n">_get_connection</span><span class="p">(</span><span class="n">weights</span><span class="p">))</span>
+					<span class="n">weights</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s1">&#39;SELECT * FROM compounds WHERE compound=?&#39;</span><span class="p">,</span> <span class="n">_get_connection</span><span class="p">(</span><span class="n">weights</span><span class="p">),</span> <span class="n">params</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,))</span>
 					<span class="n">weights</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="o">.</span><span class="n">lower</span><span class="p">,</span> <span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">weights</span><span class="o">.</span><span class="n">columns</span><span class="p">))</span>
 					<span class="k">if</span> <span class="s1">&#39;compound&#39;</span> <span class="ow">in</span> <span class="n">weights</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
 						<span class="n">weights</span> <span class="o">=</span> <span class="n">weights</span><span class="p">[</span><span class="n">weights</span><span class="p">[</span><span class="s1">&#39;compound&#39;</span><span class="p">]</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
@@ -314,12 +326,12 @@
 		<span class="k">if</span> <span class="n">filename</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.db&#39;</span><span class="p">):</span>
 			<span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">replace</span><span class="p">:</span>
 				<span class="n">con</span> <span class="o">=</span> <span class="n">_get_connection</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
-				<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s1">&#39;SELECT * FROM weights&#39;</span><span class="p">,</span> <span class="n">con</span><span class="p">)</span>
+				<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s1">&#39;SELECT * FROM compounds&#39;</span><span class="p">,</span> <span class="n">con</span><span class="p">)</span>
 				<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;compound&#39;</span><span class="p">]</span><span class="o">!=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
 				<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df</span><span class="p">,</span> <span class="n">wts</span><span class="p">])</span>
-				<span class="n">df</span><span class="o">.</span><span class="n">to_sql</span><span class="p">(</span><span class="s1">&#39;weights&#39;</span><span class="p">,</span> <span class="n">con</span><span class="p">,</span> <span class="n">if_exists</span><span class="o">=</span><span class="s1">&#39;replace&#39;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+				<span class="n">df</span><span class="o">.</span><span class="n">to_sql</span><span class="p">(</span><span class="s1">&#39;compounds&#39;</span><span class="p">,</span> <span class="n">con</span><span class="p">,</span> <span class="n">if_exists</span><span class="o">=</span><span class="s1">&#39;replace&#39;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 			<span class="k">else</span><span class="p">:</span>
-				<span class="n">wts</span><span class="o">.</span><span class="n">to_sql</span><span class="p">(</span><span class="s1">&#39;weights&#39;</span><span class="p">,</span> <span class="n">_get_connection</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span> <span class="n">if_exists</span><span class="o">=</span><span class="s1">&#39;replace&#39;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+				<span class="n">wts</span><span class="o">.</span><span class="n">to_sql</span><span class="p">(</span><span class="s1">&#39;compounds&#39;</span><span class="p">,</span> <span class="n">_get_connection</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span> <span class="n">if_exists</span><span class="o">=</span><span class="s1">&#39;replace&#39;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
 		<span class="k">if</span> <span class="n">filename</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.json&#39;</span><span class="p">):</span>
 			<span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">replace</span><span class="p">:</span>
@@ -525,17 +537,17 @@
 <span class="sd">		--------</span>
 <span class="sd">		&gt;&gt;&gt; cm = ci.Compound(&#39;Fe&#39;) # same behavior as element</span>
 <span class="sd">		&gt;&gt;&gt; print(cm.range(60.0))</span>
-<span class="sd">		0.5858151125192633</span>
+<span class="sd">		0.5866312594085556</span>
 <span class="sd">		&gt;&gt;&gt; cm = ci.Compound(&#39;SS_316&#39;) # preset compound</span>
 <span class="sd">		&gt;&gt;&gt; print(cm.range(60.0))</span>
-<span class="sd">		0.5799450918147814</span>
+<span class="sd">		0.5807353363913145</span>
 
 <span class="sd">		&quot;&quot;&quot;</span>
 
 		<span class="n">energy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
 		
 		<span class="n">dE</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span><span class="o">/</span><span class="mf">1E3</span>
-		<span class="n">E_min</span> <span class="o">=</span> <span class="nb">min</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">energy</span><span class="p">),</span> <span class="mf">1.0</span><span class="p">))</span>
+		<span class="n">E_min</span> <span class="o">=</span> <span class="nb">min</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">energy</span><span class="p">),</span> <span class="mf">1E-3</span><span class="p">))</span>
 		<span class="n">E_grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">E_min</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span><span class="o">+</span><span class="n">dE</span><span class="p">,</span> <span class="n">dE</span><span class="p">)</span>
 
 		<span class="n">S</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">S</span><span class="p">(</span><span class="n">E_grid</span><span class="p">,</span> <span class="n">particle</span><span class="o">=</span><span class="n">particle</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="n">density</span><span class="p">)</span>
@@ -753,9 +765,9 @@
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../search.html" method="get">
@@ -763,26 +775,26 @@
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
+</search>
 <script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="../../genindex.html" title="General Index"
              >index</a></li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">Curie 0.0.29 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Curie 0.1.0 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">curie.compound</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
     &#169; Copyright 2024, Jonathan Morrell.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     </div>
   </body>
 </html>

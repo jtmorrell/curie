@@ -1,0 +1,48 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "curie"
+dynamic = ["version"]
+description = "Curie is a python toolkit to aid in the analysis of experimental nuclear data."
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [{ name = "Jonathan Morrell", email = "jmorrell@berkeley.edu" }]
+requires-python = ">=3.9"
+dependencies = [
+    "numpy",
+    "scipy",
+    "pandas",
+    "matplotlib",
+    "pooch",
+    "platformdirs",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Physics",
+]
+
+[project.urls]
+Homepage = "https://github.com/jtmorrell/curie"
+Documentation = "https://jtmorrell.github.io/curie/build/html/index.html"
+
+[tool.hatch.version]
+path = "curie/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["curie"]
+# nuclear data is distributed via GitHub data releases and fetched into a
+# per-user cache at runtime; it must never ship inside package artifacts
+exclude = ["curie/data", "curie/.vscode"]
+
+[tool.hatch.build.targets.sdist]
+exclude = ["curie/data", "curie/.vscode", "shards", "docs/build"]

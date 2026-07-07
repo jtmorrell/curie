@@ -5,20 +5,20 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Decay Chain &#8212; Curie 0.0.29 documentation</title>
+    <title>Decay Chain &#8212; Curie 0.1.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
-    <link rel="stylesheet" type="text/css" href="../_static/classic.css?v=514cf933" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css?v=2bf1fcf8" />
     
-    <script src="../_static/documentation_options.js?v=828725f0"></script>
-    <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Data" href="data.html" />
     <link rel="prev" title="Spectrum" href="spectrum.html" /> 
   </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -30,7 +30,7 @@
         <li class="right" >
           <a href="spectrum.html" title="Spectrum"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">Curie 0.0.29 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Curie 0.1.0 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">API</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Decay Chain</a></li> 
       </ul>
@@ -45,7 +45,7 @@
 <span id="decaychain"></span><h1>Decay Chain<a class="headerlink" href="#decay-chain" title="Link to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="curie.DecayChain">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">curie.</span></span><span class="sig-name descname"><span class="pre">DecayChain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent_isotope</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">A0</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'s'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/decay_chain.html#DecayChain"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.DecayChain" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">curie.</span></span><span class="sig-name descname"><span class="pre">DecayChain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent_isotope</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">A0</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'s'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/decay_chain.html#DecayChain"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.DecayChain" title="Link to this definition">¶</a></dt>
 <dd><p>Radioactive Decay Chain</p>
 <p>Uses the Bateman equations to calculate the activities and number of decays
 from a radioactive decay chain as a function of time, both in production
@@ -86,24 +86,8 @@ Default is <cite>True</cite>.</p>
 </dd>
 </dl>
 </dd>
-</dl>
-<p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dc</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">DecayChain</span><span class="p">(</span><span class="s1">&#39;Ra-225&#39;</span><span class="p">,</span> <span class="n">R</span><span class="o">=</span><span class="p">[[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">],</span> <span class="p">[</span><span class="mf">2.0</span><span class="p">,</span> <span class="mi">6</span><span class="p">]],</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;d&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">dc</span><span class="o">.</span><span class="n">isotopes</span><span class="p">)</span>
-<span class="go">[&#39;225RAg&#39;, &#39;225ACg&#39;, &#39;221FRg&#39;, &#39;217ATg&#39;, &#39;213BIg&#39;, &#39;217RNg&#39;, &#39;209TLg&#39;, &#39;213POg&#39;, &#39;209PBg&#39;, &#39;209BIg&#39;]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">dc</span><span class="o">.</span><span class="n">R_avg</span><span class="p">)</span>
-<span class="go">  R_avg isotope</span>
-<span class="go">0  1.708333  225RAg</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dc</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">DecayChain</span><span class="p">(</span><span class="s1">&#39;152EU&#39;</span><span class="p">,</span> <span class="n">A0</span><span class="o">=</span><span class="mf">3.7E3</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;h&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ci</span><span class="o">.</span><span class="n">isotopes</span><span class="p">)</span>
-<span class="go">[&#39;152EUg&#39;, &#39;152GDg&#39;, &#39;152SMg&#39;]</span>
-</pre></div>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Attributes<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
+<dt class="field-even">Attributes<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
 <dt><strong>R</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Production rate as a function of time, for each isotope in the chain. This
 will be modified if <cite>fit_R()</cite> is called.</p>
 </dd>
@@ -130,10 +114,10 @@ modified if <cite>fit_R()</cite> is called.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#curie.DecayChain.decays" title="curie.DecayChain.decays"><code class="xref py py-obj docutils literal notranslate"><span class="pre">decays</span></code></a>(isotope, t_start, t_stop[, units, ...])</p></td>
 <td><p>Number of decays in a given time interval</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#curie.DecayChain.fit_A0" title="curie.DecayChain.fit_A0"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_A0</span></code></a>([max_error, min_counts])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#curie.DecayChain.fit_A0" title="curie.DecayChain.fit_A0"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_A0</span></code></a>([max_error, min_counts, corr, ...])</p></td>
 <td><p>Fit the initial activity to count data</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#curie.DecayChain.fit_R" title="curie.DecayChain.fit_R"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_R</span></code></a>([max_error, min_counts])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#curie.DecayChain.fit_R" title="curie.DecayChain.fit_R"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_R</span></code></a>([max_error, min_counts, corr, ...])</p></td>
 <td><p>Fit the production rate to count data</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#curie.DecayChain.get_counts" title="curie.DecayChain.get_counts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_counts</span></code></a>(spectra, EoB[, peak_data])</p></td>
@@ -144,6 +128,20 @@ modified if <cite>fit_R()</cite> is called.</p>
 </tr>
 </tbody>
 </table>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dc</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">DecayChain</span><span class="p">(</span><span class="s1">&#39;Ra-225&#39;</span><span class="p">,</span> <span class="n">R</span><span class="o">=</span><span class="p">[[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">],</span> <span class="p">[</span><span class="mf">2.0</span><span class="p">,</span> <span class="mi">6</span><span class="p">]],</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;d&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">dc</span><span class="o">.</span><span class="n">isotopes</span><span class="p">)</span>
+<span class="go">[&#39;225RAg&#39;, &#39;225ACg&#39;, &#39;221FRg&#39;, &#39;217ATg&#39;, &#39;213BIg&#39;, &#39;217RNg&#39;, &#39;209TLg&#39;, &#39;213POg&#39;, &#39;209PBg&#39;, &#39;209BIg&#39;, &#39;205TLg&#39;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">dc</span><span class="o">.</span><span class="n">R_avg</span><span class="p">)</span>
+<span class="go">  R_avg isotope</span>
+<span class="go">0  1.708333  225RAg</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dc</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">DecayChain</span><span class="p">(</span><span class="s1">&#39;152EU&#39;</span><span class="p">,</span> <span class="n">A0</span><span class="o">=</span><span class="mf">3.7E3</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;h&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">dc</span><span class="o">.</span><span class="n">isotopes</span><span class="p">)</span>
+<span class="go">[&#39;152EUg&#39;, &#39;152GDg&#39;, &#39;152SMg&#39;, &#39;148SMg&#39;, &#39;144NDg&#39;, &#39;140CEg&#39;]</span>
+</pre></div>
+</div>
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.DecayChain.activity">
 <span class="sig-name descname"><span class="pre">activity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">isotope</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_R_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_A_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/decay_chain.html#DecayChain.activity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.DecayChain.activity" title="Link to this definition">¶</a></dt>
@@ -224,7 +222,7 @@ as the decay chain, or be specified by the <cite>units</cite> keyword.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.DecayChain.fit_A0">
-<span class="sig-name descname"><span class="pre">fit_A0</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_counts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/decay_chain.html#DecayChain.fit_A0"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.DecayChain.fit_A0" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">fit_A0</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_counts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">corr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">corr_group</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm_frac</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/decay_chain.html#DecayChain.fit_A0"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.DecayChain.fit_A0" title="Link to this definition">¶</a></dt>
 <dd><p>Fit the initial activity to count data</p>
 <p>Fits a scalar multiplier to the initial activity for
 each isotope specified in self.A0.  The fit minimizes to the number of
@@ -239,6 +237,26 @@ the shape of the decay curve.</p>
 </dd>
 <dt><strong>min_counts</strong><span class="classifier">float or int, optional</span></dt><dd><p>The minimum number of counts (decays) for a datum in self.counts to be included
 in the fit. Default, 1.</p>
+</dd>
+<dt><strong>corr</strong><span class="classifier">float, optional</span></dt><dd><p>Opt-in uniform-correlation mode for counts that carry only total
+uncertainties: the fraction (0-1) of each point’s variance treated as
+fully correlated across points (or within <cite>corr_group</cite> groups).
+Default <cite>None</cite> (off).</p>
+</dd>
+<dt><strong>corr_group</strong><span class="classifier">str, optional</span></dt><dd><p>Name of a counts column defining the correlation groups for <cite>corr</cite>.
+Default <cite>None</cite> (global).</p>
+</dd>
+<dt><strong>norm_frac</strong><span class="classifier">float, optional</span></dt><dd><p>Fraction of each line’s intensity variance treated as common to all
+lines of the isotope (the decay-scheme normalization). Default 1.0
+(fully common - conservative until the intensity data carry the
+normalization uncertainty separately).</p>
+</dd>
+<dt><strong>scale_factor</strong><span class="classifier">bool, optional</span></dt><dd><p>If <cite>True</cite> (default), the fitted covariance is inflated by chi-square
+per degree of freedom when that exceeds 1 (mutually inconsistent
+count data); it is never deflated.</p>
+</dd>
+<dt><strong>cov</strong><span class="classifier">array_like, optional</span></dt><dd><p>Full covariance matrix of the count data, overriding the assembled
+one. For advanced use.</p>
 </dd>
 </dl>
 </dd>
@@ -269,7 +287,7 @@ to fit[0] and cov[0][0].)</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.DecayChain.fit_R">
-<span class="sig-name descname"><span class="pre">fit_R</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_counts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/decay_chain.html#DecayChain.fit_R"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.DecayChain.fit_R" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">fit_R</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_counts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">corr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">corr_group</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm_frac</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/decay_chain.html#DecayChain.fit_R"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.DecayChain.fit_R" title="Link to this definition">¶</a></dt>
 <dd><p>Fit the production rate to count data</p>
 <p>Fits a scalar multiplier to the production rate (as a function of time) for
 each isotope specified in self.R.  The fit minimizes to the number of
@@ -284,6 +302,26 @@ the shape of the decay curve.</p>
 </dd>
 <dt><strong>min_counts</strong><span class="classifier">float or int, optional</span></dt><dd><p>The minimum number of counts (decays) for a datum in self.counts to be included
 in the fit. Default, 1.</p>
+</dd>
+<dt><strong>corr</strong><span class="classifier">float, optional</span></dt><dd><p>Opt-in uniform-correlation mode for counts that carry only total
+uncertainties: the fraction (0-1) of each point’s variance treated as
+fully correlated across points (or within <cite>corr_group</cite> groups).
+Default <cite>None</cite> (off).</p>
+</dd>
+<dt><strong>corr_group</strong><span class="classifier">str, optional</span></dt><dd><p>Name of a counts column defining the correlation groups for <cite>corr</cite>.
+Default <cite>None</cite> (global).</p>
+</dd>
+<dt><strong>norm_frac</strong><span class="classifier">float, optional</span></dt><dd><p>Fraction of each line’s intensity variance treated as common to all
+lines of the isotope (the decay-scheme normalization). Default 1.0
+(fully common - conservative until the intensity data carry the
+normalization uncertainty separately).</p>
+</dd>
+<dt><strong>scale_factor</strong><span class="classifier">bool, optional</span></dt><dd><p>If <cite>True</cite> (default), the fitted covariance is inflated by chi-square
+per degree of freedom when that exceeds 1 (mutually inconsistent
+count data); it is never deflated.</p>
+</dd>
+<dt><strong>cov</strong><span class="classifier">array_like, optional</span></dt><dd><p>Full covariance matrix of the count data, overriding the assembled
+one. For advanced use.</p>
 </dd>
 </dl>
 </dd>
@@ -411,7 +449,7 @@ list of kwargs.</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
   <div>
     <h3><a href="../index.html">Table of Contents</a></h3>
@@ -448,7 +486,7 @@ list of kwargs.</p>
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
@@ -456,13 +494,13 @@ list of kwargs.</p>
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
+</search>
 <script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -474,14 +512,14 @@ list of kwargs.</p>
         <li class="right" >
           <a href="spectrum.html" title="Spectrum"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">Curie 0.0.29 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Curie 0.1.0 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" >API</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Decay Chain</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
     &#169; Copyright 2024, Jonathan Morrell.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     </div>
   </body>
 </html>

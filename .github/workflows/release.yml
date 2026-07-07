@@ -1,0 +1,56 @@
+# Publish to PyPI via trusted publishing when a version tag is pushed.
+# The tag pattern is deliberately v[0-9]* so that data-release tags
+# (data-v1, data-v2, ...) can never trigger a PyPI publish.
+name: Release
+
+on:
+  push:
+    tags: ['v[0-9]*']
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Build sdist and wheel
+        run: |
+          python -m pip install --upgrade pip build
+          python -m build
+
+      - name: Verify the tag matches the built wheel's version
+        run: |
+          python -m pip install dist/*.whl
+          # run outside the checkout so the import resolves the installed
+          # wheel, not the source tree
+          pkg="v$(cd "$RUNNER_TEMP" && python -c 'import curie; print(curie.__version__)')"
+          test "$pkg" = "$GITHUB_REF_NAME" || { echo "tag $GITHUB_REF_NAME != wheel $pkg"; exit 1; }
+
+      - name: Run the data-free test subset
+        run: |
+          python -m pip install pytest
+          python -m pytest -ra
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1

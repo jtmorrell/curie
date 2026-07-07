@@ -5,20 +5,20 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Reaction &#8212; Curie 0.0.29 documentation</title>
+    <title>Reaction &#8212; Curie 0.1.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
-    <link rel="stylesheet" type="text/css" href="../_static/classic.css?v=514cf933" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css?v=2bf1fcf8" />
     
-    <script src="../_static/documentation_options.js?v=828725f0"></script>
-    <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Calibration" href="calibration.html" />
     <link rel="prev" title="Library" href="library.html" /> 
   </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -30,7 +30,7 @@
         <li class="right" >
           <a href="library.html" title="Library"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">Curie 0.0.29 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Curie 0.1.0 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">API</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Reaction</a></li> 
       </ul>
@@ -45,7 +45,7 @@
 <span id="id1"></span><h1>Reaction<a class="headerlink" href="#reaction" title="Link to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="curie.Reaction">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">curie.</span></span><span class="sig-name descname"><span class="pre">Reaction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reaction_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">library</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'best'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/reaction.html#Reaction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Reaction" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">curie.</span></span><span class="sig-name descname"><span class="pre">Reaction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reaction_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">library</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'best'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/reaction.html#Reaction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Reaction" title="Link to this definition">¶</a></dt>
 <dd><p>Cross section data for nuclear reactions</p>
 <p>Contains reaction cross sections as a function of incident energy,
 and some useful methods for manipulating cross section data, such as
@@ -62,22 +62,8 @@ in MeV.</p>
 </dd>
 </dl>
 </dd>
-</dl>
-<p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rx</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Reaction</span><span class="p">(</span><span class="s1">&#39;226RA(n,2n)&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">rx</span><span class="o">.</span><span class="n">library</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-<span class="go">ENDF/B-VII.1</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">rx</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Reaction</span><span class="p">(</span><span class="s1">&#39;226RA(n,x)225RA&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">rx</span><span class="o">.</span><span class="n">library</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-<span class="go">TENDL-2015</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">rx</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Reaction</span><span class="p">(</span><span class="s1">&#39;115IN(n,inl)&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">rx</span><span class="o">.</span><span class="n">library</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-<span class="go">IRDFF-II</span>
-</pre></div>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Attributes<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
+<dt class="field-even">Attributes<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
 <dt><strong>target</strong><span class="classifier">str</span></dt><dd><p>The target nucleus.  Some libraries support natural elements, e.g. ‘natEl’.</p>
 </dd>
 <dt><strong>incident</strong><span class="classifier">str</span></dt><dd><p>Incident particle. E.g. ‘n’, ‘p’, ‘d’.</p>
@@ -124,6 +110,18 @@ name of the library.</p>
 </tr>
 </tbody>
 </table>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rx</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Reaction</span><span class="p">(</span><span class="s1">&#39;226RA(n,2n)&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">rx</span><span class="o">.</span><span class="n">library</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+<span class="go">ENDF/B-VII.1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rx</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Reaction</span><span class="p">(</span><span class="s1">&#39;226RA(n,x)225RA&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">rx</span><span class="o">.</span><span class="n">library</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+<span class="go">TENDL-2015</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rx</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Reaction</span><span class="p">(</span><span class="s1">&#39;115IN(n,inl)&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">rx</span><span class="o">.</span><span class="n">library</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+<span class="go">IRDFF-II</span>
+</pre></div>
+</div>
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.Reaction.average">
 <span class="sig-name descname"><span class="pre">average</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flux</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/reaction.html#Reaction.average"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Reaction.average" title="Link to this definition">¶</a></dt>
@@ -155,9 +153,9 @@ and uncertainty, if <cite>unc=True</cite>.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">eng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">phi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">rx</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">eng</span><span class="p">,</span> <span class="n">phi</span><span class="p">))</span>
-<span class="go">208.3608978993537</span>
+<span class="go">210.3226525877...</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">rx</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">eng</span><span class="p">,</span> <span class="n">phi</span><span class="p">,</span> <span class="n">unc</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
-<span class="go">(208.3608978993537, 4.979629859187442)</span>
+<span class="go">(210.3226525877..., ...)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -188,13 +186,13 @@ and uncertainty, if <cite>unc=True</cite>.</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Reaction</span><span class="p">(</span><span class="s1">&#39;Ni-58(n,p)&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rx</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Reaction</span><span class="p">(</span><span class="s1">&#39;Ni-58(n,p)&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">eng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">phi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">rx</span><span class="o">.</span><span class="n">integrate</span><span class="p">(</span><span class="n">eng</span><span class="p">,</span> <span class="n">phi</span><span class="p">))</span>
-<span class="go">833.4435915974148</span>
+<span class="go">885.5690635272...</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">rx</span><span class="o">.</span><span class="n">integrate</span><span class="p">(</span><span class="n">eng</span><span class="p">,</span> <span class="n">phi</span><span class="p">,</span> <span class="n">unc</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
-<span class="go">(833.4435915974148, 19.91851943674977)</span>
+<span class="go">(885.5690635272..., ...)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -204,7 +202,8 @@ and uncertainty, if <cite>unc=True</cite>.</p>
 <span class="sig-name descname"><span class="pre">interpolate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/reaction.html#Reaction.interpolate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Reaction.interpolate" title="Link to this definition">¶</a></dt>
 <dd><p>Interpolated cross section</p>
 <p>Linear interpolation of the reaction cross section along the
-input energy grid.</p>
+input energy grid.  Energies outside the evaluated grid return 0
+rather than an extrapolation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -222,7 +221,7 @@ input energy grid.</p>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rx</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Reaction</span><span class="p">(</span><span class="s1">&#39;115IN(n,g)&#39;</span><span class="p">,</span> <span class="s1">&#39;IRDFF&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">rx</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="mf">0.5</span><span class="p">))</span>
-<span class="go">161.41656650941306</span>
+<span class="go">161.41646650941306</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">rx</span><span class="o">.</span><span class="n">interpolate</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">]))</span>
 <span class="go">[161.41646651 171.81486757 8.8822]</span>
 </pre></div>
@@ -308,7 +307,7 @@ list of kwargs.</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
   <div>
     <h3><a href="../index.html">Table of Contents</a></h3>
@@ -344,7 +343,7 @@ list of kwargs.</p>
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
@@ -352,13 +351,13 @@ list of kwargs.</p>
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
+</search>
 <script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -370,14 +369,14 @@ list of kwargs.</p>
         <li class="right" >
           <a href="library.html" title="Library"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">Curie 0.0.29 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Curie 0.1.0 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" >API</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Reaction</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
     &#169; Copyright 2024, Jonathan Morrell.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     </div>
   </body>
 </html>

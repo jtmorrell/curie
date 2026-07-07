@@ -1,6 +1,3 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
 
 import re
 import os
@@ -14,7 +11,19 @@ from .data import _get_connection
 from .plotting import _init_plot, _draw_plot
 from .element import ELEMENTS, Element
 
-COMPOUND_LIST = list(map(str, pd.read_sql('SELECT compound FROM compounds', _get_connection('ziegler'))['compound']))
+_COMPOUND_LIST_CACHE = None
+
+def _compound_list():
+	# deferred so that importing curie touches no database file
+	global _COMPOUND_LIST_CACHE
+	if _COMPOUND_LIST_CACHE is None:
+		_COMPOUND_LIST_CACHE = list(map(str, pd.read_sql('SELECT compound FROM compounds', _get_connection('ziegler'))['compound']))
+	return _COMPOUND_LIST_CACHE
+
+def __getattr__(name):
+	if name == 'COMPOUND_LIST':
+		return _compound_list()
+	raise AttributeError("module {!r} has no attribute {!r}".format(__name__, name))
 
 
 
@@ -116,7 +125,7 @@ class Compound(object):
 		self.name = compound
 		self.density = None
 
-		if compound in COMPOUND_LIST:
+		if compound in _compound_list():
 			df = pd.read_sql('SELECT * FROM compounds WHERE compound="{}"'.format(compound), _get_connection('ziegler'))
 			self.density = df['density'][0]
 

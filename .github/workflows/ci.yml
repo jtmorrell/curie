@@ -1,6 +1,9 @@
-# Minimal CI: install from source, import smoke test, and run the public test suite
-# against the data-v1 CI fixture (ziegler + decay + iaea_monitors + IRDFF, ~133 MB).
-# Tests needing endf/tendl skip with reported reasons.
+# CI: install from source, import smoke test, and run the public test suite
+# against a data fixture (ziegler + decay + iaea_monitors + IRDFF, ~133 MB)
+# fetched from the curie-data v1 release into a pre-populated data directory.
+# Tests needing endf/tendl skip with reported reasons. The cold-cache job installs the built wheel on a clean
+# machine and lets curie fetch its own data (whole-file and endf shards) from
+# the data release, end to end.
 name: CI
 
 on:
@@ -23,26 +26,23 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install curie and dependencies
-        # dependencies installed explicitly: setup.py does not declare
-        # install_requires. Editable install never runs the legacy
-        # post-install data hook.
         run: |
           python -m pip install --upgrade pip
-          python -m pip install numpy scipy pandas matplotlib pytest
           python -m pip install -e .
+          python -m pip install pytest
 
       - name: Restore nuclear data fixture
         id: data-cache
         uses: actions/cache@v4
         with:
           path: ~/curie-ci-data
-          key: curie-data-v1-${{ hashFiles('data_manifest.toml') }}
+          key: curie-data-v1-${{ hashFiles('curie/data_registry.json') }}
 
-      - name: Fetch data fixture from the data-v1 release
+      - name: Fetch data fixture from the curie-data v1 release
         if: steps.data-cache.outputs.cache-hit != 'true'
         run: |
           mkdir -p ~/curie-ci-data && cd ~/curie-ci-data
-          base="https://github.com/jtmorrell/curie/releases/download/data-v1"
+          base="https://github.com/jtmorrell/curie-data/releases/download/v1"
           for f in SHA256SUMS ziegler.db decay.db iaea_monitors.db IRDFF.db; do
             curl -sSL --retry 3 -O "$base/$f"
           done
@@ -50,13 +50,47 @@ jobs:
       - name: Verify data checksums
         run: cd ~/curie-ci-data && sha256sum -c SHA256SUMS --ignore-missing
 
-      - name: Install data fixture
-        run: |
-          mkdir -p curie/data
-          cp ~/curie-ci-data/*.db curie/data/
-
       - name: Import smoke test
+        env:
+          CURIE_DATA_DIR: /home/runner/curie-ci-data
         run: python -c "import curie; print('curie', curie.__version__)"
 
       - name: Run public test suite
+        env:
+          CURIE_DATA_DIR: /home/runner/curie-ci-data
         run: python -m pytest -ra
+
+  cold-cache:
+    # a fresh machine: wheel install, empty cache, no local data anywhere;
+    # curie must fetch what it needs (iaea whole-file, endf per-target shards)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Build and install the wheel
+        run: |
+          python -m pip install --upgrade pip build
+          python -m build --wheel
+          python -m pip install dist/*.whl
+
+      - name: End-to-end cold-cache fetch
+        working-directory: ${{ runner.temp }}
+        run: |
+          python -c "
+          import curie as ci
+          from curie.data import _data_path
+          # endf: fetches the all_reactions index shard + one target shard (~2 MB)
+          lb = ci.Library('endf')
+          assert lb.search(target='115IN', outgoing='g'), 'endf search failed'
+          xs = lb.retrieve(target='115IN', outgoing='g')
+          assert len(xs) > 10, 'endf retrieve failed'
+          # iaea: whole-file fetch (4 MB)
+          lb = ci.Library('iaea')
+          assert lb.search(target='natCU', incident='p', product='62ZN'), 'iaea search failed'
+          import os
+          print('cache contents:', sorted(os.listdir(_data_path())))
+          "

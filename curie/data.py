@@ -1,21 +1,241 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
+"""Nuclear-data acquisition and connection layer.
+
+Curie's databases live in a per-user data directory (~/.local/share/curie on
+Linux, ~/Library/Application Support/curie on macOS, %LOCALAPPDATA%\\curie on
+Windows; override with the CURIE_DATA_DIR environment variable) and are
+fetched on first use from the GitHub data release recorded in
+data_registry.json, with SHA256 verification. The ENDF and TENDL libraries
+are additionally published as per-target shards (each library's shards on
+their own release tag), so looking up one reaction downloads a fraction of a
+MB instead of a 37-748 MB file; shards are assembled into the local library
+database as they arrive.
+
+Databases found in the platform's site-wide data directory (e.g.
+/usr/local/share/curie, C:\\ProgramData\\curie) are used read-only in place, so
+an administrator of a shared machine can populate that directory once and
+every account works without downloading anything. Data installed by earlier
+curie versions (in the package's own data directory) is adopted into the user
+directory on first use, so existing installations re-download nothing.
+"""
 
 import os
+import json
+import hashlib
+import shutil
 import sqlite3
 
 GLOB_CONNECTIONS_DICT = {}
 
+_REGISTRY_CACHE = None
+
+_FILES = ['decay.db', 'ziegler.db', 'endf.db', 'tendl.db', 'tendl_n_rp.db',
+		  'tendl_p_rp.db', 'tendl_d_rp.db', 'IRDFF.db', 'iaea_monitors.db']
+
+# accepted spellings beyond the filename stem itself
+_ALIASES = {
+	'tendl_n_rp.db': ['tendl_nrp', 'tendl_n', 'nrp', 'rpn'],
+	'tendl_p_rp.db': ['tendl_prp', 'tendl_p', 'prp', 'rpp'],
+	'tendl_d_rp.db': ['tendl_drp', 'tendl_d', 'drp', 'rpd'],
+	'iaea_monitors.db': ['iaea', 'iaea-cpr', 'iaea-monitor', 'cpr', 'iaea_cpr',
+						 'iaea_monitor', 'medical', 'iaea-medical', 'iaea_medical'],
+}
+
+
+def _registry():
+	global _REGISTRY_CACHE
+	if _REGISTRY_CACHE is None:
+		with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data_registry.json')) as f:
+			_REGISTRY_CACHE = json.load(f)
+	return _REGISTRY_CACHE
+
+
+def _canonical(db):
+	"""Registry filename for a managed database name, or None for user paths."""
+	nm = db.lower().replace('.db', '')
+	for fnm in _FILES:
+		if nm == fnm.lower().replace('.db', ''):
+			return fnm
+	for fnm, aliases in _ALIASES.items():
+		if nm in aliases:
+			return fnm
+	return None
+
+
 def _data_path(db=''):
+	"""The writable nuclear-data directory (CURIE_DATA_DIR overrides)."""
+	path = os.environ.get('CURIE_DATA_DIR')
+	if not path:
+		import platformdirs
+		path = platformdirs.user_data_dir('curie', appauthor=False)
+	if not os.path.isdir(path):
+		os.makedirs(path, exist_ok=True)
+	return os.path.join(path, db) if db else path
+
+
+def _site_data_paths(db=''):
+	"""Site-wide data directories, consulted read-only for shared installs."""
+	import platformdirs
+	dirs = platformdirs.site_data_dir('curie', appauthor=False, multipath=True)
+	return [os.path.join(d, db) for d in dirs.split(os.pathsep)]
+
+
+def _site_file(fnm):
+	"""Path of a usable site-wide copy of the file, or None."""
+	for p in _site_data_paths(fnm):
+		if os.path.isfile(p) and os.path.getsize(p) > 0:
+			return p
+	return None
+
+
+def _legacy_data_path(db=''):
+	"""Data directory used by curie < 0.1.0 (inside the installed package)."""
 	return os.path.realpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data', db))
+
+
+def _db_available(db):
+	"""True if the database can be opened without a network fetch."""
+	fnm = _canonical(db)
+	if fnm is None:
+		return False
+	for path in [_data_path(fnm)] + _site_data_paths(fnm) + [_legacy_data_path(fnm)]:
+		if os.path.isfile(path) and os.path.getsize(path) > 0:
+			return True
+	return False
+
+
+def _sha256(path):
+	h = hashlib.sha256()
+	with open(path, 'rb') as f:
+		for chunk in iter(lambda: f.read(1 << 20), b''):
+			h.update(chunk)
+	return h.hexdigest()
+
+
+def _retrieve(fnm):
+	"""Download one data-release asset into the data directory, verifying its SHA256.
+
+	Whole files live on the main data release (top-level base_url); each
+	sharded library's shards live on their own release tag (the group's
+	base_url), keeping every release well under GitHub's assets-per-release
+	limit.
+	"""
+	import pooch
+	reg = _registry()
+	url, known = reg['base_url'] + fnm, reg['files'].get(fnm)
+	if known is None:
+		for group in reg.get('shards', {}).values():
+			if fnm in group['files']:
+				url, known = group['base_url'] + fnm, group['files'][fnm]
+				break
+	print('Downloading {} from the curie data release...'.format(fnm))
+	return pooch.retrieve(url=url, known_hash=known, fname=fnm, path=_data_path())
+
+
+def _adopt_legacy(fnm):
+	"""Bring a pre-0.1.0 data file into the data directory if its checksum still matches."""
+	legacy = _legacy_data_path(fnm)
+	if not (os.path.isfile(legacy) and os.path.getsize(legacy) > 0):
+		return False
+	known = _registry()['files'].get(fnm)
+	if known is not None and _sha256(legacy) != known:
+		print('Existing {} does not match the data release (stale or corrupted); fetching a fresh copy.'.format(fnm))
+		return False
+	dest = _data_path(fnm)
+	try:
+		os.link(legacy, dest)
+	except OSError:
+		shutil.copy2(legacy, dest)
+	print('Adopted existing {} from {}'.format(fnm, os.path.dirname(legacy)))
+	return True
+
+
+def _ensure_file(fnm):
+	"""Make a managed database file available; returns the path to use.
+
+	Lookup order: the user data directory (writable), then any site-wide data
+	directory (used read-only in place), then data from a pre-0.1.0 install
+	(adopted into the user directory), then a download. Sharded libraries
+	(endf, the tendl variants) are not fetched whole here: absent a local
+	copy, an empty database is created and populated per-target by
+	_ensure_table.
+	"""
+	path = _data_path(fnm)
+	if os.path.isfile(path) and os.path.getsize(path) > 0:
+		return path
+	site = _site_file(fnm)
+	if site is not None:
+		return site
+	if _adopt_legacy(fnm):
+		return path
+	if fnm[:-3] in _registry().get('shards', {}):
+		return path  # assembled lazily, shard by shard
+	_retrieve(fnm)
+	return path
+
+
+def _ensure_table(db, table):
+	"""Make `table` queryable in a managed database, fetching its shard if needed.
+
+	No-op for whole-file databases, for site-provided copies (used as-is,
+	never assembled into), and for unknown table names (the caller's own SQL
+	then reports the missing table). Assembly is a single transaction, so an
+	interrupted insert leaves no half-built table behind, and the write lock
+	serializes concurrent assemblers of the same table.
+	"""
+	fnm = _canonical(db)
+	if fnm is None:
+		return
+	group = _registry().get('shards', {}).get(fnm[:-3])
+	if group is None:
+		return
+	if _ensure_file(fnm) != _data_path(fnm):
+		return  # served from a site-wide copy: use as-is
+	con = _get_connection(db)
+	if con.execute("SELECT name FROM sqlite_master WHERE type='table' AND name=?", (table,)).fetchone():
+		return
+	shard_fnm = '{}_{}.db'.format(fnm[:-3], table)
+	if shard_fnm not in group['files']:
+		return
+	shard_path = _retrieve(shard_fnm)
+	con.execute("ATTACH DATABASE ? AS shard", (shard_path,))
+	try:
+		con.execute("BEGIN IMMEDIATE")
+		try:
+			# re-check under the write lock: a concurrent process may have
+			# assembled this table since the check above
+			if not con.execute("SELECT name FROM main.sqlite_master WHERE type='table' AND name=?", (table,)).fetchone():
+				schema = con.execute("SELECT sql FROM shard.sqlite_master WHERE type='table' AND name=?", (table,)).fetchone()[0]
+				con.execute(schema)
+				con.execute('INSERT INTO main."{0}" SELECT * FROM shard."{0}"'.format(table))
+			con.commit()
+		except:
+			con.rollback()
+			raise
+	finally:
+		con.execute("DETACH DATABASE shard")
+	try:
+		os.remove(shard_path)
+	except OSError:
+		pass  # a concurrent assembler may have removed it already
+
 
 def download(db='all', overwrite=False):
 	"""Download nuclear data files as sqlite .db files.
 
-	This function can be used to either download or update the nuclear data
-	files required by Curie.  If you wish to update, or if the data files are
-	corrupted, run `ci.download(overwrite=True)` to overwrite the existing data.
+	Data files are fetched automatically the first time they are needed, so
+	calling this function is only necessary to prepare an offline machine, to
+	pre-populate a fresh data directory, or to repair/update existing data
+	with `overwrite=True`.  Files are stored in a per-user data directory
+	(printed by `ci.data._data_path()`), which can be overridden with the
+	`CURIE_DATA_DIR` environment variable.  Every download is verified against
+	the SHA256 recorded for the curie data release.
+
+	Note that the large cross-section libraries (ENDF, the TENDL variants) are
+	normally assembled on demand from small per-target files; downloading them
+	here fetches each complete library in one file.  Files already provided by
+	a site-wide data directory are reported and skipped unless
+	`overwrite=True`, which fetches a fresh copy into the user data directory
+	(shadowing the site copy).
 
 	Parameters
 	----------
@@ -44,65 +264,43 @@ def download(db='all', overwrite=False):
 
 	"""
 
-	db = db.lower()
-	if db in ['all','*']:
-		d = ['decay', 'ziegler', 'endf', 'tendl', 'tendl_n_rp', 'tendl_p_rp', 'tendl_d_rp', 'IRDFF', 'iaea_monitors']
-	elif db in ['decay']:
-		d = ['decay']
-	elif db in ['ziegler']:
-		d = ['ziegler']
-	elif db in ['endf']:
-		d = ['endf']
-	elif db in ['tendl']:
-		d = ['tendl']
-	elif db in ['tendl_n_rp', 'tendl_nrp', 'tendl_n', 'nrp', 'rpn']:
-		d = ['tendl_n_rp']
-	elif db in ['tendl_p_rp', 'tendl_prp', 'tendl_p', 'prp', 'rpp']:
-		d = ['tendl_p_rp']
-	elif db in ['tendl_d_rp', 'tendl_drp', 'tendl_d', 'drp', 'rpd']:
-		d = ['tendl_d_rp']
-	elif db in ['irdff']:
-		d = ['IRDFF']
-	elif db in ['iaea', 'iaea-cpr', 'iaea-monitor', 'cpr', 'iaea_cpr', 'iaea_monitor', 'medical', 'iaea-medical', 'iaea_medical']:
-		d = ['iaea_monitors']
+	if db.lower() in ['all', '*']:
+		d = list(_FILES)
 	else:
-		print('db={} not recognized.'.format(db))
-		return
+		fnm = _canonical(db)
+		if fnm is None:
+			print('db={} not recognized.'.format(db))
+			return
+		d = [fnm]
 
-	if not os.path.isdir(_data_path()):
-		os.mkdir(_data_path())
-
-	try:
-		import urllib2
-	except:
-		import urllib.request as urllib2
-
-	for i in d:
-		fnm = i+'.db'
-		installed = os.path.isfile(_data_path(fnm)) and os.path.getsize(_data_path(fnm))>0
-		if (not installed) or overwrite:
-			tmp = _data_path(fnm)+'.part'
-			try:
-				print('Downloading {}'.format(fnm))
-				with open(tmp,'wb') as f:
-					f.write(urllib2.urlopen('https://github.com/jtmorrell/curie/releases/download/data-v1/{}'.format(fnm)).read())
-				os.replace(tmp, _data_path(fnm))
-			except Exception as e:
-				print(e)
-				if os.path.isfile(tmp):
-					os.remove(tmp)
-		else:
-			print("{0}.db already installed. Run ci.download('{0}', overwrite=True) to overwrite these files.".format(i))
-
+	for fnm in d:
+		path = _data_path(fnm)
+		installed = os.path.isfile(path) and os.path.getsize(path) > 0
+		if not installed and not overwrite and _site_file(fnm) is not None:
+			print('{} is provided by the site-wide data directory; nothing to download.'.format(fnm))
+			continue
+		if installed and fnm[:-3] in _registry().get('shards', {}):
+			# a partially assembled library is present, not installed
+			installed = _sha256(path) == _registry()['files'].get(fnm)
+		if installed and not overwrite:
+			print("{0} already installed. Run ci.download('{0}', overwrite=True) to overwrite these files.".format(fnm.replace('.db', '')))
+			continue
+		# the existing file (if any) is left in place: the fetch verifies and
+		# replaces it atomically, so a failed download never destroys data
+		GLOB_CONNECTIONS_DICT.pop(path, None)
+		try:
+			_retrieve(fnm)
+		except Exception as e:
+			print(e)
 
 
 def _get_connection(db='decay'):
-	
+
 	def connector(dbnm):
 		if os.path.exists(dbnm):
 			try:
-				if os.path.getsize(dbnm)>0:
-					return sqlite3.connect(dbnm)
+				if os.path.getsize(dbnm) > 0:
+					return sqlite3.connect(dbnm, timeout=30.0)
 				else:
 					raise ValueError('{} exists but is of zero size.'.format(dbnm))
 			except:
@@ -112,46 +310,23 @@ def _get_connection(db='decay'):
 				raise
 		else:
 			print('WARNING: database {} does not exist, creating new file.'.format(dbnm))
-			return sqlite3.connect(dbnm)
-
-
-	db_nm = db.lower().replace('.db','')
-	db_f = None
-
-	if db_nm in ['decay']:
-		db_f = 'decay.db'
-
-	elif db_nm in ['ziegler']:
-		db_f = 'ziegler.db'
-
-	elif db_nm in ['endf']:
-		db_f = 'endf.db'
-
-	elif db_nm in ['tendl']:
-		db_f = 'tendl.db'
-
-	elif db_nm in ['tendl_n_rp','tendl_nrp','tendl_n','nrp','rpn']:
-		db_f = 'tendl_n_rp.db'
-
-	elif db_nm in ['tendl_p_rp','tendl_prp','tendl_p','prp','rpp']:
-		db_f = 'tendl_p_rp.db'
-
-	elif db_nm in ['tendl_d_rp','tendl_drp','tendl_d','drp','rpd']:
-		db_f = 'tendl_d_rp.db'
-
-	elif db_nm in ['irdff']:
-		db_f = 'IRDFF.db'
-
-	elif db_nm in ['iaea', 'iaea-cpr', 'iaea-monitor', 'cpr', 'iaea_cpr', 'iaea_monitor', 'medical', 'iaea-medical', 'iaea_medical']:
-		db_f = 'iaea_monitors.db'
-
+			return sqlite3.connect(dbnm, timeout=30.0)
 
 	global GLOB_CONNECTIONS_DICT
 
-	if db_f is not None:
-		if db_f not in GLOB_CONNECTIONS_DICT:
-			GLOB_CONNECTIONS_DICT[db_f] = connector(_data_path(db_f))
-		return GLOB_CONNECTIONS_DICT[db_f]
+	fnm = _canonical(db)
+	if fnm is not None:
+		path = _ensure_file(fnm)
+		if path not in GLOB_CONNECTIONS_DICT:
+			# a sharded library in the user directory legitimately starts as a
+			# new or still-empty file (e.g. a session that connected but never
+			# queried), to be populated per-target by _ensure_table
+			fresh = (fnm[:-3] in _registry().get('shards', {}) and path == _data_path(fnm)
+					 and (not os.path.exists(path) or os.path.getsize(path) == 0))
+			# a generous lock timeout lets concurrent processes assembling
+			# shards into the same database wait for each other
+			GLOB_CONNECTIONS_DICT[path] = sqlite3.connect(path, timeout=30.0) if fresh else connector(path)
+		return GLOB_CONNECTIONS_DICT[path]
 
 	else:
 		if db not in GLOB_CONNECTIONS_DICT:
@@ -159,7 +334,6 @@ def _get_connection(db='decay'):
 		return GLOB_CONNECTIONS_DICT[db]
 
 
-
-def _get_cursor(db='decay'):	
+def _get_cursor(db='decay'):
 	conn = _get_connection(db)
 	return conn.cursor()

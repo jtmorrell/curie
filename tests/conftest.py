@@ -14,9 +14,8 @@ EXAMPLES_DIR = pathlib.Path(__file__).resolve().parents[1] / 'examples'
 
 
 def _db_present(name):
-    from curie.data import _data_path
-    path = _data_path(name + '.db')
-    return os.path.isfile(path) and os.path.getsize(path) > 0
+    from curie.data import _db_available
+    return _db_available(name)
 
 
 def requires_data(*names):

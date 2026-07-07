@@ -40,7 +40,7 @@ from .plotting import colormap, set_style
 set_style('default')
 
 from .isotope import Isotope
-from .compound import Compound, COMPOUND_LIST
+from .compound import Compound
 from .element import Element
 
 from .spectrum import Spectrum
@@ -53,8 +53,16 @@ from .reaction import Reaction
 
 from .stack import Stack
 
-__version__ = '0.0.37'
-__all__ = ['download', 'colormap', 'set_style', 
-          'Isotope', 'Element', 'Compound', 
-          'Spectrum', 'Calibration', 'DecayChain', 
+__version__ = '0.1.0'
+__all__ = ['download', 'colormap', 'set_style',
+          'Isotope', 'Element', 'Compound',
+          'Spectrum', 'Calibration', 'DecayChain',
           'Library', 'Reaction', 'Stack']
+
+
+def __getattr__(name):
+	# deferred so that importing curie touches no database file
+	if name == 'COMPOUND_LIST':
+		from .compound import _compound_list
+		return _compound_list()
+	raise AttributeError("module {!r} has no attribute {!r}".format(__name__, name))

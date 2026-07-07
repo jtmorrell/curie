@@ -3,6 +3,57 @@
 Notable changes to curie are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.1.0] - 2026-07-07
+
+Packaging and data-distribution release: no numerical results change. Nuclear
+data moves out of the package directory into a per-user cache with verified,
+on-demand downloads, and the package itself becomes a standard PEP 621
+project.
+
+### Changed — distribution
+- **Nuclear data is fetched on first use** into a per-user data directory
+  (`~/.local/share/curie` on Linux, `~/Library/Application Support/curie` on
+  macOS, `%LOCALAPPDATA%\curie` on Windows; override with the
+  `CURIE_DATA_DIR` environment variable — a data directory rather than a
+  cache, so OS cache cleaners never evict a machine prepared for offline
+  work). Files found in the platform's site-wide data directory (e.g.
+  `/usr/local/share/curie`, `C:\ProgramData\curie`) are used read-only in
+  place, so shared machines can be provisioned once by an administrator.
+  Every download is SHA256-verified against `curie/data_registry.json`, which
+  records the checksums of the exact files published in the GitHub data
+  release. The setup.py post-install download hook is gone;
+  `pip install curie` is now a small, fast, pure-Python install.
+- **The ENDF and TENDL libraries are sharded per target**: looking up one
+  reaction fetches a small per-target file (~2 MB for ENDF, ~0.1 MB for
+  TENDL) instead of the whole library (748 MB endf.db, 37-56 MB per TENDL
+  variant). Shards assemble incrementally into the local database;
+  `ci.download()` still fetches each complete library in one
+  checksum-verified file for offline use. Data releases live in the
+  dedicated [curie-data](https://github.com/jtmorrell/curie-data)
+  repository (one release tag per sharded library, keeping every release
+  well under GitHub's 1000-assets cap), which also hosts the data tooling;
+  the curie repository's releases are software releases only.
+- **Data from earlier curie versions is adopted automatically**: files found
+  in the old in-package data directory are checksum-verified and
+  hardlinked/copied into the cache, so existing installations re-download
+  nothing on upgrade.
+- **Importing curie touches no database**: the preset-compound list and
+  `Element` isotopic abundances now load on first access instead of at import
+  or construction, so `import curie` is instant on a fresh machine and pure
+  stopping-power work needs only the 184 KB ziegler.db.
+- `Element.abundances` and `Element.isotopes` are now read-only properties
+  (loaded from decay.db on first access); assigning to them was never
+  supported and now raises.
+
+### Changed — packaging
+- PEP 621 `pyproject.toml` with the hatchling backend replaces `setup.py`;
+  dependencies (numpy, scipy, pandas, matplotlib, pooch, platformdirs) are
+  declared, the version is single-sourced from `curie/__init__.py`, and
+  Python 2 compatibility code is removed. Requires Python >= 3.9.
+- Releases publish to PyPI from CI via trusted publishing on `v*` version
+  tags (wheel + sdist); data-release tags (`data-v*`) can never trigger a
+  publish.
+
 ## [0.0.37] - 2026-07-06
 
 Correlated-uncertainty release: `fit_R`, `fit_A0`, and `calibrate()` now

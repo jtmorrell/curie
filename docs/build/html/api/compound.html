@@ -5,20 +5,20 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Compound &#8212; Curie 0.0.29 documentation</title>
+    <title>Compound &#8212; Curie 0.1.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
-    <link rel="stylesheet" type="text/css" href="../_static/classic.css?v=514cf933" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css?v=2bf1fcf8" />
     
-    <script src="../_static/documentation_options.js?v=828725f0"></script>
-    <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Stack" href="stack.html" />
     <link rel="prev" title="Element" href="element.html" /> 
   </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -30,7 +30,7 @@
         <li class="right" >
           <a href="element.html" title="Element"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">Curie 0.0.29 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Curie 0.1.0 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">API</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Compound</a></li> 
       </ul>
@@ -45,7 +45,7 @@
 <span id="id1"></span><h1>Compound<a class="headerlink" href="#compound" title="Link to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="curie.Compound">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">curie.</span></span><span class="sig-name descname"><span class="pre">Compound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">compound</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">density</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/compound.html#Compound"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Compound" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">curie.</span></span><span class="sig-name descname"><span class="pre">Compound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">compound</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">density</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/compound.html#Compound"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Compound" title="Link to this definition">¶</a></dt>
 <dd><p>Data and properties of atomic compounds</p>
 <p>The compound class provides the same functionality as the
 element class, but for compounds of atomic elements rather
@@ -86,29 +86,8 @@ a ‘density’ column/key in the file/DataFrame for weights.</p>
 </dd>
 </dl>
 </dd>
-</dl>
-<p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Silicone&#39;</span> <span class="ow">in</span> <span class="n">ci</span><span class="o">.</span><span class="n">COMPOUND_LIST</span><span class="p">)</span>
-<span class="go">True</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">cm</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Compound</span><span class="p">(</span><span class="s1">&#39;Silicone&#39;</span><span class="p">)</span> <span class="c1"># preset compound</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">cm</span><span class="o">.</span><span class="n">elements</span><span class="p">)))</span>
-<span class="go">[&#39;H&#39;, &#39;C&#39;, &#39;O&#39;, &#39;Si&#39;]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">cm</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Compound</span><span class="p">(</span><span class="s1">&#39;H2O&#39;</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
-<span class="go">print(cm.weights)</span>
-<span class="go">  element  Z  atom_weight  mass_weight</span>
-<span class="go">0       H  1     0.666667     0.111907</span>
-<span class="go">1       O  8     0.333333     0.888093</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">cm</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Compound</span><span class="p">(</span><span class="s1">&#39;Brass&#39;</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;Zn&#39;</span><span class="p">:</span><span class="o">-</span><span class="mi">33</span><span class="p">,</span><span class="s1">&#39;Cu&#39;</span><span class="p">:</span><span class="o">-</span><span class="mi">66</span><span class="p">})</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">cm</span><span class="o">.</span><span class="n">weights</span><span class="p">)</span>
-<span class="go">  element   Z  atom_weight  mass_weight</span>
-<span class="go">0      Zn  30     0.327041     0.333333</span>
-<span class="go">1      Cu  29     0.672959     0.666667</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">cm</span><span class="o">.</span><span class="n">saveas</span><span class="p">(</span><span class="s1">&#39;brass.csv&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Attributes<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
+<dt class="field-even">Attributes<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
 <dt><strong>name</strong><span class="classifier">str</span></dt><dd><p>The name of the compound.</p>
 </dd>
 <dt><strong>weights</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>The weights for each element in the compound.  DataFrame columns are
@@ -166,6 +145,25 @@ mass-energy absorption coefficient.</p>
 </tr>
 </tbody>
 </table>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Silicone&#39;</span> <span class="ow">in</span> <span class="n">ci</span><span class="o">.</span><span class="n">COMPOUND_LIST</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cm</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Compound</span><span class="p">(</span><span class="s1">&#39;Silicone&#39;</span><span class="p">)</span> <span class="c1"># preset compound</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">cm</span><span class="o">.</span><span class="n">elements</span><span class="p">)))</span>
+<span class="go">[&#39;H&#39;, &#39;C&#39;, &#39;O&#39;, &#39;Si&#39;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cm</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Compound</span><span class="p">(</span><span class="s1">&#39;H2O&#39;</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+<span class="go">print(cm.weights)</span>
+<span class="go">  element  Z  atom_weight  mass_weight</span>
+<span class="go">0       H  1     0.666667     0.111907</span>
+<span class="go">1       O  8     0.333333     0.888093</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cm</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Compound</span><span class="p">(</span><span class="s1">&#39;Brass&#39;</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;Zn&#39;</span><span class="p">:</span><span class="o">-</span><span class="mi">33</span><span class="p">,</span><span class="s1">&#39;Cu&#39;</span><span class="p">:</span><span class="o">-</span><span class="mi">66</span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">cm</span><span class="o">.</span><span class="n">weights</span><span class="p">)</span>
+<span class="go">  element   Z  atom_weight  mass_weight</span>
+<span class="go">0      Zn  30     0.327041     0.333333</span>
+<span class="go">1      Cu  29     0.672959     0.666667</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cm</span><span class="o">.</span><span class="n">saveas</span><span class="p">(</span><span class="s1">&#39;brass.csv&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.Compound.S">
 <span class="sig-name descname"><span class="pre">S</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">particle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'p'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">density</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/compound.html#Compound.S"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Compound.S" title="Link to this definition">¶</a></dt>
@@ -479,10 +477,10 @@ with the Anderson-Ziegler formalism.</p>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cm</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Compound</span><span class="p">(</span><span class="s1">&#39;Fe&#39;</span><span class="p">)</span> <span class="c1"># same behavior as element</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">cm</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="mf">60.0</span><span class="p">))</span>
-<span class="go">0.5858151125192633</span>
+<span class="go">0.5866312594085556</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">cm</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Compound</span><span class="p">(</span><span class="s1">&#39;SS_316&#39;</span><span class="p">)</span> <span class="c1"># preset compound</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">cm</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="mf">60.0</span><span class="p">))</span>
-<span class="go">0.5799450918147814</span>
+<span class="go">0.5807353363913145</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -526,7 +524,7 @@ appends the data to the file.</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
   <div>
     <h3><a href="../index.html">Table of Contents</a></h3>
@@ -567,7 +565,7 @@ appends the data to the file.</p>
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
@@ -575,13 +573,13 @@ appends the data to the file.</p>
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
+</search>
 <script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -593,14 +591,14 @@ appends the data to the file.</p>
         <li class="right" >
           <a href="element.html" title="Element"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">Curie 0.0.29 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Curie 0.1.0 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" >API</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Compound</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
     &#169; Copyright 2024, Jonathan Morrell.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     </div>
   </body>
 </html>

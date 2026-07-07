@@ -1,0 +1,47 @@
+# Rebuild the Sphinx documentation on every version release (and on demand)
+# and commit the rendered HTML to master, which GitHub Pages serves from the
+# /docs folder. This keeps https://jtmorrell.github.io/curie/ in step with
+# every release without a manual build.
+name: Docs
+
+on:
+  push:
+    tags: ['v[0-9]*']
+  workflow_dispatch:
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: master
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install curie and the docs toolchain
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e .
+          python -m pip install -r docs/requirements.txt
+
+      - name: Build the documentation
+        run: |
+          cd docs
+          make html
+
+      - name: Commit the rendered documentation
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/build
+          if git diff --cached --quiet; then
+            echo "documentation unchanged"
+          else
+            git commit -m "Regenerate documentation for ${GITHUB_REF_NAME}"
+            git push origin master
+          fi

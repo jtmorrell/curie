@@ -5,20 +5,20 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Spectrum &#8212; Curie 0.0.29 documentation</title>
+    <title>Spectrum &#8212; Curie 0.1.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
-    <link rel="stylesheet" type="text/css" href="../_static/classic.css?v=514cf933" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css?v=2bf1fcf8" />
     
-    <script src="../_static/documentation_options.js?v=828725f0"></script>
-    <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Decay Chain" href="decaychain.html" />
     <link rel="prev" title="Calibration" href="calibration.html" /> 
   </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -30,7 +30,7 @@
         <li class="right" >
           <a href="calibration.html" title="Calibration"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">Curie 0.0.29 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Curie 0.1.0 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">API</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Spectrum</a></li> 
       </ul>
@@ -45,7 +45,7 @@
 <span id="id1"></span><h1>Spectrum<a class="headerlink" href="#spectrum" title="Link to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="curie.Spectrum">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">curie.</span></span><span class="sig-name descname"><span class="pre">Spectrum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/spectrum.html#Spectrum"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Spectrum" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">curie.</span></span><span class="sig-name descname"><span class="pre">Spectrum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/spectrum.html#Spectrum"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Spectrum" title="Link to this definition">¶</a></dt>
 <dd><p>Gamma-ray spectrum from High-Purity Germanium (HPGe) detectors</p>
 <p>Provides methods for reading, converting, and fitting gamma-ray spectra
 from HPGe data.</p>
@@ -53,34 +53,12 @@ from HPGe data.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>filename</strong><span class="classifier">str</span></dt><dd><p>File path to the gamma-ray spectrum.  Supported file types are Ortec .Spe
-and .Chn files.</p>
+and .Chn files, as well as Canberra .CNF and .IEC files.</p>
 </dd>
 </dl>
 </dd>
-<dt class="field-even">Other Parameters<span class="colon">:</span></dt>
+<dt class="field-even">Attributes<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt><strong>cb</strong><span class="classifier">str or ci.Calibration</span></dt><dd><p>Calibration to use, or path to a calibration .json file.</p>
-</dd>
-<dt><strong>isotopes</strong><span class="classifier">list</span></dt><dd><p>List of gamma-decaying isotopes observed in the spectrum.</p>
-</dd>
-<dt><strong>fit_config</strong><span class="classifier">dict</span></dt><dd><p>Dictionary of fit configuration parameters passed as keyword arguments to
-<cite>self.fit_peaks()</cite>. See that function for more details on these arguments.</p>
-</dd>
-</dl>
-</dd>
-</dl>
-<p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Spectrum</span><span class="p">(</span><span class="s1">&#39;eu_calib_7cm.Spe&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span><span class="o">.</span><span class="n">isotopes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Eu-152&#39;</span><span class="p">,</span> <span class="s1">&#39;40K&#39;</span><span class="p">]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span><span class="o">.</span><span class="n">cb</span> <span class="o">=</span> <span class="s1">&#39;example_calib.json&#39;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span><span class="o">.</span><span class="n">fit_config</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;bg&#39;</span><span class="p">:</span><span class="s1">&#39;quadratic&#39;</span><span class="p">,</span> <span class="s1">&#39;xrays&#39;</span><span class="p">:</span><span class="kc">False</span><span class="p">}</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span><span class="o">.</span><span class="n">saveas</span><span class="p">(</span><span class="s1">&#39;eu_calib_7cm.Chn&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Spectrum</span><span class="p">(</span><span class="s1">&#39;eu_calib_7cm.Chn&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Attributes<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
 <dt><strong>cb</strong><span class="classifier">ci.Calibration</span></dt><dd><p>Gamma-ray energy, efficiency and resolution calibration.</p>
 </dd>
 <dt><strong>isotopes</strong><span class="classifier">list</span></dt><dd><p>List of gamma-decaying isotopes observed in the spectrum.</p>
@@ -137,6 +115,28 @@ information.  The complete list of columns is ‘filename’, ‘isotope’, ‘
 </tr>
 </tbody>
 </table>
+<dl class="field-list simple">
+<dt class="field-odd">Other Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>cb</strong><span class="classifier">str or ci.Calibration</span></dt><dd><p>Calibration to use, or path to a calibration .json file.</p>
+</dd>
+<dt><strong>isotopes</strong><span class="classifier">list</span></dt><dd><p>List of gamma-decaying isotopes observed in the spectrum.</p>
+</dd>
+<dt><strong>fit_config</strong><span class="classifier">dict</span></dt><dd><p>Dictionary of fit configuration parameters passed as keyword arguments to
+<cite>self.fit_peaks()</cite>. See that function for more details on these arguments.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Spectrum</span><span class="p">(</span><span class="s1">&#39;eu_calib_7cm.Spe&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span><span class="o">.</span><span class="n">isotopes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Eu-152&#39;</span><span class="p">,</span> <span class="s1">&#39;40K&#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span><span class="o">.</span><span class="n">cb</span> <span class="o">=</span> <span class="s1">&#39;example_calib.json&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span><span class="o">.</span><span class="n">fit_config</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;bg&#39;</span><span class="p">:</span><span class="s1">&#39;quadratic&#39;</span><span class="p">,</span> <span class="s1">&#39;xrays&#39;</span><span class="p">:</span><span class="kc">False</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span><span class="o">.</span><span class="n">saveas</span><span class="p">(</span><span class="s1">&#39;eu_calib_7cm.Chn&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">Spectrum</span><span class="p">(</span><span class="s1">&#39;eu_calib_7cm.Chn&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
 <dl class="py method">
 <dt class="sig sig-object py" id="curie.Spectrum.attenuation_correction">
 <span class="sig-name descname"><span class="pre">attenuation_correction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">compounds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/curie/spectrum.html#Spectrum.attenuation_correction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#curie.Spectrum.attenuation_correction" title="Link to this definition">¶</a></dt>
@@ -554,7 +554,7 @@ estimate of the activity of the isotope.</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
   <div>
     <h3><a href="../index.html">Table of Contents</a></h3>
@@ -593,7 +593,7 @@ estimate of the activity of the isotope.</p>
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
@@ -601,13 +601,13 @@ estimate of the activity of the isotope.</p>
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
+</search>
 <script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -619,14 +619,14 @@ estimate of the activity of the isotope.</p>
         <li class="right" >
           <a href="calibration.html" title="Calibration"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">Curie 0.0.29 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Curie 0.1.0 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" >API</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Spectrum</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
     &#169; Copyright 2024, Jonathan Morrell.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     </div>
   </body>
 </html>
