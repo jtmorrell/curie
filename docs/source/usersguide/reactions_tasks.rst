@@ -128,8 +128,10 @@ your energy grid and the flux on that grid::
 
 The flux needs no normalization — only its shape matters for the
 average.  ``rx.integrate(eng, phi)`` returns the flux integral
-:math:`\int \sigma(E)\,\phi(E)\,dE` instead (for absolute reaction
-rates).  Cross-section uncertainties are treated as fully correlated
+:math:`\int \sigma(E)\,\phi(E)\,dE` instead, for which the flux's
+absolute normalization *does* matter (which to use when, and how each
+becomes a production rate, is laid out on the :ref:`reactions` overview
+page).  Cross-section uncertainties are treated as fully correlated
 between energies — see :ref:`methods_reaction_data` for the exact
 conventions.
 

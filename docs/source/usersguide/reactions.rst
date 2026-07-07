@@ -65,6 +65,45 @@ to prefer, and what to watch out for (energy-grid limits, natural vs
 isotopic targets, cumulative vs direct production), is the subject of
 the tutorial.
 
+Averages vs. integrals
+~~~~~~~~~~~~~~~~~~~~~~
+
+`Reaction` offers two ways to combine a cross section with a particle
+spectrum, and which one you want depends on what your flux array *means*:
+
+* ``rx.average(eng, phi)`` returns the **flux-weighted average cross
+  section** :math:`\langle\sigma\rangle`, in mb.  Only the *shape* of
+  ``phi`` matters — its normalization cancels — so this is the right
+  tool when the spectrum is relative: the energy distribution of beam
+  particles in a foil from `Stack`, for example, or any spectrum you
+  know only up to a constant.  The absolute physics then enters through
+  numbers you know separately.  For a thin target in a charged-particle
+  beam, the production rate that `DecayChain` takes as its ``R`` input is
+
+  .. math::
+
+     R \;[\mathrm{atoms/s}] = I_p\,n_t\,
+         \langle\sigma\rangle \times 10^{-27}
+
+  with :math:`I_p` the beam current (particles/s), :math:`n_t` the areal
+  number density of target atoms (atoms/cm²), and :math:`10^{-27}`
+  converting mb to cm².
+
+* ``rx.integrate(eng, phi)`` returns the **flux integral**
+  :math:`\int \sigma(E)\,\phi(E)\,dE`.  Here the normalization of
+  ``phi`` is the point: give an absolute differential flux (particles
+  per cm² per second per MeV) and the integral is the reaction rate per
+  target atom, in mb/cm²/s — multiply by :math:`10^{-27}` and by the
+  number of target atoms for the production rate.  This is the natural
+  form for yield calculations in a fully specified field, such as a
+  reactor neutron spectrum quoted as a differential flux.
+
+The two are related by the total flux —
+``integrate(eng, phi) = average(eng, phi) * sum(phi*dE)`` — so this is
+one calculation viewed two ways: use ``average`` when the shape and the
+magnitude of your flux come from different places, and ``integrate``
+when one spectrum carries both.
+
 .. toctree::
    :maxdepth: 1
 
