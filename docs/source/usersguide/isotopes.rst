@@ -6,8 +6,9 @@ Isotopes & Decay Chains
 
 Curie provides two classes for working with radioactive decay.  The
 `Isotope` class looks up nuclear data for a single isotope: masses,
-abundances, half-lives, and the energies and intensities of its emissions
-(gammas, betas, alphas, conversion electrons).  The `DecayChain` class
+abundances, half-lives, the energies and intensities of its emissions
+(gammas, betas, alphas, conversion electrons), and dose rates.  The
+`DecayChain` class
 does the bookkeeping of decay itself: starting from a parent isotope it
 builds the full chain of decay products, computes every member's activity
 as a function of time — during production as well as decay — and can fit

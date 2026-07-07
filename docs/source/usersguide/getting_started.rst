@@ -20,15 +20,15 @@ you would use them for.  The classes are designed to work together: peaks
 fit from a spectrum feed a decay-chain fit, a foil's particle flux feeds a
 cross-section average, and so on.
 
-**Fitting gamma-ray spectra.**  `Spectrum` fits the peaks in HPGe detector
-data, using a `Calibration` (energy, efficiency and resolution) and
-`Isotope` decay data to turn peak areas into activities.  See
-:ref:`spectroscopy`.
+**Fitting gamma-ray spectra.**  `Spectrum` fits the peaks in HPGe
+(high-purity germanium) detector data, using a `Calibration` (energy,
+efficiency and resolution) and `Isotope` decay data to turn peak areas
+into activities.  See :ref:`spectroscopy`.
 
 **Production and decay calculations.**  `Isotope` provides decay data —
-half-lives, gamma-rays, dose rates — for a single nuclide, while
+half-lives, decay radiations, dose rates — for a single nuclide, while
 `DecayChain` solves the Bateman equations for a whole chain: forward
-(predicting activities from a production rate) or backward (fitting a
+(predicting activities from a production rate) or inverse (fitting a
 production rate or initial activity to measured decays, including peaks
 read straight from a `Spectrum`).  See :ref:`isotopes`.
 
@@ -49,8 +49,9 @@ For the models and formulas behind these methods, see the
 A few things to try
 -------------------
 
-Fit the peaks in a gamma-ray spectrum of a :sup:`152`\ Eu source (the
-``eu_calib_7cm.Spe`` file ships with Curie)::
+Fit the peaks in a gamma-ray spectrum of a :sup:`152`\ Eu source.  The
+``eu_calib_7cm.Spe`` file ships in the ``examples`` directory of the
+repository; run this from there, or point the path at your own copy::
 
 	sp = ci.Spectrum('eu_calib_7cm.Spe')
 	sp.isotopes = ['152EU']
@@ -78,5 +79,6 @@ Complete, runnable scripts covering each of these areas ship in the
 directory of the Curie repository, alongside the example data files they
 use.
 
-.. Example scripts are currently minimal; expand them into fuller worked
-   problems (and add a ci.run_demo() entry point) in a future docs pass.
+.. The shipped example scripts are intentionally minimal; expanding them
+   into fuller, self-contained worked problems would strengthen this
+   section.

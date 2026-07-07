@@ -14,11 +14,12 @@ Curie's features are primarily class based.  Here are a few examples:
 
 * Spectrum - Peak fitting for HPGe detector data
 * Calibration - Energy, resolution & efficiency calibration tool (for HPGe detectors)
+* Element / Compound - Stopping powers, ranges & photon attenuation coefficients
 * Stack - Stacked-target energy loss characterization
 * DecayChain - General purpose Bateman equation solver
 * Isotope - Isotopic mass and decay data
-* Reaction - Cross sections from multiple libraries
-* Library - Tool for searching and retrieving cross sections from multiple libraries
+* Reaction - Cross section vs. energy for a single reaction (interpolate, flux-average, plot)
+* Library - Search which evaluated libraries carry a given reaction
 
 To get started, visit the :ref:`quickinstall` guide and then
 :ref:`getting_started`, which maps out the classes and gives a few
