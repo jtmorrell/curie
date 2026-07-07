@@ -34,9 +34,11 @@ A typical spectroscopy analysis proceeds in five steps:
 5. **Inspect and export**: ``sp.summarize()``, ``sp.plot()``, and
    ``sp.saveas()`` to .csv, .json, .db or .Chn.
 
-Each of these steps is detailed in the :ref:`spectroscopy_tasks` page, and
-the :ref:`spectroscopy_tutorial` walks through a complete efficiency
-calibration with a :sup:`152`\ Eu source.
+Each of these steps is detailed in the :ref:`spectroscopy_tasks` page, the
+:ref:`spectroscopy_tutorial` walks through a complete efficiency
+calibration with a :sup:`152`\ Eu source, and
+:ref:`spectroscopy_troubleshooting` collects the most common pitfalls —
+most of them involving the energy calibration.
 
 Uses and limitations
 --------------------
@@ -58,3 +60,4 @@ geometries where summing is negligible, or with single-line sources.
 
    spectroscopy_tasks
    spectroscopy_tutorial
+   spectroscopy_troubleshooting

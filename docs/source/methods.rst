@@ -205,9 +205,9 @@ decay constant, and the remaining symbols are as defined above.
 Efficiency model
 ~~~~~~~~~~~~~~~~
 
-The efficiency curve is a modified version of the semi-empirical,
-physics-based model of Vidmar [Vidmar2001]_, built from the tabulated
-photon interaction coefficients of germanium — total attenuation
+The efficiency curve is a modified form of the physically founded
+efficiency model of Vidmar *et al.* [Vidmar2001]_, built from the
+tabulated photon interaction coefficients of germanium — total attenuation
 :math:`\mu(E)`, photoelectric :math:`\tau(E)` and Compton
 :math:`\sigma_C(E)` — rather than from an arbitrary fitting function:
 
@@ -269,6 +269,8 @@ calibration, and `Calibration.unc_eff()` propagates it to any energy, so
 efficiencies interpolated from the calibration carry correlated,
 energy-dependent uncertainties.
 
-.. [Vidmar2001] T. Vidmar, "A semi-empirical model of the efficiency curve
-   for extended sources in gamma-ray spectrometry", *Nucl. Instrum. Methods
-   Phys. Res. A* **470** (2001) 533.
+.. [Vidmar2001] T. Vidmar, M. Korun, A. Likar and M. Lipoglavšek, "A
+   physically founded model of the efficiency curve in gamma-ray
+   spectrometry", *J. Phys. D: Appl. Phys.* **34** (2001) 2555,
+   `doi:10.1088/0022-3727/34/16/323
+   <https://doi.org/10.1088/0022-3727/34/16/323>`_.
