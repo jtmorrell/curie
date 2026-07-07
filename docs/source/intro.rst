@@ -20,9 +20,9 @@ Curie's features are primarily class based.  Here are a few examples:
 * Reaction - Cross sections from multiple libraries
 * Library - Tool for searching and retrieving cross sections from multiple libraries
 
-To get started, visit the :ref:`quickinstall` guide and then the
-:ref:`usersguide`, which introduces each of these classes with examples.
-Throughout the documentation (and in all of the docstring examples), Curie
-is imported as::
+To get started, visit the :ref:`quickinstall` guide and then
+:ref:`getting_started`, which maps out the classes and gives a few
+examples to run.  Throughout the documentation (and in all of the
+docstring examples), Curie is imported as::
 
 	import curie as ci
