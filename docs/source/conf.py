@@ -123,21 +123,13 @@ htmlhelp_basename = 'Curiedoc'
 # -- Options for LaTeX output ------------------------------------------------
 
 latex_elements = {
-    # The paper size ('letterpaper' or 'a4paper').
-    #
-    # 'papersize': 'letterpaper',
+    # single-sided, chapters start on any page: avoids the blank pages the
+    # default two-sided book layout inserts
+    'extraclassoptions': 'openany,oneside',
 
-    # The font size ('10pt', '11pt' or '12pt').
-    #
-    # 'pointsize': '10pt',
-
-    # Additional stuff for the LaTeX preamble.
-    #
-    # 'preamble': '',
-
-    # Latex figure (float) alignment
-    #
-    # 'figure_align': 'htbp',
+    # include sections and subsections in the table of contents (the default
+    # is derived from the root toctree's maxdepth, which lists chapters only)
+    'tableofcontents': r'\setcounter{tocdepth}{2}\sphinxtableofcontents',
 }
 
 # Grouping the document tree into LaTeX files. List of tuples
