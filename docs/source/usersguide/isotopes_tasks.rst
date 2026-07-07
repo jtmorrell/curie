@@ -11,17 +11,40 @@ equations are in :ref:`methods_decay_chains`.
 Looking up an isotope
 ---------------------
 
-Isotopes are named by mass number and element symbol, in either order::
+Isotope names have three parts: a mass number, an element symbol, and an
+optional state suffix.  Two written forms are accepted::
 
-	ip = ci.Isotope('60CO')
-	ip = ci.Isotope('Co-60')    # equivalent
+	ip = ci.Isotope('60CO')     # compact:    mass + SYMBOL (all caps)
+	ip = ci.Isotope('Co-60')    # hyphenated: Symbol-mass (any case)
 
-Isomeric (metastable) states are appended to the name: ``m`` or ``m1`` for
-the first isomer, ``m2`` for the second, ``g`` for the ground state
-(assumed if nothing is given)::
+In the **compact** form the element symbol must be entirely upper-case —
+the parser reads the capital letters as the symbol, so ``'60Co'`` or
+``'60co'`` raise errors rather than finding cobalt.  The **hyphenated**
+form is case-insensitive (``'co-60'`` works).  When in doubt, hyphenate.
+
+The state suffix, always lower-case, selects the nuclear state: ``g`` for
+the ground state (assumed when no suffix is given), ``m`` or ``m1`` for
+the first isomer (metastable excited state), ``m2`` for the second, and
+so on::
 
 	ip = ci.Isotope('115INm')   # 115In first isomer
 	ip = ci.Isotope('Hf-178m2') # 178Hf second isomer (the 31 y state)
+
+Whatever form you write, Curie normalizes it to one canonical name —
+``ip.name``, in compact form with an explicit state — and that canonical
+form is what appears everywhere else (``DecayChain.isotopes``, peak
+tables, count data):
+
+================  ================  ======================================
+You write         ``ip.name``       Meaning
+================  ================  ======================================
+``'60CO'``        ``60COg``         :sup:`60`\ Co ground state
+``'co-60'``       ``60COg``         the same
+``'115INm'``      ``115INm1``       :sup:`115`\ In, first isomer
+``'Eu-152m2'``    ``152EUm2``       :sup:`152`\ Eu, second isomer
+``'99TCg'``       ``99TCg``         :sup:`99`\ Tc ground state, explicit
+``'n'``           ``1ng``           a free neutron
+================  ================  ======================================
 
 Structure properties are attributes: ``ip.mass`` (amu), ``ip.abundance``
 (percent), ``ip.E_level`` (MeV), ``ip.J_pi``, ``ip.Delta`` (mass excess,
@@ -94,40 +117,78 @@ accordingly.
 Building a decay chain
 ----------------------
 
-A `DecayChain` needs the parent isotope and the time units used by
-everything else in the chain — activities, production histories, count
-times::
+A `DecayChain` needs two things at minimum: the parent isotope, and the
+time units that every number in the chain — production histories, count
+intervals, the times passed to ``activity()`` — will be interpreted in::
 
 	dc = ci.DecayChain('225RA', units='d')
 	print(dc.isotopes)
 
 Valid units are ``'ns'``, ``'us'``, ``'ms'``, ``'s'``, ``'m'``, ``'h'``,
 ``'d'``, ``'y'``, ``'ky'``, ``'My'``, ``'Gy'`` (with ``'sec'``, ``'min'``,
-``'hr'``, ``'yr'`` accepted as synonyms).  ``dc.isotopes`` lists every
-chain member found by following the decay data to stability — useful to
-check which isotopes the chain actually contains (note the explicit
-``g``/``m`` suffixes).
+``'hr'``, ``'yr'`` accepted as synonyms).
+
+At construction, Curie follows every decay mode in the decay data — alpha,
+beta, electron capture, isomeric transition, even spontaneous fission —
+from the parent down to stable nuclei, and ``dc.isotopes`` lists what it
+found, in canonical names with explicit ``g``/``m`` suffixes.  Always
+worth printing when a chain misbehaves.  The parent can itself be an
+isomer, in which case the chain proceeds through its decay modes::
+
+	>>> dc = ci.DecayChain('178HFm2', units='y')
+	>>> print(dc.isotopes)
+	['178HFm2', '178HFm1', '178HFg']
+
+The chain does *no* production physics: what gets made, and how fast, is
+an input — the subject of the next section.
 
 Production and initial activity
 -------------------------------
 
-The chain's starting condition is either an initial activity ``A0`` (in
-Bq) for decay-only problems::
+Beyond the parent and units, the chain needs a starting condition — where
+the atoms come from.  There are two, which correspond to the two workflow
+directions on the :ref:`isotopes` page:
+
+**Initial activity** ``A0``, for a sample that already exists and simply
+decays.  A float is the parent's activity in Bq at t = 0::
 
 	dc = ci.DecayChain('152EU', A0=3.7E4, units='y')
 
-or a production-rate history ``R`` — atoms per second produced, as a
-piecewise-constant function of time.  Each row is ``[rate, time]``, where
-``time`` is the *end* of the interval (a monotonic timestamp grid)::
+A dict sets several members at once — for example a sample that already
+contains some of the daughter::
+
+	dc = ci.DecayChain('99MO', A0={'99MO': 3.7E4, '99TCm': 1.0E3}, units='h')
+
+**Production rate** ``R``, for a sample being made (an irradiation).
+``R`` is the number of atoms produced per second, as a piecewise-constant
+history: each row is ``[rate, time]``, where ``time`` is the *end* of
+that rate's interval::
 
 	# 9/s until t=0.5 d, then 2/s until 1.5 d, then 5/s until 4.5 d
 	dc = ci.DecayChain('225RA', R=[[9, 0.5], [2, 1.5], [5, 4.5]], units='d')
 
-With ``timestamp=False`` the times are instead read as interval
-*durations* (``[[9, 0.5], [2, 1.0], [5, 3.0]]`` gives the same history).
-``R`` can also be a dict keyed by isotope (if daughters are produced
-directly), a DataFrame, or a .csv/.json/.db file.  ``dc.R_avg`` gives the
-time-averaged rate — the quantity usually quoted from an irradiation.
+Because the rate is atoms per second, activities come out in Bq — a chain
+member at saturation has an activity (decays/s) equal to its production
+rate (atoms/s).  With ``timestamp=False`` the times are read as interval
+*durations* instead (``[[9, 0.5], [2, 1.0], [5, 3.0]]`` is the same
+history).
+
+Note the two clocks: the times inside ``R`` run over the irradiation
+itself, from 0 (beam on) to the last entry (beam off).  Once the chain is
+built, its clock re-zeros — **t = 0 is the end of production**, and
+production history appears at negative times (as in the figure on the
+:ref:`isotopes` page).
+
+Like ``A0``, ``R`` accepts a dict keyed by isotope, for daughters that
+are also produced directly by the reaction (a common situation — e.g.
+:sup:`99m`\ Tc made directly alongside its :sup:`99`\ Mo parent)::
+
+	dc = ci.DecayChain('99MO', R={'99MO': [[10, 24]], '99TCm': [[2, 24]]}, units='h')
+
+All isotopes in the dict must share the same time grid.  ``R`` can also
+be a DataFrame or a .csv/.json/.db file with columns 'isotope', 'R' and
+'time'.  ``dc.R_avg`` gives the time-averaged rate for each produced
+isotope — the quantity usually quoted from an irradiation.
 
 Activities and decays
 ---------------------
