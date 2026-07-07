@@ -3,7 +3,7 @@
 Notable changes to curie are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [0.1.0] - unreleased
+## [0.1.0] - 2026-07-07
 
 Packaging and data-distribution release: no numerical results change. Nuclear
 data moves out of the package directory into a per-user cache with verified,
