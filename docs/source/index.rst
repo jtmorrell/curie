@@ -21,4 +21,5 @@ Welcome to Curie's documentation!
    usersguide/index
    methods
    api/index
+   beginners_guide
    license
