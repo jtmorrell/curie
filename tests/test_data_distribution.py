@@ -71,7 +71,9 @@ def test_shipped_registry_is_self_consistent():
 	import re
 	with open(os.path.join(os.path.dirname(data.__file__), 'data_registry.json')) as f:
 		reg = json.load(f)
-	assert reg['base_url'].startswith('https://')
+	# the base_urls are hand-edited when releases move: pin them exactly, so a
+	# typo fails here instead of at a user's first fetch
+	assert reg['base_url'] == 'https://github.com/jtmorrell/curie-data/releases/download/v1/'
 	hexre = re.compile(r'^[0-9a-f]{64}$')
 	assert set(reg['files']) == {'decay.db', 'ziegler.db', 'endf.db', 'tendl.db',
 								 'tendl_n_rp.db', 'tendl_p_rp.db', 'tendl_d_rp.db',
@@ -80,7 +82,7 @@ def test_shipped_registry_is_self_consistent():
 	assert set(reg['shards']) == {'endf', 'tendl', 'tendl_n_rp', 'tendl_p_rp', 'tendl_d_rp'}
 	for lib, group in reg['shards'].items():
 		assert lib + '.db' in reg['files'], '{} has shards but no whole-file entry'.format(lib)
-		assert group['base_url'].startswith('https://'), lib
+		assert group['base_url'] == 'https://github.com/jtmorrell/curie-data/releases/download/v1-{}/'.format(lib.replace('_', '-'))
 		shards = group['files']
 		assert '{}_all_reactions.db'.format(lib) in shards, lib
 		namere = re.compile(r'^{}_([A-Z]+_[0-9]+m?|all_reactions)\.db$'.format(lib))
@@ -90,6 +92,20 @@ def test_shipped_registry_is_self_consistent():
 		assert len(shards) > 400, lib
 	# GitHub caps a release at 1000 assets: each group is one release
 	assert all(len(g['files']) <= 900 for g in reg['shards'].values()), 'shard group too close to the per-release asset cap: split it'
+
+
+def test_every_endf_table_has_a_registry_shard():
+	"""The other direction of the coupling: every table actually present in
+	the local ENDF database must be fetchable as a shard by name."""
+	import json
+	if not data._db_available('endf'):
+		pytest.skip('nuclear data not installed: endf')
+	with open(os.path.join(os.path.dirname(data.__file__), 'data_registry.json')) as f:
+		shards = json.load(f)['shards']['endf']['files']
+	con = data._get_connection('endf')
+	tables = [r[0] for r in con.execute("SELECT name FROM sqlite_master WHERE type='table'")]
+	missing = [t for t in tables if 'endf_{}.db'.format(t) not in shards]
+	assert not missing, 'tables with no shard in the registry: {}'.format(missing)
 
 
 def test_canonical_aliases():
@@ -176,6 +192,75 @@ def test_failed_assembly_leaves_no_partial_table(sandbox):
 	sha = _make_db(sandbox['remote'] / 'endf_XX_1.db', 'XX_1')
 	data._ensure_table('endf', 'XX_1')  # a corrected shard then assembles fine
 	assert con.execute('SELECT COUNT(*) FROM XX_1').fetchone()[0] == 2
+
+
+class _FailAtInsert:
+	"""Connection proxy that dies exactly at the shard INSERT — after the
+	CREATE has run — simulating a mid-assembly crash (disk full, kill)."""
+
+	def __init__(self, con):
+		self._con = con
+
+	def execute(self, sql, *args):
+		if sql.lstrip().startswith('INSERT INTO main.'):
+			raise sqlite3.OperationalError('synthetic disk I/O error')
+		return self._con.execute(sql, *args)
+
+	def __getattr__(self, name):
+		return getattr(self._con, name)
+
+
+def test_insert_failure_after_create_rolls_back_table(sandbox):
+	"""The dangerous half of assembly atomicity: the CREATE succeeds, the
+	INSERT then fails, and rollback must remove the empty table (which the
+	existence check would otherwise treat as complete forever)."""
+	sha = _make_db(sandbox['remote'] / 'endf_XX_1.db', 'XX_1')
+	sandbox['registry']['shards']['endf'] = {'base_url': 'test://', 'files': {'endf_XX_1.db': sha}}
+	con = data._get_connection('endf')
+	key = data._data_path('endf.db')
+	data.GLOB_CONNECTIONS_DICT[key] = _FailAtInsert(con)
+	with pytest.raises(sqlite3.OperationalError):
+		data._ensure_table('endf', 'XX_1')
+	assert not con.execute("SELECT name FROM sqlite_master WHERE name='XX_1'").fetchone()
+	assert not con.in_transaction
+	data.GLOB_CONNECTIONS_DICT[key] = con
+	data._ensure_table('endf', 'XX_1')  # the next attempt assembles fine
+	assert con.execute('SELECT COUNT(*) FROM XX_1').fetchone()[0] == 2
+
+
+def test_download_skips_site_provided_file(sandbox, capsys):
+	sha = _make_db(sandbox['site'] / 'ziegler.db', 'compounds')
+	sandbox['registry']['files']['ziegler.db'] = sha
+	data.download('ziegler')
+	assert sandbox['fetched'] == []
+	assert 'site-wide data directory' in capsys.readouterr().out
+	assert not (sandbox['cache'] / 'ziegler.db').exists()
+	_make_db(sandbox['remote'] / 'ziegler.db', 'compounds')
+	data.download('ziegler', overwrite=True)  # explicit overwrite still fetches
+	assert sandbox['fetched'] == ['ziegler.db']
+
+
+def test_retrieve_uses_per_group_base_url(monkeypatch, tmp_path):
+	"""Whole files download from the top-level base_url, shards from their
+	library's own release; the right hash must accompany each."""
+	import sys
+	import types
+	calls = []
+
+	def fake_pooch_retrieve(url, known_hash, fname, path):
+		calls.append((url, known_hash))
+		p = os.path.join(path, fname)
+		open(p, 'wb').write(b'x')
+		return p
+
+	monkeypatch.setitem(sys.modules, 'pooch', types.SimpleNamespace(retrieve=fake_pooch_retrieve))
+	monkeypatch.setenv('CURIE_DATA_DIR', str(tmp_path))
+	registry = {'base_url': 'whole://', 'files': {'decay.db': 'a' * 64},
+				'shards': {'endf': {'base_url': 'shard://', 'files': {'endf_XX_1.db': 'b' * 64}}}}
+	monkeypatch.setattr(data, '_registry', lambda: registry)
+	data._retrieve('decay.db')
+	data._retrieve('endf_XX_1.db')
+	assert calls == [('whole://decay.db', 'a' * 64), ('shard://endf_XX_1.db', 'b' * 64)]
 
 
 def test_sharded_site_copy_never_assembled_into(sandbox):

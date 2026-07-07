@@ -1,7 +1,7 @@
 # CI: install from source, import smoke test, and run the public test suite
-# against the data-v1 CI fixture (ziegler + decay + iaea_monitors + IRDFF, ~133 MB)
-# provided as a pre-populated data cache. Tests needing endf/tendl skip with
-# reported reasons. The cold-cache job installs the built wheel on a clean
+# against a data fixture (ziegler + decay + iaea_monitors + IRDFF, ~133 MB)
+# fetched from the curie-data v1 release into a pre-populated data directory.
+# Tests needing endf/tendl skip with reported reasons. The cold-cache job installs the built wheel on a clean
 # machine and lets curie fetch its own data (whole-file and endf shards) from
 # the data release, end to end.
 name: CI

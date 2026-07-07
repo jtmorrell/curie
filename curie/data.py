@@ -7,7 +7,7 @@ fetched on first use from the GitHub data release recorded in
 data_registry.json, with SHA256 verification. The ENDF and TENDL libraries
 are additionally published as per-target shards (each library's shards on
 their own release tag), so looking up one reaction downloads a fraction of a
-MB instead of a 40-750 MB file; shards are assembled into the local library
+MB instead of a 37-748 MB file; shards are assembled into the local library
 database as they arrive.
 
 Databases found in the platform's site-wide data directory (e.g.
@@ -155,8 +155,9 @@ def _ensure_file(fnm):
 	Lookup order: the user data directory (writable), then any site-wide data
 	directory (used read-only in place), then data from a pre-0.1.0 install
 	(adopted into the user directory), then a download. Sharded libraries
-	(endf) are not fetched whole here: absent a local copy, an empty database
-	is created and populated per-target by _ensure_table.
+	(endf, the tendl variants) are not fetched whole here: absent a local
+	copy, an empty database is created and populated per-target by
+	_ensure_table.
 	"""
 	path = _data_path(fnm)
 	if os.path.isfile(path) and os.path.getsize(path) > 0:
@@ -229,9 +230,12 @@ def download(db='all', overwrite=False):
 	`CURIE_DATA_DIR` environment variable.  Every download is verified against
 	the SHA256 recorded for the curie data release.
 
-	Note that the ENDF library is normally assembled on demand from small
-	per-target files; downloading it here fetches the complete library in one
-	file.
+	Note that the large cross-section libraries (ENDF, the TENDL variants) are
+	normally assembled on demand from small per-target files; downloading them
+	here fetches each complete library in one file.  Files already provided by
+	a site-wide data directory are reported and skipped unless
+	`overwrite=True`, which fetches a fresh copy into the user data directory
+	(shadowing the site copy).
 
 	Parameters
 	----------
@@ -296,7 +300,7 @@ def _get_connection(db='decay'):
 		if os.path.exists(dbnm):
 			try:
 				if os.path.getsize(dbnm) > 0:
-					return sqlite3.connect(dbnm)
+					return sqlite3.connect(dbnm, timeout=30.0)
 				else:
 					raise ValueError('{} exists but is of zero size.'.format(dbnm))
 			except:
@@ -306,7 +310,7 @@ def _get_connection(db='decay'):
 				raise
 		else:
 			print('WARNING: database {} does not exist, creating new file.'.format(dbnm))
-			return sqlite3.connect(dbnm)
+			return sqlite3.connect(dbnm, timeout=30.0)
 
 	global GLOB_CONNECTIONS_DICT
 
@@ -319,7 +323,9 @@ def _get_connection(db='decay'):
 			# queried), to be populated per-target by _ensure_table
 			fresh = (fnm[:-3] in _registry().get('shards', {}) and path == _data_path(fnm)
 					 and (not os.path.exists(path) or os.path.getsize(path) == 0))
-			GLOB_CONNECTIONS_DICT[path] = sqlite3.connect(path) if fresh else connector(path)
+			# a generous lock timeout lets concurrent processes assembling
+			# shards into the same database wait for each other
+			GLOB_CONNECTIONS_DICT[path] = sqlite3.connect(path, timeout=30.0) if fresh else connector(path)
 		return GLOB_CONNECTIONS_DICT[path]
 
 	else:
