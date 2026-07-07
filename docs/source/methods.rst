@@ -31,7 +31,8 @@ as a function of ADC channel number :math:`x`:
           \mathrm{erfc}\!\left(\frac{x-\mu}{\sqrt{2}\sigma}\right)
 
 where :math:`A`, :math:`\mu` and :math:`\sigma` are the amplitude, centroid
-and width of the Gaussian.  The second term is a skewed-Gaussian tail on the
+and width of the Gaussian, and :math:`\mathrm{erfc}` is the complementary
+error function.  The second term is a skewed-Gaussian tail on the
 low-energy side of the peak, characteristic of incomplete charge collection;
 its relative amplitude :math:`R` and decay constant :math:`\alpha` are shared
 by all peaks in the spectrum.  The third term is a step function (amplitude
@@ -102,13 +103,12 @@ Each multiplet is fit by weighted least squares, minimizing
 
 i.e. with Poisson standard deviations as weights (the small constant keeps
 empty channels finite).  Because these are true counting uncertainties, the
-parameter covariance is taken directly from the fit without rescaling by
-:math:`\chi^2_\nu` — rescaling would deflate the uncertainties of clean
-peaks below the counting-statistics floor.  Instead, when the reduced
+parameter covariance is taken directly from the fit, without the customary
+rescaling by :math:`\chi^2_\nu` that would shrink the uncertainties of
+clean peaks below the floor set by counting statistics.  When the reduced
 chi-square (evaluated over the non-empty channels) exceeds one, the
-covariance is inflated by :math:`\chi^2_\nu` — a one-sided scale factor
-convention: model mismatch can only increase the uncertainty, never reduce
-it below counting statistics.
+covariance is inflated by :math:`\chi^2_\nu`: an imperfect peak model can
+increase the uncertainties, but never reduce them.
 
 The net counts in a peak are the analytic integrals of the Gaussian and
 skew terms of the fitted shape,
@@ -254,15 +254,18 @@ uncertainty.  The efficiency fit therefore uses the full covariance
 where :math:`V_{\mathrm{stat}}` is diagonal (counting statistics),
 :math:`V_{\mathrm{line}}` couples measurements of the same line (intensity
 uncertainty), and :math:`V_{\mathrm{src}}` couples all measurements of the
-same source (activity and decay-constant uncertainty).  Correlated
-magnitudes are computed from the fitted model values rather than the
-measured ones, which avoids the downward bias of measurement-weighted
-correlated fits.  If the whitened reduced chi-square exceeds one, the
-*independent* (statistical) component is inflated by an iterated scale
-factor until :math:`\chi^2_\nu \approx 1` — inconsistency between points
-cannot indict the correlated modes, so only the independent component is
-scaled, and (as everywhere in Curie) the scale factor is one-sided: it
-inflates, never deflates.
+same source (activity and decay-constant uncertainty).  The correlated
+terms are computed from the fitted curve rather than from the individual
+measurements, which keeps noisy points from dragging the shared
+uncertainties low.
+
+If the reduced chi-square of the fit (computed with the full covariance
+:math:`V`) exceeds one, the counting-statistics component
+:math:`V_{\mathrm{stat}}` is inflated by an iterated scale factor until
+:math:`\chi^2_\nu \approx 1`.  Scatter between the points is evidence
+about the point-to-point uncertainties, not about the shared ones, so only
+the statistical component is scaled — and, as in the peak fits, the
+scaling only ever inflates.
 
 The parameter covariance of the efficiency fit is stored with the
 calibration, and `Calibration.unc_eff()` propagates it to any energy, so

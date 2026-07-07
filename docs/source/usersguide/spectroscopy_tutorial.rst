@@ -63,7 +63,8 @@ and date of the source::
 `calibrate()` refit the energy, resolution and efficiency calibrations
 from the fitted peaks (the procedure and functional forms are described in
 :ref:`methods_calibration`), and applied them to the spectrum.  The fitted
-efficiency parameters and their covariance are stored on the calibration::
+efficiency parameters (and their uncertainties) are stored on the
+calibration::
 
 	>>> print(cb.effcal)
 	[5.02300989e-02 1.00000000e+02 2.82394962e+00 2.45721823e+00
@@ -87,9 +88,13 @@ rates across lines spanning 122 to 1408 keV::
 	6   152EU  329.4100    1055.0        78.0   0.001213     0.01659     22900.0          2792.0   0.92
 	7   152EU  344.2785  213990.0       669.0   0.265900     0.01605     21911.0          2030.0   2.19
 
-The decay rates cluster around 22.6 kBq — the 37 kBq source decayed for
+The ``decay_rate`` column — the activity of the source during the count —
+clusters around 22.6 kBq for every line: the 37 kBq source decayed for
 about one half-life (13.5 y) between the reference date and the count.
-``sp.summarize()`` prints the same information line by line::
+(The large ``chi2`` on the very intense 122 keV peak is expected for a
+peak with half a million counts — see the note on high-statistics peaks in
+:ref:`spectroscopy_troubleshooting`.)  ``sp.summarize()`` prints the same
+information line by line::
 
 	>>> sp.summarize()
 	152EU - 244.6974 keV (I = 7.55%)
@@ -105,7 +110,8 @@ Saving and re-using the calibration
 -----------------------------------
 
 Save the calibration, and apply it to any other spectrum counted in the
-same geometry::
+same geometry — here ``sample_7cm.Spe`` and :sup:`64`\ Cu stand in for a
+later measurement of your own::
 
 	cb.saveas('eu_calib.json')
 
@@ -113,6 +119,10 @@ same geometry::
 	sp2.cb = 'eu_calib.json'
 	sp2.isotopes = ['64CU']
 	sp2.summarize()
+
+Note that the saved file replaces the new spectrum's energy calibration
+too — if peaks shift or vanish after this step, see
+:ref:`spectroscopy_troubleshooting`.
 
 The peak data can be exported for further analysis — for example to fit a
 decay curve with `DecayChain.get_counts()` (see :ref:`isotopes`)::

@@ -52,10 +52,10 @@ are supposed to do.
 energy, resolution and efficiency.  The efficiency calibration is usually
 what you want from the file (it is a property of the detector and counting
 geometry), but the energy calibration it carries describes the electronics
-*on the day the calibration was measured*.  Gain drift since then — or a
-recalibration of the ADC that was done deliberately and forgotten — means
-the file's energy calibration no longer matches this spectrum, while the
-spectrum's own header calibration was correct all along.
+*on the day the calibration was measured*.  Gain drift since then (or an
+intervening, forgotten recalibration of the ADC) means the file's energy
+calibration no longer matches this spectrum, while the spectrum's own
+header calibration was correct all along.
 
 **Fix:** apply the saved calibration for its efficiency, but keep the
 spectrum's own energy calibration::
@@ -93,11 +93,16 @@ drop some legitimate lines:
 
 **Fix:** relax the relevant filter::
 
-	sp.fit_peaks(E_min=40.0, I_min=0.01)
-	sp.fit_peaks(xrays=True, E_min=20.0)
+	sp.fit_peaks(E_min=40.0, I_min=0.01)   # admit lower-energy / weaker gammas
+	sp.fit_peaks(xrays=True, E_min=20.0)   # or: also include x-ray lines
+	sp.fit_peaks(SNR_min=2.0)              # or: admit marginal peaks
 
-If a line of interest is missing because the isotope's decay data doesn't
-include it, add it manually with the ``gammas`` argument (see
+Each line is an independent alternative, not a sequence.  If a *clearly
+visible* peak is being vetoed by ``SNR_min``, the real problem is usually
+an efficiency calibration that badly underpredicts the peak — recalibrate
+(see the :ref:`spectroscopy_tutorial`) rather than lowering the threshold.
+If a line is missing because the isotope's decay data doesn't include it,
+add it manually with the ``gammas`` argument (see
 :ref:`spectroscopy_tasks`).
 
 Fits succeed, but they are bad fits
@@ -105,7 +110,7 @@ Fits succeed, but they are bad fits
 
 **Symptom:** fitted curves that visibly miss the data, large ``chi2``
 values in the peak table, or ``WARNING: Peak fit failed`` messages for
-particular multiplets.
+particular multiplets (groups of overlapping peaks that are fit together).
 
 **Cause and fix, by situation:**
 
@@ -132,8 +137,10 @@ particular multiplets.
   poor (e.g. a marginal energy calibration), loosen the bounds with the
   multipliers ``A_bound``, ``mu_bound`` and ``sig_bound``.
 
-A ``chi2`` moderately above one on a very high-statistics peak is not by
-itself a bad fit: with hundreds of thousands of counts, percent-level
-imperfections of the peak model are statistically resolvable.  Curie
-accounts for this by inflating the fit uncertainties by
-:math:`\sqrt{\chi^2_\nu}` (see :ref:`methods_peak_fitting`).
+A ``chi2`` well above one on a very high-statistics peak — values of ten
+or more are common on peaks with hundreds of thousands of counts, like the
+122 keV peak in the :ref:`spectroscopy_tutorial` — is not by itself a bad
+fit: with that many counts, even percent-level imperfections of the peak
+model are statistically resolvable.  Curie accounts for this by inflating
+the fit uncertainties by :math:`\sqrt{\chi^2_\nu}` (see
+:ref:`methods_peak_fitting`).

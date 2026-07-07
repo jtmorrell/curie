@@ -29,12 +29,12 @@ Identifying peaks
 Assign the isotopes present in the sample, using Curie's isotope naming
 convention (e.g. ``'152EU'``, ``'Eu-152'``, ``'115INm'``)::
 
-	sp.isotopes = ['152EU', '40K']
+	sp.isotopes = ['152EU']
 
 Curie generates the list of gamma lines to fit from the decay data of these
-isotopes.  Additional lines not tied to an isotope in the decay database
-can be given directly to `fit_peaks` — energies in keV, intensities in
-percent::
+isotopes.  Lines can also be given directly to `fit_peaks` — for example a
+line from an isotope you have not assigned, or one missing from the decay
+data — with energies in keV and intensities in percent::
 
 	sp.fit_peaks(gammas=[{'energy':1460.82, 'intensity':10.66,
 	                      'unc_intensity':0.17, 'isotope':'40K'}])
@@ -54,11 +54,14 @@ central columns are:
 ================== ============================================================
 Column             Meaning
 ================== ============================================================
+``isotope``        The emitting isotope
+``energy``         Gamma-line energy, in keV
 ``counts``         Net counts in the peak (background subtracted)
 ``intensity``      Gamma intensity :math:`I_\gamma` (branching ratio)
 ``efficiency``     Peak efficiency at the line energy, from the calibration
 ``decays``         Decays of the isotope during the count
-``decay_rate``     Average decay rate (Bq) during the count
+``decay_rate``     Average decay rate during the count — i.e. the activity,
+                   in Bq (``summarize()`` prints this value as "activity")
 ``chi2``           Reduced chi-square of the multiplet fit
 ================== ============================================================
 
@@ -75,22 +78,22 @@ attribute (``sp.fit_config = {...}``, persistent) or as keyword arguments
 to ``sp.fit_peaks(...)``.  The complete reference for every option is the
 `Spectrum.fit_peaks()` API entry; they fall into three groups:
 
-**Peak-shape options** — ``bg`` selects the background model (``'snip'``
-default, or ``'constant'``/``'linear'``/``'quadratic'``); ``R``, ``alpha``
+**Peak-shape and background options** — ``bg`` selects the background
+model (``'snip'`` default, or ``'constant'``/``'linear'``/``'quadratic'``)
+and ``snip_adj`` scales the SNIP background parameters; ``R``, ``alpha``
 and ``step`` set the skew and step components of the peak shape, and
 ``skew_fit``/``step_fit`` control whether they are fit per peak or held
 fixed (see :ref:`methods_peak_fitting` for the functional forms).
 
 **Peak-selection options** — ``xrays``, ``E_min``, ``I_min`` and
 ``dE_511`` filter the candidate gamma lines; ``SNR_min`` drops lines whose
-predicted signal-to-noise ratio is too low to fit reliably.
+predicted signal-to-noise ratio is too low to fit reliably; ``ident_idx``
+controls how overlapping (identical-energy) lines are merged or flagged.
 
 **Fit-window and bound options** — ``pk_width`` sets the fitted window
 around each peak; ``multi_max`` limits the number of peaks fit together as
 a multiplet; ``A_bound``, ``mu_bound`` and ``sig_bound`` scale the bounds
-on the amplitude, centroid and width parameters; ``snip_adj`` scales the
-SNIP background parameters; ``ident_idx`` controls how overlapping
-(identical-energy) lines are merged or flagged.
+on the amplitude, centroid and width parameters.
 
 For example, to include x-ray lines down to 20 keV on a quadratic
 background::
@@ -163,7 +166,10 @@ g/cm²)::
 
 ``sp.geometry_correction(...)`` computes the solid-angle correction for a
 sample counted close to the detector, relative to the point-source
-geometry of the efficiency calibration, by Monte Carlo integration::
+geometry of the efficiency calibration, by Monte Carlo integration.  The
+dimensions are unitless but must all be in the *same* unit (e.g. all cm),
+and ``sample_size`` is the radius for ``shape='circle'`` (the default),
+the side length for ``'square'``, or an (x, y) pair for ``'rectangle'``::
 
 	sp.geometry_correction(distance=4, r_det=5, thickness=0.1,
 	                       sample_size=2, shape='square')
