@@ -1,7 +1,8 @@
 # Rebuild the Sphinx documentation on every version release (and on demand)
-# and commit the rendered HTML to master, which GitHub Pages serves from the
-# /docs folder. This keeps https://jtmorrell.github.io/curie/ in step with
-# every release without a manual build.
+# and deploy it to GitHub Pages as a build artifact. The rendered HTML is not
+# committed to the repository; the site is whatever this workflow last
+# deployed. A PDF of the full documentation (Curie.pdf) is built alongside
+# the HTML and published at the site root.
 name: Docs
 
 on:
@@ -9,11 +10,21 @@ on:
     tags: ['v[0-9]*']
   workflow_dispatch:
 
+# Only one Pages deployment at a time; let an in-flight deploy finish
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
 jobs:
-  build-and-publish:
+  build-and-deploy:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -29,19 +40,40 @@ jobs:
           python -m pip install -e .
           python -m pip install -r docs/requirements.txt
 
+      - name: Install LaTeX (for the PDF build)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            latexmk texlive-latex-recommended texlive-latex-extra \
+            texlive-fonts-recommended tex-gyre
+
       - name: Build the documentation
         run: |
           cd docs
           make html
+          make latexpdf
+          cp build/latex/Curie.pdf build/html/Curie.pdf
 
-      - name: Commit the rendered documentation
+      - name: Add redirects for the old committed-HTML URLs
+        # The site used to be served from the repository's /docs folder, so
+        # published links point at .../curie/build/html/<page>. The site root
+        # is now the HTML build itself; leave a redirect stub at every old
+        # page location so those links keep working.
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/build
-          if git diff --cached --quiet; then
-            echo "documentation unchanged"
-          else
-            git commit -m "Regenerate documentation for ${GITHUB_REF_NAME}"
-            git push origin master
-          fi
+          cd docs/build/html
+          find . -name '*.html' -not -path './build/*' | while read -r f; do
+            rel="${f#./}"
+            depth=$(($(tr -dc '/' <<< "$rel" | wc -c) + 2))
+            up=$(printf '../%.0s' $(seq 1 $depth))
+            mkdir -p "build/html/$(dirname "$rel")"
+            printf '<meta http-equiv="refresh" content="0; url=%s%s" />\n' "$up" "$rel" > "build/html/$rel"
+          done
+
+      - name: Upload the site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/build/html
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

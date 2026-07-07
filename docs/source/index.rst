@@ -29,9 +29,11 @@ Contents
 
 .. toctree::
    :maxdepth: 1
-   
+
    quickinstall
    usersguide/index
    api/index
    license
+
+This documentation is also available as a single PDF: `Curie.pdf <Curie.pdf>`_.
 

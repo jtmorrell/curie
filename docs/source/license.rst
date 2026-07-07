@@ -4,7 +4,7 @@
 License Agreement
 =================
 
-Copyright (c) 2018 The Python Packaging Authority
+Copyright (c) 2018-2026 Jonathan Morrell
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

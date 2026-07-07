@@ -20,7 +20,7 @@ sys.path.insert(0, os.path.abspath('../curie/'))
 # -- Project information -----------------------------------------------------
 
 project = u'Curie'
-copyright = u'2024, Jonathan Morrell'
+copyright = u'2018-2026, Jonathan Morrell'
 author = u'Jonathan Morrell'
 
 # version is single-sourced from curie/__init__.py, read directly: the docs
@@ -51,6 +51,11 @@ extensions = [
     'sphinx.ext.githubpages',
     'numpydoc'
 ]
+
+# numpydoc lists class methods in a summary table; without generated stub
+# pages the toctree entries it makes for them are dangling, so keep the
+# table but not the toctree
+numpydoc_class_members_toctree = False
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -85,7 +90,7 @@ pygments_style = 'sphinx'
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'classic'
+html_theme = 'sphinx_rtd_theme'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
