@@ -80,7 +80,8 @@ brass above is 66% copper *by weight*); either kind is normalized for
 you.  Weights can also come from a .csv/.json/.db file describing many
 compounds at once.  A `Compound` has the same ``mu``, ``mu_en``,
 ``attenuation``, ``S``, ``range`` and plotting methods as an `Element`,
-with elemental values combined by Bragg additivity.
+with elemental values combined as mass-fraction-weighted sums of the
+elemental ones (Bragg additivity — see :ref:`methods_stopping`).
 
 Building a stack
 ----------------
@@ -100,11 +101,17 @@ enough information to fix its **areal density** in mg/cm², given
 directly (``'areal_density'``/``'ad'``) or computed from: ``'mass'``
 (g) with ``'area'`` (cm²), or ``'thickness'`` (mm) with ``'density'``
 (g/cm³) — the density coming from the compound definition if not given
-per-foil.  Foils with a ``'name'`` are tallied; unnamed foils (the
-Kapton above) still degrade the beam but are left out of the results —
-the convention for degraders and catchers.  The stack can equally be a
-DataFrame or a .csv/.json/.db file with the same columns, and custom
-compounds can be supplied with the ``compounds=`` argument.
+per-foil.  Every key has a shorthand, used in the example above:
+``cm`` = compound, ``t`` = thickness, ``d`` = density, ``m`` = mass,
+``a`` = area, ``ad`` = areal_density, ``nm`` = name.
+
+Foils with a ``'name'`` are tallied; unnamed foils (the Kapton above)
+still degrade the beam and still appear in ``st.stack``, but are
+excluded from the tallied results (``st.fluxes``, ``get_flux``,
+``plot``, ``summarize``, ``saveas``) — the convention for degraders and
+catchers.  The stack can equally be a DataFrame or a .csv/.json/.db
+file with the same columns, and custom compounds can be supplied with
+the ``compounds=`` argument.
 
 Reading the results
 -------------------

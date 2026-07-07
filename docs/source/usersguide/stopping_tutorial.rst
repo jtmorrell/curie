@@ -14,7 +14,7 @@ Stopping powers
 
 A charged particle slows continuously in matter, losing energy at the
 rate :math:`S = -dE/dx` — the *stopping power*.  Curie computes it from
-the Anderson–Ziegler parameterization (see :ref:`methods_stopping`) for
+the Andersen–Ziegler parameterization (see :ref:`methods_stopping`) for
 any element or compound::
 
 	>>> import curie as ci
@@ -58,7 +58,14 @@ materials::
 	>>> cm = ci.Compound('Kapton')     # in ci.COMPOUND_LIST
 	>>> print(cm.density)
 	1.42
-	>>> print(cm.range(15.0, density=1E-3))   # range in mg/cm2
+	>>> print(cm.range(15.0))          # cm, as for elements
+	0.2036...
+	>>> print(cm.range(15.0, density=1E-3))
+	289.24...
+
+The second form (the ``density=1E-3`` idiom again) gives the range as a
+*mass thickness* in mg/cm² — the unit stacked-target work is done in,
+since foils are weighed rather than measured.
 
 A first stack
 -------------
@@ -95,8 +102,11 @@ foil::
    :width: 80%
    :align: center
 
-Each successive foil sees a lower mean energy and — apart from the thin
-foils, which sample the beam mid-degrader — a wider distribution.
+Each successive foil sees a lower mean energy.  The widths follow the
+foils: ``sig_E`` is dominated by how much energy the beam loses *within*
+each foil, so the thick Al degraders show wide, path-averaged
+distributions (0.73, 0.77 MeV) while the thin Ti and Cu foils record the
+beam's instantaneous spread (~0.33 MeV) at their depth.
 
 Thin and thick foils: when the mean energy isn't enough
 --------------------------------------------------------
@@ -129,11 +139,18 @@ section against the shortcut of evaluating at the mean energy:
 	thick: mu_E = 10.51 MeV, sig_E = 2.96 MeV
 	       <sigma> = 309.4 mb    sigma(mu_E) = 384.7 mb    (+24.3%)
 
-computed as::
+computed, for each stack, as::
+
+	eng, phi = st_thin.get_flux('thin')
+	print(rx.average(eng, phi))                          # <sigma>
+	print(rx.interpolate(st_thin.stack['mu_E'][0]))      # sigma(mu_E)
 
 	eng, phi = st_thick.get_flux('thick')
-	print(rx.average(eng, phi))                          # <sigma>
-	print(rx.interpolate(st_thick.stack['mu_E'][0]))     # sigma(mu_E)
+	print(rx.average(eng, phi))
+	print(rx.interpolate(st_thick.stack['mu_E'][0]))
+
+(The figure overlays the two ``get_flux`` distributions with the
+excitation function ``rx.interpolate`` on a second axis.)
 
 For the thin foil the two agree to 0.1%; for the thick foil the
 mean-energy shortcut overestimates the effective cross section by 24%,

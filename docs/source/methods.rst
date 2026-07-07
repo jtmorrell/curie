@@ -471,11 +471,12 @@ Bethe-like form with fitted corrections at high energy — with tabulated
 coefficients for every element up to uranium.  Alpha particles have
 their own coefficient set; deuterons and tritons use the proton stopping
 evaluated at the same velocity (i.e. scaled energy :math:`E/M`).  For
-heavier ions, the proton stopping is scaled by the square of an
-effective charge ratio (a Bohr/Northcliffe-type parameterization) that
-accounts for partial neutralization of the ion at low velocity.  A
-nuclear-stopping term, significant only at the lowest energies, is added
-in all cases.
+heavier ions at low-to-moderate velocity, the proton stopping is scaled
+by the square of an effective charge ratio (a Bohr/Northcliffe-type
+parameterization) that accounts for partial neutralization of the ion;
+above roughly 1 MeV per nucleon a relativistic Bethe-like form is used
+directly.  A nuclear-stopping term, significant only at the lowest
+energies, is added in all cases.
 
 The stopping power of a compound is the mass-weighted sum of its
 elemental stopping powers (Bragg additivity), which neglects the
@@ -488,18 +489,22 @@ integral
 
    R(E_0) = \int_0^{E_0} \frac{dE}{S(E)}
 
-Photon attenuation coefficients — the mass-attenuation coefficient
-:math:`\mu/\rho` and the mass energy-absorption coefficient
-:math:`\mu_{en}/\rho` — are log-log interpolations of the NIST XCOM
-tabulations, with compound values likewise combined by mass-weighted
-additivity.
+Photon attenuation coefficients
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+`Element` and `Compound` also carry photon interaction data: the
+mass-attenuation coefficient :math:`\mu/\rho` and the mass
+energy-absorption coefficient :math:`\mu_{en}/\rho` are log-log
+interpolations of the NIST XCOM tabulations, with compound values
+likewise combined by mass-weighted additivity.
 
 Transport through a stack
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-`Stack` propagates a Monte Carlo ensemble of particles through the foils
-in beam order.  Initial energies are sampled from a Gaussian of mean
-``E0`` and width ``dE0`` (default 1% of ``E0``).  Within each foil the
+`Stack` propagates an ensemble of particles whose initial energies are
+Monte Carlo-sampled from a Gaussian of mean ``E0`` and width ``dE0``
+(default 1% of ``E0``); the transport itself is then deterministic,
+foil by foil in beam order.  Within each foil the
 energy loss is integrated by a predictor–corrector (Heun) scheme: a
 trial step with the stopping power at the current energy, corrected by
 the average of the stopping powers at the start and trial energies, with
@@ -539,7 +544,7 @@ per-target pieces.  The reaction libraries are described in
 ratios, emission energies and intensities) are compiled from NuDat 2.0,
 ENDF/B-VII.0 and the nuclear wallet cards; photon attenuation
 coefficients derive from the NIST XCOM tabulations; charged-particle
-stopping powers use the Anderson–Ziegler formulation.  Gamma-ray
+stopping powers use the Andersen–Ziegler formulation.  Gamma-ray
 energies are in keV in the spectroscopy classes, and every half-life is
 in seconds unless a unit argument says otherwise.
 

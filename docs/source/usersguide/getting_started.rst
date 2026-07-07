@@ -77,7 +77,7 @@ The following example, using the spectrum located on the Curie `github`_, demons
 Stopping Power Calculations
 ---------------------------
 
-Curie uses the Anderson & Ziegler formalism for calculating charged-particle stopping powers.  These stopping powers can be calculated on an element or compound basis::
+Curie uses the Andersen & Ziegler formalism for calculating charged-particle stopping powers.  These stopping powers can be calculated on an element or compound basis::
 
 	el = ci.Element('Fe')
 	print(el.S(20.0))

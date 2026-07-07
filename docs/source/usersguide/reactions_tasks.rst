@@ -63,13 +63,14 @@ Exclusive vs. residual-product libraries
 ----------------------------------------
 
 The neutron libraries (ENDF, TENDL, IRDFF) are organized by *exclusive
-reaction channel* — ``(n,2n)``, ``(n,p)``, ``(n,inl)`` (inelastic
-scattering) — where the outgoing particles are specified.  The
-residual-product libraries (the IAEA library, and the TENDL
-``tendl_n``/``tendl_p``/``tendl_d`` variants) are instead organized by
-what nucleus is produced: the reaction is written ``(p,x)`` and only the
-product matters, summing over every route to it.  This is why proton
-reactions are written ``'natTI(p,x)48V'`` rather than ``'48TI(p,n)48V'``.
+reaction channel* — the outgoing particles are specified, as in
+``(n,2n)``.  The residual-product libraries (the IAEA library, and the
+TENDL ``tendl_n``/``tendl_p``/``tendl_d`` variants) are instead
+organized by what nucleus is produced: the reaction is written ``(p,x)``
+and only the product matters, summing over every route to it (the full
+library taxonomy is in :ref:`methods_reaction_data`).  This is why
+proton reactions are written ``'natTI(p,x)48V'`` rather than
+``'48TI(p,n)48V'``.
 
 In the TENDL residual-product libraries every product state is a
 separate entry: ``86SR(p,x)86Yg`` and ``86SR(p,x)86Ym1`` are different

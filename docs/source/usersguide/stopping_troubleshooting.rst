@@ -38,19 +38,24 @@ units is wrong.
 foils.
 
 **Cause:** the beam physically ranges out — the summed thickness of the
-stack exceeds the particle range at ``E0``.  Every downstream energy and
-flux is meaningless (Curie transports energy loss only; a stopped beam
-has no energy left to assign).  This is sometimes intentional (a beam
-dump or catcher at the end) and then harmless, as long as the foils you
-*analyze* sit upstream of the stopping point.
+stack exceeds the particle range at ``E0``.  (``N`` is the row index
+shown by ``print(st.stack)``, counting from 0, so the offending foil is
+``st.stack.iloc[N]``.)  Every downstream energy and flux is meaningless
+(Curie transports energy loss only; a stopped beam has no energy left to
+assign).  This is sometimes intentional — a beam dump or catcher at the
+end — and then harmless, as long as the foils you *analyze* sit upstream
+of the stopping point.
 
-**Fix:** compare the range to the stack before building it::
+**Fix:** if the stack *should* pass the beam easily, suspect a
+thickness-unit error first (previous section) before concluding it truly
+ranged out.  Then compare the range against the summed foil thicknesses
+— in matching units::
 
-	>>> ci.Element('Al').range(30.0)     # cm, at your beam energy
+	>>> print(10*ci.Element('Al').range(30.0))   # x10: range in mm, like 't'
+	4.359...
 
-against the summed foil thicknesses.  Then either raise ``E0``, thin the
-stack, or — if the stop is intentional — simply ignore the foils at and
-beyond the stopping depth.
+and either raise ``E0``, thin the stack, or — if the stop is intentional
+— simply ignore the foils at and beyond the stopping depth.
 
 A foil is missing from the results
 ----------------------------------

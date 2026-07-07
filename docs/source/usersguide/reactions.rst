@@ -87,7 +87,9 @@ spectrum, and which one you want depends on what your flux array *means*:
 
   with :math:`I_p` the beam current (particles/s), :math:`n_t` the areal
   number density of target atoms (atoms/cm²), and :math:`10^{-27}`
-  converting mb to cm².
+  converting mb to cm².  (Note :math:`n_t` is *atoms* per area — from a
+  foil's areal density in mg/cm², as `Stack` reports it, multiply by
+  :math:`10^{-3} N_A / M` with :math:`M` the molar mass in g/mol.)
 
 * ``rx.integrate(eng, phi)`` returns the **flux integral**
   :math:`\int \sigma(E)\,\phi(E)\,dE`.  Here the normalization of

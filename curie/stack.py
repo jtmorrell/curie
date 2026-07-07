@@ -14,7 +14,7 @@ class Stack(object):
 	"""Foil pack for stacked target calculations
 
 	Computes the energy loss and (relative) charged particle flux through a stack
-	of foils using the Anderson-Ziegler formulation for stopping powers.
+	of foils using the Andersen-Ziegler formulation for stopping powers.
 	
 	Parameters
 	----------
@@ -49,7 +49,7 @@ class Stack(object):
 		specified either by element or isotope, e.g. 'Fe', '40CA', 'U', 'Bi-209'.For 
 		light ions, the charge state is assumed to be fully stripped. For heavy ions
 		the charge state is handled by a Bohr/Northcliffe parameterization consistent
-		with the Anderson-Ziegler formalism.
+		with the Andersen-Ziegler formalism.
 
 	E0 : float
 		Incident particle energy, in MeV.  If dE0 is not provided, it will

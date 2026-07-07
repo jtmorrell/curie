@@ -421,7 +421,7 @@ class Compound(object):
 			specified either by element or isotope, e.g. 'Fe', '40CA', 'U', 'Bi-209'. For
 			light ions, the charge state is assumed to be fully stripped. For heavy ions
 			the charge state is handled by a Bohr/Northcliffe parameterization consistent
-			with the Anderson-Ziegler formalism.
+			with the Andersen-Ziegler formalism.
 
 		density : float, optional
 			Density of the compound in g/cm^3.  Default behavior is to use
@@ -468,7 +468,7 @@ class Compound(object):
 			specified either by element or isotope, e.g. 'Fe', '40CA', 'U', 'Bi-209'. For
 			light ions, the charge state is assumed to be fully stripped. For heavy ions
 			the charge state is handled by a Bohr/Northcliffe parameterization consistent
-			with the Anderson-Ziegler formalism.
+			with the Andersen-Ziegler formalism.
 
 		density : float, optional
 			Density of the compound in g/cm^3.  Default behavior is to use
