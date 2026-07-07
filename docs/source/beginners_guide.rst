@@ -64,7 +64,8 @@ intervals gives the whole quantitative framework.
 time with decay constant :math:`\lambda = \ln 2 / t_{1/2}`.  The number of
 product atoms climbs until creation and decay balance.  For a constant
 production rate over an irradiation of duration :math:`t_{\mathrm{irr}}`,
-the activity at the end of bombardment (EoB) is
+the activity at the end of the irradiation — the *end of bombardment*, or
+EoB — is
 
 .. math::
 
@@ -107,9 +108,9 @@ Measuring activity: gamma-ray spectroscopy
 
 The most common way to observe the decays is gamma-ray spectroscopy with a
 high-purity germanium (HPGe) detector.  Each decaying isotope emits gamma
-rays at a set of characteristic energies, each with a known *intensity*
-(the fraction of decays that produce that gamma, also called the branching
-ratio).  The detector sorts detected gammas by energy into a **spectrum** —
+rays at a set of characteristic energies, each with a known *intensity* —
+its emission probability, the fraction of decays that produce that gamma.
+The detector sorts detected gammas by energy into a **spectrum** —
 a histogram of counts versus energy — in which each isotope appears as
 peaks at its own line energies.
 
@@ -119,15 +120,15 @@ and it is worth understanding why each is required:
 * **Energy calibration** maps detector channel to gamma energy, so that a
   peak can be matched to the isotope and line that produced it.
 
+* **Resolution calibration** describes how wide the peaks are, which the
+  fitting routine needs to separate nearby lines.
+
 * **Efficiency calibration** gives the fraction of gammas emitted at a
   given energy that are actually recorded as full-energy counts.  Without
   it a peak area is only a relative number; with it, the count rate becomes
   an absolute emission rate.  Efficiency falls with distance and varies
   strongly with energy, so it must be measured for the specific detector
   and geometry, using a source of known activity.
-
-* **Resolution calibration** describes how wide the peaks are, which the
-  fitting routine needs to separate nearby lines.
 
 Given these, the number of counts in a peak relates to the activity through
 the gamma intensity, the efficiency, and the counting-time factors of the
@@ -198,10 +199,11 @@ both are central to activation work:
   thick target: different depths are effectively irradiated at different
   energies.
 
-* **The beam spreads in energy.**  Energy loss is a statistical process, so
-  an initially sharp beam develops a spread of energies as it slows
-  (*straggling*), and each layer of the target sees a distribution of
-  energies rather than a single value.
+* **The beam spreads in energy.**  A foil sees a *range* of energies, not a
+  single value: partly because the beam loses energy continuously across
+  the foil's own thickness, and partly because any initial energy spread
+  grows as the beam slows (slower particles lose energy faster).  Random
+  fluctuations in the energy loss (*straggling*) broaden it further still.
 
 These facts are usually a nuisance — but they can be turned into an
 advantage.  If a thin foil barely changes the beam energy, it measures a
@@ -232,7 +234,11 @@ the target:
 where :math:`I_p` is the beam current (particles per second),
 :math:`n_t` the number of target atoms per unit area, and
 :math:`\langle\sigma\rangle` the cross section *averaged over the energy
-distribution of the beam in that foil*.  That flux-averaging is where the
+distribution of the beam in that foil* — the foil's energy spectrum, which
+`Stack.get_flux` supplies.  (Curie also folds in the unit factor converting
+mb to cm\ :sup:`2`; the :ref:`reactions` page gives the fully dimensioned
+form.)
+That flux-averaging is where the
 previous section pays off: for a thin foil the average is essentially the
 cross section at the beam energy, but for a thick foil, where the beam
 spans a wide energy range, using the cross section at the mean energy alone
@@ -284,9 +290,10 @@ design choices are:
   irradiation, long-lived ones may need to cool so that short-lived
   activities decay away first.
 
-* **Range check.**  The beam must actually reach the last foil of interest;
-  the summed thickness of the stack has to stay within the particle's range
-  at the incident energy.
+* **Range check.**  The beam must actually reach the last foil of interest:
+  the material in front of it has to stay within the particle's range at the
+  incident energy (degraders or catchers placed further downstream may lie
+  beyond the range without harm).
 
 The Curie workflow mirrors the experiment.  *Before* the beam time, define
 the foils and use `Stack` to predict the energy in each, then combine
