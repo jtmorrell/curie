@@ -39,8 +39,8 @@ Curie is imported as::
 
    quickinstall
    quickstart
+   beginners_guide
    usersguide/index
    methods
    api/index
-   beginners_guide
    license
