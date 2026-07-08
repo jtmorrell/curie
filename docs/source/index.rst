@@ -3,31 +3,51 @@
 Welcome to Curie's documentation!
 =================================
 
-Curie is a Python toolkit to aid in the analysis of experimental nuclear data.  Its name is inspired by Marie Curie, who pioneered the study of radioactivity.
+Curie is a Python toolkit for the analysis of experimental nuclear data, with
+primary applications in (gamma-ray) activation analysis and the
+charged-particle stacked-target activation technique.  Its name is inspired by
+Marie Curie, who pioneered the study of radioactivity.  Alongside the analysis
+tools, it provides access to nuclear structure, decay, and reaction databases,
+and to atomic properties such as photon attenuation coefficients and
+charged-particle stopping powers.
 
-The primary application for Curie is (gamma-ray) activation analysis, with specific utilities developed for the charged-particle stacked-target activation technique.
-Curie also comes with access to a number of nuclear structure and nuclear reaction databases.  It also has methods for accessing atomic properties,
-such as attenuation coefficients and charged particle stopping powers.
+.. code-block:: python
 
-Curie's features are primarily class-based.  Here are a few examples:
+   >>> import curie as ci
+   >>> ci.Isotope('225RA').half_life('d')
+   14.9
+   >>> ci.Reaction('115IN(n,g)').plot(scale='loglog')   # a cross section, straight from the libraries
 
-* Spectrum - Peak fitting for HPGe (high-purity germanium) detector data
-* Calibration - Energy, resolution & efficiency calibration tool (for HPGe detectors)
-* Element / Compound - Stopping powers, ranges & photon attenuation coefficients
-* Stack - Stacked-target energy loss characterization
-* DecayChain - General purpose Bateman equation solver
-* Isotope - Isotopic mass and decay data
-* Reaction - Cross section vs. energy for a single reaction (interpolate, flux-average, plot)
-* Library - Search which evaluated libraries carry a given reaction
+**What do you want to do?**
 
-To get started, visit the :ref:`quickinstall` guide and then the
-:ref:`quickstart`, which maps out the classes and gives a few
-examples to run.  New to activation analysis itself?  The
-:ref:`beginners_guide` introduces the field from the ground up.
-Throughout the documentation (and in all of the docstring examples),
-Curie is imported as::
+.. list-table::
+   :header-rows: 1
+   :widths: 44 28 28
 
-	import curie as ci
+   * - I want to...
+     - use...
+     - see...
+   * - Fit peaks in a gamma-ray (HPGe) spectrum and get activities
+     - ``Spectrum`` + ``Calibration``
+     - :ref:`spectroscopy`
+   * - Predict or fit activities and decay chains after an irradiation
+     - ``DecayChain`` (+ ``Isotope``)
+     - :ref:`isotopes`
+   * - Look up reaction cross sections from evaluated libraries
+     - ``Reaction`` + ``Library``
+     - :ref:`reactions`
+   * - Plan a stacked-target irradiation (energies, foils, yields)
+     - ``Stack`` + ``Compound`` / ``Element``
+     - :ref:`stopping`
+
+New to activation analysis itself?  The :ref:`beginners_guide` introduces the
+field from the ground up.  Otherwise, install Curie (:ref:`quickinstall`) and
+take the :ref:`quickstart` tour.  Throughout the documentation (and in all of
+the docstring examples), Curie is imported as ``import curie as ci``.
+
+**Citing Curie.**  If Curie contributes to published work, please cite it via
+its repository, https://github.com/jtmorrell/curie.  (A citable release DOI can
+be added here.)
 
 .. only:: html
 

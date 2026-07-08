@@ -49,8 +49,24 @@ extensions = [
     'sphinx.ext.mathjax',
     'sphinx.ext.viewcode',
     'sphinx.ext.githubpages',
+    'sphinx_reredirects',
     'numpydoc'
 ]
+
+# Redirect the URLs of pages that were renamed or moved during the docs
+# refresh, so old bookmarks and external links keep working instead of 404ing.
+redirects = {
+    'intro': 'index.html',
+    'usersguide/getting_started': '../quickstart.html',
+    'usersguide/spectroscopy_tasks': 'spectroscopy_howto.html',
+    'usersguide/spectroscopy_tutorial': 'spectroscopy_examples.html',
+    'usersguide/isotopes_tasks': 'isotopes_howto.html',
+    'usersguide/isotopes_tutorial': 'isotopes_examples.html',
+    'usersguide/reactions_tasks': 'reactions_howto.html',
+    'usersguide/reactions_tutorial': 'reactions_examples.html',
+    'usersguide/stopping_tasks': 'stopping_howto.html',
+    'usersguide/stopping_tutorial': 'stopping_examples.html',
+}
 
 # numpydoc lists class methods in a summary table; without generated stub
 # pages the toctree entries it makes for them are dangling, so keep the

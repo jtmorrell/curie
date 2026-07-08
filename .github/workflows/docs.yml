@@ -48,11 +48,19 @@ jobs:
             texlive-fonts-recommended tex-gyre
 
       - name: Build the documentation
+        # -W makes a broken cross-reference or toctree fail the build rather
+        # than silently deploy; --keep-going reports all problems at once.
         run: |
           cd docs
-          make html
+          make html SPHINXOPTS="-W --keep-going"
           make latexpdf
           cp build/latex/Curie.pdf build/html/Curie.pdf
+
+      - name: Check external links (non-blocking)
+        # Reports dead external links (GitHub, DOI, PyPI, ...); allowed to fail
+        # so a flaky or rate-limited host does not block a docs deploy.
+        continue-on-error: true
+        run: cd docs && make linkcheck
 
       - name: Add redirects for the old committed-HTML URLs
         # The site used to be served from the repository's /docs folder, so

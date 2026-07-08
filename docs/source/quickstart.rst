@@ -49,27 +49,41 @@ For the models and formulas behind these methods, see the
 A few things to try
 -------------------
 
-Fit the peaks in a gamma-ray spectrum of a :sup:`152`\ Eu source.  The
-``eu_calib_7cm.Spe`` file ships in the ``examples`` directory of the
-repository; run this from there, or point the path at your own copy::
+The first two examples need no local files — Curie fetches the nuclear
+data they use on first access.
+
+Look up the decay data for a radionuclide::
+
+	>>> ip = ci.Isotope('225RA')
+	>>> print(ip.half_life('d'))
+	14.9
+	>>> print(ip.gammas())          # energies (keV) and intensities (%)
+	   energy  intensity  unc_intensity
+	0    40.0       30.0            1.5
+
+Plot an evaluated reaction cross section (this one resolves to IRDFF-II)::
+
+	rx = ci.Reaction('115IN(n,g)')  # neutron capture on 115In
+	rx.plot(scale='loglog')
+
+The third fits peaks in a real gamma-ray spectrum, so it needs a data
+file.  Download ``eu_calib_7cm.Spe`` from the `examples directory`_ of the
+repository and run from the folder you saved it in (or point the path at
+your own ``.Spe``, ``.Chn``, ``.CNF`` or ``.IEC`` spectrum)::
 
 	sp = ci.Spectrum('eu_calib_7cm.Spe')
 	sp.isotopes = ['152EU']
 	sp.plot()                       # the spectrum, with its fitted peaks
 
-Look up the decay data for a radionuclide::
+.. figure:: images/eu_spectrum_fit.png
+   :width: 90%
 
-	ip = ci.Isotope('225RA')
-	print(ip.half_life('d'))        # 14.9
-	print(ip.gammas())              # a table of its decay gamma rays
-
-Plot an evaluated reaction cross section::
-
-	rx = ci.Reaction('115IN(n,g)')  # neutron capture on 115In
-	rx.plot(scale='loglog')
+   The fitted :sup:`152`\ Eu spectrum the code above produces.
 
 Each links to a fuller, worked walk-through: :ref:`spectroscopy`,
 :ref:`isotopes`, :ref:`reactions`.
+
+.. _examples directory: https://github.com/jtmorrell/curie/tree/master/examples
 
 Example scripts
 ---------------
