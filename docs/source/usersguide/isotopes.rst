@@ -21,10 +21,7 @@ production rates or initial activities to measured data.
    :sup:`225`\ Ra during and after production: the daughter
    :sup:`225`\ Ac grows in as the parent decays.
 
-Workflow
---------
-
-`Isotope` needs no workflow — construct it and read off the data (see
+**Workflow.**  `Isotope` needs no workflow — construct it and read off the data (see
 :ref:`isotopes_tasks`).  Decay-chain problems come in two directions:
 
 * **Forward** — you know (or assume) how much of an isotope was made, and
@@ -45,10 +42,7 @@ The :ref:`isotopes_tasks` page covers each task in detail, the
 :ref:`isotopes_tutorial` works both directions on real examples, and
 :ref:`isotopes_troubleshooting` collects the common pitfalls.
 
-Uses and limitations
---------------------
-
-`Isotope` serves quick lookups (a half-life in sensible units, a table of
+**Uses and limitations.**  `Isotope` serves quick lookups (a half-life in sensible units, a table of
 gamma lines above some intensity) and provides the decay data that
 `Spectrum`, `Calibration` and `DecayChain` use internally.  The decay data
 are compiled from NuDat 2.0, ENDF/B-VII.0 and the nuclear wallet cards.

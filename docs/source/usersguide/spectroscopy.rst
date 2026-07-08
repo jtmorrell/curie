@@ -15,10 +15,7 @@ fitted peaks into activities.
 
    A :sup:`152`\ Eu calibration spectrum with fitted peaks.
 
-Workflow
---------
-
-A typical spectroscopy analysis proceeds in five steps:
+**Workflow.**  A typical spectroscopy analysis proceeds in five steps:
 
 1. **Load** a spectrum from disk: ``sp = ci.Spectrum('eu_calib_7cm.Spe')``.
    Ortec .Spe and .Chn and Canberra .CNF and .IEC formats are supported.
@@ -45,10 +42,7 @@ calibration with a :sup:`152`\ Eu source, and
 :ref:`spectroscopy_troubleshooting` collects the most common pitfalls —
 most of them involving the energy calibration.
 
-Uses and limitations
---------------------
-
-These classes are designed for *activation analysis*: quantifying the
+**Uses and limitations.**  These classes are designed for *activation analysis*: quantifying the
 activities of known gamma-emitting isotopes in a counted sample.  The
 peak-fit and efficiency models (described in :ref:`methods_peak_fitting`
 and :ref:`methods_calibration`) are tuned for HPGe data, and are not
@@ -61,6 +55,7 @@ for samples counted very close to the detector, so calibrate at a moderate
 standoff or with single-line sources.
 
 .. toctree::
+   :hidden:
    :maxdepth: 1
 
    spectroscopy_tasks

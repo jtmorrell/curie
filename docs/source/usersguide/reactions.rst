@@ -27,10 +27,7 @@ of Curie's name forms::
 
 All cross sections are in mb, and all energies in MeV.
 
-Workflow
---------
-
-Using reaction data usually takes three steps:
+**Workflow.**  Using reaction data usually takes three steps:
 
 1. **Find** the reaction.  If you know its name, construct it directly;
    if not, `Library.search()` lists what a library contains
@@ -48,10 +45,7 @@ The :ref:`reactions_tasks` page details each step, the
 library comparisons, and :ref:`reactions_troubleshooting` covers the
 common failure modes.
 
-Uses and limitations
---------------------
-
-These are *evaluated* libraries — smooth, recommended curves produced by
+**Uses and limitations.**  These are *evaluated* libraries — smooth, recommended curves produced by
 evaluators from experimental data and nuclear-model calculations — not
 raw experimental data points (EXFOR is not included).  Each library has a
 scope and a character: the IAEA library is a set of precisely evaluated
@@ -65,10 +59,7 @@ to prefer, and what to watch out for (energy-grid limits, natural vs
 isotopic targets, cumulative vs direct/independent production), is the
 subject of the tutorial.
 
-Averages vs. integrals
-~~~~~~~~~~~~~~~~~~~~~~
-
-`Reaction` offers two ways to combine a cross section with a particle
+**Averages vs. integrals.**  `Reaction` offers two ways to combine a cross section with a particle
 spectrum, and which one you want depends on what your flux array *means*:
 
 * ``rx.average(eng, phi)`` returns the **flux-weighted average cross

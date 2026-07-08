@@ -19,10 +19,7 @@ the quantity that connects an irradiation to its cross sections.
    A 30 MeV proton beam degrading through a six-foil stack: each foil
    sees a lower, wider energy distribution.
 
-Workflow
---------
-
-`Element` and `Compound` answer design questions directly — how much
+**Workflow.**  `Element` and `Compound` answer design questions directly — how much
 energy does a proton lose in this foil (``S``), how thick a degrader do I
 need (``range``), how strongly does this sample absorb gamma rays
 (``attenuation``).  A `Stack` calculation follows three steps:
@@ -44,10 +41,7 @@ The :ref:`stopping_tasks` page details each step, the
 thin-vs-thick foil comparison, and :ref:`stopping_troubleshooting`
 covers the common pitfalls.
 
-Uses and limitations
---------------------
-
-The stopping powers are the Andersen–Ziegler semi-empirical
+**Uses and limitations.**  The stopping powers are the Andersen–Ziegler semi-empirical
 parameterization (see :ref:`methods_stopping`): protons, deuterons,
 tritons and alphas are supported directly, and heavier ions through an
 effective-charge scaling.  Compound stopping powers use Bragg additivity
