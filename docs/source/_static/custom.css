@@ -1,0 +1,13 @@
+/* The sphinx_rtd_theme forces white-space: nowrap on table cells, which makes
+   a table with a wide text column overflow the page and require horizontal
+   scrolling. Allow cells to wrap so tables fit the content width. */
+.wy-table-responsive table td,
+.wy-table-responsive table th {
+    white-space: normal;
+}
+
+/* Let the table use the full width of the content area. */
+.wy-table-responsive {
+    width: 100%;
+    overflow: visible;
+}

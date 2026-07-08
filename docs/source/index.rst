@@ -18,9 +18,13 @@ charged-particle stopping powers.
    14.9
    >>> ci.Reaction('115IN(n,g)').plot(scale='loglog')   # a cross section, straight from the libraries
 
+Curie's functionality is provided by a small set of classes.  The table
+below maps common tasks to the classes that carry them out (linked to the
+API reference) and the guide section that walks through each one.
+
 .. list-table::
    :header-rows: 1
-   :widths: 56 26 18
+   :widths: 52 26 22
 
    * - Task
      - Classes
