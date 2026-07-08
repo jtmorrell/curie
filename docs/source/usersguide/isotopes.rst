@@ -38,9 +38,9 @@ Both directions share one time convention: **t = 0 is the end of
 production** (the end of bombardment in an activation experiment), and
 all times are in the chain's ``units``.
 
-The :ref:`isotopes_tasks` page covers each task in detail, the
-:ref:`isotopes_tutorial` works both directions on real examples, and
-:ref:`isotopes_troubleshooting` collects the common pitfalls.
+See the :ref:`isotopes_tasks` for each task in detail, the
+:ref:`isotopes_tutorial` for both directions worked on real examples, and
+:ref:`isotopes_troubleshooting` for the common pitfalls.
 
 **Uses and limitations.**  `Isotope` serves quick lookups (a half-life in sensible units, a table of
 gamma lines above some intensity) and provides the decay data that

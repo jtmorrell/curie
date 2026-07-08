@@ -36,10 +36,10 @@ need (``range``), how strongly does this sample absorb gamma rays
    distribution — and ``rx.average(*st.get_flux('name'))`` turns the
    latter into the effective cross section of that foil.
 
-The :ref:`stopping_tasks` page details each step, the
-:ref:`stopping_tutorial` builds up from single stopping powers to the
-thin-vs-thick foil comparison, and :ref:`stopping_troubleshooting`
-covers the common pitfalls.
+See the :ref:`stopping_tasks` for each step in detail, the
+:ref:`stopping_tutorial` for the build-up from single stopping powers to
+the thin-vs-thick foil comparison, and :ref:`stopping_troubleshooting`
+for the common pitfalls.
 
 **Uses and limitations.**  The stopping powers are the Andersen–Ziegler semi-empirical
 parameterization (see :ref:`methods_stopping`): protons, deuterons,

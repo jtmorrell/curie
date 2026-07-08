@@ -1,8 +1,8 @@
 .. _reactions_tasks:
 
-===============
-Reaction Tasks
-===============
+=====================
+Reaction How-to Guide
+=====================
 
 This page is a task-by-task reference for the `Reaction` and `Library`
 classes.  All examples assume ``import curie as ci``.  The library

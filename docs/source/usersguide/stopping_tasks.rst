@@ -1,8 +1,8 @@
 .. _stopping_tasks:
 
-=====================
-Stopping Power Tasks
-=====================
+===========================
+Stopping Power How-to Guide
+===========================
 
 This page is a task-by-task reference for the `Element`, `Compound` and
 `Stack` classes.  All examples assume ``import curie as ci``.  The

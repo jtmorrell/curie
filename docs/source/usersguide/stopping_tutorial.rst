@@ -1,10 +1,10 @@
 .. _stopping_tutorial:
 
-========================
-Stopping Power Tutorial
-========================
+==============================
+Stopping Power Worked Examples
+==============================
 
-This tutorial builds from single stopping powers up to a foil stack, and
+This page builds from single stopping powers up to a foil stack, and
 ends with the comparison that motivates the whole machinery: how the
 beam's energy *distribution* in a foil — not just its mean energy —
 determines the effective cross section.

@@ -1,8 +1,8 @@
 .. _spectroscopy_tasks:
 
-===================
-Spectroscopy Tasks
-===================
+=========================
+Spectroscopy How-to Guide
+=========================
 
 This page is a task-by-task reference for the `Spectrum` and `Calibration`
 classes.  All examples assume ``import curie as ci``.  For the underlying

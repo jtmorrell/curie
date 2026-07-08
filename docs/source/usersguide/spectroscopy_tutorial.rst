@@ -1,10 +1,10 @@
 .. _spectroscopy_tutorial:
 
-======================
-Spectroscopy Tutorial
-======================
+============================
+Spectroscopy Worked Examples
+============================
 
-This tutorial walks through a complete efficiency calibration using
+This page walks through a complete efficiency calibration using
 ``eu_calib_7cm.Spe`` — a spectrum of a :sup:`152`\ Eu reference source
 counted 7 cm from an HPGe detector, available in the `examples folder`_ of
 the Curie repository.  The source had a certified activity of 37.0 kBq

@@ -40,9 +40,9 @@ All cross sections are in mb, and all energies in MeV.
    energy grid, ``rx.average(energy, flux)`` for the flux-averaged cross
    section of a measurement, ``rx.plot()`` to look at it.
 
-The :ref:`reactions_tasks` page details each step, the
-:ref:`reactions_tutorial` works a complete monitor-reaction example with
-library comparisons, and :ref:`reactions_troubleshooting` covers the
+See the :ref:`reactions_tasks` for each step in detail, the
+:ref:`reactions_tutorial` for a complete monitor-reaction example with
+library comparisons, and :ref:`reactions_troubleshooting` for the
 common failure modes.
 
 **Uses and limitations.**  These are *evaluated* libraries — smooth, recommended curves produced by
@@ -56,8 +56,8 @@ theory-driven (TALYS-based) evaluations whose strength is complete
 coverage — nearly every target and product, including reactions no one
 has measured.  Where they overlap, they will not agree perfectly; which
 to prefer, and what to watch out for (energy-grid limits, natural vs
-isotopic targets, cumulative vs direct/independent production), is the
-subject of the tutorial.
+isotopic targets, cumulative vs direct/independent production), is
+covered in the :ref:`reactions_tutorial`.
 
 **Averages vs. integrals.**  `Reaction` offers two ways to combine a cross section with a particle
 spectrum, and which one you want depends on what your flux array *means*:

@@ -1,8 +1,8 @@
 .. _isotopes_tasks:
 
-==============================
-Isotope & Decay Chain Tasks
-==============================
+==================================
+Isotope & Decay Chain How-to Guide
+==================================
 
 This page is a task-by-task reference for the `Isotope` and `DecayChain`
 classes.  All examples assume ``import curie as ci``.  The underlying

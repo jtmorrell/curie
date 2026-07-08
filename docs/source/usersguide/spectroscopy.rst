@@ -33,14 +33,13 @@ fitted peaks into activities.
 These steps describe routine analysis with an existing calibration.
 *Creating* that calibration is a separate, usually one-time task:
 `Calibration.calibrate()` fits the peaks of reference-source spectra
-itself, so it runs before any manual peak fitting — the
-:ref:`spectroscopy_tutorial` walks through it.
+itself, so it runs before any manual peak fitting (see the
+:ref:`spectroscopy_tutorial`).
 
-Each of these steps is detailed in the :ref:`spectroscopy_tasks` page, the
-:ref:`spectroscopy_tutorial` walks through a complete efficiency
-calibration with a :sup:`152`\ Eu source, and
-:ref:`spectroscopy_troubleshooting` collects the most common pitfalls —
-most of them involving the energy calibration.
+See the :ref:`spectroscopy_tasks` for each step in detail, the
+:ref:`spectroscopy_tutorial` for a complete efficiency calibration with a
+:sup:`152`\ Eu source, and :ref:`spectroscopy_troubleshooting` for the
+most common pitfalls — most of them involving the energy calibration.
 
 **Uses and limitations.**  These classes are designed for *activation analysis*: quantifying the
 activities of known gamma-emitting isotopes in a counted sample.  The

@@ -1,10 +1,10 @@
 .. _reactions_tutorial:
 
-==================
-Reactions Tutorial
-==================
+=========================
+Reactions Worked Examples
+=========================
 
-This tutorial works through the reaction data behind a typical
+This page works through the reaction data behind a typical
 charged-particle activation measurement — a *monitor reaction* — and uses
 it to show how the libraries differ, and why those differences matter:
 natural versus isotopic targets, cumulative versus direct production, and

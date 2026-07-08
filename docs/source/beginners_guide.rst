@@ -174,8 +174,8 @@ take different starting information.
 
 **In Curie.**  `DecayChain.get_counts` reads measured decays (including
 straight from fitted `Spectrum` peaks), and `fit_R` and `fit_A0` fit a
-production rate or an initial activity to them.  The
-:ref:`isotopes_tutorial` works a full inverse example.
+production rate or an initial activity to them.  See the
+:ref:`isotopes_tutorial` for a full inverse example.
 
 .. _bg_charged_particle:
 
