@@ -1,4 +1,4 @@
-.. _stopping_tutorial:
+.. _stopping_examples:
 
 ==============================
 Stopping Power Worked Examples

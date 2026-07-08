@@ -53,7 +53,7 @@ uncertainties even though you thought it should.
 
 **Cause:** ``library='best'`` is a *search order*, not a merge: Curie
 takes the first library in the priority list (see
-:ref:`reactions_tasks`) that contains a unique match.  Two consequences
+:ref:`reactions_howto`) that contains a unique match.  Two consequences
 are easy to miss.  First, similar-looking reactions can come from
 different libraries — ``'226RA(n,2n)'`` resolves to ENDF/B-VII.1, but
 the residual-product form ``'226RA(n,x)225RA'`` resolves to TENDL-2015 —
@@ -82,6 +82,6 @@ natural cross section understates the yield from an enriched target.
 
 **Fix:** match the target to your actual material.  For a natural target
 with only isotopic data available, build the abundance-weighted sum (the
-:ref:`reactions_tutorial` shows the ~6-line loop, including why some
+:ref:`reactions_examples` shows the ~6-line loop, including why some
 isotopes contribute nothing).  For an enriched target with only natural
 data, there is no clean inversion — use the isotopic library.

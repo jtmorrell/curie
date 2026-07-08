@@ -34,10 +34,10 @@ These steps describe routine analysis with an existing calibration.
 *Creating* that calibration is a separate, usually one-time task:
 `Calibration.calibrate()` fits the peaks of reference-source spectra
 itself, so it runs before any manual peak fitting (see the
-:ref:`spectroscopy_tutorial`).
+:ref:`spectroscopy_examples`).
 
-See the :ref:`spectroscopy_tasks` for each step in detail, the
-:ref:`spectroscopy_tutorial` for a complete efficiency calibration with a
+See the :ref:`spectroscopy_howto` for each step in detail, the
+:ref:`spectroscopy_examples` for a complete efficiency calibration with a
 :sup:`152`\ Eu source, and :ref:`spectroscopy_troubleshooting` for the
 most common pitfalls — most of them involving the energy calibration.
 
@@ -57,6 +57,6 @@ standoff or with single-line sources.
    :hidden:
    :maxdepth: 1
 
-   spectroscopy_tasks
-   spectroscopy_tutorial
+   spectroscopy_howto
+   spectroscopy_examples
    spectroscopy_troubleshooting

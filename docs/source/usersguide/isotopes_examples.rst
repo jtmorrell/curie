@@ -1,4 +1,4 @@
-.. _isotopes_tutorial:
+.. _isotopes_examples:
 
 ===========================
 Decay Chain Worked Examples
@@ -8,7 +8,7 @@ This page works a decay-chain problem in each direction: first
 *forward* — modeling the production and decay of :sup:`225`\ Ra, a
 generator of the medical isotope :sup:`225`\ Ac — and then *inverse* —
 fitting the activity of the :sup:`152`\ Eu source measured in the
-:ref:`spectroscopy_tutorial`, and checking it against the source's
+:ref:`spectroscopy_examples`, and checking it against the source's
 certificate.
 
 Forward: producing 225Ra
@@ -62,13 +62,13 @@ ups and downs — is preserved; only the overall scale is fit).
 Inverse: how active was the 152Eu source?
 -----------------------------------------
 
-The :ref:`spectroscopy_tutorial` calibrated a detector with a
+The :ref:`spectroscopy_examples` calibrated a detector with a
 :sup:`152`\ Eu source certified at 37.0 kBq on 01/01/2009, using a
 spectrum counted in 2018.  Here we ask the reverse question: given only
 that spectrum's fitted peaks, what was the source activity on the
 certificate date?
 
-Starting from the calibrated spectrum ``sp`` of the :ref:`spectroscopy_tutorial`, build a
+Starting from the calibrated spectrum ``sp`` of the :ref:`spectroscopy_examples`, build a
 decay-only chain (an ``A0`` guess rather than a production history) and
 load the measured decays from the spectrum.  The certificate date is our
 t = 0, passed as the ``EoB`` (end-of-bombardment) argument — despite the
@@ -89,7 +89,7 @@ t = 0::
 	2  152EUg  9.697086  9.697163  4.874544e+07  1.161682e+07
 
 (The same works without the live spectrum: ``get_counts`` also accepts
-the peak file saved in the :ref:`spectroscopy_tutorial`, as
+the peak file saved in the :ref:`spectroscopy_examples`, as
 ``dc.get_counts(['eu_calib_7cm.Spe'], EoB=..., peak_data='eu_peaks.csv')``.)
 Now fit the initial activity::
 

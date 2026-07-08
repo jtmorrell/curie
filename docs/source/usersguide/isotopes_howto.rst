@@ -1,4 +1,4 @@
-.. _isotopes_tasks:
+.. _isotopes_howto:
 
 ==================================
 Isotope & Decay Chain How-to Guide

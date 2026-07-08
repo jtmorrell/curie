@@ -22,7 +22,7 @@ production rates or initial activities to measured data.
    :sup:`225`\ Ac grows in as the parent decays.
 
 **Workflow.**  `Isotope` needs no workflow — construct it and read off the data (see
-:ref:`isotopes_tasks`).  Decay-chain problems come in two directions:
+:ref:`isotopes_howto`).  Decay-chain problems come in two directions:
 
 * **Forward** — you know (or assume) how much of an isotope was made, and
   want activities at later times: build the chain with an initial activity
@@ -38,8 +38,8 @@ Both directions share one time convention: **t = 0 is the end of
 production** (the end of bombardment in an activation experiment), and
 all times are in the chain's ``units``.
 
-See the :ref:`isotopes_tasks` for each task in detail, the
-:ref:`isotopes_tutorial` for both directions worked on real examples, and
+See the :ref:`isotopes_howto` for each task in detail, the
+:ref:`isotopes_examples` for both directions worked on real examples, and
 :ref:`isotopes_troubleshooting` for the common pitfalls.
 
 **Uses and limitations.**  `Isotope` serves quick lookups (a half-life in sensible units, a table of
@@ -58,6 +58,6 @@ fluxes (the :ref:`reactions` pages cover the cross-section side).
 .. toctree::
    :maxdepth: 1
 
-   isotopes_tasks
-   isotopes_tutorial
+   isotopes_howto
+   isotopes_examples
    isotopes_troubleshooting

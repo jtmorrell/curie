@@ -175,7 +175,7 @@ take different starting information.
 **In Curie.**  `DecayChain.get_counts` reads measured decays (including
 straight from fitted `Spectrum` peaks), and `fit_R` and `fit_A0` fit a
 production rate or an initial activity to them.  See the
-:ref:`isotopes_tutorial` for a full inverse example.
+:ref:`isotopes_examples` for a full inverse example.
 
 .. _bg_charged_particle:
 
@@ -255,7 +255,7 @@ run the other way, measured counts yield the cross section.
 cross section with a beam spectrum — for a foil, ``Stack.get_flux`` supplies
 that spectrum — and the result feeds `DecayChain` as a production rate.
 See the "Averages vs. integrals" discussion on the :ref:`reactions` page,
-and the :ref:`stopping_tutorial` for the thin-versus-thick comparison.
+and the :ref:`stopping_examples` for the thin-versus-thick comparison.
 
 .. _bg_design:
 

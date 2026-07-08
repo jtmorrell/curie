@@ -40,8 +40,8 @@ All cross sections are in mb, and all energies in MeV.
    energy grid, ``rx.average(energy, flux)`` for the flux-averaged cross
    section of a measurement, ``rx.plot()`` to look at it.
 
-See the :ref:`reactions_tasks` for each step in detail, the
-:ref:`reactions_tutorial` for a complete monitor-reaction example with
+See the :ref:`reactions_howto` for each step in detail, the
+:ref:`reactions_examples` for a complete monitor-reaction example with
 library comparisons, and :ref:`reactions_troubleshooting` for the
 common failure modes.
 
@@ -57,7 +57,7 @@ coverage — nearly every target and product, including reactions no one
 has measured.  Where they overlap, they will not agree perfectly; which
 to prefer, and what to watch out for (energy-grid limits, natural vs
 isotopic targets, cumulative vs direct/independent production), is
-covered in the :ref:`reactions_tutorial`.
+covered in the :ref:`reactions_examples`.
 
 **Averages vs. integrals.**  `Reaction` offers two ways to combine a cross section with a particle
 spectrum, and which one you want depends on what your flux array *means*:
@@ -102,6 +102,6 @@ when one spectrum carries both.
 .. toctree::
    :maxdepth: 1
 
-   reactions_tasks
-   reactions_tutorial
+   reactions_howto
+   reactions_examples
    reactions_troubleshooting

@@ -36,8 +36,8 @@ need (``range``), how strongly does this sample absorb gamma rays
    distribution — and ``rx.average(*st.get_flux('name'))`` turns the
    latter into the effective cross section of that foil.
 
-See the :ref:`stopping_tasks` for each step in detail, the
-:ref:`stopping_tutorial` for the build-up from single stopping powers to
+See the :ref:`stopping_howto` for each step in detail, the
+:ref:`stopping_examples` for the build-up from single stopping powers to
 the thin-vs-thick foil comparison, and :ref:`stopping_troubleshooting`
 for the common pitfalls.
 
@@ -62,6 +62,6 @@ distribution than computed (see :ref:`methods_stopping`).
 .. toctree::
    :maxdepth: 1
 
-   stopping_tasks
-   stopping_tutorial
+   stopping_howto
+   stopping_examples
    stopping_troubleshooting

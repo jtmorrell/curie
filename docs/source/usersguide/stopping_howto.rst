@@ -1,4 +1,4 @@
-.. _stopping_tasks:
+.. _stopping_howto:
 
 ===========================
 Stopping Power How-to Guide
@@ -22,7 +22,7 @@ symbol::
 
 The ``abundances`` table (columns ``isotope``, ``abundance`` in percent)
 is the same one used to abundance-weight isotopic cross sections in the
-:ref:`reactions_tutorial`.  The preset ``density`` is used as the default
+:ref:`reactions_examples`.  The preset ``density`` is used as the default
 by the methods below; pass ``density=`` to override it.
 
 Photon attenuation
@@ -38,7 +38,7 @@ photons transmitted through a thickness ``x`` (cm)::
 	print(el.attenuation(661.7, x=1.0))  # transmission through 1 cm
 
 These are the same coefficients `Spectrum.attenuation_correction()` uses
-for sample self-absorption (see :ref:`spectroscopy_tasks`).
+for sample self-absorption (see :ref:`spectroscopy_howto`).
 
 Stopping powers and ranges
 --------------------------

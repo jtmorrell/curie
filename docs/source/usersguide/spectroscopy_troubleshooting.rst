@@ -100,10 +100,10 @@ drop some legitimate lines:
 Each line is an independent alternative, not a sequence.  If a *clearly
 visible* peak is being vetoed by ``SNR_min``, the real problem is usually
 an efficiency calibration that badly underpredicts the peak — recalibrate
-(see the :ref:`spectroscopy_tutorial`) rather than lowering the threshold.
+(see the :ref:`spectroscopy_examples`) rather than lowering the threshold.
 If a line is missing because the isotope's decay data doesn't include it,
 add it manually with the ``gammas`` argument (see
-:ref:`spectroscopy_tasks`).
+:ref:`spectroscopy_howto`).
 
 Fits succeed, but they are bad fits
 -----------------------------------
@@ -139,7 +139,7 @@ particular multiplets (groups of overlapping peaks that are fit together).
 
 A ``chi2`` well above one on a very high-statistics peak — values of ten
 or more are common on peaks with hundreds of thousands of counts, like the
-122 keV peak in the :ref:`spectroscopy_tutorial` — is not by itself a bad
+122 keV peak in the :ref:`spectroscopy_examples` — is not by itself a bad
 fit: with that many counts, even percent-level imperfections of the peak
 model are statistically resolvable.  Curie accounts for this by inflating
 the fit uncertainties by :math:`\sqrt{\chi^2_\nu}` (see

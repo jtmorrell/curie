@@ -1,4 +1,4 @@
-.. _spectroscopy_tutorial:
+.. _spectroscopy_examples:
 
 ============================
 Spectroscopy Worked Examples
@@ -36,7 +36,7 @@ Fitting the peaks
 
 Tell Curie which isotopes are present, and it will fit every
 :sup:`152`\ Eu line that passes the selection criteria (see
-:ref:`spectroscopy_tasks`)::
+:ref:`spectroscopy_howto`)::
 
 	sp.isotopes = ['152EU']
 	sp.plot()

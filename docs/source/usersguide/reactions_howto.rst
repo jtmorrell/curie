@@ -1,4 +1,4 @@
-.. _reactions_tasks:
+.. _reactions_howto:
 
 =====================
 Reaction How-to Guide
@@ -14,7 +14,7 @@ Getting a reaction
 
 Reactions are written ``TARGET(incident,outgoing)PRODUCT``.  The target
 and product take the same isotope names as everywhere in Curie (see
-:ref:`isotopes_tasks`), the incident particle is ``n``, ``p`` or ``d``
+:ref:`isotopes_howto`), the incident particle is ``n``, ``p`` or ``d``
 (plus ``a``, ``h``, ``g`` in the IAEA library), and the outgoing particle
 is a shorthand like ``g``, ``2n``, ``p``, ``a``, ``inl`` (inelastic),
 ``f`` (fission) — or ``x``, meaning "anything": only the product is
@@ -113,7 +113,7 @@ convention to know: **outside the library's evaluated energy range the
 interpolated cross section is zero** — Curie never extrapolates.  Check
 ``rx.eng.min()`` and ``rx.eng.max()`` when working near the edges of a
 library's grid; the consequences for flux averages are shown in the
-:ref:`reactions_tutorial`.
+:ref:`reactions_examples`.
 
 Flux averages and integrals
 ---------------------------
