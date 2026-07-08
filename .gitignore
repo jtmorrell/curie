@@ -44,3 +44,11 @@ curie_improvement_plan.md
 CLAUDE.md
 .claude/
 
+
+# Scratch files written to CWD by docstring/doctest examples (saveas targets)
+/test_calib.json
+/example_calib.json
+/eu_calib.json
+/water.json
+/brass.csv
+/compounds.csv
