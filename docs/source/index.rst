@@ -20,8 +20,8 @@ Curie's features are primarily class-based.  Here are a few examples:
 * Reaction - Cross section vs. energy for a single reaction (interpolate, flux-average, plot)
 * Library - Search which evaluated libraries carry a given reaction
 
-To get started, visit the :ref:`quickinstall` guide and then
-:ref:`getting_started`, which maps out the classes and gives a few
+To get started, visit the :ref:`quickinstall` guide and then the
+:ref:`quickstart`, which maps out the classes and gives a few
 examples to run.  New to activation analysis itself?  The
 :ref:`beginners_guide` introduces the field from the ground up.
 Throughout the documentation (and in all of the docstring examples),
@@ -38,6 +38,7 @@ Curie is imported as::
    :maxdepth: 1
 
    quickinstall
+   quickstart
    usersguide/index
    methods
    api/index

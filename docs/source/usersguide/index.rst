@@ -4,15 +4,12 @@
 User's Guide
 ============
 
-The User's Guide introduces the essential classes in Curie, with worked examples.  For the full details of every method and attribute, see the :ref:`api`.
-
-The :ref:`getting_started` page maps out the classes — grouped by what you would use them for — and gives a few examples to run.  The other links provide more specific details and worked examples for each topic.
+The User's Guide covers each topic in depth: an overview, a task-by-task reference, a worked tutorial, and a troubleshooting page.  For a quick tour of the classes first, see the :ref:`quickstart`; for the full details of every method and attribute, see the :ref:`api`.
 
 .. toctree::
     :numbered: 2
     :maxdepth: 2
 
-    getting_started
     spectroscopy
     isotopes
     reactions

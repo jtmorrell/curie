@@ -1,8 +1,8 @@
-.. _getting_started:
+.. _quickstart:
 
-===============
-Getting Started
-===============
+==========
+Quickstart
+==========
 
 Once Curie is installed (see :ref:`quickinstall`), everything is reached
 through a single import::

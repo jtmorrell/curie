@@ -47,7 +47,7 @@ behave in a target, and finally how all of this is combined to predict
 yields and design an experiment.
 
 **In Curie.**  Every class in the toolkit sits somewhere on this chain; the
-:ref:`getting_started` page maps them out.
+:ref:`quickstart` maps them out.
 
 .. _bg_production:
 
