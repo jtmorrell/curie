@@ -4,122 +4,70 @@
 Stopping Power Calculations
 ===========================
 
-Curie can be used to calculate stopping powers using the Anderson-Ziegler formalism, and to retrieve photon
-mass-attenuation coefficients, for any element up to Z=92, or any compound of elements.  The element
-and compound classes can be used to directly calculate/retrieve these quantities.
+Three classes handle the interaction of particles with bulk matter.
+`Element` and `Compound` describe the materials: their charged-particle
+stopping powers and ranges (Andersen–Ziegler formulation, any element up
+to uranium), and their photon attenuation coefficients.  `Stack` puts
+materials in a beam: it transports charged particles through a stack of
+foils and computes the energy distribution of the beam in every layer —
+the quantity that connects an irradiation to its cross sections.
 
-Examples::
+.. figure:: ../images/stack_fluxes.png
+   :width: 80%
+   :align: center
 
-	el = ci.Element('Hf')
-	print(el.mass)
-	print(el.density)
-	print(el.isotopes)
-	print(el.abundances)
-	f,ax = el.plot_mass_coeff(return_plot=True)
-	el.plot_mass_coeff_en(energy=10.0**(np.arange(0,4,0.01)), f=f, ax=ax)
-	el.plot_mass_coeff_en()
+   A 30 MeV proton beam degrading through a six-foil stack: each foil
+   sees a lower, wider energy distribution.
 
-	el = ci.Element('Fe')
-	print(el.attenuation(511, x=0.3))
-	print(el.attenuation(300, x=0.5, density=8))
-	print(el.S(20.0, particle='Ca-40'))
-	print(el.S(60.0))
-	el.plot_S(particle='40CA')
-	print(el.range(60.0))
-	el.plot_range()
-	el.plot_mass_coeff()
-	el.plot_mass_coeff(style='poster')
-	ci.set_style()
+Workflow
+--------
 
-	el = ci.Element('La')
-	print(el.S(60.0))
-	print(el.S(55.0, density=1E-3)) ### S in MeV/(mg/cm^2)
+`Element` and `Compound` answer design questions directly — how much
+energy does a proton lose in this foil (``S``), how thick a degrader do I
+need (``range``), how strongly does this sample absorb gamma rays
+(``attenuation``).  A `Stack` calculation follows three steps:
 
-	el = ci.Element('Fe')
-	print(el.range(60.0))
-	el = ci.Element('U')
-	print(el.range(60.0))
+1. **Define the materials**: natural elements by symbol, compounds by
+   chemical formula, preset name (``ci.COMPOUND_LIST``), or explicit
+   elemental weights.
+2. **Define the stack**: an ordered list of foils (first foil hit first),
+   each with a compound and enough information to fix its areal density
+   (mass per unit beam area, in mg/cm2), and a ``name`` for each foil you
+   want tallied.
+3. **Transport and use**: ``ci.Stack(stack, E0=..., particle='p')``
+   computes every foil's mean energy, energy width and full flux
+   distribution — and ``rx.average(*st.get_flux('name'))`` turns the
+   latter into the effective cross section of that foil.
 
-	el = ci.Element('Hg')
-	print(el.mu(200))
-	print(el.mu_en(200))
+The :ref:`stopping_tasks` page details each step, the
+:ref:`stopping_tutorial` builds up from single stopping powers to the
+thin-vs-thick foil comparison, and :ref:`stopping_troubleshooting`
+covers the common pitfalls.
 
-	cm = ci.Compound('Silicone')
-	print(cm.weights)
+Uses and limitations
+--------------------
 
-	for c in ['H2C3.2RbHeCe4Pb','H2O','NHO2','H2.5O1.5','SrCO3']:
-		cm = ci.Compound(c)
-		print(cm.weights)
+The stopping powers are the Andersen–Ziegler semi-empirical
+parameterization (see :ref:`methods_stopping`): protons, deuterons,
+tritons and alphas are supported directly, and heavier ions through an
+effective-charge scaling.  Compound stopping powers use Bragg additivity
+(weighted sums of the elemental values), which neglects chemical-bonding
+effects — a percent-level approximation, worst for light compounds at
+low energies.
 
-	print('Silicone' in ci.COMPOUND_LIST)
-	cm = ci.Compound('Silicone')
-	print(list(map(str, cm.elements)))
-	cm = ci.Compound('H2O', density=1.0)
-	print(cm.mu(200))
-	print(cm.mu_en(200))
-	print(cm.weights)
+`Stack` models energy loss only: particles slow down but are never
+absorbed or deflected, so the computed flux distributions describe the
+beam's *energy*, not its attenuated intensity, and lateral spread is not
+modeled.  The width of each foil's energy distribution comes from the
+incident beam spread (``dE0``) plus the spread the beam picks up as it
+degrades — slower particles lose energy faster, so an initially narrow
+beam broadens as it slows.  Collisional straggling is not added on top,
+so very thick degraders will in reality produce a somewhat wider
+distribution than computed (see :ref:`methods_stopping`).
 
+.. toctree::
+   :maxdepth: 1
 
-	cm = ci.Compound('SS_316') # preset compound for 316 Stainless
-	print(cm.attenuation(511, x=0.3))
-	print(cm.attenuation(300, x=1.0, density=5.0))
-
-	cm = ci.Compound('Fe')
-	print(cm.range(60.0))
-	cm = ci.Compound('SS_316')
-	print(cm.range(60.0))
-
-	cm = ci.Compound('Brass', weights={'Zn':-33,'Cu':-66})
-	print(cm.weights)
-	cm.saveas('compounds.csv')
-
-	cm = ci.Compound('Bronze', weights={'Cu':-80, 'Sn':-20}, density=8.9)
-	f,ax = cm.plot_range(return_plot=True)
-	cm.plot_range(particle='d', f=f, ax=ax)
-
-	cm = ci.Compound('Bronze', weights='example_compounds.json')
-	print(cm.weights)
-	cm.saveas('compounds.csv')
-
-	cm = ci.Compound('Bronze', weights='example_compounds.csv', density=8.9)
-	cm.plot_mass_coeff()
-	cm.plot_S()
-	cm.plot_range()
-
-	cm = ci.Compound('SrCO3', density=3.5)
-	print(cm.S(60.0))
-	print(cm.S(55.0, density=1E-3)) ### S in MeV/(mg/cm^2)
-
-
-Additionally, Curie can be used to determine the flux profile of particles through a "stack" of
-material, that can be composed of either elements or compounds.  The transport calculation is done
-using a predictor-corrector Monte Carlo method.  For more details, see the Curie :ref:`api`.
-
-Examples::
-
-	stack = [{'cm':'H2O', 'ad':800.0, 'name':'water'},
-			{'cm':'RbCl', 'density':3.0, 't':0.03, 'name':'salt'},
-			{'cm':'Kapton', 't':0.025},
-			{'cm':'Brass','ad':350, 'name':'metal'}]
-
-	st = ci.Stack(stack, compounds={'Brass':{'Cu':-66, 'Zn':-33}}, E0=60.0)
-	st.saveas('example_stack.csv')
-	st.saveas('example_stack.json', filter_name=False)
-	st.saveas('example_stack.db', save_fluxes=False)
-	st.summarize()
-	st.summarize(filter_name=False)
-	st.plot()
-	st.plot(filter_name='salt')
-
-	st = ci.Stack(stack, compounds='example_compounds.json')
-	print(st.stack)
-	st.saveas('stack_calc.csv')
-	print(st.fluxes)
-	st.saveas('test.csv')
-	st.saveas('test.db')
-	st.summarize()
-	st.plot()
-
-	st = ci.Stack('test_stack.csv')
-	print(st.stack)
-	st.plot()
+   stopping_tasks
+   stopping_tutorial
+   stopping_troubleshooting

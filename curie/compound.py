@@ -27,6 +27,9 @@ def __getattr__(name):
 
 
 
+__doctest_skip__ = ['Compound']
+
+
 class Compound(object):
 	"""Data and properties of atomic compounds
 
@@ -108,7 +111,7 @@ class Compound(object):
 	>>> print(list(map(str, cm.elements)))
 	['H', 'C', 'O', 'Si']
 	>>> cm = ci.Compound('H2O', density=1.0)
-	print(cm.weights)
+	>>> print(cm.weights)
 	  element  Z  atom_weight  mass_weight
 	0       H  1     0.666667     0.111907
 	1       O  8     0.333333     0.888093
@@ -323,7 +326,7 @@ class Compound(object):
 		--------
 		>>> cm = ci.Compound('H2O')
 		>>> print(cm.mu(200))
-		0.13703928393005832
+		0.1370392839300583
 
 		"""
 
@@ -421,7 +424,7 @@ class Compound(object):
 			specified either by element or isotope, e.g. 'Fe', '40CA', 'U', 'Bi-209'. For
 			light ions, the charge state is assumed to be fully stripped. For heavy ions
 			the charge state is handled by a Bohr/Northcliffe parameterization consistent
-			with the Anderson-Ziegler formalism.
+			with the Andersen-Ziegler formalism.
 
 		density : float, optional
 			Density of the compound in g/cm^3.  Default behavior is to use
@@ -468,7 +471,7 @@ class Compound(object):
 			specified either by element or isotope, e.g. 'Fe', '40CA', 'U', 'Bi-209'. For
 			light ions, the charge state is assumed to be fully stripped. For heavy ions
 			the charge state is handled by a Bohr/Northcliffe parameterization consistent
-			with the Anderson-Ziegler formalism.
+			with the Andersen-Ziegler formalism.
 
 		density : float, optional
 			Density of the compound in g/cm^3.  Default behavior is to use

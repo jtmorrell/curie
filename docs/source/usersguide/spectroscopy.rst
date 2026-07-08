@@ -4,106 +4,65 @@
 Spectroscopy
 ============
 
-Curie has two classes for analyzing high-purity germanium (HPGe) data, the `Spectrum` class, which performs
-peak fitting, and the `Calibration` class, which generates an energy, efficiency and resolution calibration
-which are needed to accurately fit peaks and determine activities.  See the Curie :ref:`api` for more details
-on the methods and attributes of these classes.
+Curie provides two classes for analyzing gamma-ray spectra from high-purity
+germanium (HPGe) detectors: the `Spectrum` class, which reads spectra and
+performs peak fitting, and the `Calibration` class, which generates and
+stores the energy, resolution and efficiency calibrations needed to convert
+fitted peaks into activities.
 
-Examples::
+.. figure:: ../images/eu_spectrum_fit.png
+   :width: 100%
 
-	sp = ci.Spectrum('eu_calib_7cm.Spe')
-	sp.isotopes = ['152EU']
-	sp.isotopes = ['152EU', '40K']
-	sp.fit_peaks(gammas=[{'energy':1460.8, 'intensity':10.66, 'unc_intensity':0.55}])
-	sp.fit_peaks(gammas=ci.Isotope('40K').gammas(istp_col=True))
-	sp.summarize()
-	sp.saveas('test_spec.csv')
-	sp.saveas('test_spec.db')
-	sp.saveas('test_spec.json')
-	sp.plot()
+   A :sup:`152`\ Eu calibration spectrum with fitted peaks.
 
-	cb = ci.Calibration()
-	cb.calibrate([sp], [{'isotope':'152EU', 'A0':3.7E4, 'ref_date':'01/01/2016 12:00:00'}])
-	cb.plot()
-	cb.saveas('calib.json')
-	sp.saveas('test_spec.json')
+Workflow
+--------
 
+A typical spectroscopy analysis proceeds in five steps:
 
-	cb = ci.Calibration()
-	print(cb.engcal)
-	print(cb.eng(np.arange(10)))
-	cb.engcal = [0.1, 0.2, 0.003]
-	print(cb.eng(np.arange(10)))
+1. **Load** a spectrum from disk: ``sp = ci.Spectrum('eu_calib_7cm.Spe')``.
+   Ortec .Spe and .Chn and Canberra .CNF and .IEC formats are supported.
+2. **Identify** the gamma-decaying isotopes present:
+   ``sp.isotopes = ['152EU', '40K']``.  Curie retrieves their gamma lines
+   from its decay data.
+3. **Calibrate**: apply a saved calibration for this detector and counting
+   geometry: ``sp.cb = 'eu_calib.json'``.
+4. **Fit** the peaks: ``sp.fit_peaks()``, tuned by the ``fit_config``
+   options.  The result is the ``sp.peaks`` table of counts, decays and
+   activities per gamma line.
+5. **Inspect and export**: ``sp.summarize()``, ``sp.plot()``, and
+   ``sp.saveas()`` to .csv, .json, .db or .Chn.
 
-	cb = ci.Calibration()
-	print(cb.effcal)
-	print(cb.unc_effcal)
-	print(cb.eff(50*np.arange(1,10)))
-	print(cb.unc_eff(50*np.arange(1,10)))
+These steps describe routine analysis with an existing calibration.
+*Creating* that calibration is a separate, usually one-time task:
+`Calibration.calibrate()` fits the peaks of reference-source spectra
+itself, so it runs before any manual peak fitting — the
+:ref:`spectroscopy_tutorial` walks through it.
 
-	cb = ci.Calibration()
-	print(cb.rescal)
-	print(cb.res(100*np.arange(1,10)))
+Each of these steps is detailed in the :ref:`spectroscopy_tasks` page, the
+:ref:`spectroscopy_tutorial` walks through a complete efficiency
+calibration with a :sup:`152`\ Eu source, and
+:ref:`spectroscopy_troubleshooting` collects the most common pitfalls —
+most of them involving the energy calibration.
 
-	cb = ci.Calibration()
-	print(cb.engcal)
-	print(cb.map_channel(300))
-	print(cb.eng(cb.map_channel(300)))
+Uses and limitations
+--------------------
 
-	sp = ci.Spectrum('eu_calib_7cm.Spe')
-	sp.isotopes = ['152EU']
+These classes are designed for *activation analysis*: quantifying the
+activities of known gamma-emitting isotopes in a counted sample.  The
+peak-fit and efficiency models (described in :ref:`methods_peak_fitting`
+and :ref:`methods_calibration`) are tuned for HPGe data, and are not
+intended for low-resolution detectors such as NaI.  Peak identification is
+driven by the assigned isotope list — Curie fits the gamma lines it
+expects from those isotopes, rather than hunting for unidentified peaks.
+True-coincidence summing — two gammas from the same decay cascade arriving
+together and counted as one event — is not corrected; it matters mainly
+for samples counted very close to the detector, so calibrate at a moderate
+standoff or with single-line sources.
 
-	cb = ci.Calibration()
-	cb.calibrate([sp], sources=[{'isotope':'152EU', 'A0':3.5E4, 'ref_date':'01/01/2009 12:00:00'}])
-	cb.plot_engcal()
-	cb.plot_rescal()
-	cb.plot_effcal()
-	cb.plot()
+.. toctree::
+   :maxdepth: 1
 
-	sp = ci.Spectrum('eu_calib_7cm.Spe')
-	print(sp.attenuation_correction(['Fe', ci.Compound('H2O', density=1.0)], x=[0.1, 0.5])(100*np.arange(1,10)))
-	print(sp.attenuation_correction(['La', ci.Compound('Kapton', density=12.0)], ad=[0.1, 0.5])(100*np.arange(1,10)))
-
-	sp = ci.Spectrum('eu_calib_7cm.Spe')
-	print(sp.geometry_correction(distance=4, r_det=5, thickness=0.1, sample_size=2, shape='square'))
-	print(sp.geometry_correction(distance=30, r_det=5, thickness=10, sample_size=1))
-	print(sp.geometry_correction(distance=4, r_det=5, thickness=0.1, sample_size=(2,1.5), shape='rectangle'))
-
-	sp = ci.Spectrum('eu_calib_7cm.Spe')
-	print(sp.cb.engcal)
-	sp.cb.engcal = [0.3, 0.184]
-	sp.isotopes = ['152EU']
-	sp.plot()
-
-	sp = ci.Spectrum('eu_calib_7cm.Spe')
-	sp.cb.engcal = [0.3, 0.1835]
-	sp.isotopes = ['152EU']
-	sp.auto_calibrate()
-	print(sp.cb.engcal)
-	sp.plot()
-
-	sp = ci.Spectrum('eu_calib_7cm.Spe')
-	sp.cb.engcal = [0.3, 0.1]
-	sp.isotopes = ['152EU']
-	sp.auto_calibrate(peaks=[[664, 121.8]])
-	print(sp.cb.engcal)
-	sp.plot()
-
-	sp = ci.Spectrum('eu_calib_7cm.Spe')
-	sp.cb.engcal = [0.3, 0.1]
-	sp.isotopes = ['152EU']
-	sp.auto_calibrate(guess=[0.3, 0.1835])
-	print(sp.cb.engcal)
-	sp.plot()
-
-	sp = ci.Spectrum('eu_calib_7cm.Spe')
-	sp.isotopes = ['152EU']
-	sp.plot()
-	sp.plot(xcalib=False)
-	sp.plot(style='poster')
-	sp.summarize()
-	sp.saveas('test_plot.png')
-	sp.saveas('eu_calib.Chn')
-	sp.saveas('peak_data.csv')
-	print(sp.fit_peaks(SNR_min=5, dE_511=12))
-	print(sp.fit_peaks(bg='quadratic'))
+   spectroscopy_tasks
+   spectroscopy_tutorial
+   spectroscopy_troubleshooting

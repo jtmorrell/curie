@@ -21,6 +21,7 @@
 
 # Other #
 ./build/
+docs/build/
 dist/
 data/
 data/atomic_data/

@@ -29,7 +29,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install -e .
-          python -m pip install pytest
+          python -m pip install pytest pytest-doctestplus
 
       - name: Restore nuclear data fixture
         id: data-cache
@@ -59,6 +59,19 @@ jobs:
         env:
           CURIE_DATA_DIR: /home/runner/curie-ci-data
         run: python -m pytest -ra
+
+      - name: Run docstring doctests (data-light modules)
+        # Runs the docstring examples as doctests to catch example rot. Scoped to
+        # the modules whose examples are deterministic and need only the fixture
+        # data (ziegler + decay); plot / file-I/O / DataFrame / endf-tendl
+        # examples are excluded via each module's __doctest_skip__. The
+        # `import curie as ci` alias is injected by conftest.py.
+        env:
+          CURIE_DATA_DIR: /home/runner/curie-ci-data
+          MPLBACKEND: Agg
+        run: |
+          python -m pytest --doctest-plus --doctest-modules \
+            curie/element.py curie/compound.py curie/isotope.py curie/calibration.py
 
   cold-cache:
     # a fresh machine: wheel install, empty cache, no local data anywhere;

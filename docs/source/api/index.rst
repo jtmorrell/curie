@@ -4,20 +4,26 @@
 API
 ===
 
-Welcome to the Curie API!  Detailed information about Curie's fuctions, classes and class methods can be obtained following the links below.
+The API reference documents Curie's functions, classes and class methods; follow the links below.
 
 
 .. toctree::
+    :maxdepth: 1
+
     isotope
     element
     compound
     stack
 
 .. toctree::
+    :maxdepth: 1
+
     library
     reaction
 
 .. toctree::
+    :maxdepth: 1
+
     calibration
     spectrum
     decaychain
