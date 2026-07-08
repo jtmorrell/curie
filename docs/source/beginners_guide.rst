@@ -309,3 +309,11 @@ groups of the :ref:`usersguide` cover the individual steps, and their
 troubleshooting pages collect the pitfalls (unit mix-ups, a beam that stops
 in the stack, thick-foil energy spread, monitor-reaction choice) that most
 often trip up a first experiment.
+
+For a single script that runs this whole chain on a real dataset, see
+`examples/stacked_target_analysis.py
+<https://github.com/jtmorrell/curie/blob/master/examples/stacked_target_analysis.py>`_:
+it builds the foil stack of a published :sup:`nat`\ La(p,x) measurement
+(`Morrell et al., arXiv:1907.04431 <https://arxiv.org/abs/1907.04431>`_),
+transports the beam, flux-averages an evaluated excitation function over
+each foil, and compares the result against the published cross sections.

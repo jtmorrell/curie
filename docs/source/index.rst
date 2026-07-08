@@ -45,9 +45,9 @@ field from the ground up.  Otherwise, install Curie (:ref:`quickinstall`) and
 take the :ref:`quickstart` tour.  Throughout the documentation (and in all of
 the docstring examples), Curie is imported as ``import curie as ci``.
 
-**Citing Curie.**  If Curie contributes to published work, please cite it via
-its repository, https://github.com/jtmorrell/curie.  (A citable release DOI can
-be added here.)
+**Citing Curie.**  If Curie contributes to published work, please cite it, for
+example: J. T. Morrell, *Curie: A Python toolkit to aid in the analysis of
+experimental nuclear data* (2019–), https://jtmorrell.github.io/curie/.
 
 .. only:: html
 
