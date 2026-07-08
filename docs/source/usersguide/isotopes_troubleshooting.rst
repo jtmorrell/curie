@@ -18,7 +18,7 @@ gamma lines belong to a different state than the one in your sample.
 
 **Cause:** the isomer suffix.  Curie's naming convention is
 ``AAAEL`` + state, where the state is ``g`` (ground), ``m`` or ``m1``
-(first isomer), ``m2`` (second isomer)...  If no state is given, **the
+(first isomer), ``m2`` (second isomer).  If no state is given, **the
 ground state is assumed**: ``ci.Isotope('99TC')`` is the 211,000-year
 ground state, not the 6-hour :sup:`99m`\ Tc used in nuclear medicine.
 Nothing warns you, because the ground state is a perfectly valid isotope.
@@ -47,8 +47,9 @@ good-looking fit.
 
 **Cause:** the decay clock.  All of `DecayChain`'s times are measured
 from t = 0, which is the **end of production** — for counts loaded with
-``get_counts()``, the ``EoB`` argument you supply *is* that zero point,
-and every spectrum's decay time is computed as (count start - EoB).  Two
+``get_counts()``, the ``EoB`` (end-of-bombardment) argument you supply
+*is* that zero point, and every spectrum's decay time is computed as
+(count start - EoB).  Two
 things commonly corrupt it:
 
 * **A wrong or mistyped EoB** (or one in ``'%d/%m/%Y'`` order — the

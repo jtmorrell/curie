@@ -105,7 +105,7 @@ and plot the fitted decay curve against the measurements::
    :width: 80%
    :align: center
 
-The fitted activity at the certificate date is 36.3 ± 2.5 kBq — in
+The fitted activity at the certificate date is 36.3 +/- 2.5 kBq — in
 agreement with the certified 37.0 kBq.  Each point in the plot is one
 gamma line's estimate of the activity; the fit combines them while
 accounting for their shared uncertainties, the efficiency calibration and

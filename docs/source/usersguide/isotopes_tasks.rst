@@ -69,8 +69,9 @@ Emission tables
 ---------------
 
 The decay radiations are returned as pandas DataFrames, with energies in
-keV and intensities in percent (per decay).  Each accepts intensity
-(``I_lim``) and energy (``E_lim``) filters::
+keV and intensities in percent (per decay).  Each accepts an intensity
+filter (``I_lim``) and an energy filter (``E_lim`` — or ``Endpoint_lim``
+for the beta spectra)::
 
 	ip = ci.Isotope('Co-60')
 	print(ip.gammas(I_lim=1.0))          # gamma lines above 1%

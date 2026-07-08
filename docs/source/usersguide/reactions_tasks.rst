@@ -43,9 +43,9 @@ priority order and keeps the first one that carries the reaction:
 ======================  ====================================================
 Incident particle       Priority order
 ======================  ====================================================
-neutron                 IRDFF-II → ENDF/B-VII.1 → IAEA → TENDL-2015 →
+neutron                 IRDFF-II -> ENDF/B-VII.1 -> IAEA -> TENDL-2015 ->
                         TENDL-2015 (residual product)
-proton, deuteron        IAEA → TENDL-2015 (residual product)
+proton, deuteron        IAEA -> TENDL-2015 (residual product)
 alpha, helion, photon   IAEA
 ======================  ====================================================
 
@@ -122,6 +122,9 @@ For an activation measurement, the effective cross section is the
 flux-weighted average over the particle spectrum.  Give ``average()``
 your energy grid and the flux on that grid::
 
+	import numpy as np
+
+	rx = ci.Reaction('90ZR(n,2n)', 'irdff')      # a threshold reaction
 	eng = np.linspace(10, 30, 50)
 	phi = np.exp(-0.5*((eng - 20)/3.5)**2)       # any relative shape
 	print(rx.average(eng, phi))

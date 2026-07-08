@@ -8,7 +8,7 @@ This tutorial walks through a complete efficiency calibration using
 ``eu_calib_7cm.Spe`` — a spectrum of a :sup:`152`\ Eu reference source
 counted 7 cm from an HPGe detector, available in the `examples folder`_ of
 the Curie repository.  The source had a certified activity of 37.0 kBq
-(1.0 µCi) on 01/01/2009.
+(1.0 uCi) on 01/01/2009.
 
 .. _examples folder: https://github.com/jtmorrell/curie/blob/master/examples/
 
@@ -89,7 +89,7 @@ rates across lines spanning 122 to 1408 keV::
 	7   152EU  344.2785  213990.0       669.0   0.265900     0.01605     21911.0          2030.0   2.19
 
 The ``decay_rate`` column — the activity of the source during the count —
-clusters around 22.6 kBq for every line: the 37 kBq source decayed for
+clusters around 22.6 kBq for every line: the 37.0 kBq source decayed for
 9.7 years — a bit under one 13.5 y half-life — between the reference
 date and the count.
 (The large ``chi2`` on the very intense 122 keV peak is expected for a
@@ -98,6 +98,7 @@ peak with half a million counts — see the note on high-statistics peaks in
 information line by line::
 
 	>>> sp.summarize()
+	...
 	152EU - 244.6974 keV (I = 7.55%)
 	--------------------------------
 	counts: 80193 +/- 403
@@ -111,12 +112,12 @@ Saving and re-using the calibration
 -----------------------------------
 
 Save the calibration, and apply it to any other spectrum counted in the
-same geometry — here ``sample_7cm.Spe`` and :sup:`64`\ Cu stand in for a
-later measurement of your own::
+same geometry — here ``your_sample.Spe`` and :sup:`64`\ Cu stand in for
+a later measurement of your own (substitute your own spectrum)::
 
 	cb.saveas('eu_calib.json')
 
-	sp2 = ci.Spectrum('sample_7cm.Spe')
+	sp2 = ci.Spectrum('your_sample.Spe')
 	sp2.cb = 'eu_calib.json'
 	sp2.isotopes = ['64CU']
 	sp2.summarize()

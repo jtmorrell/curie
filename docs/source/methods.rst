@@ -272,7 +272,7 @@ calibration, and `Calibration.unc_eff()` propagates it to any energy, so
 efficiencies interpolated from the calibration carry correlated,
 energy-dependent uncertainties.
 
-.. [Vidmar2001] T. Vidmar, M. Korun, A. Likar and M. Lipoglavšek, "A
+.. [Vidmar2001] T. Vidmar, M. Korun, A. Likar and M. Lipoglavsek, "A
    physically founded model of the efficiency curve in gamma-ray
    spectrometry", *J. Phys. D: Appl. Phys.* **34** (2001) 2555,
    `doi:10.1088/0022-3727/34/16/323
@@ -520,7 +520,7 @@ The width of these distributions reflects the initial beam spread and
 the increasing divergence of particle energies as the ensemble slows
 (slower particles lose energy faster).  Collisional energy-loss
 straggling — the stochastic variance growth described by Bohr and
-Tschalär — is *not* added, so for very thick degraders the true energy
+Tschalar — is *not* added, so for very thick degraders the true energy
 spread is somewhat larger than computed.  Particles are neither absorbed
 nor deflected: the distributions describe the beam's energy, not its
 intensity, and lateral spread is not modeled.

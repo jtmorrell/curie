@@ -141,5 +141,5 @@ flat 12–30 MeV flux::
 
 Same reaction, same flux — and a factor of 2.4 between the answers,
 entirely from the grid.  Whenever your spectrum extends above ~20 MeV,
-check ``rx.eng.max()`` against it, and prefer IRDFF-II (or TENDL, which
-extends to 200 MeV) for the high-energy part.
+check the reaction's ``.eng.max()`` against it, and prefer IRDFF-II (or
+TENDL, which extends to 200 MeV) for the high-energy part.

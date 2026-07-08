@@ -4,6 +4,8 @@
 License Agreement
 =================
 
+Curie is distributed under the MIT License:
+
 Copyright (c) 2018-2026 Jonathan Morrell
 
 Permission is hereby granted, free of charge, to any person obtaining a copy

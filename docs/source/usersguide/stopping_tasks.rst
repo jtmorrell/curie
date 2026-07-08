@@ -29,7 +29,7 @@ Photon attenuation
 ------------------
 
 ``mu()`` and ``mu_en()`` return the mass-attenuation and
-mass-energy-absorption coefficients (cm²/g) at a given photon energy (in
+mass-energy-absorption coefficients (cm2/g) at a given photon energy (in
 keV, as everywhere photons appear), and ``attenuation()`` the fraction of
 photons transmitted through a thickness ``x`` (cm)::
 
@@ -51,7 +51,7 @@ at an energy in MeV::
 	print(el.S(15.0, density=1E-3))   # MeV/(mg/cm2) - mass stopping power
 
 The ``density=1E-3`` idiom returns the *mass* stopping power, which is
-what stacked-target work uses (areal densities in mg/cm²).  The particle
+what stacked-target work uses (areal densities in mg/cm2).  The particle
 is ``'p'`` (default), ``'d'``, ``'t'`` or ``'a'`` — or any element or
 isotope name (``'Fe'``, ``'40CA'``) for heavy ions.
 
@@ -74,7 +74,7 @@ to make one::
 	cm = ci.Compound('Brass', weights={'Cu':-66, 'Zn':-33}, density=8.5)
 
 Formulas support decimal subscripts (``'C0.5O'``) but not parentheses —
-write Ca₃(PO₄)₂ as ``'Ca3P2O8'``.  In a ``weights`` dict, **positive
+write Ca3(PO4)2 as ``'Ca3P2O8'``.  In a ``weights`` dict, **positive
 numbers are atom fractions, negative numbers are mass fractions** (the
 brass above is 66% copper *by weight*); either kind is normalized for
 you.  Weights can also come from a .csv/.json/.db file describing many
@@ -97,10 +97,10 @@ A stack is an ordered list of foils — first foil hit first — passed to
 	st = ci.Stack(stack, E0=30.0, particle='p')
 
 Each foil needs a compound (``'compound'``, shorthand ``'cm'``) and
-enough information to fix its **areal density** in mg/cm², given
+enough information to fix its **areal density** in mg/cm2, given
 directly (``'areal_density'``/``'ad'``) or computed from: ``'mass'``
-(g) with ``'area'`` (cm²), or ``'thickness'`` (mm) with ``'density'``
-(g/cm³) — the density coming from the compound definition if not given
+(g) with ``'area'`` (cm2), or ``'thickness'`` (mm) with ``'density'``
+(g/cm3) — the density coming from the compound definition if not given
 per-foil.  Every key has a shorthand, used in the example above:
 ``cm`` = compound, ``t`` = thickness, ``d`` = density, ``m`` = mass,
 ``a`` = area, ``ad`` = areal_density, ``nm`` = name.
@@ -129,6 +129,7 @@ The full energy distributions are in ``st.fluxes``, plotted with
 ``st.plot()``, and retrieved per foil with ``get_flux()`` — whose output
 feeds directly into a cross-section average::
 
+	rx = ci.Reaction('natTI(p,x)48V')     # a reaction on the foil material
 	eng, phi = st.get_flux('Ti01')
 	print(rx.average(eng, phi))
 
@@ -140,7 +141,7 @@ Solver options
 
 The defaults suit most problems; the knobs, all keyword arguments to
 `Stack`: ``dE0`` (1-sigma width of the incident beam energy, default 1%
-of ``E0``), ``N`` (number of Monte Carlo particles, default 10⁴),
+of ``E0``), ``N`` (number of Monte Carlo particles, default 10000),
 ``accuracy``/``min_steps``/``max_steps`` (energy-loss stepping control
 per foil), and ``dp`` (a density multiplier applied to the whole stack —
 useful as a fit parameter when tuning a stack model to measured monitor

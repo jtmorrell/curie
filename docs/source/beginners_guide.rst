@@ -236,7 +236,7 @@ where :math:`I_p` is the beam current (particles per second),
 :math:`\langle\sigma\rangle` the cross section *averaged over the energy
 distribution of the beam in that foil* — the foil's energy spectrum, which
 `Stack.get_flux` supplies.  (Curie also folds in the unit factor converting
-mb to cm\ :sup:`2`; the :ref:`reactions` page gives the fully dimensioned
+mb to cm2; the :ref:`reactions` page gives the fully dimensioned
 form.)
 That flux-averaging is where the
 previous section pays off: for a thin foil the average is essentially the

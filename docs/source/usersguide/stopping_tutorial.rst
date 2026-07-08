@@ -64,7 +64,7 @@ materials::
 	289.24...
 
 The second form (the ``density=1E-3`` idiom again) gives the range as a
-*mass thickness* in mg/cm² — the unit stacked-target work is done in,
+*areal density* (mass thickness) in mg/cm2 — the unit stacked-target work is done in,
 since foils are weighed rather than measured.
 
 A first stack
@@ -114,7 +114,8 @@ Thin and thick foils: when the mean energy isn't enough
 It is tempting to characterize each foil by ``mu_E`` alone and read the
 cross section off at that energy.  For thin foils that works.  For thick
 foils it can fail badly, because the beam spans a wide slice of the
-excitation function inside the foil.  Compare a 25 µm and a 0.75 mm
+excitation function (the cross section as a function of energy) inside
+the foil.  Compare a 25 um and a 0.75 mm
 titanium foil, both hit by 15 MeV protons (the range is 0.87 mm — the
 thick foil eats most of the beam's energy)::
 
@@ -135,9 +136,9 @@ section against the shortcut of evaluating at the mean energy:
 .. code-block:: none
 
 	thin:  mu_E = 14.88 MeV, sig_E = 0.18 MeV
-	       <sigma> = 287.4 mb    sigma(mu_E) = 287.5 mb    (+0.1%)
+	       <sigma> = 287.4 mb    sigma(mu_E) = 287.5 mb    (<0.1%)
 	thick: mu_E = 10.51 MeV, sig_E = 2.96 MeV
-	       <sigma> = 309.4 mb    sigma(mu_E) = 384.7 mb    (+24.3%)
+	       <sigma> = 309.4 mb    sigma(mu_E) = 384.7 mb    (+24%)
 
 computed, for each stack, as::
 
@@ -152,10 +153,13 @@ computed, for each stack, as::
 (The figure overlays the two ``get_flux`` distributions with the
 excitation function ``rx.interpolate`` on a second axis.)
 
-For the thin foil the two agree to 0.1%; for the thick foil the
-mean-energy shortcut overestimates the effective cross section by 24%,
-because the mean energy happens to sit near the peak while much of the
-flux does not.  The rule of thumb: whenever ``sig_E`` is not small
+For the thin foil the two agree to well under a percent; for the thick
+foil the mean-energy shortcut overestimates the effective cross section
+by about 24%, because the mean energy happens to sit near the peak while
+much of the flux does not.  (The exact ``Stack`` numbers vary slightly
+run to run, since the beam energy is sampled stochastically, but this
+thin-versus-thick contrast is robust.)  The rule of thumb: whenever
+``sig_E`` is not small
 compared to the features of the excitation function, use
 ``rx.average(*st.get_flux(...))`` — that is precisely what the flux
 distributions are for.

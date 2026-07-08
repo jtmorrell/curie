@@ -32,7 +32,7 @@ need (``range``), how strongly does this sample absorb gamma rays
    elemental weights.
 2. **Define the stack**: an ordered list of foils (first foil hit first),
    each with a compound and enough information to fix its areal density
-   (mass per unit beam area, in mg/cm²), and a ``name`` for each foil you
+   (mass per unit beam area, in mg/cm2), and a ``name`` for each foil you
    want tallied.
 3. **Transport and use**: ``ci.Stack(stack, E0=..., particle='p')``
    computes every foil's mean energy, energy width and full flux

@@ -61,7 +61,7 @@ Look up the decay data for a radionuclide::
 
 	ip = ci.Isotope('225RA')
 	print(ip.half_life('d'))        # 14.9
-	print(ip.gammas())              # a table of its decay gamma-rays
+	print(ip.gammas())              # a table of its decay gamma rays
 
 Plot an evaluated reaction cross section::
 

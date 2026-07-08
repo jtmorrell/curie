@@ -159,7 +159,7 @@ energy-dependent self-attenuation of the sample: the first entry is the
 sample itself (its correction accounts for emission throughout the
 thickness), and subsequent entries are absorbing layers between sample and
 detector.  Thicknesses ``x`` are in cm (or give areal densities ``ad`` in
-g/cm²)::
+g/cm2 — note this is g/cm2 here, not the mg/cm2 that `Stack` uses)::
 
 	sp.attenuation_correction(['Fe', ci.Compound('H2O', density=1.0)],
 	                          x=[0.1, 0.5])

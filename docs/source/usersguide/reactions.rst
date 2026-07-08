@@ -62,8 +62,8 @@ theory-driven (TALYS-based) evaluations whose strength is complete
 coverage — nearly every target and product, including reactions no one
 has measured.  Where they overlap, they will not agree perfectly; which
 to prefer, and what to watch out for (energy-grid limits, natural vs
-isotopic targets, cumulative vs direct production), is the subject of
-the tutorial.
+isotopic targets, cumulative vs direct/independent production), is the
+subject of the tutorial.
 
 Averages vs. integrals
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -86,17 +86,19 @@ spectrum, and which one you want depends on what your flux array *means*:
          \langle\sigma\rangle \times 10^{-27}
 
   with :math:`I_p` the beam current (particles/s), :math:`n_t` the areal
-  number density of target atoms (atoms/cm²), and :math:`10^{-27}`
-  converting mb to cm².  (Note :math:`n_t` is *atoms* per area — from a
-  foil's areal density in mg/cm², as `Stack` reports it, multiply by
+  number density of target atoms (atoms/cm2), and :math:`10^{-27}`
+  converting mb to cm2.  (Note :math:`n_t` is *atoms* per area — from a
+  foil's areal density in mg/cm2, as `Stack` reports it, multiply by
   :math:`10^{-3} N_A / M` with :math:`M` the molar mass in g/mol.)
 
 * ``rx.integrate(eng, phi)`` returns the **flux integral**
   :math:`\int \sigma(E)\,\phi(E)\,dE`.  Here the normalization of
   ``phi`` is the point: give an absolute differential flux (particles
-  per cm² per second per MeV) and the integral is the reaction rate per
-  target atom, in mb/cm²/s — multiply by :math:`10^{-27}` and by the
-  number of target atoms for the production rate.  This is the natural
+  per cm2 per second per MeV) and the integral is proportional to the
+  reaction rate per target atom (raw units mb/cm2/s) — multiply by
+  :math:`10^{-27}` to convert mb to cm2, giving the per-atom rate in
+  1/s, and by the number of target atoms for the production rate.  This
+  is the natural
   form for yield calculations in a fully specified field, such as a
   reactor neutron spectrum quoted as a differential flux.
 

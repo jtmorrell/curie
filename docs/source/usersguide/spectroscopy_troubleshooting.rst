@@ -114,7 +114,7 @@ particular multiplets (groups of overlapping peaks that are fit together).
 
 **Cause and fix, by situation:**
 
-* **The peak sits on structure** — a backscatter edge, Compton edge, or the
+* **The peak sits on structure** — a backscatter peak, Compton edge, or the
   shoulder of a much larger neighbor.  The default SNIP background assumes
   a smoothly varying continuum and will not follow sharp features.  Refit
   with a polynomial background, which is fit jointly with the peaks:

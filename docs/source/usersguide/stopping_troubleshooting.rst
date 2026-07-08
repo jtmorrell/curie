@@ -19,15 +19,15 @@ change through what should be a substantial degrader.
 **Cause:** almost always units.  The stack input mixes several, and each
 must be right:
 
-* ``thickness`` (``'t'``) is in **mm** — a 25 µm foil is ``0.025``, and
+* ``thickness`` (``'t'``) is in **mm** — a 25 um foil is ``0.025``, and
   typing ``25`` makes it a 2.5 cm slab.
-* ``areal_density`` (``'ad'``) is in **mg/cm²**.
-* ``mass`` is in **g** and ``area`` in **cm²**.
-* ``density`` is in **g/cm³**.
+* ``areal_density`` (``'ad'``) is in **mg/cm2**.
+* ``mass`` is in **g** and ``area`` in **cm2**.
+* ``density`` is in **g/cm3**.
 
 **Fix:** print ``st.stack`` and inspect the computed ``areal_density``
-of each foil — a 25 µm Ti foil should be ~11 mg/cm², a 0.5 mm Al foil
-~135 mg/cm².  If a foil is off by a factor of 10–1000, one of its input
+of each foil — a 25 um Ti foil should be ~11 mg/cm2, a 0.5 mm Al foil
+~135 mg/cm2.  If a foil is off by a factor of 10–1000, one of its input
 units is wrong.
 
 "WARNING: Beam stopped in foil N"
