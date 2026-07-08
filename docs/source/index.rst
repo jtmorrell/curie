@@ -18,26 +18,30 @@ charged-particle stopping powers.
    14.9
    >>> ci.Reaction('115IN(n,g)').plot(scale='loglog')   # a cross section, straight from the libraries
 
-**What do you want to do?**
-
 .. list-table::
    :header-rows: 1
-   :widths: 44 28 28
+   :widths: 56 26 18
 
-   * - I want to...
-     - use...
-     - see...
-   * - Fit peaks in a gamma-ray (HPGe) spectrum and get activities
-     - ``Spectrum`` + ``Calibration``
+   * - Task
+     - Classes
+     - Guide
+   * - Fit photopeaks in HPGe spectra; energy, resolution and efficiency calibration; extract activities
+     - :class:`~curie.Spectrum`, :class:`~curie.Calibration`
      - :ref:`spectroscopy`
-   * - Predict or fit activities and decay chains after an irradiation
-     - ``DecayChain`` (+ ``Isotope``)
+   * - Solve the Bateman equations; fit production rates and end-of-bombardment activities to counting data
+     - :class:`~curie.DecayChain`
      - :ref:`isotopes`
-   * - Look up reaction cross sections from evaluated libraries
-     - ``Reaction`` + ``Library``
+   * - Retrieve, interpolate, and flux-average evaluated cross sections (ENDF/B-VII.1, TENDL-2015, IRDFF-II, IAEA)
+     - :class:`~curie.Reaction`, :class:`~curie.Library`
      - :ref:`reactions`
-   * - Plan a stacked-target irradiation (energies, foils, yields)
-     - ``Stack`` + ``Compound`` / ``Element``
+   * - Compute charged-particle energy loss and flux distributions through a target stack
+     - :class:`~curie.Stack`
+     - :ref:`stopping`
+   * - Look up decay data: half-lives, gamma intensities, branching ratios, atomic masses
+     - :class:`~curie.Isotope`
+     - :ref:`isotopes`
+   * - Stopping powers, ranges, and photon attenuation coefficients for elements and compounds
+     - :class:`~curie.Element`, :class:`~curie.Compound`
      - :ref:`stopping`
 
 New to activation analysis itself?  The :ref:`beginners_guide` introduces the
