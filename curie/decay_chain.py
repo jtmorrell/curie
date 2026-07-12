@@ -543,7 +543,7 @@ class DecayChain(object):
 
 		"""
 
-		counts = []
+		counts, n_nomatch = [], 0
 		if type(EoB)==str:
 			try:
 				EoB = dtm.datetime.strptime(EoB, '%m/%d/%Y %H:%M:%S')
@@ -597,7 +597,10 @@ class DecayChain(object):
 					start = (sp.start_time-EoB).total_seconds()*self._r_lm('s')
 					stop = start+(sp.real_time*self._r_lm('s'))
 			if not len(df):
-				_log.warning('DecayChain.get_counts: {0} contains no peaks matching chain isotopes [{1}]'.format(sp if type(sp)==str else sp.filename, ', '.join(self.isotopes)))
+				# routine when peak data spans many spectra and chains: detail at
+				# DEBUG, count in the summary line; all-empty raises below
+				_log.debug('DecayChain.get_counts: {0} contains no peaks matching chain isotopes [{1}]'.format(sp if type(sp)==str else sp.filename, ', '.join(self.isotopes)))
+				n_nomatch += 1
 			if len(df):
 				if start < 0:
 					_log.warning('DecayChain.get_counts: {0} starts {1:.4g} {2} before EoB - check EoB and the spectrum start time'.format(sp if type(sp)==str else sp.filename, -start, self.units))
@@ -628,7 +631,10 @@ class DecayChain(object):
 			raise ValueError('DecayChain.get_counts: no counts found - none of the {0} spectra contain peaks matching [{1}].'.format(len(spectra), ', '.join(self.isotopes)))
 
 		self.counts = pd.concat(counts, sort=True, ignore_index=True).sort_values(by=['start']).reset_index(drop=True)
-		_log.info('DecayChain.get_counts: {0} counts from {1} spectra for [{2}]'.format(len(self.counts), len(counts), ', '.join(self.isotopes)))
+		msg = 'DecayChain.get_counts: {0} counts from {1} spectra for [{2}]'.format(len(self.counts), len(counts), ', '.join(self.isotopes))
+		if n_nomatch:
+			msg += ' ({0} spectra matched nothing)'.format(n_nomatch)
+		_log.info(msg)
 
 
 	@staticmethod

@@ -1335,8 +1335,11 @@ class Spectrum(object):
 		if len(drops['identical']):
 			parts.append('{0} identical-line'.format(len(drops['identical'])))
 		if len(failed):
-			names = '; '.join('{0} {1} keV'.format(', '.join(dict.fromkeys(map(str, f['isotope']))), ', '.join('{:.1f}'.format(e) for e in f['energy'])) for f in failed)
-			parts.append('{0} fit failed [{1}]'.format(n_failed_pk, names))
+			if len(failed)<=3:
+				names = '; '.join('{0} {1} keV'.format(', '.join(dict.fromkeys(map(str, f['isotope']))), ', '.join('{:.1f}'.format(e) for e in f['energy'])) for f in failed)
+				parts.append('{0} fit failed [{1}]'.format(n_failed_pk, names))
+			else:
+				parts.append('{0} fit failed in {1} multiplets (see warnings above)'.format(n_failed_pk, len(failed)))
 
 		n_drop = sum(len(v) for v in drops.values())+n_failed_pk
 		n_cand = sum(stats['candidates'].values())
