@@ -8,6 +8,9 @@ from scipy.interpolate import interp1d
 from .data import _get_connection
 from .plotting import _init_plot, _draw_plot
 from .isotope import Isotope
+from ._log import _get_logger
+
+_log = _get_logger('element')
 
 ELEMENTS = ['n','H','He','Li','Be','B','C','N','O','F','Ne','Na','Mg','Al',
 			'Si','P','S','Cl','Ar','K','Ca','Sc','Ti','V','Cr','Mn','Fe','Co',
@@ -227,7 +230,7 @@ class Element(object):
 			return {'p':(1, 1.008), 'd':(1, 2.014), 't':(1, 3.016), 'a':(2, 4.002)}[particle]
 
 		if particle=='P':
-			print("WARNING: Assumed particle type P (phosphorus). If proton, use particle='p' (lower case).")
+			_log.warning("Element: assumed particle type P (phosphorus). If proton, use particle='p' (lower case).")
 			return 15, 30.974
 
 		### check if element or isotope

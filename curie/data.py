@@ -24,6 +24,10 @@ import hashlib
 import shutil
 import sqlite3
 
+from ._log import _get_logger
+
+_log = _get_logger('data')
+
 GLOB_CONNECTIONS_DICT = {}
 
 _REGISTRY_CACHE = None
@@ -127,7 +131,7 @@ def _retrieve(fnm):
 			if fnm in group['files']:
 				url, known = group['base_url'] + fnm, group['files'][fnm]
 				break
-	print('Downloading {} from the curie data release...'.format(fnm))
+	_log.info('Downloading {} from the curie data release...'.format(fnm))
 	return pooch.retrieve(url=url, known_hash=known, fname=fnm, path=_data_path())
 
 
@@ -138,14 +142,14 @@ def _adopt_legacy(fnm):
 		return False
 	known = _registry()['files'].get(fnm)
 	if known is not None and _sha256(legacy) != known:
-		print('Existing {} does not match the data release (stale or corrupted); fetching a fresh copy.'.format(fnm))
+		_log.warning('Existing {} does not match the data release (stale or corrupted); fetching a fresh copy.'.format(fnm))
 		return False
 	dest = _data_path(fnm)
 	try:
 		os.link(legacy, dest)
 	except OSError:
 		shutil.copy2(legacy, dest)
-	print('Adopted existing {} from {}'.format(fnm, os.path.dirname(legacy)))
+	_log.info('Adopted existing {} from {}'.format(fnm, os.path.dirname(legacy)))
 	return True
 
 
@@ -269,21 +273,20 @@ def download(db='all', overwrite=False):
 	else:
 		fnm = _canonical(db)
 		if fnm is None:
-			print('db={} not recognized.'.format(db))
-			return
+			raise ValueError("download: {0!r} is not a curie database. Options: {1}, or 'all'.".format(db, ', '.join(sorted(f[:-3] for f in _FILES))))
 		d = [fnm]
 
 	for fnm in d:
 		path = _data_path(fnm)
 		installed = os.path.isfile(path) and os.path.getsize(path) > 0
 		if not installed and not overwrite and _site_file(fnm) is not None:
-			print('{} is provided by the site-wide data directory; nothing to download.'.format(fnm))
+			_log.info('{} is provided by the site-wide data directory; nothing to download.'.format(fnm))
 			continue
 		if installed and fnm[:-3] in _registry().get('shards', {}):
 			# a partially assembled library is present, not installed
 			installed = _sha256(path) == _registry()['files'].get(fnm)
 		if installed and not overwrite:
-			print("{0} already installed. Run ci.download('{0}', overwrite=True) to overwrite these files.".format(fnm.replace('.db', '')))
+			_log.info("{0} already installed. Run ci.download('{0}', overwrite=True) to overwrite these files.".format(fnm.replace('.db', '')))
 			continue
 		# the existing file (if any) is left in place: the fetch verifies and
 		# replaces it atomically, so a failed download never destroys data
@@ -291,7 +294,7 @@ def download(db='all', overwrite=False):
 		try:
 			_retrieve(fnm)
 		except Exception as e:
-			print(e)
+			_log.warning('download: {}'.format(e))
 
 
 def _get_connection(db='decay'):
@@ -304,12 +307,12 @@ def _get_connection(db='decay'):
 				else:
 					raise ValueError('{} exists but is of zero size.'.format(dbnm))
 			except:
-				print('Error connecting to {}.'.format(dbnm))
+				_log.error('Error connecting to {}.'.format(dbnm))
 				if _data_path() in dbnm:
-					print('Try using ci.download("all", overwrite=True) to update nuclear data files.')
+					_log.error('Try using ci.download("all", overwrite=True) to update nuclear data files.')
 				raise
 		else:
-			print('WARNING: database {} does not exist, creating new file.'.format(dbnm))
+			_log.warning('database {} does not exist, creating new file.'.format(dbnm))
 			return sqlite3.connect(dbnm, timeout=30.0)
 
 	global GLOB_CONNECTIONS_DICT

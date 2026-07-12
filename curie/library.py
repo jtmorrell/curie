@@ -5,6 +5,9 @@ import pandas as pd
 
 from .data import _get_connection, _ensure_table
 from .isotope import Isotope
+from ._log import _get_logger
+
+_log = _get_logger('library')
 
 class Library(object):
 	"""Library of nuclear reaction data
@@ -147,7 +150,7 @@ class Library(object):
 				if 'm' not in product and 'g' not in product:
 					product += 'g'
 					if self._warn:
-						print('WARNING: Product isomeric state not specified, ground state assumed.')
+						_log.warning('Library.search: product isomeric state not specified, ground state assumed.')
 						self._warn = False
 
 			q = [i+'%' for i in [target, product] if i]

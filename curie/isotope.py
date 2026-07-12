@@ -4,6 +4,9 @@ import numpy as np
 import pandas as pd
 
 from .data import _get_connection
+from ._log import _get_logger
+
+_log = _get_logger('isotope')
 
 ELEMENTS = ['n','H','He','Li','Be','B','C','N','O','F','Ne','Na','Mg','Al',
 			'Si','P','S','Cl','Ar','K','Ca','Sc','Ti','V','Cr','Mn','Fe','Co',
@@ -143,7 +146,7 @@ class Isotope(object):
 		self._SFY = None
 
 		if not self.stable and df['half_life'][0] is None:
-			print('WARNING: {} has no half-life in the decay database, and will be treated as stable.'.format(self.name))
+			_log.warning('Isotope: {} has no half-life in the decay database, and will be treated as stable.'.format(self.name))
 			self.stable = True
 			self.dc = 0.0
 			self.decay_products = {}

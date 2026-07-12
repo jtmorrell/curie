@@ -9,6 +9,9 @@ from scipy.interpolate import interp1d
 from .isotope import Isotope
 from .data import _get_connection
 from .plotting import _init_plot, _draw_plot, colormap
+from ._log import _get_logger
+
+_log = _get_logger('calibration')
 
 
 
@@ -520,7 +523,15 @@ class Calibration(object):
 				if type(sources['A0'])==float:
 					sources['A0'] = [sources['A0']]
 			sources = pd.DataFrame(sources)
-		sources['ref_date'] = pd.to_datetime(sources['ref_date'], format='%m/%d/%Y %H:%M:%S')
+		try:
+			sources['ref_date'] = pd.to_datetime(sources['ref_date'], format='%m/%d/%Y %H:%M:%S')
+		except (ValueError, TypeError):
+			for ip, rd in zip(sources['isotope'], sources['ref_date']):
+				try:
+					pd.to_datetime(rd, format='%m/%d/%Y %H:%M:%S')
+				except (ValueError, TypeError):
+					raise ValueError("Calibration.calibrate: could not parse ref_date {0!r} for source {1} - expected '%m/%d/%Y %H:%M:%S' (e.g. 01/01/2009 12:00:00)".format(rd, ip))
+			raise
 
 		src_itps = sources['isotope'].to_list()
 		lm = {ip:Isotope(ip).dc for ip in src_itps}
@@ -585,6 +596,9 @@ class Calibration(object):
 									'line':pk['isotope']+':'+'{:.2f}'.format(eng),
 									'src':pk['isotope']})
 
+		if not len(cb_dat):
+			raise ValueError('Calibration.calibrate: no calibration points - no fitted peaks matched the source isotopes [{0}]. Check sp.isotopes, the source isotope names, and that fit_peaks found peaks.'.format(', '.join(map(str, src_itps))))
+
 		cb_dat = np.array(cb_dat)
 		eff_meta = pd.DataFrame(eff_meta)
 		self._calib_data = {'engcal':{'channel':cb_dat[:,0], 'energy':cb_dat[:,1], 'unc_channel':cb_dat[:,2]},
@@ -592,25 +606,51 @@ class Calibration(object):
 							'effcal':{'energy':cb_dat[:,1], 'efficiency':cb_dat[:,5], 'unc_efficiency':cb_dat[:,6]}}
 
 		x, y, yerr = self._calib_data['engcal']['channel'], self._calib_data['engcal']['energy'], self.eng(self._calib_data['engcal']['unc_channel'])
+		n_tot = len(x)
 		idx = np.where((0.25*y>yerr)&(yerr>0.0)&(np.isfinite(yerr)))
 		x, y, yerr = x[idx], y[idx], yerr[idx]
+		if not len(x):
+			raise ValueError('Calibration.calibrate: all {0} engcal points dropped (unc>25% of value) - cannot fit the energy calibration. Check the peak fits.'.format(n_tot))
 		fn = lambda x, *A: self.eng(x, A)
-		fit, unc = curve_fit(fn, x, y, sigma=yerr, p0=spectra[0].cb.engcal)
+		with np.errstate(all='ignore'):
+			fit, unc = curve_fit(fn, x, y, sigma=yerr, p0=spectra[0].cb.engcal)
 		self._calib_data['engcal'] = {'channel':x, 'energy':y, 'unc_channel':yerr, 'fit':fit, 'unc':unc}
 		self.engcal = fit
+		dof = len(x)-len(fit)
+		chi2 = float(np.sum((y-self.eng(x, fit))**2/yerr**2))/dof if dof>0 else np.inf
+		msg = 'Calibration.calibrate: engcal [{0}] fit to {1}/{2} points'.format('quadratic' if len(fit)==3 else 'linear', len(x), n_tot)
+		if n_tot-len(x):
+			msg += ' ({0} dropped: unc>25% of value)'.format(n_tot-len(x))
+		_log.info(msg+'; chi2/dof={0:.2g}'.format(chi2))
 
 		x, y, yerr = self._calib_data['rescal']['channel'], self._calib_data['rescal']['width'], self._calib_data['rescal']['unc_width']
+		n_tot = len(x)
 		idx = np.where((0.33*y>yerr)&(yerr>0.0)&(np.isfinite(yerr)))
 		x, y, yerr = x[idx], y[idx], yerr[idx]
+		if not len(x):
+			raise ValueError('Calibration.calibrate: all {0} rescal points dropped (unc>33% of value) - cannot fit the resolution calibration. Check the peak fits.'.format(n_tot))
 		fn = lambda x, *A: self.res(x, A)
-		fit, unc = curve_fit(fn, x, y, sigma=yerr, p0=spectra[0].cb.rescal)
+		with np.errstate(all='ignore'):
+			fit, unc = curve_fit(fn, x, y, sigma=yerr, p0=spectra[0].cb.rescal)
 		idx = np.where((self.res(x, fit)-y)**2/yerr**2 < 10.0)
 		self._calib_data['rescal'] = {'channel':x[idx], 'width':y[idx], 'unc_width':yerr[idx], 'fit':fit, 'unc':unc}
 		self.rescal = fit
+		n_out = len(x)-len(idx[0])
+		dof = len(idx[0])-len(fit)
+		chi2 = float(np.sum((self.res(x[idx], fit)-y[idx])**2/yerr[idx]**2))/dof if dof>0 else np.inf
+		msg = 'Calibration.calibrate: rescal [{0}] fit to {1}/{2} points'.format('linear' if len(fit)==2 else 'sqrt', len(x), n_tot)
+		if n_tot-len(x):
+			msg += ' ({0} dropped: unc>33% of value)'.format(n_tot-len(x))
+		if n_out:
+			msg += '; {0} outliers: residual chi2>10'.format(n_out)
+		_log.info(msg+'; chi2/dof={0:.2g}'.format(chi2))
 
 		x, y, yerr = self._calib_data['effcal']['energy'], self._calib_data['effcal']['efficiency'], self._calib_data['effcal']['unc_efficiency']
+		n_tot = len(x)
 		idx = np.where((0.33*y>yerr)&(yerr>0.0)&(np.isfinite(yerr)))
 		x, y, yerr = x[idx], y[idx], yerr[idx]
+		if not len(x):
+			raise ValueError('Calibration.calibrate: all {0} effcal points dropped (unc>33% of value) - cannot fit the efficiency calibration. Check the peak fits and source activities.'.format(n_tot))
 		meta = eff_meta.iloc[idx[0]].reset_index(drop=True)
 		fn = lambda x, *A: self.eff(x, A)
 
@@ -628,21 +668,24 @@ class Calibration(object):
 			return V
 
 		def fit_eff(p0_, bounds_):
-			f0, _ = curve_fit(fn, x, y, sigma=yerr, p0=p0_, bounds=bounds_, absolute_sigma=True)
-			m0 = self.eff(x, f0)
-			Vi = np.diag((m0*meta['rel_stat'].to_numpy())**2)
-			V = eff_cov(m0)
-			# one-sided scale factor on the INDEPENDENT component only: inconsistency
-			# between points cannot indict the correlated modes
-			S2, f1, u1, chi2n = 1.0, f0, None, np.inf
-			for _ in range(4):
-				Vp = V if S2==1.0 else V+(S2-1.0)*Vi
-				f1, u1 = curve_fit(fn, x, y, sigma=Vp, p0=f1, bounds=bounds_, absolute_sigma=True)
-				r = y-self.eff(x, f1)
-				chi2n = float(r @ np.linalg.solve(Vp, r))/max(len(y)-len(f1), 1)
-				if not (np.isfinite(chi2n) and chi2n>1.0):
-					break
-				S2 = S2*chi2n
+			# numeric warnings from the optimizer carry no context; failures
+			# re-emerge as curie messages at the call sites
+			with np.errstate(all='ignore'):
+				f0, _ = curve_fit(fn, x, y, sigma=yerr, p0=p0_, bounds=bounds_, absolute_sigma=True)
+				m0 = self.eff(x, f0)
+				Vi = np.diag((m0*meta['rel_stat'].to_numpy())**2)
+				V = eff_cov(m0)
+				# one-sided scale factor on the INDEPENDENT component only: inconsistency
+				# between points cannot indict the correlated modes
+				S2, f1, u1, chi2n = 1.0, f0, None, np.inf
+				for _ in range(4):
+					Vp = V if S2==1.0 else V+(S2-1.0)*Vi
+					f1, u1 = curve_fit(fn, x, y, sigma=Vp, p0=f1, bounds=bounds_, absolute_sigma=True)
+					r = y-self.eff(x, f1)
+					chi2n = float(r @ np.linalg.solve(Vp, r))/max(len(y)-len(f1), 1)
+					if not (np.isfinite(chi2n) and chi2n>1.0):
+						break
+					S2 = S2*chi2n
 			return f1, u1, chi2n
 
 		p0 = spectra[0].cb.effcal
@@ -655,19 +698,32 @@ class Calibration(object):
 				fit5, unc5, chi5 = fit_eff(p0[:5], (bounds[0][:5], bounds[1][:5]))
 				fit7, unc7, chi7 = fit_eff(fit5.tolist()+p0[5:], bounds)
 				## Invert to find which is closer to one
-				chi7 = chi7 if chi7>1.0 else 1.0/chi7
-				chi5 = chi5 if chi5>1.0 else 1.0/chi5
-				fit, unc = (fit5, unc5) if chi5<=chi7 else (fit7, unc7)
-			except Exception:
-				fit, unc, _ = fit_eff(p0[:5], (bounds[0][:5], bounds[1][:5]))
+				c7 = chi7 if chi7>1.0 else 1.0/chi7
+				c5 = chi5 if chi5>1.0 else 1.0/chi5
+				fit, unc, eff_chi2 = (fit5, unc5, chi5) if c5<=c7 else (fit7, unc7, chi7)
+				_log.info('Calibration.calibrate: effcal model selection: vidmar-{0} (chi2/dof={1:.2g}) preferred over vidmar-{2} (chi2/dof={3:.2g})'.format(
+					*((5, chi5, 7, chi7) if c5<=c7 else (7, chi7, 5, chi5))))
+			except Exception as err:
+				_log.warning('Calibration.calibrate: effcal 7-parameter fit failed ({0}); using the 5-parameter form'.format(err))
+				fit, unc, eff_chi2 = fit_eff(p0[:5], (bounds[0][:5], bounds[1][:5]))
 
 		else:
-			fit, unc, _ = fit_eff(p0[:5], (bounds[0][:5], bounds[1][:5]))
+			fit, unc, eff_chi2 = fit_eff(p0[:5], (bounds[0][:5], bounds[1][:5]))
 
-		idx = np.where((self.eff(x, fit)-y)**2/yerr**2 < 10.0)
+		with np.errstate(all='ignore'):
+			kept = (self.eff(x, fit)-y)**2/yerr**2 < 10.0
+		idx = np.where(kept)
 		self._calib_data['effcal'] = {'energy':x[idx], 'efficiency':y[idx], 'unc_efficiency':yerr[idx], 'fit':fit, 'unc':unc}
 		self.effcal = fit
 		self.unc_effcal = unc
+
+		outliers = ['{0} {1:.1f}'.format(ln.split(':')[0], float(ln.split(':')[1])) for ln in meta[~kept]['line']]
+		msg = 'Calibration.calibrate: effcal [vidmar-{0}] fit to {1}/{2} points'.format(len(fit), len(x), n_tot)
+		if n_tot-len(x):
+			msg += ' ({0} dropped: unc>33% of value)'.format(n_tot-len(x))
+		if len(outliers):
+			msg += '; {0} outliers: residual chi2>10 [{1} keV]'.format(len(outliers), ', '.join(outliers))
+		_log.info(msg+'; chi2/dof={0:.2g}'.format(eff_chi2))
 
 		for sp in spectra:
 			sp.cb.engcal = self._calib_data['engcal']['fit']

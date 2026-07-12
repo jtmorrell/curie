@@ -9,6 +9,9 @@ from .data import _get_connection
 from .plotting import _init_plot, _draw_plot
 from .compound import Compound
 from .element import Element
+from ._log import _get_logger
+
+_log = _get_logger('stack')
 
 class Stack(object):
 	"""Foil pack for stacked target calculations
@@ -307,7 +310,8 @@ class Stack(object):
 			lh = np.where(sm['flux']>0)[0]
 			if lh.size:
 				if lh[0]==0 and warn:
-					print('WARNING: Beam stopped in foil {}'.format(n))
+					nm = str(self.stack['name'][n])
+					_log.warning("Stack: beam stops in foil {0}{1}: flux distribution reaches 0 MeV; mean energy {2:.1f} MeV is unreliable and downstream foils may receive no beam - check E0, densities and areal densities".format(n, " ('{}')".format(nm) if nm!='nan' else '', mu_E[-1]))
 					warn = False
 
 			if str(self.stack['name'][n])!='nan':

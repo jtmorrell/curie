@@ -18,6 +18,17 @@ from .plotting import _init_plot, _draw_plot, colormap
 from .calibration import Calibration
 from .isotope import Isotope
 from .compound import Compound
+from ._log import _get_logger, _validate_config, _choice, NUMBER, NUMBER_OR_PAIR, INTEGER, BOOLEAN
+
+_log = _get_logger('spectrum')
+
+_FIT_CONFIG_SPEC = {'snip_adj': NUMBER, 'R': NUMBER, 'alpha': NUMBER, 'step': NUMBER,
+					'bg': _choice(['snip', 'constant', 'linear', 'quadratic']),
+					'skew_fit': BOOLEAN, 'step_fit': BOOLEAN, 'xrays': BOOLEAN,
+					'SNR_min': NUMBER, 'A_bound': NUMBER, 'mu_bound': NUMBER,
+					'sig_bound': NUMBER, 'pk_width': NUMBER, 'E_min': NUMBER_OR_PAIR,
+					'I_min': NUMBER_OR_PAIR, 'dE_511': NUMBER,
+					'multi_max': INTEGER, 'ident_idx': INTEGER}
 
 class Spectrum(object):
 	"""Gamma-ray spectrum from High-Purity Germanium (HPGe) detectors
@@ -111,7 +122,7 @@ class Spectrum(object):
 
 		if filename is not None:
 			if os.path.exists(filename):
-				print('Reading Spectrum {}'.format(filename))
+				_log.info('Spectrum: reading {}'.format(filename))
 				if filename.endswith('.Spe'):
 					self._read_Spe(filename)
 				elif filename.endswith('.Chn'):
@@ -137,6 +148,7 @@ class Spectrum(object):
 		self._atten_corr = None
 
 		self._gmls = None
+		self._fit_stats = None
 
 
 	def _read_Spe(self, filename):
@@ -335,7 +347,7 @@ class Spectrum(object):
 
 				# For known sections: section header ir repeated in section block
 				if (sec_id_header != uint32_at(f, sec_loc)):
-					print('File {}: Format error\n'.format(filename))
+					_log.warning('Spectrum: file {}: CNF section header mismatch - file may be corrupted'.format(filename))
 
 
 		det_no = detector_type
@@ -407,9 +419,10 @@ class Spectrum(object):
 	def fit_config(self, _fit_config):
 		self._peaks = None
 		self._fits = None
-		for nm in _fit_config:
-			self._fit_config[nm] = _fit_config[nm]
-		if 'snip_adj' in _fit_config:
+		accepted = _validate_config(_fit_config, _FIT_CONFIG_SPEC, 'Spectrum.fit_config', _log)
+		for nm in accepted:
+			self._fit_config[nm] = accepted[nm]
+		if 'snip_adj' in accepted:
 			self._snip_bg()
 
 
@@ -664,7 +677,7 @@ class Spectrum(object):
 
 		N_i = float(len(np.where(np.sqrt(xf**2+yf**2)<=r_det)[0]))
 		if N_i<1E4:
-			print('WARNING: Uncertainty in solid-angle {}% -- Increase N'.format(round(1E2*np.sqrt(N_i)/N_i, 1)))
+			_log.warning('Spectrum.geometry_correction: uncertainty in solid-angle {}% - increase N'.format(round(1E2*np.sqrt(N_i)/N_i, 1)))
 
 		SA = 2.0*np.pi*N_i/float(N)
 		corr = SA/(2.0*np.pi*(1.0-distance/np.sqrt(distance**2+r_det**2)))
@@ -831,7 +844,22 @@ class Spectrum(object):
 		if self._gmls is None or _force:
 			itps, gm = [], []
 			for i in self.isotopes:
-				g = Isotope(i).gammas(I_lim=self.fit_config['I_min'], E_lim=self.fit_config['E_min'], dE_511=self.fit_config['dE_511'], xrays=self.fit_config['xrays'])
+				g = Isotope(i).gammas(E_lim=self.fit_config['E_min'], dE_511=self.fit_config['dE_511'], xrays=self.fit_config['xrays'])
+
+				# intensity selection applied here (same inclusive bounds as
+				# Isotope.gammas I_lim) so each dropped line can be announced
+				I_min = self.fit_config['I_min']
+				if I_min is not None:
+					if type(I_min)==float or type(I_min)==int:
+						keep = g['intensity']>=I_min
+					else:
+						keep = (g['intensity']>=I_min[0])&(g['intensity']<=I_min[1])
+					for _, rw in g[~keep].iterrows():
+						_log.debug('Spectrum.fit_peaks: dropped {0} {1:.1f} keV: intensity {2}% < I_min {3}%'.format(i, rw['energy'], rw['intensity'], I_min))
+					if self._fit_stats is not None:
+						self._fit_stats['drops']['intensity'] += [(i, e) for e in g[~keep]['energy']]
+					g = g[keep].reset_index(drop=True)
+
 				g['intensity'] = g['intensity']*1E-2
 				g['unc_intensity'] = g['unc_intensity']*1E-2
 
@@ -844,7 +872,7 @@ class Spectrum(object):
 					else:
 						groups.append([n])
 				for gp in [gp for gp in groups if len(gp)>1]:
-					print('WARNING: Isotope',i,'has un-resolvable gammas at',', '.join(map(str, g.loc[gp,'energy'])),'... Intensities will be combined.')
+					_log.info('Spectrum.fit_peaks: {0} gammas at {1} keV are unresolvable (within {2} channels) - fit as one peak with combined intensity'.format(i, ', '.join('{:.1f}'.format(e) for e in g.loc[gp,'energy']), self.fit_config['ident_idx']))
 					keep = g.loc[gp,'intensity'].idxmax()
 					g.loc[keep,'intensity'] = g.loc[gp,'intensity'].sum()
 					g.loc[keep,'unc_intensity'] = np.sqrt((g.loc[gp,'unc_intensity']**2).sum())
@@ -978,11 +1006,24 @@ class Spectrum(object):
 			return []
 
 		df = pd.concat(gm, sort=True, ignore_index=True).sort_values(by=['energy']).reset_index(drop=True)
+
+		if self._fit_stats is not None:
+			cand = df['isotope'].value_counts().to_dict()
+			for iso, e in self._fit_stats['drops']['intensity']:
+				cand[iso] = cand.get(iso, 0)+1
+			self._fit_stats['candidates'] = cand
+
 		df['idx'] = self.cb.map_channel(df['energy'])
 		df['sig'] = self.cb.res(df['idx'])
 		df['l'] = np.array(df['idx']-self.fit_config['pk_width']*df['sig'], dtype=np.int32)
 		df['h'] = np.array(df['idx']+self.fit_config['pk_width']*df['sig'], dtype=np.int32)
-		df = df[(df['l']>0)&(df['h']<L)].reset_index(drop=True)
+
+		edge = (df['l']>0)&(df['h']<L)
+		for _, rw in df[~edge].iterrows():
+			_log.debug('Spectrum.fit_peaks: dropped {0} {1:.1f} keV: fit window [{2}..{3}] extends past spectrum edge ({4} channels)'.format(rw['isotope'], rw['energy'], rw['l'], rw['h'], L))
+		if self._fit_stats is not None:
+			self._fit_stats['drops']['edge'] += [(rw['isotope'], rw['energy']) for _, rw in df[~edge].iterrows()]
+		df = df[edge].reset_index(drop=True)
 		df['A'] = (self.hist-self._snip)[df['idx']]
 
 		for n,i in enumerate(istp):
@@ -990,7 +1031,13 @@ class Spectrum(object):
 			df.loc[df_sub.index, 'A'] = B[n]*self.cb.eff(df_sub['energy'])*df_sub['intensity']/df_sub['sig']
 
 		df['SNR'] = df['A']/np.sqrt(self._snip[df['idx']])
-		df = df[(df['SNR']>self.fit_config['SNR_min'])].reset_index(drop=True)
+
+		snr_ok = df['SNR']>self.fit_config['SNR_min']
+		for _, rw in df[~snr_ok].iterrows():
+			_log.debug('Spectrum.fit_peaks: dropped {0} {1:.1f} keV: SNR {2:.1f} < SNR_min {3}'.format(rw['isotope'], rw['energy'], rw['SNR'], self.fit_config['SNR_min']))
+		if self._fit_stats is not None:
+			self._fit_stats['drops']['snr'] += [(rw['isotope'], rw['energy']) for _, rw in df[~snr_ok].iterrows()]
+		df = df[snr_ok].reset_index(drop=True)
 
 		if len(df)==0:
 			return []
@@ -1029,16 +1076,19 @@ class Spectrum(object):
 			bA, bm, bs = 10.0*self.fit_config['A_bound'], 1.5*self.fit_config['mu_bound'], self.fit_config['sig_bound']
 			for n,rw in multi.iterrows():
 				bA_m, bm_m = 1.0, 1.0
-				# CHECK FOR IDENTICAL PEAKS	
+				# CHECK FOR IDENTICAL PEAKS
 				if n+1 in multi.index:
 					if abs(rw['idx']-multi.loc[n+1]['idx'])<=self.fit_config['ident_idx']:
-						print('WARNING: Identical gammas detected at',rw['energy'],'keV -',rw['isotope'],'and',multi.loc[n+1]['isotope'])
 						if rw['A']<1E-2*multi.loc[n+1]['A'] or multi.loc[n+1]['A']<1E-2*rw['A']:
 							drop = n if rw['A']<1E-2*multi.loc[n+1]['A'] else n+1
-							print('Peak height <1%...dropping',rw['isotope'])
+							other = n+1 if drop==n else n
+							_log.warning('Spectrum.fit_peaks: dropped {0} at {1:.1f} keV: predicted amplitude <1% of the coincident {2} peak'.format(multi.loc[drop]['isotope'], multi.loc[drop]['energy'], multi.loc[other]['isotope']))
+							if self._fit_stats is not None:
+								self._fit_stats['drops']['identical'].append((multi.loc[drop]['isotope'], multi.loc[drop]['energy']))
 							multi.drop(drop,inplace=True)
 							continue
 						else:
+							_log.warning('Spectrum.fit_peaks: {0} and {1} have identical gammas at {2:.1f} keV (within {3} channels) - fit with loosened shared bounds; intensities may be misattributed'.format(rw['isotope'], multi.loc[n+1]['isotope'], rw['energy'], self.fit_config['ident_idx']))
 							bA_m, bm_m = 0.1, 0.5
 
 				p['p0'] += [rw['A'], rw['idx'], rw['sig']]
@@ -1095,14 +1145,17 @@ class Spectrum(object):
 			# windows of near-empty channels, pushing unc_counts under the sqrt(N)
 			# counting floor; instead, inflate by chi2/dof only when it exceeds 1
 			# (scale-factor convention for model mismatch), never deflate.
-			fit, unc = curve_fit(self._multiplet, chan[p0['l']:p0['h']], self.hist[p0['l']:p0['h']], p0=p0['p0'], bounds=p0['bounds'], sigma=np.sqrt(self.hist[p0['l']:p0['h']]+0.1), absolute_sigma=True)
-			chi2 = self._chi2(fit, p0['l'], p0['h'])
-			if np.isfinite(chi2) and chi2>1.0:
-				unc = unc*chi2
-			p0['fit'] = fit
-			p0['unc'] = unc
-			N, unc_N = self._counts(fit, unc)
-			D, unc_D, A, unc_A = self._decays(N, unc_N, p0['df'])
+			# numeric warnings from the optimizer's internal evaluations carry no
+			# context; failures re-emerge below as a curie message with the reason
+			with np.errstate(all='ignore'):
+				fit, unc = curve_fit(self._multiplet, chan[p0['l']:p0['h']], self.hist[p0['l']:p0['h']], p0=p0['p0'], bounds=p0['bounds'], sigma=np.sqrt(self.hist[p0['l']:p0['h']]+0.1), absolute_sigma=True)
+				chi2 = self._chi2(fit, p0['l'], p0['h'])
+				if np.isfinite(chi2) and chi2>1.0:
+					unc = unc*chi2
+				p0['fit'] = fit
+				p0['unc'] = unc
+				N, unc_N = self._counts(fit, unc)
+				D, unc_D, A, unc_A = self._decays(N, unc_N, p0['df'])
 
 			f = p0['df']
 			cols = ['filename','isotope','energy','counts','unc_counts',
@@ -1122,9 +1175,9 @@ class Spectrum(object):
 							'effcal':','.join('{:.9g}'.format(p) for p in self.cb.effcal)}, columns=cols)
 
 			return p0, df
-		except (ValueError, RuntimeError, np.linalg.LinAlgError):
+		except (ValueError, RuntimeError, np.linalg.LinAlgError) as err:
 			f = p0['df']
-			print('WARNING: Peak fit failed for {0} ({1} keV)'.format(', '.join(map(str, f['isotope'])), ', '.join(map(str, f['energy']))))
+			_log.warning('Spectrum.fit_peaks: peak fit failed for {0} ({1} keV): {2} (multiplet spans channels {3}..{4})'.format(', '.join(map(str, f['isotope'])), ', '.join('{:.1f}'.format(e) for e in f['energy']), err, p0['l'], p0['h']))
 			return p0, p0['df']
 
 	def fit_peaks(self, gammas=None, **kwargs):
@@ -1247,19 +1300,80 @@ class Spectrum(object):
 		"""
 
 		self.fit_config = kwargs
+		self._fit_stats = {'candidates': {}, 'drops': {'snr': [], 'edge': [], 'intensity': [], 'identical': []}}
 		p0 = self._get_p0(gammas)
+		failed, n_chi2_high = [], 0
 		if len(p0):
 			multiplets = list(map(self._multi_fit, p0))
 			self._fits = [i[0] for i in multiplets if 'fit' in i[0]]
+			failed = [i[1] for i in multiplets if 'fit' not in i[0]]
 			if len(self._fits):
 				self._peaks = pd.concat([i[1] for i in multiplets if 'fit' in i[0]], ignore_index=True)
+				n_chi2_high = sum(1 for i in multiplets if 'fit' in i[0] and float(i[1]['chi2'].iloc[0])>10.0)
 			else:
 				self._peaks = None
 		else:
 			self._fits = []
 			self._peaks = None
 
+		self._log_fit_summary(failed, n_chi2_high, gammas)
 		return self._peaks
+
+	def _log_fit_summary(self, failed, n_chi2_high, gammas):
+		stats, cfg = self._fit_stats, self.fit_config
+		drops = stats['drops']
+		n_pk = len(self._peaks) if self._peaks is not None else 0
+		n_failed_pk = int(sum(len(f) for f in failed))
+
+		parts = []
+		if len(drops['snr']):
+			parts.append('{0} SNR<{1}'.format(len(drops['snr']), cfg['SNR_min']))
+		if len(drops['edge']):
+			parts.append('{0} window off spectrum edge'.format(len(drops['edge'])))
+		if len(drops['intensity']):
+			parts.append('{0} intensity<{1}%'.format(len(drops['intensity']), cfg['I_min']))
+		if len(drops['identical']):
+			parts.append('{0} identical-line'.format(len(drops['identical'])))
+		if len(failed):
+			names = '; '.join('{0} {1} keV'.format(', '.join(dict.fromkeys(map(str, f['isotope']))), ', '.join('{:.1f}'.format(e) for e in f['energy'])) for f in failed)
+			parts.append('{0} fit failed [{1}]'.format(n_failed_pk, names))
+
+		n_drop = sum(len(v) for v in drops.values())+n_failed_pk
+		n_cand = sum(stats['candidates'].values())
+
+		if n_pk==0:
+			if n_cand==0:
+				if not len(self.isotopes) and gammas is None:
+					_log.warning('Spectrum.fit_peaks: nothing to fit - no isotopes assigned (sp.isotopes) and no gammas given')
+				else:
+					_log.warning('Spectrum.fit_peaks: nothing to fit - no candidate gammas for [{0}] pass the line selection (E_min={1}, I_min={2}%, dE_511={3})'.format(', '.join(map(str, self.isotopes)), cfg['E_min'], cfg['I_min'], cfg['dE_511']))
+			else:
+				_log.warning('Spectrum.fit_peaks: no peaks found - {0} candidates from [{1}] all dropped ({2}); check the energy calibration and SNR_min'.format(n_cand, ', '.join(sorted(stats['candidates'])), ', '.join(parts)))
+			return
+
+		msg = 'Spectrum.fit_peaks: fit {0} peaks in {1} multiplets from {2} isotopes'.format(n_pk, len(self._fits), self._peaks['isotope'].nunique())
+		if n_drop:
+			msg += '; dropped {0} candidates ({1})'.format(n_drop, ', '.join(parts))
+		else:
+			msg += '; no candidates dropped'
+		if n_chi2_high:
+			msg += '; {0} multiplets with chi2/dof>10'.format(n_chi2_high)
+		_log.info(msg)
+
+		fitted = set(self._peaks['isotope'])
+		for iso in sorted(stats['candidates']):
+			if iso in fitted:
+				continue
+			reasons = []
+			for key, label in [('snr', 'SNR<{}'.format(cfg['SNR_min'])), ('edge', 'window off edge'),
+							('intensity', 'intensity<{}%'.format(cfg['I_min'])), ('identical', 'identical-line')]:
+				k = sum(1 for it, e in drops[key] if it==iso)
+				if k:
+					reasons.append('{0} {1}'.format(k, label))
+			n_f = sum(int((f['isotope']==iso).sum()) for f in failed)
+			if n_f:
+				reasons.append('{0} fit failed'.format(n_f))
+			_log.warning('Spectrum.fit_peaks: no peaks to fit for {0} - all {1} candidate gammas dropped ({2})'.format(iso, stats['candidates'][iso], ', '.join(reasons)))
 
 
 	@property
