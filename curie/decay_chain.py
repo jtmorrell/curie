@@ -13,6 +13,7 @@ from .plotting import _init_plot, _draw_plot, colormap
 from .isotope import Isotope
 from .spectrum import Spectrum
 from ._log import _get_logger
+from ._diagnostics import _diagnostics_frame
 
 _log = _get_logger('decay_chain')
 
@@ -109,6 +110,8 @@ class DecayChain(object):
 		self.isotopes = [istps[0].name]
 		self.R, self.A0, self._counts = None, {self.isotopes[0]:0.0}, None
 		self._cal_data = {}
+		self._diagnostics = None
+		self._fit_result = None
 		self._chain = [[istps[0].decay_const(units), [], []]]
 		stable_chain = [False]
 
@@ -712,8 +715,9 @@ class DecayChain(object):
 		# Shared fitting core for fit_R/fit_A0: diagonal absolute-sigma pre-fit
 		# (also the bare-counts path), then the generalized fit against the
 		# assembled covariance, with a one-sided chi-square scale factor.
-		# Returns (fit, covariance, chi2/dof of the unscaled fit, scale note),
-		# where the note describes any applied inflation for the summary line.
+		# Returns (fit, covariance, chi2/dof of the unscaled fit, sigma scale
+		# factor applied, scale note), where the note describes any applied
+		# inflation for the summary line.
 		func = lambda X_f, *R_f: np.dot(np.asarray(R_f), X_f)
 		with np.errstate(all='ignore'):
 			fit, cv = curve_fit(func, X, Y, sigma=dY, p0=p0, bounds=(0.0, np.inf), absolute_sigma=True)
@@ -726,11 +730,12 @@ class DecayChain(object):
 				_log.warning(self._loc(label)+': counts carry only total uncertainties, so correlated systematics (shared gamma intensities, efficiencies) cannot be separated and unc_R may be underestimated. Provide decomposition columns (see get_counts) or the corr= option.')
 				r = Y-np.dot(fit, X)
 				chi2n = np.sum(r**2/dY**2)/dof if dof>0 else np.inf
-				scale_note = None
+				scale, scale_note = 1.0, None
 				if scale_factor and dof>0 and np.isfinite(chi2n) and chi2n>1.0:
 					cv = cv*chi2n
-					scale_note = 'uncertainties scaled x{0:.2f}'.format(np.sqrt(chi2n))
-				return fit, cv, chi2n, scale_note
+					scale = float(np.sqrt(chi2n))
+					scale_note = 'uncertainties scaled x{0:.2f}'.format(scale)
+				return fit, cv, chi2n, scale, scale_note
 			# One-sided scale factor: mutually inconsistent data can only indict the
 			# INDEPENDENT error components (the correlated modes do not contribute to
 			# point-to-point scatter), so only those are inflated, iterated until the
@@ -746,8 +751,9 @@ class DecayChain(object):
 				if not (scale_factor and dof>0 and np.isfinite(chi2n) and chi2n>1.0):
 					break
 				S2 = S2*chi2n
-		scale_note = 'independent uncertainty components scaled x{0:.2f}'.format(np.sqrt(S2)) if S2!=1.0 else None
-		return fit, cv, chi2_fit, scale_note
+		scale = float(np.sqrt(S2)) if S2!=1.0 else 1.0
+		scale_note = 'independent uncertainty components scaled x{0:.2f}'.format(scale) if S2!=1.0 else None
+		return fit, cv, chi2_fit, scale, scale_note
 
 	def _filter_counts(self, max_error, min_counts, label):
 		# The max_error/min_counts selection shared by fit_R/fit_A0, with each
@@ -776,18 +782,64 @@ class DecayChain(object):
 		return keep, int(err.sum()), int(low.sum())
 
 	def _log_gls_summary(self, label, what, n_fit, n_used, n_tot, n_err, n_low, max_error, min_counts, chi2, scale_note=None):
+		# logs the fit summary and returns its body for the diagnostics table
 		parts = []
 		if n_err:
 			parts.append('{0} dropped: relative error>{1:.0f}%'.format(n_err, 100.0*max_error))
 		if n_low:
 			parts.append('{0} dropped: counts<={1}'.format(n_low, min_counts))
-		msg = self._loc(label)+': fit {0} {1} to {2}/{3} counts'.format(n_fit, what, n_used, n_tot)
+		body = 'fit {0} {1} to {2}/{3} counts'.format(n_fit, what, n_used, n_tot)
 		if parts:
-			msg += ' ({0})'.format('; '.join(parts))
-		msg += '; chi2/dof={0:.2g}'.format(chi2)
+			body += ' ({0})'.format('; '.join(parts))
+		body += '; chi2/dof={0:.2g}'.format(chi2)
 		if scale_note:
-			msg += '; '+scale_note
-		_log.info(msg)
+			body += '; '+scale_note
+		_log.info(self._loc(label)+': '+body)
+		return body
+
+	def _diagnose_gls(self, label, what, isotopes, fit, p0, chi2, dof, n_points, n_dropped, scale, singular, body):
+		# Per-isotope diagnostics rows for fit_R/fit_A0 (joint scalars repeated
+		# on every row), surfacing the unmoved flag as a warning; returns the
+		# assembled frame. Emitted-warning text rides in the message column.
+		unmoved = np.isclose(fit, p0, rtol=1E-9, atol=0.0)
+		par = 'R' if label=='fit_R' else 'A0'
+		rows = []
+		for n, ip in enumerate(isotopes):
+			flags, msgs = [], [body]
+			if fit[n]==0.0:
+				flags.append('at_bound:'+par)
+			if unmoved[n]:
+				msg = '{0} {1} unchanged from initial estimate - fit may not have converged (flag: unmoved)'.format(ip, what)
+				_log.warning(self._loc(label)+': '+msg)
+				flags.append('unmoved')
+				msgs.append(msg)
+			if singular:
+				flags.append('singular_cov')
+				msgs.append('covariance estimate is singular - quoted uncertainties are unreliable')
+			rows.append({'fit':label, 'chi2':(chi2 if (dof>0 and np.isfinite(chi2)) else np.nan), 'dof':int(dof),
+						 'n_points':int(n_points), 'n_dropped':int(n_dropped), 'converged':True,
+						 'model':'bateman', 'scale_factor':float(scale), 'flags':','.join(flags),
+						 'message':'; '.join(msgs), 'isotope':ip})
+		return _diagnostics_frame(rows, extras={'isotope': object})
+
+	@property
+	def diagnostics(self):
+		"""Fit diagnostics from the most recent fit_R or fit_A0 call
+
+		Read-only pd.DataFrame with one row per fitted isotope (`fit` is
+		'fit_R' or 'fit_A0'; the fit is joint, so chi2, dof, n_points,
+		n_dropped and scale_factor repeat on every row): columns chi2
+		(reduced, of the unscaled fit), dof, n_points (counts the fit used),
+		n_dropped (counts removed by the max_error/min_counts filters),
+		converged, model, scale_factor (uncertainty inflation applied;
+		1.0 = none), flags (comma-joined, e.g. 'unmoved', 'at_bound:R',
+		'singular_cov'), message (summary and warning text) and isotope.
+		Empty (with the full schema) before any fit; rebuilt on each
+		`fit_R()`/`fit_A0()` call.  Accessing it never triggers a fit.
+		"""
+		if self._diagnostics is None:
+			return _diagnostics_frame(extras={'isotope': object})
+		return self._diagnostics.copy()
 
 	@property
 	def R_avg(self):
@@ -891,8 +943,8 @@ class DecayChain(object):
 			p0 = np.average(Y[wh]/X[:,wh], axis=1)
 			p0 = np.where((p0>0)&(np.isfinite(p0)), p0, 1.0)
 
-		fit, cov, chi2, scale_note = self._gls_fit(X, Y, dY, filter_counts, p0, corr, corr_group, norm_frac, scale_factor, cov, 'fit_R')
-		self._log_gls_summary('fit_R', 'production rates', len(R_isotopes), len(filter_counts), len(self.counts), n_err, n_low, max_error, min_counts, chi2, scale_note)
+		fit, cov, chi2, scale, scale_note = self._gls_fit(X, Y, dY, filter_counts, p0, corr, corr_group, norm_frac, scale_factor, cov, 'fit_R')
+		body = self._log_gls_summary('fit_R', 'production rates', len(R_isotopes), len(filter_counts), len(self.counts), n_err, n_low, max_error, min_counts, chi2, scale_note)
 
 
 		for n,ip in enumerate(R_isotopes):
@@ -908,10 +960,19 @@ class DecayChain(object):
 
 		R_avg = self.R_avg
 		R_norm = np.array([R_avg[R_avg['isotope']==i]['R_avg'].to_numpy()[0] for i in R_isotopes])
-		if not np.any(np.isfinite(np.diag(cov))):
-			_log.warning(self._loc('fit_R')+': covariance estimate is singular - quoted uncertainties are unreliable')
+		singular = not np.any(np.isfinite(np.diag(cov)))
+		if singular:
+			_log.warning(self._loc('fit_R')+': covariance estimate is singular - quoted uncertainties are unreliable (flag: singular_cov)')
 			cov = np.ones(cov.shape)*((np.average(dY/Y))*fit)**2
-		return R_isotopes, R_norm, cov*(R_norm/fit)**2
+		dof = len(Y)-len(fit)
+		self._diagnostics = self._diagnose_gls('fit_R', 'production rate', R_isotopes, fit, p0, chi2, dof,
+											   len(filter_counts), n_err+n_low, scale, singular, body)
+		cov_norm = cov*(R_norm/fit)**2
+		# private fit record: enough to reconstruct the fitted curve and its
+		# uncertainty band (plotting) without re-running the fit
+		self._fit_result = {'label':'fit_R', 'isotopes':R_isotopes, 'fit':fit, 'cov':cov, 'p0':p0,
+							'chi2':chi2, 'dof':dof, 'scale_factor':scale, 'value':R_norm, 'cov_norm':cov_norm}
+		return R_isotopes, R_norm, cov_norm
 		
 	def fit_A0(self, max_error=0.4, min_counts=1, corr=None, corr_group=None, norm_frac=1.0, scale_factor=True, cov=None):
 		"""Fit the initial activity to count data
@@ -997,8 +1058,8 @@ class DecayChain(object):
 		dY = filter_counts['unc_counts'].to_numpy()
 
 		p0 = np.ones(len(X))
-		fit, cov, chi2, scale_note = self._gls_fit(X, Y, dY, filter_counts, p0, corr, corr_group, norm_frac, scale_factor, cov, 'fit_A0')
-		self._log_gls_summary('fit_A0', 'initial activities', len(A0_isotopes), len(filter_counts), len(self.counts), n_err, n_low, max_error, min_counts, chi2, scale_note)
+		fit, cov, chi2, scale, scale_note = self._gls_fit(X, Y, dY, filter_counts, p0, corr, corr_group, norm_frac, scale_factor, cov, 'fit_A0')
+		body = self._log_gls_summary('fit_A0', 'initial activities', len(A0_isotopes), len(filter_counts), len(self.counts), n_err, n_low, max_error, min_counts, chi2, scale_note)
 
 		for n,ip in enumerate(A0_isotopes):
 			self.A0[ip] *= fit[n]
@@ -1006,7 +1067,14 @@ class DecayChain(object):
 		self.counts = self.counts
 
 		A_norm = np.array([self.A0[i] for i in A0_isotopes])
-		return A0_isotopes, A_norm, cov*(A_norm/fit)**2
+		singular = not np.any(np.isfinite(np.diag(cov)))
+		dof = len(Y)-len(fit)
+		self._diagnostics = self._diagnose_gls('fit_A0', 'initial activity', A0_isotopes, fit, p0, chi2, dof,
+											   len(filter_counts), n_err+n_low, scale, singular, body)
+		cov_norm = cov*(A_norm/fit)**2
+		self._fit_result = {'label':'fit_A0', 'isotopes':A0_isotopes, 'fit':fit, 'cov':cov, 'p0':p0,
+							'chi2':chi2, 'dof':dof, 'scale_factor':scale, 'value':A_norm, 'cov_norm':cov_norm}
+		return A0_isotopes, A_norm, cov_norm
 		
 	def plot(self, time=None, max_plot=10, max_label=10, max_plot_error=0.4, max_plot_chi2=10, **kwargs):
 		"""Plot the activities in the decay chain
