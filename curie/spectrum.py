@@ -1115,6 +1115,10 @@ class Spectrum(object):
 			R, alpha, step = self.fit_config['R'], self.fit_config['alpha'], self.fit_config['step']
 			bA, bm, bs = 10.0*self.fit_config['A_bound'], 1.5*self.fit_config['mu_bound'], self.fit_config['sig_bound']
 			for n,rw in multi.iterrows():
+				if n not in multi.index:
+					# removed from the multiplet by an earlier identical-gamma
+					# drop; the iterator still yields it from its snapshot
+					continue
 				bA_m, bm_m = 1.0, 1.0
 				# CHECK FOR IDENTICAL PEAKS
 				if n+1 in multi.index:
@@ -1129,7 +1133,8 @@ class Spectrum(object):
 							if self._fit_stats is not None:
 								self._fit_stats['drops']['identical'].append((multi.loc[drop]['isotope'], multi.loc[drop]['energy']))
 							multi.drop(drop,inplace=True)
-							continue
+							if drop==n:
+								continue
 						else:
 							msg = '{0} and {1} have identical gammas at {2:.1f} keV (within {3} channels) - fit with loosened shared bounds; intensities may be misattributed'.format(rw['isotope'], multi.loc[n+1]['isotope'], rw['energy'], self.fit_config['ident_idx'])
 							_log.warning(self._loc('fit_peaks')+': '+msg)

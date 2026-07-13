@@ -356,6 +356,32 @@ def test_identical_gamma_guess_within_bounds(capsys):
     assert pks is not None and (np.abs(pks['energy']-1460.82) < 0.1).any()
 
 
+def test_identical_gamma_drop_keeps_partner_params(capsys):
+    # when the *second* peak of a coincident pair is the one dropped (<1%
+    # predicted amplitude), the surviving first peak's parameter block must be
+    # the one entering the fit - not the dropped peak's, which the multiplet
+    # iterator still yields from its snapshot after the drop
+    sp = ci.Spectrum(str(EXAMPLES_DIR / 'eu_calib_7cm.Spe'))
+    strong = {'energy': 121.78, 'intensity': 28.6, 'unc_intensity': 0.1, 'isotope': '152EU'}
+    # the weak line's isotope is anchored by a huge-intensity line on the real
+    # 344 keV peak, so its predicted amplitude at 121.9 keV is positive but
+    # far below 1% of the coincident 152EU peak
+    weak = {'energy': 121.90, 'intensity': 0.05, 'unc_intensity': 0.001, 'isotope': '154EU'}
+    anchor = {'energy': 344.30, 'intensity': 1E5, 'unc_intensity': 10.0, 'isotope': '154EU'}
+
+    base = sp.fit_peaks(gammas=[strong], SNR_min=0.0)
+    n_base = float(base[base['energy'] == 121.78]['counts'].iloc[0])
+
+    pks = sp.fit_peaks(gammas=[strong, weak, anchor], ident_idx=3, SNR_min=0.0)
+    out = capsys.readouterr().out
+    assert 'predicted amplitude <1% of the coincident' in out
+    ft = sp.fits[0]
+    assert ft['df']['isotope'].tolist() == ['152EU']
+    assert ft['p0'][0] == pytest.approx(float(ft['df']['A'].iloc[0]))
+    n_multi = float(pks[pks['energy'] == 121.78]['counts'].iloc[0])
+    assert n_multi == pytest.approx(n_base, rel=0.01)
+
+
 @requires_data('decay')
 def test_zero_config_results_unchanged(eu_spectrum):
     # the logging spine must not perturb results: identical fits at any level
