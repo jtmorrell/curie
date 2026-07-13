@@ -9,7 +9,10 @@ Conventions:
 
 - Messages render as ``[LEVEL] Class.method: message`` on the console; the
   ``Class.method`` prefix is part of the message text, the ``[LEVEL]`` tag
-  comes from the formatter.
+  comes from the formatter.  Classes whose instances are commonly looped over
+  name the instance in the locator - ``Spectrum(<filename>).method`` and
+  ``DecayChain(<parent isotope>).method`` - so interleaved output stays
+  attributable.
 - Levels: ERROR accompanies a raised exception; WARNING means likely
   result-changing (dropped fitted results, failed fits, extrapolation);
   INFO is routine selection and per-fit summary lines (default console

@@ -160,6 +160,7 @@ class Spectrum(object):
 
 		self._peaks = None
 		self._fits = None
+		self._empty_fit_announced = None
 		self._geom_corr = 1.0
 		self._atten_corr = None
 
@@ -435,7 +436,12 @@ class Spectrum(object):
 	def fit_config(self, _fit_config):
 		self._peaks = None
 		self._fits = None
-		accepted = _validate_config(_fit_config, _FIT_CONFIG_SPEC, 'Spectrum.fit_config', _log)
+		accepted = _validate_config(_fit_config, _FIT_CONFIG_SPEC, self._loc('fit_config'), _log)
+		if accepted:
+			# a real config change: an empty fit is news again (fit_peaks
+			# routes its kwargs through here on every call, so an empty
+			# update must not reset the announcement)
+			self._empty_fit_announced = None
 		for nm in accepted:
 			self._fit_config[nm] = accepted[nm]
 		if 'snip_adj' in accepted:
@@ -451,8 +457,16 @@ class Spectrum(object):
 		self._gmls = None
 		self._peaks = None
 		self._fits = None
+		self._empty_fit_announced = None
 		self._isotopes = _isotopes
 	
+
+	def _loc(self, method):
+		# message locator: names the instance (by filename) along with the class
+		# and method, so interleaved output from loops over spectra stays attributable
+		if self.filename:
+			return 'Spectrum({0}).{1}'.format(os.path.basename(self.filename), method)
+		return 'Spectrum.{0}'.format(method)
 
 	def __str__(self):
 		return self.filename
@@ -693,7 +707,7 @@ class Spectrum(object):
 
 		N_i = float(len(np.where(np.sqrt(xf**2+yf**2)<=r_det)[0]))
 		if N_i<1E4:
-			_log.warning('Spectrum.geometry_correction: uncertainty in solid-angle {}% - increase N'.format(round(1E2*np.sqrt(N_i)/N_i, 1)))
+			_log.warning(self._loc('geometry_correction')+': uncertainty in solid-angle {}% - increase N'.format(round(1E2*np.sqrt(N_i)/N_i, 1)))
 
 		SA = 2.0*np.pi*N_i/float(N)
 		corr = SA/(2.0*np.pi*(1.0-distance/np.sqrt(distance**2+r_det**2)))
@@ -869,11 +883,11 @@ class Spectrum(object):
 					if isinstance(I_min, numbers.Real):
 						keep = g['intensity']>=I_min
 						for _, rw in g[~keep].iterrows():
-							_log.debug('Spectrum.fit_peaks: dropped {0} {1:.1f} keV: intensity {2}% < I_min {3}%'.format(i, rw['energy'], rw['intensity'], I_min))
+							_log.debug(self._loc('fit_peaks')+': dropped {0} {1:.1f} keV: intensity {2}% < I_min {3}%'.format(i, rw['energy'], rw['intensity'], I_min))
 					else:
 						keep = (g['intensity']>=I_min[0])&(g['intensity']<=I_min[1])
 						for _, rw in g[~keep].iterrows():
-							_log.debug('Spectrum.fit_peaks: dropped {0} {1:.1f} keV: intensity {2}% outside I_min [{3}, {4}]%'.format(i, rw['energy'], rw['intensity'], I_min[0], I_min[1]))
+							_log.debug(self._loc('fit_peaks')+': dropped {0} {1:.1f} keV: intensity {2}% outside I_min [{3}, {4}]%'.format(i, rw['energy'], rw['intensity'], I_min[0], I_min[1]))
 					if self._fit_stats is not None:
 						self._fit_stats['drops']['intensity'] += [(i, e) for e in g[~keep]['energy']]
 					g = g[keep].reset_index(drop=True)
@@ -890,7 +904,7 @@ class Spectrum(object):
 					else:
 						groups.append([n])
 				for gp in [gp for gp in groups if len(gp)>1]:
-					_log.info('Spectrum.fit_peaks: {0} gammas at {1} keV are unresolvable (within {2} channels) - fit as one peak with combined intensity'.format(i, ', '.join('{:.1f}'.format(e) for e in g.loc[gp,'energy']), self.fit_config['ident_idx']))
+					_log.info(self._loc('fit_peaks')+': {0} gammas at {1} keV are unresolvable (within {2} channels) - fit as one peak with combined intensity'.format(i, ', '.join('{:.1f}'.format(e) for e in g.loc[gp,'energy']), self.fit_config['ident_idx']))
 					keep = g.loc[gp,'intensity'].idxmax()
 					g.loc[keep,'intensity'] = g.loc[gp,'intensity'].sum()
 					g.loc[keep,'unc_intensity'] = np.sqrt((g.loc[gp,'unc_intensity']**2).sum())
@@ -1038,7 +1052,7 @@ class Spectrum(object):
 
 		edge = (df['l']>0)&(df['h']<L)
 		for _, rw in df[~edge].iterrows():
-			_log.debug('Spectrum.fit_peaks: dropped {0} {1:.1f} keV: fit window [{2}..{3}] extends past spectrum edge ({4} channels)'.format(rw['isotope'], rw['energy'], rw['l'], rw['h'], L))
+			_log.debug(self._loc('fit_peaks')+': dropped {0} {1:.1f} keV: fit window [{2}..{3}] extends past spectrum edge ({4} channels)'.format(rw['isotope'], rw['energy'], rw['l'], rw['h'], L))
 		if self._fit_stats is not None:
 			self._fit_stats['drops']['edge'] += [(rw['isotope'], rw['energy']) for _, rw in df[~edge].iterrows()]
 		df = df[edge].reset_index(drop=True)
@@ -1052,7 +1066,7 @@ class Spectrum(object):
 
 		snr_ok = df['SNR']>self.fit_config['SNR_min']
 		for _, rw in df[~snr_ok].iterrows():
-			_log.debug('Spectrum.fit_peaks: dropped {0} {1:.1f} keV: SNR {2:.1f} < SNR_min {3}'.format(rw['isotope'], rw['energy'], rw['SNR'], self.fit_config['SNR_min']))
+			_log.debug(self._loc('fit_peaks')+': dropped {0} {1:.1f} keV: SNR {2:.1f} < SNR_min {3}'.format(rw['isotope'], rw['energy'], rw['SNR'], self.fit_config['SNR_min']))
 		if self._fit_stats is not None:
 			self._fit_stats['drops']['snr'] += [(rw['isotope'], rw['energy']) for _, rw in df[~snr_ok].iterrows()]
 		df = df[snr_ok].reset_index(drop=True)
@@ -1100,13 +1114,13 @@ class Spectrum(object):
 						if rw['A']<1E-2*multi.loc[n+1]['A'] or multi.loc[n+1]['A']<1E-2*rw['A']:
 							drop = n if rw['A']<1E-2*multi.loc[n+1]['A'] else n+1
 							other = n+1 if drop==n else n
-							_log.warning('Spectrum.fit_peaks: dropped {0} at {1:.1f} keV: predicted amplitude <1% of the coincident {2} peak'.format(multi.loc[drop]['isotope'], multi.loc[drop]['energy'], multi.loc[other]['isotope']))
+							_log.warning(self._loc('fit_peaks')+': dropped {0} at {1:.1f} keV: predicted amplitude <1% of the coincident {2} peak'.format(multi.loc[drop]['isotope'], multi.loc[drop]['energy'], multi.loc[other]['isotope']))
 							if self._fit_stats is not None:
 								self._fit_stats['drops']['identical'].append((multi.loc[drop]['isotope'], multi.loc[drop]['energy']))
 							multi.drop(drop,inplace=True)
 							continue
 						else:
-							_log.warning('Spectrum.fit_peaks: {0} and {1} have identical gammas at {2:.1f} keV (within {3} channels) - fit with loosened shared bounds; intensities may be misattributed'.format(rw['isotope'], multi.loc[n+1]['isotope'], rw['energy'], self.fit_config['ident_idx']))
+							_log.warning(self._loc('fit_peaks')+': {0} and {1} have identical gammas at {2:.1f} keV (within {3} channels) - fit with loosened shared bounds; intensities may be misattributed'.format(rw['isotope'], multi.loc[n+1]['isotope'], rw['energy'], self.fit_config['ident_idx']))
 							bA_m, bm_m = 0.1, 0.5
 
 				p['p0'] += [rw['A'], rw['idx'], rw['sig']]
@@ -1195,7 +1209,7 @@ class Spectrum(object):
 			return p0, df
 		except (ValueError, RuntimeError, np.linalg.LinAlgError) as err:
 			f = p0['df']
-			_log.warning('Spectrum.fit_peaks: peak fit failed for {0} ({1} keV): {2} (multiplet spans channels {3}..{4})'.format(', '.join(map(str, f['isotope'])), ', '.join('{:.1f}'.format(e) for e in f['energy']), err, p0['l'], p0['h']))
+			_log.warning(self._loc('fit_peaks')+': peak fit failed for {0} ({1} keV): {2} (multiplet spans channels {3}..{4})'.format(', '.join(map(str, f['isotope'])), ', '.join('{:.1f}'.format(e) for e in f['energy']), err, p0['l'], p0['h']))
 			return p0, p0['df']
 
 	def fit_peaks(self, gammas=None, **kwargs):
@@ -1366,14 +1380,22 @@ class Spectrum(object):
 		if n_pk==0:
 			if n_cand==0:
 				if not len(self.isotopes) and gammas is None:
-					_log.warning('Spectrum.fit_peaks: nothing to fit - no isotopes assigned (sp.isotopes) and no gammas given')
+					msg = self._loc('fit_peaks')+': nothing to fit - no isotopes assigned (sp.isotopes) and no gammas given'
 				else:
-					_log.warning('Spectrum.fit_peaks: nothing to fit - no candidate gammas for [{0}] pass the line selection (E_min={1}, I_min={2}%, dE_511={3})'.format(', '.join(map(str, self.isotopes)), _lim_str(cfg['E_min']), _lim_str(cfg['I_min']), cfg['dE_511']))
+					msg = self._loc('fit_peaks')+': nothing to fit - no candidate gammas for [{0}] pass the line selection (E_min={1}, I_min={2}%, dE_511={3})'.format(', '.join(map(str, self.isotopes)), _lim_str(cfg['E_min']), _lim_str(cfg['I_min']), cfg['dE_511'])
 			else:
-				_log.warning('Spectrum.fit_peaks: no peaks found - {0} candidates from [{1}] all dropped ({2}); check the energy calibration and SNR_min'.format(n_cand, ', '.join(sorted(stats['candidates'])), ', '.join(parts)))
+				msg = self._loc('fit_peaks')+': no peaks found - {0} candidates from [{1}] all dropped ({2}); check the energy calibration and SNR_min'.format(n_cand, ', '.join(sorted(stats['candidates'])), ', '.join(parts))
+			# an empty result re-fits on every sp.peaks access, so an unchanged
+			# spectrum would re-announce on each one: repeats go to DEBUG (the
+			# announcement returns after any isotopes/fit_config change)
+			if msg == self._empty_fit_announced:
+				_log.debug(msg)
+			else:
+				_log.warning(msg)
+				self._empty_fit_announced = msg
 			return
 
-		msg = 'Spectrum.fit_peaks: fit {0} peaks in {1} multiplets from {2} isotopes'.format(n_pk, len(self._fits), self._peaks['isotope'].nunique())
+		msg = self._loc('fit_peaks')+': fit {0} peaks in {1} multiplets from {2} isotopes'.format(n_pk, len(self._fits), self._peaks['isotope'].nunique())
 		if n_drop:
 			msg += '; dropped {0} candidates ({1})'.format(n_drop, ', '.join(parts))
 		else:
@@ -1395,7 +1417,7 @@ class Spectrum(object):
 			n_f = sum(int((f['isotope']==iso).sum()) for f in failed)
 			if n_f:
 				reasons.append('{0} fit failed'.format(n_f))
-			_log.warning('Spectrum.fit_peaks: no peaks to fit for {0} - all {1} candidate gammas dropped ({2})'.format(iso, stats['candidates'][iso], ', '.join(reasons)))
+			_log.warning(self._loc('fit_peaks')+': no peaks to fit for {0} - all {1} candidate gammas dropped ({2})'.format(iso, stats['candidates'][iso], ', '.join(reasons)))
 
 
 	@property

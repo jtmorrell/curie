@@ -55,7 +55,7 @@ def eu_local():
 def test_info_summary_emitted(eu_refit, capsys):
     eu_refit()
     out = capsys.readouterr().out
-    assert '[INFO] Spectrum.fit_peaks: fit ' in out
+    assert '[INFO] Spectrum(eu_calib_7cm.Spe).fit_peaks: fit ' in out
     assert 'dropped' in out
     assert 'SNR<' in out
 
@@ -80,7 +80,7 @@ def test_debug_level_shows_per_drop_lines(eu_refit, capsys):
     ci.set_log_level('DEBUG')
     eu_refit()
     out = capsys.readouterr().out
-    assert '[DEBUG] Spectrum.fit_peaks: dropped ' in out
+    assert '[DEBUG] Spectrum(eu_calib_7cm.Spe).fit_peaks: dropped ' in out
     assert 'SNR_min' in out or 'I_min' in out
 
 
@@ -301,9 +301,42 @@ def test_fit_R_summary_line(capsys):
     dc.get_counts([sp], EoB='01/01/2016 08:39:08')
     dc.fit_R()
     out = capsys.readouterr().out
-    assert '[INFO] DecayChain.get_counts: ' in out
-    assert '[INFO] DecayChain.fit_R: fit 1 production rates to ' in out
+    assert '[INFO] DecayChain(152EUg).get_counts: ' in out
+    assert ' counts from 1 of 1 spectra for ' in out
+    assert '[INFO] DecayChain(152EUg).fit_R: fit 1 production rates to ' in out
     assert 'chi2/dof=' in out
+
+
+@requires_data('decay')
+def test_scale_factor_folded_into_summary(capsys):
+    # mutually inconsistent counts: the inflation is announced on the summary
+    # line itself, not as a separate message
+    dc = ci.DecayChain('152EU', A0=3.7E4, units='d')
+    dc.counts = [[0.1*n, 0.1*n+0.1, c, 10.0] for n, c in
+                 enumerate([1000.0, 500.0, 800.0, 900.0, 700.0, 600.0])]
+    dc.fit_A0()
+    out = capsys.readouterr().out
+    line = next(l for l in out.splitlines() if 'initial activities' in l and 'fit ' in l)
+    assert 'chi2/dof=' in line and 'scaled x' in line
+    assert 'mutually inconsistent' not in out
+    assert '[INFO] DecayChain(152EUg).fit_A0: ' in line
+
+
+@requires_data('decay')
+def test_empty_fit_announces_once(capsys):
+    # an empty fit re-runs on every sp.peaks access; the announcement fires
+    # once, repeats at DEBUG only, and returns after a config change
+    sp = ci.Spectrum(str(EXAMPLES_DIR / 'eu_calib_7cm.Spe'))
+    sp.isotopes = ['152EU']
+    sp.fit_config = {'E_min': 1E5}
+    sp.fit_peaks()
+    assert capsys.readouterr().out.count('nothing to fit') == 1
+    sp.peaks
+    sp.peaks
+    assert 'nothing to fit' not in capsys.readouterr().out
+    sp.fit_config = {'E_min': 2E5}
+    sp.peaks
+    assert capsys.readouterr().out.count('nothing to fit') == 1
 
 
 @requires_data('decay')

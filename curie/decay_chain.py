@@ -506,6 +506,11 @@ class DecayChain(object):
 			self._counts['unc_activity'] = self._counts['unc_counts']*self.counts['activity']/self._counts['counts']
 			
 		
+	def _loc(self, method):
+		# message locator: names the chain by its parent isotope along with the
+		# class and method, so interleaved output from loops over chains stays attributable
+		return 'DecayChain({0}).{1}'.format(self.isotopes[0], method)
+
 	def get_counts(self, spectra, EoB, peak_data=None):
 		"""Retrieves the number of measured decays
 
@@ -543,12 +548,12 @@ class DecayChain(object):
 
 		"""
 
-		counts, n_nomatch = [], 0
+		counts = []
 		if type(EoB)==str:
 			try:
 				EoB = dtm.datetime.strptime(EoB, '%m/%d/%Y %H:%M:%S')
 			except ValueError:
-				raise ValueError("DecayChain.get_counts: could not parse EoB {0!r} - expected '%m/%d/%Y %H:%M:%S' (e.g. 01/01/2016 08:39:08)".format(EoB))
+				raise ValueError(self._loc('get_counts')+": could not parse EoB {0!r} - expected '%m/%d/%Y %H:%M:%S' (e.g. 01/01/2016 08:39:08)".format(EoB))
 
 		if peak_data is not None:
 			if type(peak_data)==str:
@@ -598,12 +603,11 @@ class DecayChain(object):
 					stop = start+(sp.real_time*self._r_lm('s'))
 			if not len(df):
 				# routine when peak data spans many spectra and chains: detail at
-				# DEBUG, count in the summary line; all-empty raises below
-				_log.debug('DecayChain.get_counts: {0} contains no peaks matching chain isotopes [{1}]'.format(sp if type(sp)==str else sp.filename, ', '.join(self.isotopes)))
-				n_nomatch += 1
+				# DEBUG, matched-of-total in the summary line; all-empty raises below
+				_log.debug(self._loc('get_counts')+': {0} contains no peaks matching chain isotopes [{1}]'.format(sp if type(sp)==str else sp.filename, ', '.join(self.isotopes)))
 			if len(df):
 				if start < 0:
-					_log.warning('DecayChain.get_counts: {0} starts {1:.4g} {2} before EoB - check EoB and the spectrum start time'.format(sp if type(sp)==str else sp.filename, -start, self.units))
+					_log.warning(self._loc('get_counts')+': {0} starts {1:.4g} {2} before EoB - check EoB and the spectrum start time'.format(sp if type(sp)==str else sp.filename, -start, self.units))
 				ct = pd.DataFrame({'isotope':df['isotope'], 'start':start, 'stop':stop, 'counts':df['decays'], 'unc_counts':df['unc_decays']})
 				# decompose the uncertainty by correlation class where the peak data
 				# carries the provenance: counting (independent), gamma intensity
@@ -628,13 +632,10 @@ class DecayChain(object):
 				counts.append(ct)
 
 		if not len(counts):
-			raise ValueError('DecayChain.get_counts: no counts found - none of the {0} spectra contain peaks matching [{1}].'.format(len(spectra), ', '.join(self.isotopes)))
+			raise ValueError(self._loc('get_counts')+': no counts found - none of the {0} spectra contain peaks matching [{1}].'.format(len(spectra), ', '.join(self.isotopes)))
 
 		self.counts = pd.concat(counts, sort=True, ignore_index=True).sort_values(by=['start']).reset_index(drop=True)
-		msg = 'DecayChain.get_counts: {0} counts from {1} spectra for [{2}]'.format(len(self.counts), len(counts), ', '.join(self.isotopes))
-		if n_nomatch:
-			msg += ' ({0} spectra matched nothing)'.format(n_nomatch)
-		_log.info(msg)
+		_log.info(self._loc('get_counts')+': {0} counts from {1} of {2} spectra for [{3}]'.format(len(self.counts), len(counts), len(spectra), ', '.join(self.isotopes)))
 
 
 	@staticmethod
@@ -711,7 +712,8 @@ class DecayChain(object):
 		# Shared fitting core for fit_R/fit_A0: diagonal absolute-sigma pre-fit
 		# (also the bare-counts path), then the generalized fit against the
 		# assembled covariance, with a one-sided chi-square scale factor.
-		# Returns (fit, covariance, chi2/dof of the unscaled fit).
+		# Returns (fit, covariance, chi2/dof of the unscaled fit, scale note),
+		# where the note describes any applied inflation for the summary line.
 		func = lambda X_f, *R_f: np.dot(np.asarray(R_f), X_f)
 		with np.errstate(all='ignore'):
 			fit, cv = curve_fit(func, X, Y, sigma=dY, p0=p0, bounds=(0.0, np.inf), absolute_sigma=True)
@@ -721,13 +723,14 @@ class DecayChain(object):
 			else:
 				V, Vi = self._counts_covariance(fc, np.abs(np.dot(fit, X)), corr, corr_group, norm_frac)
 			if V is None:
-				_log.warning('DecayChain.{}: counts carry only total uncertainties, so correlated systematics (shared gamma intensities, efficiencies) cannot be separated and unc_R may be underestimated. Provide decomposition columns (see get_counts) or the corr= option.'.format(label))
+				_log.warning(self._loc(label)+': counts carry only total uncertainties, so correlated systematics (shared gamma intensities, efficiencies) cannot be separated and unc_R may be underestimated. Provide decomposition columns (see get_counts) or the corr= option.')
 				r = Y-np.dot(fit, X)
 				chi2n = np.sum(r**2/dY**2)/dof if dof>0 else np.inf
+				scale_note = None
 				if scale_factor and dof>0 and np.isfinite(chi2n) and chi2n>1.0:
 					cv = cv*chi2n
-					_log.info('DecayChain.{0}: mutually inconsistent counts (chi2/dof={1:.2g}); uncertainties scaled x{2:.2f}'.format(label, chi2n, np.sqrt(chi2n)))
-				return fit, cv, chi2n
+					scale_note = 'uncertainties scaled x{0:.2f}'.format(np.sqrt(chi2n))
+				return fit, cv, chi2n, scale_note
 			# One-sided scale factor: mutually inconsistent data can only indict the
 			# INDEPENDENT error components (the correlated modes do not contribute to
 			# point-to-point scatter), so only those are inflated, iterated until the
@@ -743,16 +746,15 @@ class DecayChain(object):
 				if not (scale_factor and dof>0 and np.isfinite(chi2n) and chi2n>1.0):
 					break
 				S2 = S2*chi2n
-		if S2!=1.0:
-			_log.info('DecayChain.{0}: mutually inconsistent counts (chi2/dof={1:.2g}); independent uncertainty components scaled x{2:.2f}'.format(label, chi2_fit, np.sqrt(S2)))
-		return fit, cv, chi2_fit
+		scale_note = 'independent uncertainty components scaled x{0:.2f}'.format(np.sqrt(S2)) if S2!=1.0 else None
+		return fit, cv, chi2_fit, scale_note
 
 	def _filter_counts(self, max_error, min_counts, label):
 		# The max_error/min_counts selection shared by fit_R/fit_A0, with each
 		# removal announced and counted. Selection identical to
 		# (counts>min_counts)&(unc_counts<max_error*counts).
 		if self._counts is None:
-			raise ValueError('DecayChain.{0} requires count data: set dc.counts or call dc.get_counts(...) first.'.format(label))
+			raise ValueError(self._loc(label)+' requires count data: set dc.counts or call dc.get_counts(...) first.')
 		cts = self.counts
 		low = ~(cts['counts']>min_counts)
 		err = (~low)&(~(cts['unc_counts']<max_error*cts['counts']))
@@ -764,25 +766,28 @@ class DecayChain(object):
 			return ''
 
 		for _, c in cts[low].iterrows():
-			_log.debug('DecayChain.{0}: dropped {1} count at t={2:.4g} {3}{4}: counts {5:.4g} <= min_counts {6}'.format(label, c['isotope'], c['start'], self.units, _line(c), c['counts'], min_counts))
+			_log.debug(self._loc(label)+': dropped {0} count at t={1:.4g} {2}{3}: counts {4:.4g} <= min_counts {5}'.format(c['isotope'], c['start'], self.units, _line(c), c['counts'], min_counts))
 		for _, c in cts[err].iterrows():
-			_log.debug('DecayChain.{0}: dropped {1} count at t={2:.4g} {3}{4}: relative error {5:.0f}% > max_error {6:.0f}%'.format(label, c['isotope'], c['start'], self.units, _line(c), 100.0*c['unc_counts']/c['counts'], 100.0*max_error))
+			_log.debug(self._loc(label)+': dropped {0} count at t={1:.4g} {2}{3}: relative error {4:.0f}% > max_error {5:.0f}%'.format(c['isotope'], c['start'], self.units, _line(c), 100.0*c['unc_counts']/c['counts'], 100.0*max_error))
 
 		keep = cts[(~low)&(~err)]
 		if not len(keep):
-			raise ValueError('DecayChain.{0}: 0 of {1} counts pass the filters ({2} relative error>{3:.0f}%; {4} counts<={5}). Loosen max_error/min_counts or check the count data.'.format(label, len(cts), int(err.sum()), 100.0*max_error, int(low.sum()), min_counts))
+			raise ValueError(self._loc(label)+': 0 of {0} counts pass the filters ({1} relative error>{2:.0f}%; {3} counts<={4}). Loosen max_error/min_counts or check the count data.'.format(len(cts), int(err.sum()), 100.0*max_error, int(low.sum()), min_counts))
 		return keep, int(err.sum()), int(low.sum())
 
-	def _log_gls_summary(self, label, what, n_fit, n_used, n_tot, n_err, n_low, max_error, min_counts, chi2):
+	def _log_gls_summary(self, label, what, n_fit, n_used, n_tot, n_err, n_low, max_error, min_counts, chi2, scale_note=None):
 		parts = []
 		if n_err:
 			parts.append('{0} dropped: relative error>{1:.0f}%'.format(n_err, 100.0*max_error))
 		if n_low:
 			parts.append('{0} dropped: counts<={1}'.format(n_low, min_counts))
-		msg = 'DecayChain.{0}: fit {1} {2} to {3}/{4} counts'.format(label, n_fit, what, n_used, n_tot)
+		msg = self._loc(label)+': fit {0} {1} to {2}/{3} counts'.format(n_fit, what, n_used, n_tot)
 		if parts:
 			msg += ' ({0})'.format('; '.join(parts))
-		_log.info(msg+'; chi2/dof={0:.2g}'.format(chi2))
+		msg += '; chi2/dof={0:.2g}'.format(chi2)
+		if scale_note:
+			msg += '; '+scale_note
+		_log.info(msg)
 
 	@property
 	def R_avg(self):
@@ -886,8 +891,8 @@ class DecayChain(object):
 			p0 = np.average(Y[wh]/X[:,wh], axis=1)
 			p0 = np.where((p0>0)&(np.isfinite(p0)), p0, 1.0)
 
-		fit, cov, chi2 = self._gls_fit(X, Y, dY, filter_counts, p0, corr, corr_group, norm_frac, scale_factor, cov, 'fit_R')
-		self._log_gls_summary('fit_R', 'production rates', len(R_isotopes), len(filter_counts), len(self.counts), n_err, n_low, max_error, min_counts, chi2)
+		fit, cov, chi2, scale_note = self._gls_fit(X, Y, dY, filter_counts, p0, corr, corr_group, norm_frac, scale_factor, cov, 'fit_R')
+		self._log_gls_summary('fit_R', 'production rates', len(R_isotopes), len(filter_counts), len(self.counts), n_err, n_low, max_error, min_counts, chi2, scale_note)
 
 
 		for n,ip in enumerate(R_isotopes):
@@ -904,7 +909,7 @@ class DecayChain(object):
 		R_avg = self.R_avg
 		R_norm = np.array([R_avg[R_avg['isotope']==i]['R_avg'].to_numpy()[0] for i in R_isotopes])
 		if not np.any(np.isfinite(np.diag(cov))):
-			_log.warning('DecayChain.fit_R: covariance estimate is singular - quoted uncertainties are unreliable')
+			_log.warning(self._loc('fit_R')+': covariance estimate is singular - quoted uncertainties are unreliable')
 			cov = np.ones(cov.shape)*((np.average(dY/Y))*fit)**2
 		return R_isotopes, R_norm, cov*(R_norm/fit)**2
 		
@@ -992,8 +997,8 @@ class DecayChain(object):
 		dY = filter_counts['unc_counts'].to_numpy()
 
 		p0 = np.ones(len(X))
-		fit, cov, chi2 = self._gls_fit(X, Y, dY, filter_counts, p0, corr, corr_group, norm_frac, scale_factor, cov, 'fit_A0')
-		self._log_gls_summary('fit_A0', 'initial activities', len(A0_isotopes), len(filter_counts), len(self.counts), n_err, n_low, max_error, min_counts, chi2)
+		fit, cov, chi2, scale_note = self._gls_fit(X, Y, dY, filter_counts, p0, corr, corr_group, norm_frac, scale_factor, cov, 'fit_A0')
+		self._log_gls_summary('fit_A0', 'initial activities', len(A0_isotopes), len(filter_counts), len(self.counts), n_err, n_low, max_error, min_counts, chi2, scale_note)
 
 		for n,ip in enumerate(A0_isotopes):
 			self.A0[ip] *= fit[n]
