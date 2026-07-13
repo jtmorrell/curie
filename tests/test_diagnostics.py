@@ -111,8 +111,11 @@ def test_spectrum_at_bound_flag(capsys):
     d = sp.diagnostics
     assert len(d) == 1
     assert 'at_bound:A' in d['flags'].iloc[0]
+    assert "parameter 'A' at upper bound for 152EU 121.8 keV (flag: at_bound:A)" in d['message'].iloc[0]
     out = capsys.readouterr().out
-    assert "parameter 'A' at upper bound for 152EU 121.8 keV (flag: at_bound:A)" in out
+    # per-peak detail stays at DEBUG; the summary carries the count
+    assert '1 peaks with parameters at fit bounds (see sp.diagnostics)' in out
+    assert 'at upper bound for' not in out
 
 
 def test_spectrum_fit_failed_row():
@@ -142,8 +145,8 @@ def test_spectrum_fits_public(eu_spectrum):
 def test_summary_points_at_diagnostics(eu_spectrum, capsys):
     eu_spectrum.fit_peaks()
     out = capsys.readouterr().out
-    if 'chi2/dof>10' in out:
-        assert 'chi2/dof>10 (see sp.diagnostics)' in out
+    if 'chi2/dof>10' in out or 'at fit bounds' in out:
+        assert '(see sp.diagnostics)' in out
 
 
 ########################

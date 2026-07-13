@@ -1381,14 +1381,15 @@ class Spectrum(object):
 		return self._peaks
 
 	def _diagnose_multiplets(self, multiplets):
-		# Build the per-multiplet diagnostics rows (failed fits included) and
-		# surface the at-bound and high-chi2 flags as warnings, before the
-		# fit_peaks summary line points at them
+		# Build the per-multiplet diagnostics rows (failed fits included).
+		# Per-peak at-bound and per-multiplet high-chi2 detail goes to DEBUG -
+		# busy spectra rail dozens of parameters per fit, so the console gets
+		# summary counts (pointing at sp.diagnostics) rather than a line each
 		cfg = self.fit_config
 		B = {'snip':0, 'constant':1, 'linear':2, 'quadratic':3}[cfg['bg'].lower()]
 		pk_pars = ['A','mu','sig']+(['R','alpha'] if cfg['skew_fit'] else [])+(['step'] if cfg['step_fit'] else [])
 		L = len(pk_pars)
-		rows = []
+		rows, n_at_bound = [], 0
 		for i, (p, _) in enumerate(multiplets, start=1):
 			e_lo, e_hi = float(self.cb.eng(p['l'])), float(self.cb.eng(p['h']))
 			flags, msgs = [], list(p['warnings'])
@@ -1396,21 +1397,24 @@ class Spectrum(object):
 			if ok:
 				fit, chi2, dof = p['fit'], p['chi2'], p['dof']
 				scale = float(np.sqrt(chi2)) if np.isfinite(chi2) and chi2>1.0 else 1.0
+				bound_peaks = set()
 				for n, side in _at_bound(fit[B:], p['bounds'][0][B:], p['bounds'][1][B:]):
 					par = pk_pars[n%L]
 					rw = p['df'].iloc[n//L]
 					msg = "parameter '{0}' at {1} bound for {2} {3:.1f} keV (flag: at_bound:{4})".format(par, side, rw['isotope'], rw['energy'], par)
-					_log.warning(self._loc('fit_peaks')+': '+msg)
+					_log.debug(self._loc('fit_peaks')+': '+msg)
 					msgs.append(msg)
+					bound_peaks.add(n//L)
 					if 'at_bound:'+par not in flags:
 						flags.append('at_bound:'+par)
+				n_at_bound += len(bound_peaks)
 				if _unmoved(fit, p['p0']):
 					flags.append('unmoved')
 				if not np.all(np.isfinite(np.diag(p['unc']))):
 					flags.append('singular_cov')
 				if np.isfinite(chi2) and chi2>10.0:
 					msg = 'multiplet at {0:.1f}-{1:.1f} keV has chi2/dof={2:.2g} (flag: chi2_high)'.format(e_lo, e_hi, chi2)
-					_log.warning(self._loc('fit_peaks')+': '+msg)
+					_log.debug(self._loc('fit_peaks')+': '+msg)
 					msgs.append(msg)
 					flags.append('chi2_high')
 			else:
@@ -1427,6 +1431,8 @@ class Spectrum(object):
 						 'energy_min':e_lo, 'energy_max':e_hi,
 						 'isotopes':', '.join(dict.fromkeys(map(str, p['df']['isotope']))), 'n_peaks':len(p['df'])})
 		self._diagnostics = _diagnostics_frame(rows, extras=_DIAG_EXTRAS)
+		if self._fit_stats is not None:
+			self._fit_stats['at_bound'] = n_at_bound
 
 	def _log_fit_summary(self, failed, n_chi2_high, gammas):
 		stats, cfg = self._fit_stats, self.fit_config
@@ -1477,7 +1483,11 @@ class Spectrum(object):
 		else:
 			msg += '; no candidates dropped'
 		if n_chi2_high:
-			msg += '; {0} multiplets with chi2/dof>10 (see sp.diagnostics)'.format(n_chi2_high)
+			msg += '; {0} multiplets with chi2/dof>10'.format(n_chi2_high)
+		if stats.get('at_bound'):
+			msg += '; {0} peaks with parameters at fit bounds'.format(stats['at_bound'])
+		if n_chi2_high or stats.get('at_bound'):
+			msg += ' (see sp.diagnostics)'
 		_log.info(msg)
 
 		fitted = set(self._peaks['isotope'])
