@@ -1,5 +1,6 @@
 
 import re
+import numbers
 import numpy as np
 import pandas as pd
 
@@ -444,13 +445,13 @@ class Isotope(object):
 		df = df[np.abs(df['energy']-511.0)>=dE_511]
 
 		if I_lim is not None:
-			if type(I_lim)==float or type(I_lim)==int:
+			if isinstance(I_lim, numbers.Real):
 				df = df[df['intensity']>=I_lim]
 			else:
 				df = df[(df['intensity']>=I_lim[0])&(df['intensity']<=I_lim[1])]
 
 		if E_lim is not None:
-			if type(E_lim)==float or type(E_lim)==int:
+			if isinstance(E_lim, numbers.Real):
 				df = df[df['energy']>=E_lim]
 			else:
 				df = df[(df['energy']>=E_lim[0])&(df['energy']<=E_lim[1])]
@@ -509,13 +510,13 @@ class Isotope(object):
 			df = pd.read_sql('SELECT energy, intensity, unc_intensity FROM electrons WHERE isotope="{0}" AND isomer="{1}"'.format(ip, im), _get_connection('decay'))
 
 		if I_lim is not None:
-			if type(I_lim)==float or type(I_lim)==int:
+			if isinstance(I_lim, numbers.Real):
 				df = df[df['intensity']>=I_lim]
 			else:
 				df = df[(df['intensity']>=I_lim[0])&(df['intensity']<=I_lim[1])]
 
 		if E_lim is not None:
-			if type(E_lim)==float or type(E_lim)==int:
+			if isinstance(E_lim, numbers.Real):
 				df = df[df['energy']>=E_lim]
 			else:
 				df = df[(df['energy']>=E_lim[0])&(df['energy']<=E_lim[1])]
@@ -656,13 +657,13 @@ class Isotope(object):
 		df = pd.read_sql('SELECT energy, intensity, unc_intensity FROM alphas WHERE isotope="{0}" AND isomer="{1}"'.format(ip, im), _get_connection('decay'))
 
 		if I_lim is not None:
-			if type(I_lim)==float or type(I_lim)==int:
+			if isinstance(I_lim, numbers.Real):
 				df = df[df['intensity']>=I_lim]
 			else:
 				df = df[(df['intensity']>=I_lim[0])&(df['intensity']<=I_lim[1])]
 
 		if E_lim is not None:
-			if type(E_lim)==float or type(E_lim)==int:
+			if isinstance(E_lim, numbers.Real):
 				df = df[df['energy']>=E_lim]
 			else:
 				df = df[(df['energy']>=E_lim[0])&(df['energy']<=E_lim[1])]

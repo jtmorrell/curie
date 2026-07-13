@@ -677,16 +677,20 @@ class Calibration(object):
 				V = eff_cov(m0)
 				# one-sided scale factor on the INDEPENDENT component only: inconsistency
 				# between points cannot indict the correlated modes
-				S2, f1, u1, chi2n = 1.0, f0, None, np.inf
+				S2, f1, u1, chi2n, chi2_0 = 1.0, f0, None, np.inf, None
 				for _ in range(4):
 					Vp = V if S2==1.0 else V+(S2-1.0)*Vi
 					f1, u1 = curve_fit(fn, x, y, sigma=Vp, p0=f1, bounds=bounds_, absolute_sigma=True)
 					r = y-self.eff(x, f1)
 					chi2n = float(r @ np.linalg.solve(Vp, r))/max(len(y)-len(f1), 1)
+					if chi2_0 is None:
+						# goodness of fit before any inflation: this is what gets
+						# reported (the converged chi2n tends to 1 by construction)
+						chi2_0 = chi2n
 					if not (np.isfinite(chi2n) and chi2n>1.0):
 						break
 					S2 = S2*chi2n
-			return f1, u1, chi2n
+			return f1, u1, chi2n, chi2_0, S2
 
 		p0 = spectra[0].cb.effcal
 		p0 = p0.tolist() if len(p0)==7 else p0.tolist()+[0.5, 0.001]
@@ -695,20 +699,21 @@ class Calibration(object):
 
 		if any([sp.fit_config['xrays'] for sp in spectra]):
 			try:
-				fit5, unc5, chi5 = fit_eff(p0[:5], (bounds[0][:5], bounds[1][:5]))
-				fit7, unc7, chi7 = fit_eff(fit5.tolist()+p0[5:], bounds)
-				## Invert to find which is closer to one
+				fit5, unc5, chi5, chi5_0, S2_5 = fit_eff(p0[:5], (bounds[0][:5], bounds[1][:5]))
+				fit7, unc7, chi7, chi7_0, S2_7 = fit_eff(fit5.tolist()+p0[5:], bounds)
+				## Invert to find which is closer to one: selection uses the converged
+				## whitened statistic; the messages report the pre-inflation chi2/dof
 				c7 = chi7 if chi7>1.0 else 1.0/chi7
 				c5 = chi5 if chi5>1.0 else 1.0/chi5
-				fit, unc, eff_chi2 = (fit5, unc5, chi5) if c5<=c7 else (fit7, unc7, chi7)
+				fit, unc, eff_chi2, eff_S2 = (fit5, unc5, chi5_0, S2_5) if c5<=c7 else (fit7, unc7, chi7_0, S2_7)
 				_log.info('Calibration.calibrate: effcal model selection: vidmar-{0} (chi2/dof={1:.2g}) preferred over vidmar-{2} (chi2/dof={3:.2g})'.format(
-					*((5, chi5, 7, chi7) if c5<=c7 else (7, chi7, 5, chi5))))
+					*((5, chi5_0, 7, chi7_0) if c5<=c7 else (7, chi7_0, 5, chi5_0))))
 			except Exception as err:
 				_log.warning('Calibration.calibrate: effcal 7-parameter fit failed ({0}); using the 5-parameter form'.format(err))
-				fit, unc, eff_chi2 = fit_eff(p0[:5], (bounds[0][:5], bounds[1][:5]))
+				fit, unc, _, eff_chi2, eff_S2 = fit_eff(p0[:5], (bounds[0][:5], bounds[1][:5]))
 
 		else:
-			fit, unc, eff_chi2 = fit_eff(p0[:5], (bounds[0][:5], bounds[1][:5]))
+			fit, unc, _, eff_chi2, eff_S2 = fit_eff(p0[:5], (bounds[0][:5], bounds[1][:5]))
 
 		with np.errstate(all='ignore'):
 			kept = (self.eff(x, fit)-y)**2/yerr**2 < 10.0
@@ -723,7 +728,10 @@ class Calibration(object):
 			msg += ' ({0} dropped: unc>33% of value)'.format(n_tot-len(x))
 		if len(outliers):
 			msg += '; {0} outliers: residual chi2>10 [{1} keV]'.format(len(outliers), ', '.join(outliers))
-		_log.info(msg+'; chi2/dof={0:.2g}'.format(eff_chi2))
+		msg += '; chi2/dof={0:.2g}'.format(eff_chi2)
+		if np.isfinite(eff_S2) and eff_S2 > 1.0:
+			msg += '; independent uncertainty components scaled x{0:.2f}'.format(np.sqrt(eff_S2))
+		_log.info(msg)
 
 		for sp in spectra:
 			sp.cb.engcal = self._calib_data['engcal']['fit']

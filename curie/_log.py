@@ -24,6 +24,8 @@ import difflib
 import logging
 import numbers
 
+import numpy as np
+
 
 class _StdoutHandler(logging.Handler):
 	"""Stream handler that resolves sys.stdout at emit time (print parity)."""
@@ -171,7 +173,11 @@ def _is_number(v):
 	return isinstance(v, numbers.Real)
 
 def _is_int(v):
-	return isinstance(v, numbers.Integral)
+	# integer-valued floats count as integers: config values are often computed
+	# (e.g. multi_max=8.0) and are only ever used in numeric comparisons
+	if isinstance(v, numbers.Integral):
+		return True
+	return isinstance(v, numbers.Real) and float(v).is_integer()
 
 def _is_number_or_pair(v):
 	if isinstance(v, numbers.Real):
@@ -206,7 +212,9 @@ NUMBER = _Check(_is_number, 'a number')
 NUMBER_OR_NONE = _Check(_is_number, 'a number or None', allow_none=True)
 NUMBER_OR_PAIR = _Check(_is_number_or_pair, 'a number or 2-tuple of numbers', allow_none=True)
 INTEGER = _Check(_is_int, 'an integer')
-BOOLEAN = _Check(lambda v: isinstance(v, (bool, numbers.Integral)), 'a bool')
+# np.bool_ is neither bool nor Integral, but flags computed from arrays
+# (e.g. xrays=mask.any()) are legitimate config values
+BOOLEAN = _Check(lambda v: isinstance(v, (bool, np.bool_, numbers.Integral)), 'a bool')
 
 
 def _validate_config(updates, spec, context, logger):

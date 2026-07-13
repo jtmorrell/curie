@@ -7,6 +7,7 @@ asserted through capsys - the console handler writes to the current
 sys.stdout, so capture behaves exactly as it does for print().
 """
 import os
+import re
 
 import numpy as np
 import pytest
@@ -170,6 +171,44 @@ def test_fit_config_valid_keys_accepted():
     assert sp.fit_config['bg'] == 'quadratic'
 
 
+def test_fit_config_computed_values_accepted():
+    # values computed from numpy expressions are legitimate config inputs:
+    # np.bool_ for BOOLEAN keys, integer-valued floats for INTEGER keys
+    sp = ci.Spectrum()
+    sp.fit_config = {'xrays': np.bool_(True), 'skew_fit': np.array([True]).any(),
+                     'multi_max': 8.0, 'I_min': np.float64(0.05)}
+    assert sp.fit_config['xrays']
+    assert sp.fit_config['multi_max'] == 8.0
+    with pytest.raises(ValueError, match="'multi_max' must be an integer"):
+        sp.fit_config = {'multi_max': 8.5}
+
+
+@requires_data('decay')
+def test_numpy_scalar_intensity_bound_dispatch():
+    # a numpy scalar passes NUMBER_OR_PAIR validation and must be dispatched
+    # as a scalar bound, not indexed as a (lower, upper) pair
+    g = ci.Isotope('152EU').gammas(I_lim=np.float64(1.0))
+    assert len(g) and (g['intensity'] >= 1.0).all()
+    sp = ci.Spectrum(str(EXAMPLES_DIR / 'eu_calib_7cm.Spe'))
+    sp.isotopes = ['152EU']
+    sp.fit_config = {'I_min': np.float64(0.05)}
+    assert sp.fit_peaks() is not None
+
+
+@requires_data('decay')
+def test_intensity_range_drop_message(capsys):
+    # a (lower, upper) I_min renders as a range, not as 'intensity < (tuple)%'
+    ci.set_log_level('DEBUG')
+    sp = ci.Spectrum(str(EXAMPLES_DIR / 'eu_calib_7cm.Spe'))
+    sp.isotopes = ['152EU']
+    sp.fit_config = {'I_min': (1.0, 20.0)}
+    sp.fit_peaks()
+    out = capsys.readouterr().out
+    assert 'outside I_min [1.0, 20.0]%' in out
+    assert 'intensity outside [1.0, 20.0]%' in out
+    assert '< I_min (1.0' not in out
+
+
 ########################
 # Precise errors at formerly opaque sites
 ########################
@@ -245,6 +284,13 @@ def test_calibrate_summary_lines(eu_local, capsys):
     assert '[INFO] Calibration.calibrate: rescal [' in out
     assert '[INFO] Calibration.calibrate: effcal [vidmar-' in out
     assert 'chi2/dof=' in out
+    # the effcal line reports the pre-inflation chi2/dof: whenever the scale
+    # factor fired, the reported goodness of fit must still show the
+    # inconsistency (the converged whitened chi2 tends to 1 by construction)
+    line = next(l for l in out.splitlines() if 'effcal [vidmar-' in l)
+    if 'scaled x' in line:
+        chi2 = float(re.search(r'chi2/dof=([0-9.eE+-]+)', line).group(1))
+        assert chi2 > 1.0
 
 
 @requires_data('ziegler', 'decay')

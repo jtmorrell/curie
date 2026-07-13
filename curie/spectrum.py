@@ -1,6 +1,7 @@
 
 import os
 import json
+import numbers
 import numpy as np
 import pandas as pd
 import datetime as dtm
@@ -29,6 +30,21 @@ _FIT_CONFIG_SPEC = {'snip_adj': NUMBER, 'R': NUMBER, 'alpha': NUMBER, 'step': NU
 					'sig_bound': NUMBER, 'pk_width': NUMBER, 'E_min': NUMBER_OR_PAIR,
 					'I_min': NUMBER_OR_PAIR, 'dE_511': NUMBER,
 					'multi_max': INTEGER, 'ident_idx': INTEGER}
+
+
+def _lim_str(lim):
+	# a scalar or (lo, hi) selection value, for display: '0.05' or '[1.0, 90.0]'
+	if lim is None or isinstance(lim, numbers.Real):
+		return '{0}'.format(lim)
+	return '[{0}, {1}]'.format(lim[0], lim[1])
+
+
+def _imin_str(I_min):
+	# the I_min drop reason: 'intensity<0.05%' for a scalar lower bound,
+	# 'intensity outside [1.0, 90.0]%' for a (lower, upper) range
+	if isinstance(I_min, numbers.Real):
+		return 'intensity<{0}%'.format(I_min)
+	return 'intensity outside {0}%'.format(_lim_str(I_min))
 
 class Spectrum(object):
 	"""Gamma-ray spectrum from High-Purity Germanium (HPGe) detectors
@@ -850,12 +866,14 @@ class Spectrum(object):
 				# Isotope.gammas I_lim) so each dropped line can be announced
 				I_min = self.fit_config['I_min']
 				if I_min is not None:
-					if type(I_min)==float or type(I_min)==int:
+					if isinstance(I_min, numbers.Real):
 						keep = g['intensity']>=I_min
+						for _, rw in g[~keep].iterrows():
+							_log.debug('Spectrum.fit_peaks: dropped {0} {1:.1f} keV: intensity {2}% < I_min {3}%'.format(i, rw['energy'], rw['intensity'], I_min))
 					else:
 						keep = (g['intensity']>=I_min[0])&(g['intensity']<=I_min[1])
-					for _, rw in g[~keep].iterrows():
-						_log.debug('Spectrum.fit_peaks: dropped {0} {1:.1f} keV: intensity {2}% < I_min {3}%'.format(i, rw['energy'], rw['intensity'], I_min))
+						for _, rw in g[~keep].iterrows():
+							_log.debug('Spectrum.fit_peaks: dropped {0} {1:.1f} keV: intensity {2}% outside I_min [{3}, {4}]%'.format(i, rw['energy'], rw['intensity'], I_min[0], I_min[1]))
 					if self._fit_stats is not None:
 						self._fit_stats['drops']['intensity'] += [(i, e) for e in g[~keep]['energy']]
 					g = g[keep].reset_index(drop=True)
@@ -1210,8 +1228,9 @@ class Spectrum(object):
 		E_min : float
 			Minimum peak energy to fit, in keV. Default 75.0.
 
-		I_min : float
-			Minimum peak intensity to fit, in percent. Default 0.05
+		I_min : float or 2-tuple
+			Minimum peak intensity to fit, in percent. A (lower, upper) 2-tuple
+			restricts fitting to intensities within that closed range. Default 0.05
 
 		dE_511 : float
 			Gammas that are fewer than dE_511 keV from the 511 keV
@@ -1331,7 +1350,7 @@ class Spectrum(object):
 		if len(drops['edge']):
 			parts.append('{0} window off spectrum edge'.format(len(drops['edge'])))
 		if len(drops['intensity']):
-			parts.append('{0} intensity<{1}%'.format(len(drops['intensity']), cfg['I_min']))
+			parts.append('{0} {1}'.format(len(drops['intensity']), _imin_str(cfg['I_min'])))
 		if len(drops['identical']):
 			parts.append('{0} identical-line'.format(len(drops['identical'])))
 		if len(failed):
@@ -1349,7 +1368,7 @@ class Spectrum(object):
 				if not len(self.isotopes) and gammas is None:
 					_log.warning('Spectrum.fit_peaks: nothing to fit - no isotopes assigned (sp.isotopes) and no gammas given')
 				else:
-					_log.warning('Spectrum.fit_peaks: nothing to fit - no candidate gammas for [{0}] pass the line selection (E_min={1}, I_min={2}%, dE_511={3})'.format(', '.join(map(str, self.isotopes)), cfg['E_min'], cfg['I_min'], cfg['dE_511']))
+					_log.warning('Spectrum.fit_peaks: nothing to fit - no candidate gammas for [{0}] pass the line selection (E_min={1}, I_min={2}%, dE_511={3})'.format(', '.join(map(str, self.isotopes)), _lim_str(cfg['E_min']), _lim_str(cfg['I_min']), cfg['dE_511']))
 			else:
 				_log.warning('Spectrum.fit_peaks: no peaks found - {0} candidates from [{1}] all dropped ({2}); check the energy calibration and SNR_min'.format(n_cand, ', '.join(sorted(stats['candidates'])), ', '.join(parts)))
 			return
@@ -1369,7 +1388,7 @@ class Spectrum(object):
 				continue
 			reasons = []
 			for key, label in [('snr', 'SNR<{}'.format(cfg['SNR_min'])), ('edge', 'window off edge'),
-							('intensity', 'intensity<{}%'.format(cfg['I_min'])), ('identical', 'identical-line')]:
+							('intensity', _imin_str(cfg['I_min'])), ('identical', 'identical-line')]:
 				k = sum(1 for it, e in drops[key] if it==iso)
 				if k:
 					reasons.append('{0} {1}'.format(k, label))
