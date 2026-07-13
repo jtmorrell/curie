@@ -340,6 +340,23 @@ def test_empty_fit_announces_once(capsys):
 
 
 @requires_data('decay')
+def test_identical_gamma_guess_within_bounds(capsys):
+    # with A_bound < 1 the loosened identical-gamma amplitude cap sits below
+    # the predicted amplitude; the initial guess must be capped with it, or
+    # curve_fit rejects the multiplet outright ('Initial guess is outside of
+    # provided bounds')
+    sp = ci.Spectrum(str(EXAMPLES_DIR / 'eu_calib_7cm.Spe'))
+    sp.isotopes = ['152EU', '40K']
+    # ident_idx=18 makes the 152EU 1457.6 / 40K 1460.8 keV pair 'identical'
+    sp.fit_config = {'A_bound': 0.5, 'ident_idx': 18}
+    pks = sp.fit_peaks()
+    out = capsys.readouterr().out
+    assert 'identical gammas' in out          # the loosened-bounds path ran
+    assert 'Initial guess is outside of provided bounds' not in out
+    assert pks is not None and (np.abs(pks['energy']-1460.82) < 0.1).any()
+
+
+@requires_data('decay')
 def test_zero_config_results_unchanged(eu_spectrum):
     # the logging spine must not perturb results: identical fits at any level
     ci.set_log_level('DEBUG')

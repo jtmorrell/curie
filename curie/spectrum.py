@@ -1123,7 +1123,11 @@ class Spectrum(object):
 							_log.warning(self._loc('fit_peaks')+': {0} and {1} have identical gammas at {2:.1f} keV (within {3} channels) - fit with loosened shared bounds; intensities may be misattributed'.format(rw['isotope'], multi.loc[n+1]['isotope'], rw['energy'], self.fit_config['ident_idx']))
 							bA_m, bm_m = 0.1, 0.5
 
-				p['p0'] += [rw['A'], rw['idx'], rw['sig']]
+				# the amplitude cap (10*A_bound, tightened to A_bound by bA_m on the
+				# shared identical-gamma path) can fall below the predicted amplitude
+				# for A_bound < 1; the guess must stay inside the bounds or curve_fit
+				# rejects the whole multiplet before fitting anything
+				p['p0'] += [min(rw['A'], rw['A']*bA*bA_m), rw['idx'], rw['sig']]
 
 				p['bounds'][0] += [0.0, rw['idx']-bm*bm_m*rw['sig'], rw['sig']/(1.0+bs)]
 				p['bounds'][1] += [rw['A']*bA*bA_m, rw['idx']+bm*bm_m*rw['sig'], rw['sig']*(1+0.5*bs)]
