@@ -3,7 +3,7 @@
 Notable changes to curie are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [0.2.0] - Unreleased
+## [0.2.0] - 2026-07-14
 
 Fitting transparency release: every fit reports a summary of its results
 and selections, retains the measurements it rejected, and exposes
