@@ -231,7 +231,7 @@ def test_fit_A0_requires_counts():
 def test_fit_R_all_counts_filtered():
     dc = ci.DecayChain('152EU', R=[[3E5, 36.0]], units='d')
     dc.counts = [[50.0, 50.1, 1000.0, 900.0]]  # 90% relative error
-    with pytest.raises(ValueError, match=r'0 of 1 counts pass the filters \(1 relative error>40%'):
+    with pytest.raises(ValueError, match=r'0 of 1 counts pass the filters \(1 dropped: relative error>40%'):
         dc.fit_R()
 
 

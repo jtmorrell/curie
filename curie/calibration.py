@@ -948,6 +948,17 @@ class Calibration(object):
 				json.dump(js, f, indent=4)
 
 		
+	def _plot_dropped(self, ax, group, x_col, y_col, unc_col):
+		# rejected calibration points stay visible as open red markers - a
+		# clean-looking calibration must not hide the points it set aside
+		d = self._calib_data.get(group, {})
+		if x_col not in d or not len(np.atleast_1d(d[x_col])):
+			return
+		cm = colormap()
+		ax.errorbar(np.atleast_1d(d[x_col]), np.atleast_1d(d[y_col]), yerr=np.atleast_1d(d[unc_col]),
+					ls='None', marker='o', mfc='none', color=cm['r'], label='rejected points')
+		ax.legend(loc=0)
+
 	def plot_engcal(self, **kwargs):
 		"""Plot the energy calibration
 
@@ -978,6 +989,7 @@ class Calibration(object):
 			ax.errorbar(d['energy'], d['channel'], yerr=d['unc_channel'], ls='None', marker='o')
 			x = np.arange(min(d['energy']), max(d['energy']), 0.1)
 			ax.plot(x, self.map_channel(x, d['fit']))
+			self._plot_dropped(ax, 'engcal_dropped', 'energy', 'channel', 'unc_channel')
 
 		else:
 			x = np.arange(20, 3000, 0.1)
@@ -1018,6 +1030,7 @@ class Calibration(object):
 			ax.errorbar(d['channel'], d['width'], yerr=d['unc_width'], ls='None', marker='o')
 			x = np.arange(min(d['channel']), max(d['channel']), 0.1)
 			ax.plot(x, self.res(x, d['fit']))
+			self._plot_dropped(ax, 'rescal_dropped', 'channel', 'width', 'unc_width')
 
 		else:
 			x = np.arange(0, 2**14, 0.1)
@@ -1063,6 +1076,7 @@ class Calibration(object):
 			low = self.eff(x, d['fit'])-self.unc_eff(x, d['fit'], d['unc'])
 			high = self.eff(x, d['fit'])+self.unc_eff(x, d['fit'], d['unc'])
 			ax.fill_between(x, low, high, facecolor=cm_light['k'], alpha=0.5)
+			self._plot_dropped(ax, 'effcal_dropped', 'energy', 'efficiency', 'unc_efficiency')
 
 		else:
 			x = np.arange(20, 3000, 0.1)

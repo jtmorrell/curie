@@ -1833,8 +1833,21 @@ class Spectrum(object):
 						lbs.append(lb)
 
 					ax.plot(erange, np.where(pk_fit>0.1, pk_fit, 0.1), lw=1.4, color=c, label=lb, ls=ls[int(n/len(cl))%len(ls)])
-							
-		
+
+			if self._diagnostics is not None:
+				# failed multiplets stay visible: their expected windows are
+				# marked so an empty stretch of fit curve reads as a failure,
+				# not an absence of candidates
+				fail_label = 'failed fit'
+				d = self._diagnostics
+				for _, rw in d[~d['converged']].iterrows():
+					lo, hi = rw['energy_min'], rw['energy_max']
+					if not xcalib:
+						lo, hi = float(self.cb.map_channel(lo)), float(self.cb.map_channel(hi))
+					ax.axvspan(lo, hi, color=cm['r'], alpha=0.15, lw=0, label=fail_label)
+					fail_label = None
+
+
 		if xcalib:
 			ax.set_xlabel('Energy (keV)')
 		else:

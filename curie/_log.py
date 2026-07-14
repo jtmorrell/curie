@@ -215,6 +215,9 @@ NUMBER = _Check(_is_number, 'a number')
 NUMBER_OR_NONE = _Check(_is_number, 'a number or None', allow_none=True)
 NUMBER_OR_PAIR = _Check(_is_number_or_pair, 'a number or 2-tuple of numbers', allow_none=True)
 INTEGER = _Check(_is_int, 'an integer')
+STRING_OR_NONE = _Check(lambda v: isinstance(v, str), 'a string or None', allow_none=True)
+SEQUENCE_OR_NONE = _Check(lambda v: isinstance(v, (list, tuple)), 'a list or None', allow_none=True)
+MAPPING_OR_NONE = _Check(lambda v: isinstance(v, dict), 'a dict or None', allow_none=True)
 # np.bool_ is neither bool nor Integral, but flags computed from arrays
 # (e.g. xrays=mask.any()) are legitimate config values
 BOOLEAN = _Check(lambda v: isinstance(v, (bool, np.bool_, numbers.Integral)), 'a bool')
