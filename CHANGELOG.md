@@ -5,8 +5,9 @@ Notable changes to curie are documented here. The format follows
 
 ## [0.2.0] - Unreleased
 
-Fitting transparency release: every fit announces what it did, keeps what it
-rejected, and exposes its quality. Zero-configuration results are unchanged,
+Fitting transparency release: every fit reports a summary of its results
+and selections, retains the measurements it rejected, and exposes
+fit-quality diagnostics. Zero-configuration results are unchanged,
 with one deliberate exception noted under Fixed (the unresolvable-doublet
 merge). Console message texts have changed throughout — anything parsing
 curie's printed output will need updating; the messages now follow one
@@ -61,7 +62,7 @@ documented convention (`[LEVEL] Class.method: message`).
   fit with independent uncertainties — for extending the calibrated energy
   range or merging geometries.
 
-### Changed — plots never hide evidence
+### Changed — plots show excluded data
 - `dc.plot()` draws a one-sigma band from the fit covariance and shows
   fit-excluded or threshold-excluded counts as grey open markers (previously
   hidden); axis limits are set by the used data, so a wild excluded point

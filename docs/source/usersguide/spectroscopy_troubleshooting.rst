@@ -11,11 +11,11 @@ the expectation is wrong — usually the energy calibration — peaks are
 missed or misfit.  This page collects the failure modes we see most often,
 with their symptoms and fixes.
 
-Whatever the symptom, start with what the fit told you: the ``fit_peaks``
+Whatever the symptom, check the fit's output first: the ``fit_peaks``
 summary line accounts for every candidate line (fit, or dropped with the
-filter named), and ``sp.diagnostics`` records each attempted fit with
-flags for the problematic ones (see :ref:`spectroscopy_howto`).  Most of
-the entries below begin as a line item there.
+responsible filter named), and ``sp.diagnostics`` records each attempted
+fit with flags for the problematic ones (see :ref:`spectroscopy_howto`).
+Most of the entries below appear as a line item in one or the other.
 
 No peaks are fit, and the spectrum looks uncalibrated
 -----------------------------------------------------
@@ -84,8 +84,8 @@ isotope emits — does not appear in ``sp.peaks``.  Everything else fits
 fine.
 
 **Cause:** one of the peak-selection filters excluded it before fitting.
-The fit says so — the summary line counts every drop by filter, and
-``ci.set_log_level('DEBUG')`` names each dropped line individually::
+The exclusion is reported: the summary line counts the dropped lines per
+filter, and ``ci.set_log_level('DEBUG')`` names each one individually::
 
 	[INFO] Spectrum(sample.Spe).fit_peaks: fit 12 peaks in 9 multiplets from
 	1 isotopes; dropped 31 candidates (2 SNR<4.0, 29 intensity<0.05%)

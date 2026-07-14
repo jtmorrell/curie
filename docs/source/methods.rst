@@ -272,7 +272,7 @@ they diverge rapidly outside it — unlike the semi-empirical model, whose
 physical form extrapolates smoothly.  Curie stores the fitted energy range
 with the calibration and warns the first time the efficiency is evaluated
 beyond it.  The Vidmar form remains the default and the recommended
-choice; reach for the log-log form when the semi-empirical model visibly
+choice; use the log-log form when the semi-empirical model visibly
 misfits a particular detector.  The fitted model is saved with the
 calibration .json as an explicit tag — necessary because a log-log
 parameter array can have the same length as a Vidmar one.
@@ -327,26 +327,31 @@ energy-dependent uncertainties.
 Fit Reporting Conventions
 -------------------------
 
-Every fit in Curie — peak fits, the three calibrations, and the decay-chain
-fits — reports what it did through two channels that share one vocabulary:
-console messages and per-object diagnostics tables.
+Every fit in Curie — the peak fits, the three calibrations, and the
+decay-chain fits — reports its results, selections and problems through
+two channels that share one vocabulary: console messages and per-object
+diagnostics tables.
 
 **Console messages** have the form ``[LEVEL] Class.method: message``, with
 the instance identified where several may run in a loop (e.g.
-``Spectrum(<filename>).fit_peaks``).  The levels mean:
+``Spectrum(<filename>).fit_peaks``).  In order of escalation:
 
-* ``INFO`` — routine accounting: fit summaries with their drop counts,
-  model selections.  Nothing at INFO changes a result.
+* ``ERROR`` — paired with a raised exception.
 * ``WARNING`` — something that may affect results: failed fits, identical
   gammas fit with shared bounds, filters that matched nothing,
   extrapolation beyond a fitted range.
-* ``ERROR`` — paired with a raised exception.
+* ``INFO`` — routine accounting: fit summaries with their drop counts,
+  model selections.  Nothing at INFO changes a result.
 * ``DEBUG`` — the per-item detail behind every summary count (each dropped
   candidate with its reason, each parameter at a fit bound).
 
-``ci.set_log_level('DEBUG')`` shows the per-item detail,
-``ci.quiet_warnings()`` restricts output to errors, and
-``ci.log_to('curie.log')`` copies the session's messages to a file.
+The configured level is a threshold: everything at that level *and above*
+is shown, so the default ``'INFO'`` prints INFO, WARNING and ERROR
+messages, and ``ci.set_log_level('DEBUG')`` shows everything including the
+per-item detail.  ``ci.quiet_warnings()`` restricts output to errors, and
+``ci.log_to('curie.log')`` also writes the session's messages to a file —
+overwriting an existing file at that path (analysis scripts are typically
+re-run many times) unless ``mode='append'`` (or ``'a'``) is given.
 
 **Diagnostics tables** (``sp.diagnostics``, ``cb.diagnostics``,
 ``dc.diagnostics``) record one row per fit with a shared schema: the

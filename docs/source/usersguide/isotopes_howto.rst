@@ -265,8 +265,8 @@ you set them::
 	         unc_R_floor=0.05)                     # returned unc_R at least 5% of R
 
 * ``max_chi2`` acts on the reduced chi-square of the *peak fit* each count
-  came from (carried into ``dc.counts`` by ``get_counts()``) — the
-  standard guard against quantifying a line from a bad fit.
+  came from (carried into ``dc.counts`` by ``get_counts()``) — it excludes
+  measurements whose underlying peak fits were unreliable.
 * ``exclude_lines`` takes isotope names or (isotope, energy) pairs; the
   energy matches the isotope's nearest line within 0.5 keV, and an entry
   that matches nothing excludes nothing and warns (typo safety).
@@ -281,4 +281,4 @@ count is named at ``DEBUG``, and the accounting lands in
 ``dc.diagnostics`` (see the reporting conventions in
 :ref:`methods_reporting`).  A starting estimate can also be supplied in
 production-rate units with ``fit_R(p0={'134CE': 2.3E8})`` when the
-data-derived seed is poor.
+automatic starting estimate is poor.

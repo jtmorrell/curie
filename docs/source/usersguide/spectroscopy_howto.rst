@@ -105,23 +105,25 @@ Tuning the fit
 
 The defaults are chosen for typical activation spectra; these are the
 adjustments that real analyses most often need.  In every case, start from
-the fit's own summary line (next section) — it names each filter and how
-many lines it dropped, so you can see which parameter is responsible
-before changing it.
+the summary line printed by the fit (next section), which reports how many
+lines each filter dropped — it identifies which parameter to change before
+you change it.
 
 **Short or weak counts** — a low-activity sample or a short count leaves
 marginal peaks below the ``SNR_min`` threshold (default 4).  Lower it to
-admit them (``SNR_min=2.0``), accepting larger uncertainties on the
-marginal lines; the reported uncertainties remain honest.
+admit them (``SNR_min=2.0``): the reported uncertainty grows with the
+weakness of the peak, so admitting a marginal line does not overstate its
+precision — it simply carries a proportionally large error bar.
 
 **Busy, many-isotope spectra** — a foil with dozens of activation products
 produces hundreds of candidate lines and crowded multiplets.  Raise
 ``I_min`` (e.g. ``0.5`` for only the strongest branches) and ``SNR_min``
 (e.g. ``6``) to fit only the quantifiable lines, and raise ``multi_max``
-if wide multiplets are being truncated.  Expect — and read — the
-identical-gamma warnings: when two isotopes share a line energy, the
-intensity split between them is genuinely ambiguous, and ``ident_idx``
-controls how close (in channels) two lines must be to be treated as one.
+if wide multiplets are being truncated.  When two isotopes share a line
+energy, the intensity split between them is genuinely ambiguous — the fit
+warns that the intensities may be misattributed, and those intensities
+should be checked individually.  ``ident_idx`` controls how close (in
+channels) two lines must be to be treated as one.
 
 **Low-energy work** — x-ray and low-gamma lines need ``xrays=True`` and a
 lower ``E_min``; the efficiency calibration should then use the
@@ -136,9 +138,9 @@ backgrounds are shape problems, not selection problems; see the
 Reading the fit log and diagnostics
 -----------------------------------
 
-Every fit announces what it did on the console, in messages of the form
-``[LEVEL] Class.method: message``.  The one line to read after any
-``fit_peaks()`` is its ``INFO`` summary::
+Every fit prints a summary of its results and selections to the console,
+in messages of the form ``[LEVEL] Class.method: message``.  After any
+``fit_peaks()`` call, the first thing to check is its ``INFO`` summary::
 
 	[INFO] Spectrum(eu_calib_7cm.Spe).fit_peaks: fit 44 peaks in 33 multiplets
 	from 2 isotopes; dropped 127 candidates (5 SNR<4.0, 122 intensity<0.05%);
@@ -153,7 +155,8 @@ per-item detail behind each summary count is logged at ``DEBUG``::
 
 	ci.set_log_level('DEBUG')   # show every dropped line with its reason
 	ci.quiet_warnings()         # errors only
-	ci.log_to('curie.log')      # also write the session's messages to a file
+	ci.log_to('curie.log')      # write messages to a file (overwrites it;
+	                            # mode='append' accumulates runs instead)
 
 The same accounting is available as a table.  ``sp.diagnostics`` has one
 row per *attempted* multiplet — including failed ones — with the reduced
@@ -161,7 +164,7 @@ chi-square, the model, the uncertainty scale factor, and a ``flags``
 column drawn from a fixed vocabulary (``at_bound:<param>``,
 ``chi2_high``, ``fit_failed``);
 the ``message`` column holds the full text of everything reported about
-that fit.  To pull out the fits that deserve a second look::
+that fit.  To select the fits with a nonempty flag::
 
 	d = sp.diagnostics
 	print(d[d['flags'] != ''])
@@ -269,8 +272,11 @@ cover them::
 	       'isotope':'56CO'}]
 	cb.calibrate([sp], sources=srcs, eff_points=ep)
 
-**Merging counting geometries** — points measured at another distance,
-scaled by a solid-angle ratio, can anchor a shared curve shape.  The
+**Merging counting geometries** — point-source efficiencies measured at
+another distance can anchor the curve shape: scale their efficiencies by
+the far-field solid-angle ratio :math:`(R_1/R_2)^2` to carry them from
+distance :math:`R_1` to the calibration distance :math:`R_2` (the first
+parameter of the Vidmar model is exactly this solid-angle scale).  The
 user-supplied points are treated as independent measurements (no shared
 intensity or source-activity uncertainty), announced in the console, and
 carried in ``cb.effcal_data`` with the rest.
