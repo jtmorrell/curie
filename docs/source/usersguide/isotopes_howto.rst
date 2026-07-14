@@ -242,9 +242,43 @@ activity for ``fit_A0``) and their covariance::
 
 After the fit, ``dc.R``, ``dc.R_avg`` and all activities reflect the
 fitted scale, and ``dc.plot()`` shows the measurements against the fitted
-curves.  Points with large uncertainties or few counts are excluded by
-the ``max_error`` and ``min_counts`` arguments (40% and 1 by default).
-When the counts came from ``get_counts()``, the fit accounts for shared
-(correlated) uncertainties between measurements — the gamma intensities
-and the efficiency calibration — as described in
+curves — with a shaded band giving the one-sigma uncertainty of the fit,
+and any measurement the fit did not use drawn as a grey open marker
+rather than hidden.  When the counts came from ``get_counts()``, the fit
+accounts for shared (correlated) uncertainties between measurements — the
+gamma intensities and the efficiency calibration — as described in
 :ref:`methods_decay_chains`.
+
+Filtering the count data
+------------------------
+
+Fit options are set through ``dc.fit_config`` — as an attribute or as
+keyword arguments to ``fit_R()``/``fit_A0()``, which merge and persist
+for later fits.  Two filters are on by default: ``max_error`` (default
+0.4) excludes counts with relative errors above 40%, and ``min_counts``
+(default 1) excludes near-empty measurements.  Four more are off until
+you set them::
+
+	dc.fit_R(max_chi2=25,                          # drop counts whose PEAK fit was poor
+	         exclude_lines=[('196TL', 425.7)],     # drop a specific gamma line
+	         time_range={'196AUm2': (None, 60.0)}, # use an isotope's counts only in a window
+	         unc_R_floor=0.05)                     # returned unc_R at least 5% of R
+
+* ``max_chi2`` acts on the reduced chi-square of the *peak fit* each count
+  came from (carried into ``dc.counts`` by ``get_counts()``) — the
+  standard guard against quantifying a line from a bad fit.
+* ``exclude_lines`` takes isotope names or (isotope, energy) pairs; the
+  energy matches the isotope's nearest line within 0.5 keV, and an entry
+  that matches nothing excludes nothing and warns (typo safety).
+* ``time_range`` limits an isotope's counts to a decay-time window in
+  chain units — e.g. only early counts, before a longer-lived
+  contaminant's line grows in.
+* ``unc_R_floor`` is not a filter but a floor: the returned production-rate
+  uncertainty is raised to at least this fraction of the rate.
+
+Every filter announces its drops in the fit's summary line, each excluded
+count is named at ``DEBUG``, and the accounting lands in
+``dc.diagnostics`` (see the reporting conventions in
+:ref:`methods_reporting`).  A starting estimate can also be supplied in
+production-rate units with ``fit_R(p0={'134CE': 2.3E8})`` when the
+data-derived seed is poor.

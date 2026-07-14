@@ -155,34 +155,52 @@ Energy calibration
 ~~~~~~~~~~~~~~~~~~
 
 The energy calibration maps ADC channel number to gamma-ray energy with a
-linear (or optionally quadratic) polynomial,
+linear, quadratic or cubic polynomial,
 
 .. math::
 
-   E(x) = a_0 + a_1 x \;(+\, a_2 x^2)
+   E(x) = a_0 + a_1 x \;(+\, a_2 x^2 + a_3 x^3)
 
 fit by weighted least squares to the fitted peak centroids versus the known
 line energies, weighted by the centroid uncertainties.  Points with energy
-uncertainties larger than 25% of the energy are excluded.
+uncertainties larger than a set fraction of the energy
+(``engcal_max_error``, default 25%) are excluded.  The model is selected
+with ``fit_config['engcal_model']``; by default the form of the current
+calibration is kept.  The linear and quadratic forms invert analytically
+for the energy-to-channel map; the cubic is inverted numerically (the real
+root nearest the linear estimate), and a fitted cubic whose derivative
+changes sign inside the calibrated channel range is announced as
+non-monotonic.
 
 Resolution calibration
 ~~~~~~~~~~~~~~~~~~~~~~
 
 The peak width (the Gaussian :math:`\sigma`, in channels) is modeled as
-either a linear function of channel number (the default) or a square-root
-function,
+one of three functions of channel number, selected with
+``fit_config['rescal_model']``:
 
 .. math::
 
    \sigma(x) = b_0 + b_1 x
    \qquad\text{or}\qquad
    \sigma(x) = b_0 \sqrt{x}
+   \qquad\text{or}\qquad
+   \sigma(x) = \sqrt{b_0 + b_1 x + b_2 x^2}
 
-fit to the fitted peak widths.  The square-root form is the expectation
-from pure counting statistics of charge-carrier generation; the linear form
-accounts for the additional electronic-noise contribution typical of real
-HPGe systems.  Strongly discrepant points (squared residual more than ten
-times the variance) are excluded from the retained calibration data.
+fit to the fitted peak widths.  The square-root form (``'sqrt'``) is the
+expectation from pure counting statistics of charge-carrier generation; the
+linear form (``'linear'``, the default) accounts for the additional
+electronic-noise contribution typical of real HPGe systems.  The
+square-root-of-quadratic form (``'sqrt_quad'``) is the modern
+Genie/InterSpec-family model: its three terms under the root map onto the
+physical width decomposition — constant electronic noise, charge-carrier
+(Fano) statistics growing linearly, and charge-collection variations
+growing quadratically — and it contains the ``'sqrt'`` form as the special
+case :math:`b_0 = b_2 = 0`.  Strongly discrepant points (residuals beyond
+``outlier_sigma``, default :math:`\sqrt{10} \approx 3.16` standard
+deviations) are clipped from the retained calibration data; they remain
+part of the fit itself and stay visible, with their reasons, in
+``cb.rescal_data`` and the calibration plots.
 
 Efficiency measurement
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -235,8 +253,28 @@ representing the detector entrance window (beryllium attenuation
 coefficient :math:`\mu_{\mathrm{w}}`, thickness :math:`w`) and the
 germanium dead layer (thickness :math:`d`).  Both the 5- and 7-parameter
 forms are fit, and the model whose goodness-of-fit is closer to one is
-kept.  The interaction coefficients are log-log interpolations of XCOM
-tabulations.
+kept (the choice is announced; ``effcal_model='vidmar-5'`` or
+``'vidmar-7'`` forces one form).  The interaction coefficients are log-log
+interpolations of XCOM tabulations.
+
+With ``fit_config['effcal_model'] = 'loglog'`` the efficiency is instead
+the standard empirical log-log polynomial,
+
+.. math::
+
+   \ln \varepsilon(E) = \sum_{i=0}^{n} a_i \,(\ln E)^i
+
+with order :math:`n` = ``effcal_order`` (default 4, allowed 2-8).
+High-order log-log polynomials reproduce germanium efficiency curves very
+well *within* the fitted energy range [Kis1998]_, but being polynomials
+they diverge rapidly outside it — unlike the semi-empirical model, whose
+physical form extrapolates smoothly.  Curie stores the fitted energy range
+with the calibration and warns the first time the efficiency is evaluated
+beyond it.  The Vidmar form remains the default and the recommended
+choice; reach for the log-log form when the semi-empirical model visibly
+misfits a particular detector.  The fitted model is saved with the
+calibration .json as an explicit tag — necessary because a log-log
+parameter array can have the same length as a Vidmar one.
 
 Efficiency uncertainties are correlated
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -277,6 +315,63 @@ energy-dependent uncertainties.
    spectrometry", *J. Phys. D: Appl. Phys.* **34** (2001) 2555,
    `doi:10.1088/0022-3727/34/16/323
    <https://doi.org/10.1088/0022-3727/34/16/323>`_.
+
+.. [Kis1998] Z. Kis et al., "Comparison of efficiency functions for Ge
+   gamma-ray detectors in a wide energy range", *Nucl. Instrum. Methods A*
+   **418** (1998) 374, `doi:10.1016/S0168-9002(98)00778-5
+   <https://doi.org/10.1016/S0168-9002(98)00778-5>`_.
+
+.. _methods_reporting:
+
+Fit Reporting Conventions
+-------------------------
+
+Every fit in Curie — peak fits, the three calibrations, and the decay-chain
+fits — reports what it did through two channels that share one vocabulary:
+console messages and per-object diagnostics tables.
+
+**Console messages** have the form ``[LEVEL] Class.method: message``, with
+the instance identified where several may run in a loop (e.g.
+``Spectrum(<filename>).fit_peaks``).  The levels mean:
+
+* ``INFO`` — routine accounting: fit summaries with their drop counts,
+  model selections.  Nothing at INFO changes a result.
+* ``WARNING`` — something that may affect results: failed fits, identical
+  gammas fit with shared bounds, filters that matched nothing,
+  extrapolation beyond a fitted range.
+* ``ERROR`` — paired with a raised exception.
+* ``DEBUG`` — the per-item detail behind every summary count (each dropped
+  candidate with its reason, each parameter at a fit bound).
+
+``ci.set_log_level('DEBUG')`` shows the per-item detail,
+``ci.quiet_warnings()`` restricts output to errors, and
+``ci.log_to('curie.log')`` copies the session's messages to a file.
+
+**Diagnostics tables** (``sp.diagnostics``, ``cb.diagnostics``,
+``dc.diagnostics``) record one row per fit with a shared schema: the
+reduced chi-square and degrees of freedom, the points used and dropped,
+the model tag, the uncertainty scale factor applied (1.0 = none), a
+``flags`` column from a fixed, greppable vocabulary — ``at_bound:<param>``
+(a parameter ended on a fit bound), ``chi2_high`` (reduced chi-square
+above 10), ``fit_failed``, ``unmoved`` (fit returned its starting
+estimate), ``singular_cov`` — and the full message text.  The tables are
+rebuilt on each fit and reading them never triggers one.
+
+**Calibration point tables** (``cb.engcal_data``, ``cb.rescal_data``,
+``cb.effcal_data``) present every measured calibration point with a
+``used`` column and the ``reason`` a point was rejected.  Pre-fit cuts
+(``unc>25%``/``unc>33%``) exclude points from the fit; post-fit outlier
+clips (``outlier >3.16 sigma``) remove points from the *stored* calibration
+data but not from the fit that produced it.  Nothing is silently
+discarded: rejected points stay in these tables and appear as grey open
+markers on the calibration plots.
+
+**Uncertainty scale factors** follow one rule everywhere: when data are
+mutually inconsistent (reduced chi-square above one), only the independent
+(statistical) uncertainty component is inflated, iteratively, until the
+whitened chi-square is consistent with one — shared systematic components
+are never scaled, and no uncertainty is ever deflated.  The applied factor
+is reported in the fit's summary line and diagnostics row.
 
 .. _methods_decay_chains:
 

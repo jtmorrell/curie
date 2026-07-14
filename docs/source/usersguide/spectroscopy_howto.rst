@@ -100,6 +100,84 @@ background::
 
 	sp.fit_config = {'xrays':True, 'E_min':20.0, 'bg':'quadratic'}
 
+Tuning the fit
+--------------
+
+The defaults are chosen for typical activation spectra; these are the
+adjustments that real analyses most often need.  In every case, start from
+the fit's own summary line (next section) — it names each filter and how
+many lines it dropped, so you can see which knob is in play before turning
+it.
+
+**Short or weak counts** — a low-activity sample or a short count leaves
+marginal peaks below the ``SNR_min`` threshold (default 4).  Lower it to
+admit them (``SNR_min=2.0``), accepting larger uncertainties on the
+marginal lines; the reported uncertainties remain honest.
+
+**Busy, many-isotope spectra** — a foil with dozens of activation products
+produces hundreds of candidate lines and crowded multiplets.  Raise
+``I_min`` (e.g. ``0.5`` for only the strongest branches) and ``SNR_min``
+(e.g. ``6``) to fit only the quantifiable lines, and raise ``multi_max``
+if wide multiplets are being truncated.  Expect — and read — the
+identical-gamma warnings: when two isotopes share a line energy, the
+intensity split between them is genuinely ambiguous, and ``ident_idx``
+controls how close (in channels) two lines must be to be treated as one.
+
+**Low-energy work** — x-ray and low-gamma lines need ``xrays=True`` and a
+lower ``E_min``; the efficiency calibration should then use the
+7-parameter model, which the calibration selects automatically when its
+spectra include x-rays (see :ref:`methods_calibration`).
+
+**Distorted peak shapes** — strong low-energy tailing or stepped
+backgrounds are shape problems, not selection problems; see the
+:ref:`spectroscopy_troubleshooting` entries on bad fits
+(``skew_fit``/``step_fit``, ``bg``, bounds).
+
+Reading the fit log and diagnostics
+-----------------------------------
+
+Every fit announces what it did on the console, in messages of the form
+``[LEVEL] Class.method: message``.  The one line to read after any
+``fit_peaks()`` is its ``INFO`` summary::
+
+	[INFO] Spectrum(eu_calib_7cm.Spe).fit_peaks: fit 44 peaks in 33 multiplets
+	from 2 isotopes; dropped 127 candidates (5 SNR<4.0, 122 intensity<0.05%);
+	2 multiplets with chi2/dof>10; 3 peaks with parameters at fit bounds
+	(see sp.diagnostics)
+
+Nothing is silently discarded: every candidate line that was not fit is in
+one of those counts, with its filter named.  ``WARNING`` messages mark
+things that can affect results — a failed multiplet, identical gammas fit
+with shared bounds, a calibration evaluated beyond its fitted range.  The
+per-item detail behind each summary count is logged at ``DEBUG``::
+
+	ci.set_log_level('DEBUG')   # show every dropped line with its reason
+	ci.quiet_warnings()         # errors only
+	ci.log_to('curie.log')      # also write the session's messages to a file
+
+The same accounting is available as a table.  ``sp.diagnostics`` has one
+row per *attempted* multiplet — including failed ones — with the reduced
+chi-square, the model, the uncertainty scale factor, and a greppable
+``flags`` column (``at_bound:<param>``, ``chi2_high``, ``fit_failed``);
+the ``message`` column holds the full text of everything reported about
+that fit.  To pull out the fits that deserve a second look::
+
+	d = sp.diagnostics
+	print(d[d['flags'] != ''])
+
+The fitted parameter sets themselves are in ``sp.fits`` (one entry per
+multiplet), and ``sp.plot()`` marks any failed multiplet by crosshatching
+the unfitted counts in red.
+
+`Calibration` and `DecayChain` follow the same pattern: ``cb.diagnostics``
+and ``dc.diagnostics`` summarize their fits, and the calibration point
+tables ``cb.engcal_data``, ``cb.rescal_data`` and ``cb.effcal_data`` show
+every measured point with a ``used`` flag and the ``reason`` any point was
+rejected — rejected points also stay visible as grey open markers on the
+calibration plots.  The conventions — message levels, the flags
+vocabulary, and how uncertainty scale factors are applied — are defined in
+:ref:`methods_reporting`.
+
 Calibrating
 -----------
 
@@ -135,6 +213,66 @@ across spectra counted on the same detector and geometry::
 
 The energy calibration can also be set directly (``sp.cb.engcal = [0.3,
 0.184]``) — after changing it, re-fit with ``sp.fit_peaks()``.
+
+Choosing the calibration models
+-------------------------------
+
+Like the peak fit, ``calibrate()`` is configured through a ``fit_config``
+dictionary (``cb.fit_config = {...}`` or keyword arguments, which merge
+and persist).  Each calibration has a selectable model — by default the
+form of the current calibration is kept, so nothing changes unless you
+ask:
+
+=================== =============================================================
+Key                 Models
+=================== =============================================================
+``engcal_model``    ``'linear'``, ``'quadratic'``, ``'cubic'``
+``rescal_model``    ``'sqrt'``, ``'linear'``, ``'sqrt_quad'``
+``effcal_model``    ``'vidmar'`` (5/7-parameter automatic, the default),
+                    ``'vidmar-5'``, ``'vidmar-7'``, ``'loglog'`` (order set by
+                    ``effcal_order``, default 4)
+=================== =============================================================
+
+For the functional forms and when each is appropriate, see
+:ref:`methods_calibration`.  The practical guidance for the efficiency
+model: **stay with Vidmar unless it visibly misfits your detector.**  The
+semi-empirical form extrapolates smoothly beyond the calibration points;
+the log-log polynomial often fits tighter *within* them but diverges
+rapidly outside — Curie stores the fitted energy range and warns the first
+time an efficiency is evaluated beyond it::
+
+	cb.calibrate([sp], sources=srcs, effcal_model='loglog', effcal_order=5)
+
+The point-selection thresholds are also configurable:
+``engcal_max_error``/``rescal_max_error``/``effcal_max_error`` set the
+pre-fit uncertainty cuts (defaults 25%/33%/33%), and ``outlier_sigma``
+(default 3.16) sets the post-fit residual clip.  The fitted models are
+saved in the calibration .json and restored on load; files from older
+versions of Curie load unchanged.
+
+Extending the efficiency calibration with known points
+------------------------------------------------------
+
+``calibrate(..., eff_points=...)`` appends user-supplied efficiency points
+to the measured ones before the efficiency fit — a DataFrame (or list of
+dicts) with columns ``energy`` (keV), ``efficiency``, ``unc_efficiency``
+and optionally ``isotope``.  Two situations where this is the right tool:
+
+**Covering an energy range your sources don't reach** — e.g. your analysis
+needs efficiencies at 2-3 MeV but the calibration sources stop at
+1.4 MeV.  Add points from a source measured on another occasion, or from a
+detector simulation, and the fit (and its stored energy range) extends to
+cover them::
+
+	ep = [{'energy':2000.0, 'efficiency':3.1E-3, 'unc_efficiency':3E-4,
+	       'isotope':'56CO'}]
+	cb.calibrate([sp], sources=srcs, eff_points=ep)
+
+**Merging counting geometries** — points measured at another distance,
+scaled by a solid-angle ratio, can anchor a shared curve shape.  The
+user-supplied points are treated as independent measurements (no shared
+intensity or source-activity uncertainty), announced in the console, and
+carried in ``cb.effcal_data`` with the rest.
 
 Adjusting a drifted energy calibration
 --------------------------------------

@@ -3,6 +3,99 @@
 Notable changes to curie are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.2.0] - Unreleased
+
+Fitting transparency release: every fit announces what it did, keeps what it
+rejected, and exposes its quality. Zero-configuration results are unchanged,
+with one deliberate exception noted under Fixed (the unresolvable-doublet
+merge). Console message texts have changed throughout — anything parsing
+curie's printed output will need updating; the messages now follow one
+documented convention (`[LEVEL] Class.method: message`).
+
+### Added — logging
+- **A logging system replaces bare print()**: messages go to stdout as
+  `[LEVEL] Class.method: message`, with per-item detail (each dropped line,
+  each parameter at a fit bound) at DEBUG and summary accounting at INFO.
+  `ci.set_log_level('DEBUG')` shows everything, `ci.quiet_warnings()`
+  restricts to errors, and `ci.log_to('curie.log')` copies the session to a
+  file. Fit summaries account for every candidate: nothing is dropped
+  silently.
+- **Configuration validation**: unknown `fit_config` keys warn with a
+  closest-match suggestion (`unknown key 'SNR_Min' ignored - did you mean
+  'SNR_min'?`); wrong types and out-of-range values raise precise errors.
+  Opaque failure sites (empty counts, unparseable dates) now raise
+  actionable messages.
+
+### Added — diagnostics
+- **`.diagnostics` DataFrames on Spectrum, Calibration and DecayChain**: one
+  row per fit with reduced chi2, dof, points used/dropped, model tag,
+  uncertainty scale factor, greppable `flags` (`at_bound:<param>`,
+  `chi2_high`, `fit_failed`, `unmoved`, `singular_cov`) and the full message
+  text. `sp.fits` is now public.
+- **Calibration point tables** `cb.engcal_data`/`rescal_data`/`effcal_data`:
+  every measured point with `used`, `reason` and `residual` columns.
+  Rejected points are kept (in separate storage groups, with reasons) rather
+  than discarded; raw readers of the classic storage still see used points
+  only.
+
+### Added — DecayChain fitting
+- **`dc.fit_config`** with four new opt-in count filters: `max_chi2` (on the
+  originating peak fit's chi2, which `get_counts()` now carries into
+  `dc.counts`), `exclude_lines` (isotope or (isotope, energy) with
+  closest-line matching and typo-safe warnings), `time_range` (per-isotope
+  decay-time windows) and `unc_R_floor` (relative floor on the returned
+  uncertainty). `fit_R(p0={...})` seeds the fit in production-rate units.
+
+### Added — calibration models
+- **Selectable models via `cb.fit_config`**: energy gains `'cubic'` (with a
+  numeric channel inverse and a non-monotonicity warning), resolution gains
+  `'sqrt_quad'` (the Genie/InterSpec-family form), efficiency gains
+  `'loglog'` (order 2-8) alongside forced or automatic Vidmar selection.
+  Threshold knobs replace the hardcoded cuts (`engcal/rescal/effcal_max_error`,
+  `outlier_sigma`). The fitted model tags and efficiency energy range are
+  saved in the calibration .json (older files load unchanged), and the
+  efficiency warns once per calibration when evaluated beyond its fitted
+  range.
+- **`calibrate(eff_points=...)`**: user-supplied efficiency points join the
+  fit with independent uncertainties — for extending the calibrated energy
+  range or merging geometries.
+
+### Changed — plots never hide evidence
+- `dc.plot()` draws a one-sigma band from the fit covariance and shows
+  fit-excluded or threshold-excluded counts as grey open markers (previously
+  hidden); axis limits are set by the used data, so a wild excluded point
+  cannot flatten the plot. `sp.plot()` crosshatches the counts of failed
+  multiplets in red (announced by a warning). Calibration plots show
+  rejected points as grey open markers.
+
+### Changed — behavior
+- **Fit keyword arguments persist**: `fit_R`/`fit_A0`/`calibrate` kwargs
+  merge into the instance's `fit_config` (as `fit_peaks` always has).
+  Positional calls like `fit_R(0.25)` now raise TypeError — use
+  `max_error=0.25`.
+- `fit_A0` announces a singular covariance and substitutes the same finite
+  fallback `fit_R` uses, instead of silently returning non-finite
+  uncertainties.
+
+### Fixed
+- **Unresolvable same-isotope doublets straddling a channel rounding
+  boundary were fit as two degenerate peaks** with an arbitrary intensity
+  split, instead of merging with combined intensity. The 152Eu
+  443.96/444.01 keV doublet (0.27 channels apart) split 9:1 onto the weak
+  line, producing a 9x-wrong efficiency point inside the shipped example's
+  calibration; with the fix, that spectrum's efficiency curve moves by up
+  to ~6% and its production-rate fit's chi2/dof drops from ~1000 to ~50.
+  **This is the one change to zero-configuration numerical results.** The
+  identical-gamma proximity checks now compare float channel distance.
+- Identical-gamma pairs with `A_bound < 1` could reject their whole
+  multiplet ("initial guess is outside of provided bounds"), and a dropped
+  second member fed the fit the dropped peak's parameters instead of the
+  survivor's.
+- The efficiency fit reported the post-inflation chi2/dof (which converges
+  to ~1 by construction) instead of the actual goodness of fit.
+- `np.float64` values in `fit_config` (e.g. a computed `I_min`) crashed the
+  scalar/pair dispatch in `fit_peaks` and the isotope emission filters.
+
 ## [0.1.0] - 2026-07-07
 
 Packaging and data-distribution release: no numerical results change. Nuclear
