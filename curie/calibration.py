@@ -569,8 +569,8 @@ class Calibration(object):
 
 		Read-only pd.DataFrame with one row per measured point, including the
 		points the fit rejected: columns channel, width, unc_width, used
-		(the point is retained in the stored calibration points -
-		'outlier chi2>10' rows entered the fit but are clipped from storage),
+		(False for rejected points - 'outlier chi2>10' rows entered the fit
+		but are clipped from the stored calibration points),
 		reason ('' when used, else 'unc>33%' or 'outlier chi2>10') and
 		residual (measured minus fitted width, channels).  Empty (with the
 		full schema) if no calibration data is present.
@@ -584,9 +584,9 @@ class Calibration(object):
 		Read-only pd.DataFrame with one row per measured point, including the
 		points the fit rejected: columns energy, efficiency, unc_efficiency,
 		isotope (source provenance - which isotope the point came from; ''
-		for calibrations saved before it was recorded), used (the point is
-		retained in the stored calibration points - 'outlier chi2>10' rows
-		entered the fit but are clipped from storage), reason ('' when used,
+		for calibrations saved before it was recorded), used (False for
+		rejected points - 'outlier chi2>10' rows entered the fit but are
+		clipped from the stored calibration points), reason ('' when used,
 		else 'unc>33%' or 'outlier chi2>10') and residual (measured minus
 		fitted efficiency).  Empty (with the full schema) if no calibration
 		data is present.

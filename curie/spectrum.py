@@ -950,10 +950,18 @@ class Spectrum(object):
 				var += cov[n][m]*par_n*par_m*(2.0 if n!=m else 1.0)
 		return var
 	
+	def _fit_layout(self):
+		# layout of a multiplet fit vector: (number of leading background
+		# parameters, per-peak parameter names)
+		cfg = self.fit_config
+		B = {'snip':0, 'constant':1, 'linear':2, 'quadratic':3}[cfg['bg'].lower()]
+		pk_pars = ['A','mu','sig']+(['R','alpha'] if cfg['skew_fit'] else [])+(['step'] if cfg['step_fit'] else [])
+		return B, pk_pars
+
 	def _counts(self, fit, cov):
 		cfg = self.fit_config
-		L = 3+2*int(cfg['skew_fit'])+int(cfg['step_fit'])
-		M = {'snip':0, 'constant':1, 'linear':2, 'quadratic':3}[cfg['bg'].lower()]
+		M, pk_pars = self._fit_layout()
+		L = len(pk_pars)
 		N_cts, unc_N = [], []
 
 		skew_fn = lambda A, R, alpha, sig: 2*A*R*alpha*sig*np.exp(-0.5/alpha**2)
@@ -1172,11 +1180,11 @@ class Spectrum(object):
 		if self._fits is None:
 			self.fit_peaks()
 
+		B, pk_pars = self._fit_layout()
+		L = len(pk_pars)
 		for ft in self._fits:
 			f = ft['fit']
-			B = {'snip':0, 'constant':1, 'linear':2, 'quadratic':3}[cfg['bg'].lower()]
 			p0 = f[:B].tolist()
-			L = 3+2*int(cfg['skew_fit'])+int(cfg['step_fit'])
 			N_sub.append(int((len(f)-B)/L))
 			for n in range(N_sub[-1]):
 				if type(ft['istp'][n])==str:
@@ -1361,14 +1369,13 @@ class Spectrum(object):
 		self.fit_config = kwargs
 		self._fit_stats = {'candidates': {}, 'drops': {'snr': [], 'edge': [], 'intensity': [], 'identical': []}}
 		p0 = self._get_p0(gammas)
-		failed, n_chi2_high = [], 0
+		failed = []
 		if len(p0):
 			multiplets = list(map(self._multi_fit, p0))
 			self._fits = [i[0] for i in multiplets if 'fit' in i[0]]
 			failed = [i[1] for i in multiplets if 'fit' not in i[0]]
 			if len(self._fits):
 				self._peaks = pd.concat([i[1] for i in multiplets if 'fit' in i[0]], ignore_index=True)
-				n_chi2_high = sum(1 for i in multiplets if 'fit' in i[0] and float(i[1]['chi2'].iloc[0])>10.0)
 			else:
 				self._peaks = None
 			self._diagnose_multiplets(multiplets)
@@ -1377,7 +1384,7 @@ class Spectrum(object):
 			self._peaks = None
 			self._diagnostics = _diagnostics_frame(extras=_DIAG_EXTRAS)
 
-		self._log_fit_summary(failed, n_chi2_high, gammas)
+		self._log_fit_summary(failed, gammas)
 		return self._peaks
 
 	def _diagnose_multiplets(self, multiplets):
@@ -1386,10 +1393,9 @@ class Spectrum(object):
 		# busy spectra rail dozens of parameters per fit, so the console gets
 		# summary counts (pointing at sp.diagnostics) rather than a line each
 		cfg = self.fit_config
-		B = {'snip':0, 'constant':1, 'linear':2, 'quadratic':3}[cfg['bg'].lower()]
-		pk_pars = ['A','mu','sig']+(['R','alpha'] if cfg['skew_fit'] else [])+(['step'] if cfg['step_fit'] else [])
+		B, pk_pars = self._fit_layout()
 		L = len(pk_pars)
-		rows, n_at_bound = [], 0
+		rows, n_at_bound, n_chi2_high = [], 0, 0
 		for i, (p, _) in enumerate(multiplets, start=1):
 			e_lo, e_hi = float(self.cb.eng(p['l'])), float(self.cb.eng(p['h']))
 			flags, msgs = [], list(p['warnings'])
@@ -1417,6 +1423,7 @@ class Spectrum(object):
 					_log.debug(self._loc('fit_peaks')+': '+msg)
 					msgs.append(msg)
 					flags.append('chi2_high')
+					n_chi2_high += 1
 			else:
 				chi2 = np.nan
 				dof = len(np.where(self.hist[p['l']:p['h']]>0)[0])-len(p['p0'])-1
@@ -1433,8 +1440,9 @@ class Spectrum(object):
 		self._diagnostics = _diagnostics_frame(rows, extras=_DIAG_EXTRAS)
 		if self._fit_stats is not None:
 			self._fit_stats['at_bound'] = n_at_bound
+			self._fit_stats['chi2_high'] = n_chi2_high
 
-	def _log_fit_summary(self, failed, n_chi2_high, gammas):
+	def _log_fit_summary(self, failed, gammas):
 		stats, cfg = self._fit_stats, self.fit_config
 		drops = stats['drops']
 		n_pk = len(self._peaks) if self._peaks is not None else 0
@@ -1482,11 +1490,11 @@ class Spectrum(object):
 			msg += '; dropped {0} candidates ({1})'.format(n_drop, ', '.join(parts))
 		else:
 			msg += '; no candidates dropped'
-		if n_chi2_high:
-			msg += '; {0} multiplets with chi2/dof>10'.format(n_chi2_high)
+		if stats.get('chi2_high'):
+			msg += '; {0} multiplets with chi2/dof>10'.format(stats['chi2_high'])
 		if stats.get('at_bound'):
 			msg += '; {0} peaks with parameters at fit bounds'.format(stats['at_bound'])
-		if n_chi2_high or stats.get('at_bound'):
+		if stats.get('chi2_high') or stats.get('at_bound'):
 			msg += ' (see sp.diagnostics)'
 		_log.info(msg)
 
@@ -1539,7 +1547,9 @@ class Spectrum(object):
 		multiplet), converged, model (background model), scale_factor
 		(uncertainty inflation applied; 1.0 = none), flags (comma-joined,
 		e.g. 'chi2_high', 'at_bound:A', 'fit_failed'), message (associated
-		warning text), energy_min/energy_max (fit window in keV), isotopes and
+		summary, warning and detail text - per-peak at-bound and per-multiplet
+		high-chi2 detail lands here and at DEBUG, not the default console),
+		energy_min/energy_max (fit window in keV), isotopes and
 		n_peaks.  Empty (with the full schema) before any fit; rebuilt on each
 		`fit_peaks()` call.  Accessing it never triggers a fit.
 		"""

@@ -9,6 +9,7 @@ surfaces never triggers or alters a fit.
 """
 import json
 import os
+import re
 
 import numpy as np
 import pandas as pd
@@ -149,6 +150,18 @@ def test_summary_points_at_diagnostics(eu_spectrum, capsys):
         assert '(see sp.diagnostics)' in out
 
 
+@requires_data('decay')
+def test_summary_counts_match_diagnostics_flags(eu_spectrum, capsys):
+    # the console counts and the diagnostics flags come from the same loop,
+    # so they must agree (a degenerate fit with non-finite chi2 is excluded
+    # from both - it surfaces through its NaN chi2 instead)
+    eu_spectrum.fit_peaks()
+    out = capsys.readouterr().out
+    d = eu_spectrum.diagnostics
+    m = re.search(r'(\d+) multiplets with chi2/dof>10', out)
+    assert (int(m.group(1)) if m else 0) == int(d['flags'].str.contains('chi2_high').sum())
+
+
 ########################
 # Calibration
 ########################
@@ -269,3 +282,26 @@ def test_decay_chain_fit_a0_diagnostics():
     assert d['isotope'].tolist() == list(itp)
     assert dc._fit_result['label'] == 'fit_A0'
     np.testing.assert_array_equal(dc._fit_result['cov_norm'], cov)
+
+
+@requires_data('decay')
+def test_fit_a0_singular_covariance_fallback(capsys):
+    # a singular covariance from the GLS fit must be announced and replaced
+    # by the same finite fallback fit_R applies - not returned as NaN/inf
+    sp = ci.Spectrum(str(EXAMPLES_DIR / 'eu_calib_7cm.Spe'))
+    sp.isotopes = ['152EU']
+    dc = ci.DecayChain('152EU', A0=3.7E4, units='d')
+    dc.get_counts([sp], EoB='01/01/2016 08:39:08')
+    real = dc._gls_fit
+    def singular_gls(*args, **kwargs):
+        fit, cov, chi2, scale, note = real(*args, **kwargs)
+        return fit, np.full(cov.shape, np.inf), chi2, scale, note
+    dc._gls_fit = singular_gls
+    itp, A, cov_norm = dc.fit_A0()
+    out = capsys.readouterr().out
+    assert 'covariance estimate is singular' in out
+    assert '(flag: singular_cov)' in out
+    assert np.all(np.isfinite(cov_norm))
+    d = dc.diagnostics
+    assert d['flags'].str.contains('singular_cov').all()
+    assert d['message'].str.contains('flag: singular_cov', regex=False).all()

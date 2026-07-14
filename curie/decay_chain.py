@@ -815,7 +815,7 @@ class DecayChain(object):
 				msgs.append(msg)
 			if singular:
 				flags.append('singular_cov')
-				msgs.append('covariance estimate is singular - quoted uncertainties are unreliable')
+				msgs.append('covariance estimate is singular - quoted uncertainties are unreliable (flag: singular_cov)')
 			rows.append({'fit':label, 'chi2':(chi2 if (dof>0 and np.isfinite(chi2)) else np.nan), 'dof':int(dof),
 						 'n_points':int(n_points), 'n_dropped':int(n_dropped), 'converged':True,
 						 'model':'', 'scale_factor':float(scale), 'flags':','.join(flags),
@@ -1069,6 +1069,9 @@ class DecayChain(object):
 
 		A_norm = np.array([self.A0[i] for i in A0_isotopes])
 		singular = not np.any(np.isfinite(np.diag(cov)))
+		if singular:
+			_log.warning(self._loc('fit_A0')+': covariance estimate is singular - quoted uncertainties are unreliable (flag: singular_cov)')
+			cov = np.ones(cov.shape)*((np.average(dY/Y))*fit)**2
 		dof = len(Y)-len(fit)
 		self._diagnostics = self._diagnose_gls('fit_A0', 'initial activity', A0_isotopes, fit, p0, chi2, dof,
 											   len(filter_counts), n_err+n_low, scale, singular, body)
