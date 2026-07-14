@@ -66,6 +66,11 @@ def test_loglog_model_and_json_roundtrip(tmp_path, capsys):
     ll = cb.eff(e)
     np.testing.assert_allclose(ll, np.exp(np.polyval(cb.effcal[::-1], np.log(e))), rtol=1E-12)
     assert not np.allclose(ll, ci.Calibration().eff(e, cb.effcal))
+    # the tidy table's residuals must use the loglog model too (same length
+    # collision as above - a vidmar dispatch produces garbage residuals)
+    d = cb.effcal_data
+    expect = d['efficiency'].to_numpy() - np.exp(np.polyval(cb.effcal[::-1], np.log(d['energy'].to_numpy())))
+    np.testing.assert_allclose(d['residual'].to_numpy(), expect, rtol=1E-9)
     # round trip preserves tag, range and values
     f = str(tmp_path / 'll.json')
     cb.saveas(f)
@@ -76,6 +81,22 @@ def test_loglog_model_and_json_roundtrip(tmp_path, capsys):
     js = json.load(open(f))
     assert js['effcal_model'] == 'loglog-4'
     assert len(js['effcal_erange']) == 2
+
+
+def test_loglog_unc_eff_exact_gradient():
+    # the loglog band comes from the exact gradient d(eff)/d(a_i) = eff*ln(E)^i:
+    # with a diagonal covariance it is eff*sqrt(sum_i V_ii ln(E)^2i) exactly
+    # (the generic finite-difference path is orders of magnitude off for
+    # coefficients that live in the exponent)
+    cb = ci.Calibration()
+    c = np.array([-9.0, 1.2, -0.15])
+    V = np.diag([1E-4, 4E-6, 1E-7])
+    e = np.array([150.0, 500.0, 1300.0])
+    got = cb.unc_eff(e, c, V, model='loglog')
+    eff = np.exp(np.polyval(c[::-1], np.log(e)))
+    lnE = np.log(e)
+    expect = eff*np.sqrt(sum(V[i][i]*lnE**(2*i) for i in range(3)))
+    np.testing.assert_allclose(got, expect, rtol=1E-12)
 
 
 @requires_data('decay')

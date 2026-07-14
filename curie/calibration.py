@@ -136,20 +136,30 @@ class Calibration(object):
 	Attributes
 	----------
 	engcal : np.ndarray
-		Energy calibration parameters. length 2 or 3 array, depending on whether the calibration
-		is linear or quadratic.
+		Energy calibration parameters. length 2, 3 or 4 array, depending on whether the
+		calibration is linear, quadratic or cubic.
 
 	effcal : np.ndarray
 		Efficiency calibration parameters, for the semi-empirical efficiency model
 		(see the `eff` method).  Length 5 array, or length 7 if the two low-energy
-		attenuation terms (detector window and dead layer) are included.
+		attenuation terms (detector window and dead layer) are included; for the
+		'loglog' model, the polynomial coefficients of ln(eff) in powers of ln(E).
 
 	unc_effcal : np.ndarray
-		Efficiency calibration covariance matrix. shape 5x5 or 7x7, depending on the length of effcal.
+		Efficiency calibration covariance matrix, of the same dimension as effcal
+		(5x5 or 7x7 for the Vidmar models).
 
 	rescal : np.ndarray
 		Resolution calibration parameters.  length 2 array if resolution calibration is of the form
-		R = a + b*chan (default), or length 1 if R = a*sqrt(chan).
+		R = a + b*chan (default), length 1 if R = a*sqrt(chan), or length 3 if
+		R = sqrt(a + b*chan + c*chan^2).
+
+	fit_config : dict
+		Calibration-fit configuration: model selectors (engcal_model, rescal_model,
+		effcal_model, effcal_order), the pre-fit uncertainty cuts
+		(engcal/rescal/effcal_max_error) and the post-fit outlier clip
+		(outlier_sigma).  Assignment merges keys; `calibrate()` keyword arguments
+		merge here and persist.  See `calibrate` for the key documentation.
 
 
 	Examples
@@ -265,6 +275,7 @@ class Calibration(object):
 
 	@property
 	def fit_config(self):
+		"""Calibration-fit configuration (see the class Attributes and `calibrate`)"""
 		return self._fit_config
 
 	@fit_config.setter
@@ -440,10 +451,12 @@ class Calibration(object):
 
 		effcal : array_like, optional
 			Efficiency calibration parameters. length 5 or 7 array, depending on whether the efficiency
-			fit includes the low-energy components.
+			fit includes the low-energy components; for the 'loglog' model, the
+			polynomial coefficients of ln(eff) in powers of ln(E).
 
 		unc_effcal : array_like, optional
-			Efficiency calibration covariance matrix. shape 5x5 or 7x7, depending on the length of effcal.
+			Efficiency calibration covariance matrix, of the same dimension as
+			effcal (5x5 or 7x7 for the Vidmar models).
 
 		model : str, optional
 			Efficiency model, as in `eff` (needed when explicitly supplied
@@ -755,7 +768,11 @@ class Calibration(object):
 		residual (measured minus fitted efficiency).  Empty (with the full
 		schema) if no calibration data is present.
 		"""
-		return self._tidy_points('effcal', 'energy', 'efficiency', 'unc_efficiency', self.eff,
+		# the model must ride along: a loglog parameter array can be the same
+		# length as a vidmar one, and the residuals would silently be computed
+		# with the wrong formula
+		return self._tidy_points('effcal', 'energy', 'efficiency', 'unc_efficiency',
+								 lambda x, f: self.eff(x, f, model=self._effcal_model),
 								 str_cols=('isotope',))
 
 	def calibrate(self, spectra, sources, eff_points=None, **kwargs):
@@ -942,7 +959,7 @@ class Calibration(object):
 			raise ValueError('Calibration.calibrate: all {0} engcal points dropped (unc>{1} of value) - cannot fit the energy calibration. Check the peak fits.'.format(n_tot, eng_pct))
 		p0 = np.asarray(spectra[0].cb.engcal, dtype=np.float64)
 		if ccfg['engcal_model'] is not None:
-			L = {'linear':2, 'quadratic':3, 'cubic':4}[ccfg['engcal_model']]
+			L = {v: k for k, v in _ENG_MODELS.items()}[ccfg['engcal_model']]
 			p0 = np.concatenate([p0, np.zeros(max(0, L-len(p0)))])[:L]
 		fn = lambda x, *A: self.eng(x, A)
 		with np.errstate(all='ignore'):
@@ -1076,6 +1093,8 @@ class Calibration(object):
 		em = ccfg['effcal_model'] or 'vidmar'
 		if em == 'loglog':
 			order = int(ccfg['effcal_order'])
+			if order+1 > len(x):
+				raise ValueError('Calibration.calibrate: effcal_order {0} needs at least {1} efficiency points to fit (have {2}) - lower the order or loosen the filters.'.format(order, order+1, len(x)))
 			fn = lambda x, *A: self.eff(x, A, model='loglog')
 			with np.errstate(all='ignore'):
 				p0_ll = np.polyfit(np.log(x), np.log(y), order, w=(y/yerr))[::-1]

@@ -921,7 +921,7 @@ class Spectrum(object):
 					else:
 						groups.append([n])
 				for gp in [gp for gp in groups if len(gp)>1]:
-					_log.info(self._loc('fit_peaks')+': {0} gammas at {1} keV are unresolvable (within {2} channels) - fit as one peak with combined intensity'.format(i, ', '.join('{:.1f}'.format(e) for e in g.loc[gp,'energy']), self.fit_config['ident_idx']))
+					_log.info(self._loc('fit_peaks')+': {0} gammas at {1} keV are unresolvable (within {2:.1f} channels) - fit as one peak with combined intensity'.format(i, ', '.join('{:.1f}'.format(e) for e in g.loc[gp,'energy']), self.fit_config['ident_idx']+0.5))
 					keep = g.loc[gp,'intensity'].idxmax()
 					g.loc[keep,'intensity'] = g.loc[gp,'intensity'].sum()
 					g.loc[keep,'unc_intensity'] = np.sqrt((g.loc[gp,'unc_intensity']**2).sum())
@@ -1071,8 +1071,9 @@ class Spectrum(object):
 				cand[iso] = cand.get(iso, 0)+1
 			self._fit_stats['candidates'] = cand
 
-		df['idx'] = self.cb.map_channel(df['energy'])
-		df['idxf'] = np.atleast_1d(self.cb._map_channel_f(df['energy']))
+		idxf = np.atleast_1d(self.cb._map_channel_f(df['energy']))
+		df['idx'] = np.array(np.rint(idxf), dtype=np.int32)
+		df['idxf'] = idxf
 		df['sig'] = self.cb.res(df['idx'])
 		df['l'] = np.array(df['idx']-self.fit_config['pk_width']*df['sig'], dtype=np.int32)
 		df['h'] = np.array(df['idx']+self.fit_config['pk_width']*df['sig'], dtype=np.int32)
@@ -1151,7 +1152,7 @@ class Spectrum(object):
 							if drop==n:
 								continue
 						else:
-							msg = '{0} and {1} have identical gammas at {2:.1f} keV (within {3} channels) - fit with loosened shared bounds; intensities may be misattributed'.format(rw['isotope'], multi.loc[n+1]['isotope'], rw['energy'], self.fit_config['ident_idx'])
+							msg = '{0} and {1} have identical gammas at {2:.1f} keV (within {3:.1f} channels) - fit with loosened shared bounds; intensities may be misattributed'.format(rw['isotope'], multi.loc[n+1]['isotope'], rw['energy'], self.fit_config['ident_idx']+0.5)
 							_log.warning(self._loc('fit_peaks')+': '+msg)
 							p['warnings'].append(msg)
 							bA_m, bm_m = 0.1, 0.5

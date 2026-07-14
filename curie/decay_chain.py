@@ -678,18 +678,24 @@ class DecayChain(object):
 		# calibration's parameter covariance; falls back to full correlation when
 		# the covariance is unusable
 		from .calibration import Calibration
-		effcal, unc_effcal, model = cal if len(cal)==3 else (cal[0], cal[1], None)
+		effcal, unc_effcal, model = cal
 		if unc_effcal.shape != (len(effcal), len(effcal)) or not np.all(np.isfinite(unc_effcal)):
 			return np.ones((len(energies), len(energies)))
 		cb = Calibration()
-		eps = 1E-8
 		f0 = cb.eff(energies, effcal, model=model)
-		G = []
-		for i in range(len(effcal)):
-			p = np.array(effcal, dtype=np.float64)
-			p[i] += eps
-			G.append((cb.eff(energies, p, model=model)-f0)/eps)
-		G = np.array(G)
+		if model is not None and model.startswith('loglog'):
+			# exact gradient (d eff/d a_i = eff * ln(E)^i) - the finite
+			# difference is too coarse for exponent-space coefficients
+			lnE = np.log(np.asarray(energies, dtype=np.float64))
+			G = np.array([f0*lnE**i for i in range(len(effcal))])
+		else:
+			eps = 1E-8
+			G = []
+			for i in range(len(effcal)):
+				p = np.array(effcal, dtype=np.float64)
+				p[i] += eps
+				G.append((cb.eff(energies, p, model=model)-f0)/eps)
+			G = np.array(G)
 		C = G.T @ unc_effcal @ G
 		d = np.sqrt(np.clip(np.diag(C), 1E-300, None))
 		return np.clip(C/np.outer(d, d), -1.0, 1.0)
