@@ -172,7 +172,7 @@ def test_calibration_data_tables(eu_calibrated):
     _, cb = eu_calibrated
     for name, cols in [('engcal_data', ['channel', 'energy', 'unc_channel']),
                        ('rescal_data', ['channel', 'width', 'unc_width']),
-                       ('effcal_data', ['energy', 'efficiency', 'unc_efficiency', 'isotope', 'line'])]:
+                       ('effcal_data', ['energy', 'efficiency', 'unc_efficiency', 'isotope'])]:
         t = getattr(cb, name)
         assert t.columns.tolist() == cols+['used', 'reason', 'residual']
         assert t['used'].any()
@@ -182,9 +182,11 @@ def test_calibration_data_tables(eu_calibrated):
     # the tidy table carries every point: used plus dropped equals the total
     d = cb.diagnostics.set_index('fit')
     assert len(cb.rescal_data) == d.loc['rescal', 'n_points']+int(np.sum(cb.rescal_data['reason'] == 'unc>33%'))
-    # provenance rides with every efficiency point
+    # provenance rides with every efficiency point; the correlation-group
+    # line label stays in the private storage the covariance grouping reads
     assert (cb.effcal_data['isotope'] == '152EU').all()
-    assert cb.effcal_data['line'].str.contains(':').all()
+    assert 'line' not in cb.effcal_data.columns
+    assert all(':' in ln for ln in cb._calib_data['effcal']['line'])
 
 
 @requires_data('decay')

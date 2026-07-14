@@ -583,17 +583,16 @@ class Calibration(object):
 
 		Read-only pd.DataFrame with one row per measured point, including the
 		points the fit rejected: columns energy, efficiency, unc_efficiency,
-		isotope and line (source provenance - which isotope and gamma line the
-		point came from), used (the point is retained in the stored
-		calibration points - 'outlier chi2>10' rows entered the fit but are
-		clipped from storage), reason ('' when used, else 'unc>33%' or
-		'outlier chi2>10') and residual (measured minus fitted efficiency).
-		Provenance columns are '' for calibrations saved before they were
-		recorded.  Empty (with the full schema) if no calibration data is
-		present.
+		isotope (source provenance - which isotope the point came from; ''
+		for calibrations saved before it was recorded), used (the point is
+		retained in the stored calibration points - 'outlier chi2>10' rows
+		entered the fit but are clipped from storage), reason ('' when used,
+		else 'unc>33%' or 'outlier chi2>10') and residual (measured minus
+		fitted efficiency).  Empty (with the full schema) if no calibration
+		data is present.
 		"""
 		return self._tidy_points('effcal', 'energy', 'efficiency', 'unc_efficiency', self.eff,
-								 str_cols=('isotope', 'line'))
+								 str_cols=('isotope',))
 
 	def calibrate(self, spectra, sources):
 		"""Generate calibration parameters from spectra
