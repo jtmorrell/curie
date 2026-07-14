@@ -473,6 +473,18 @@ class Calibration(object):
 			effcal, unc_effcal = self.effcal, self.unc_effcal
 			model = model or self._effcal_model
 
+		if model is not None and model.startswith('loglog'):
+			# exact gradient: d(eff)/d(a_i) = eff * ln(E)^i - the generic
+			# finite-difference step is far too coarse for coefficients that
+			# live in the exponent
+			if not np.all(np.isfinite(unc_effcal)):
+				return np.inf*np.ones(energy.shape) if energy.shape else np.inf
+			lnE = np.atleast_1d(np.log(energy))
+			P = np.array([lnE**i for i in range(len(effcal))])
+			var = np.einsum('it,ij,jt->t', P, np.asarray(unc_effcal, dtype=np.float64), P)
+			out = self.eff(energy, effcal, model=model)*np.sqrt(var.reshape(energy.shape) if energy.shape else var[0])
+			return out
+
 		eps = np.abs(1E-2*effcal)
 		eps = np.where(eps>0, eps, 1E-8)
 		var = np.zeros(len(energy)) if energy.shape else 0.0
