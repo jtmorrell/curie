@@ -142,9 +142,9 @@ Every fit prints a summary of its results and selections to the console,
 in messages of the form ``[LEVEL] Class.method: message``.  After any
 ``fit_peaks()`` call, the first thing to check is its ``INFO`` summary::
 
-	[INFO] Spectrum(eu_calib_7cm.Spe).fit_peaks: fit 44 peaks in 33 multiplets
-	from 2 isotopes; dropped 127 candidates (5 SNR<4.0, 122 intensity<0.05%);
-	1 multiplets with chi2/dof>10; 2 peaks with parameters at fit bounds
+	[INFO] Spectrum(eu_calib_7cm.Spe).fit_peaks: fit 43 peaks in 33 multiplets
+	from 1 isotopes; dropped 127 candidates (5 SNR<4.0, 122 intensity<0.05%);
+	2 multiplets with chi2/dof>10; 3 peaks with parameters at fit bounds
 	(see sp.diagnostics)
 
 Nothing is silently discarded: every candidate line that was not fit is in

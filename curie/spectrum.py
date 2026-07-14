@@ -1354,11 +1354,12 @@ class Spectrum(object):
 			Maximum number of peaks allowed in a multiplet. Default 8.
 
 		ident_idx : int
-			Number of bins separating identical/overlapping peaks. Default 0. If two gammas overlap 
-			within this number of bins, they will be: combined if from the same isotope, flagged if 
-			from two different isotopes, and if one of the identical peaks is estimated to be <1% of
-			the peak height of the other, the smaller peak will be removed. Setting ident_idx=-1 will
-			turn off this feature.
+			Channel separation below which two gammas are identical/overlapping. Default 0.  The
+			comparison uses the unrounded channel distance: two gammas within ident_idx + 0.5
+			channels of each other will be combined (with summed intensity) if from the same
+			isotope, or flagged if from two different isotopes; if one of the identical peaks is
+			estimated to be <1% of the peak height of the other, the smaller peak is removed.
+			Setting ident_idx=-1 turns this feature off.
 
 		Returns
 		-------

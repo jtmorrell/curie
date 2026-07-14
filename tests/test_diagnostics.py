@@ -153,13 +153,31 @@ def test_summary_points_at_diagnostics(eu_spectrum, capsys):
 @requires_data('decay')
 def test_summary_counts_match_diagnostics_flags(eu_spectrum, capsys):
     # the console counts and the diagnostics flags come from the same loop,
-    # so they must agree (a degenerate fit with non-finite chi2 is excluded
-    # from both - it surfaces through its NaN chi2 instead)
+    # so they must agree
     eu_spectrum.fit_peaks()
     out = capsys.readouterr().out
     d = eu_spectrum.diagnostics
     m = re.search(r'(\d+) multiplets with chi2/dof>10', out)
     assert (int(m.group(1)) if m else 0) == int(d['flags'].str.contains('chi2_high').sum())
+
+
+def test_inf_chi2_excluded_from_count_and_flag():
+    # a converged fit with non-finite chi2 (dof<=0) must appear in neither
+    # the summary count nor the chi2_high flag - it surfaces through its NaN
+    # chi2 column instead; a finite high chi2 appears in both
+    sp = ci.Spectrum(str(EXAMPLES_DIR / 'eu_calib_7cm.Spe'))
+    sp.fit_peaks(gammas=[{'energy': 121.78, 'intensity': 28.6, 'unc_intensity': 0.1, 'isotope': '152EU'}])
+    p = dict(sp.fits[0])
+    p['chi2'], p['dof'] = np.inf, 0
+    sp._diagnose_multiplets([(p, p['df'])])
+    assert sp._fit_stats['chi2_high'] == 0
+    assert not sp.diagnostics['flags'].str.contains('chi2_high').any()
+    assert np.isnan(sp.diagnostics['chi2'].iloc[0])
+    p2 = dict(sp.fits[0])
+    p2['chi2'] = 50.0
+    sp._diagnose_multiplets([(p2, p2['df'])])
+    assert sp._fit_stats['chi2_high'] == 1
+    assert sp.diagnostics['flags'].str.contains('chi2_high').all()
 
 
 ########################

@@ -3,7 +3,7 @@
 Every surface follows the same rule: a fit's plot never hides evidence.
 DecayChain.plot draws a 1-sigma band from the stored fit covariance and shows
 fit/plot-excluded counts as open grey markers; Spectrum.plot marks failed
-multiplets; the Calibration plots show rejected points as open red markers.
+multiplets; the Calibration plots show rejected points as open grey markers.
 The band is exact (the activity is linear in the fitted multipliers), checked
 here against the fitted covariance analytically.
 """

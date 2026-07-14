@@ -1,6 +1,7 @@
 
 import json
 import math
+import numbers
 import numpy as np
 import pandas as pd
 import datetime as dtm
@@ -819,7 +820,13 @@ class DecayChain(object):
 		# named lines removed regardless of quality
 		excl = pd.Series(False, index=cts.index)
 		if cfg['exclude_lines'] is not None:
-			for entry in cfg['exclude_lines']:
+			entries = cfg['exclude_lines']
+			# the natural single-pair form ('152EU', 444.0) is one entry
+			if len(entries)==2 and isinstance(entries[0], str) and isinstance(entries[1], numbers.Real):
+				entries = [tuple(entries)]
+			for entry in entries:
+				if isinstance(entry, (list, tuple)) and not (len(entry)==2 and isinstance(entry[0], str) and isinstance(entry[1], numbers.Real)):
+					raise ValueError(self._loc(label)+': exclude_lines entries must be an isotope name or an (isotope, energy_keV) pair (got {0!r}).'.format(entry))
 				if isinstance(entry, str):
 					m = cts['isotope']==self._filter_name(entry)
 					if not m.any():
@@ -848,17 +855,19 @@ class DecayChain(object):
 		# counts outside a per-isotope time window (chain units, count start
 		# time; None leaves that side open)
 		tim = pd.Series(False, index=cts.index)
+		win = {}
 		if cfg['time_range'] is not None:
-			for ip in cfg['time_range']:
-				t_lo, t_hi = cfg['time_range'][ip]
-				m = cts['isotope']==self._filter_name(ip)
+			win = {self._filter_name(k): v for k, v in cfg['time_range'].items()}
+			for ip in win:
+				t_lo, t_hi = win[ip]
+				m = cts['isotope']==ip
 				if t_lo is not None:
 					tim |= m&(cts['start']<t_lo)
 				if t_hi is not None:
 					tim |= m&(cts['start']>t_hi)
 		tim &= ~gone
 		for _, c in cts[tim].iterrows():
-			t_lo, t_hi = cfg['time_range'][[k for k in cfg['time_range'] if self._filter_name(k)==c['isotope']][0]]
+			t_lo, t_hi = win[c['isotope']]
 			_log.debug(self._loc(label)+': excluded {0} count at t={1:.4g} {2}{3}: outside time_range ({4}, {5})'.format(c['isotope'], c['start'], self.units, _line(c), t_lo, t_hi))
 		gone |= tim
 
@@ -953,6 +962,15 @@ class DecayChain(object):
 			return _diagnostics_frame(extras={'isotope': object})
 		return self._diagnostics.copy()
 
+	def _isolated_A0(self, ip):
+		# end-of-production activities produced by isotope ip's schedule alone
+		time = np.insert(np.unique(self.R['time']), 0, [0.0])
+		A0 = {p:0.0 for p in self.A0}
+		for n,dt in enumerate(time[1:]-time[:-1]):
+			_R_dict = {ip:self.R[self.R['isotope']==ip].iloc[n]['R']}
+			A0 = {p:self.activity(p, dt, _R_dict=_R_dict, _A_dict=A0) for p in self.A0}
+		return A0
+
 	def _band_sigma(self, istp, time):
 		# 1-sigma activity uncertainty from the stored fit covariance: the
 		# activity is linear in the fitted multipliers, so the band is exact.
@@ -970,13 +988,8 @@ class DecayChain(object):
 		C_rel = cov/np.outer(fit, fit)
 		B = []
 		if fr['label']=='fit_R':
-			time_R = np.insert(np.unique(self.R['time']), 0, [0.0])
 			for ip in fr['isotopes']:
-				A0 = {p:0.0 for p in self.A0}
-				for n,dt in enumerate(time_R[1:]-time_R[:-1]):
-					_R_dict = {ip:self.R[self.R['isotope']==ip].iloc[n]['R']}
-					A0 = {p:self.activity(p, dt, _R_dict=_R_dict, _A_dict=A0) for p in self.A0}
-				B.append(self.activity(istp, time, _A_dict=A0))
+				B.append(self.activity(istp, time, _A_dict=self._isolated_A0(ip)))
 		else:
 			for ip in fr['isotopes']:
 				A0 = {p:(self.A0[p] if p==ip else 0.0) for p in self.A0}
@@ -1107,11 +1120,7 @@ class DecayChain(object):
 		filter_counts, drops = self._filter_counts(cfg, 'fit_R')
 
 		for ip in R_isotopes:
-			A0 = {p:0.0 for p in self.A0}
-			for n,dt in enumerate(time[1:]-time[:-1]):
-				_R_dict = {ip:self.R[self.R['isotope']==ip].iloc[n]['R']}
-				A0 = {p:self.activity(p, dt, _R_dict=_R_dict, _A_dict=A0) for p in self.A0}
-
+			A0 = self._isolated_A0(ip)
 			X.append([self.decays(c['isotope'], c['start'], c['stop'], _A_dict=A0) for n,c in filter_counts.iterrows()])
 
 		X = np.array(X)

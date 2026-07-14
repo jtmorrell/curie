@@ -109,7 +109,12 @@ def test_p0_override(capsys):
     dc = _synthetic_chain()
     itp, R_default, _ = dc.fit_R()
     dc2 = _synthetic_chain()
+    ra = float(dc2.R_avg['R_avg'].iloc[0])
     itp2, R_seeded, _ = dc2.fit_R(p0={'152EU': float(R_default[0])})
+    # the seed is converted from production-rate units to the fitted
+    # multiplier through R_avg (the fit itself is convex, so only the stored
+    # starting estimate can reveal a broken conversion)
+    assert dc2._fit_result['p0'][0] == pytest.approx(float(R_default[0])/ra)
     np.testing.assert_allclose(R_seeded, R_default, rtol=1E-6)
     # unknown isotope in the seed warns and is ignored
     dc3 = _synthetic_chain()
