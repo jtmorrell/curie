@@ -164,6 +164,7 @@ class Spectrum(object):
 
 		self._peaks = None
 		self._fits = None
+		self._failed_fits = None
 		self._diagnostics = None
 		self._empty_fit_announced = None
 		self._geom_corr = 1.0
@@ -441,6 +442,7 @@ class Spectrum(object):
 	def fit_config(self, _fit_config):
 		self._peaks = None
 		self._fits = None
+		self._failed_fits = None
 		self._diagnostics = None
 		accepted = _validate_config(_fit_config, _FIT_CONFIG_SPEC, self._loc('fit_config'), _log)
 		if accepted:
@@ -463,6 +465,7 @@ class Spectrum(object):
 		self._gmls = None
 		self._peaks = None
 		self._fits = None
+		self._failed_fits = None
 		self._diagnostics = None
 		self._empty_fit_announced = None
 		self._isotopes = _isotopes
@@ -1373,7 +1376,8 @@ class Spectrum(object):
 		if len(p0):
 			multiplets = list(map(self._multi_fit, p0))
 			self._fits = [i[0] for i in multiplets if 'fit' in i[0]]
-			failed = [i[1] for i in multiplets if 'fit' not in i[0]]
+			self._failed_fits = [i[0] for i in multiplets if 'fit' not in i[0]]
+			failed = [p['df'] for p in self._failed_fits]
 			if len(self._fits):
 				self._peaks = pd.concat([i[1] for i in multiplets if 'fit' in i[0]], ignore_index=True)
 			else:
@@ -1759,7 +1763,9 @@ class Spectrum(object):
 
 		Draws a plot of the spectrum, and any successful peak fits.  Peaks
 		are colored by isotope, and a dashed grey line is drawn over multiplets
-		to help evaluate goodness of fit.
+		to help evaluate goodness of fit.  Multiplets whose fit failed are
+		marked by red hatching of the counts above the background (the peaks
+		no fit describes); a warning reports how many.
 
 		Parameters
 		----------
@@ -1834,18 +1840,21 @@ class Spectrum(object):
 
 					ax.plot(erange, np.where(pk_fit>0.1, pk_fit, 0.1), lw=1.4, color=c, label=lb, ls=ls[int(n/len(cl))%len(ls)])
 
-			if self._diagnostics is not None:
-				# failed multiplets stay visible: their expected windows are
-				# marked so an empty stretch of fit curve reads as a failure,
-				# not an absence of candidates
-				fail_label = 'failed fit'
-				d = self._diagnostics
-				for _, rw in d[~d['converged']].iterrows():
-					lo, hi = rw['energy_min'], rw['energy_max']
-					if not xcalib:
-						lo, hi = float(self.cb.map_channel(lo)), float(self.cb.map_channel(hi))
-					ax.axvspan(lo, hi, color=cm['r'], alpha=0.15, lw=0, label=fail_label)
-					fail_label = None
+			if self._failed_fits:
+				# failed multiplets stay visible: the counts above the SNIP
+				# background - the peaks no fit describes - are crosshatched
+				# in red, announced by the warning rather than a legend entry
+				n_failed_pk = sum(len(p['df']) for p in self._failed_fits)
+				_log.warning(self._loc('plot')+': {0} failed multiplet peak fits - indicated in the plot with red hatching'.format(n_failed_pk))
+				for p in self._failed_fits:
+					ch = np.arange(int(p['l']), int(p['h']))
+					xg = np.array([ch-0.5, ch+0.5]).T.flatten()
+					hg = np.repeat(self.hist[ch].astype(float), 2)
+					sn = np.repeat(self._snip_interp(ch.astype(float)), 2)
+					er = self.cb.eng(xg) if xcalib else xg
+					lo = np.where(sn>0.1, sn, 0.1)
+					ax.fill_between(er, lo, np.where(hg>lo, hg, lo),
+									facecolor='none', edgecolor=cm['r'], hatch='///', lw=0, alpha=0.6)
 
 
 		if xcalib:

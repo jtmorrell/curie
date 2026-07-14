@@ -1383,6 +1383,7 @@ class DecayChain(object):
 
 		plot_time = time if self.R is None else np.append(T_grid-T_grid[-1], time.copy())
 		band_label, excl_label = r'fit $\pm 1\sigma$', 'excluded from fit/plot'
+		excluded = []
 		for n,istp in enumerate(self.isotopes):
 			if self._chain[n,0]>1E-12*self._r_lm(self.units, True) and n<max_plot:
 				A = self.activity(istp, time)
@@ -1416,11 +1417,18 @@ class DecayChain(object):
 						if shown.any():
 							ax.errorbar(x[shown], y[shown]*mult, yerr=yerr[shown]*mult, ls='None', marker='o', color=line.get_color(), label=None)
 						if (~shown).any():
-							ax.errorbar(x[~shown], y[~shown]*mult, yerr=yerr[~shown]*mult, ls='None', marker='o',
-										mfc='none', color='0.6', label=excl_label)
-							excl_label = None
+							excluded.append((x[~shown], y[~shown]*mult, yerr[~shown]*mult))
 
-
+		if excluded:
+			# drawn after the y-limits are frozen from the fitted curves and
+			# used points, and underneath them: a wild excluded point must not
+			# set the scale or cover the data it was excluded from
+			yl = ax.get_ylim()
+			for x, y, yerr in excluded:
+				ax.errorbar(x, y, yerr=yerr, ls='None', marker='o', mfc='none',
+							color='0.6', alpha=0.7, zorder=1.5, label=excl_label)
+				excl_label = None
+			ax.set_ylim(yl)
 
 		ax.set_xlabel('Time ({})'.format(self.units))
 		ax.set_ylabel('Activity ({}Bq)'.format(lb_or))

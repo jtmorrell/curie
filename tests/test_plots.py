@@ -68,13 +68,19 @@ def test_band_absent_without_fit():
     plt.close(f)
 
 
-def test_spectrum_plot_marks_failed_multiplet():
+def test_spectrum_plot_marks_failed_multiplet(capsys):
     sp = ci.Spectrum(str(EXAMPLES_DIR / 'eu_calib_7cm.Spe'))
     # negative forward-fit amplitude -> invalid bounds -> failed multiplet
     sp.fit_peaks(gammas=[{'energy': 500.0, 'intensity': 100.0, 'unc_intensity': 0.1, 'isotope': '154EU'}], SNR_min=-1E9)
     f, ax = plt.subplots()
     sp.plot(f=f, ax=ax, show=False)
-    assert 'failed fit' in _legend_texts(ax)
+    # red hatched fill of the unfitted counts, announced by a warning - no
+    # legend entry
+    out = capsys.readouterr().out
+    assert '1 failed multiplet peak fits - indicated in the plot with red hatching' in out
+    hatched = [c for c in ax.collections if isinstance(c, PolyCollection) and c.get_hatch()]
+    assert len(hatched) == 1
+    assert 'failed fit' not in _legend_texts(ax)
     plt.close(f)
 
 

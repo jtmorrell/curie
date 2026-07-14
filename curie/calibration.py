@@ -949,14 +949,20 @@ class Calibration(object):
 
 		
 	def _plot_dropped(self, ax, group, x_col, y_col, unc_col):
-		# rejected calibration points stay visible as open red markers - a
-		# clean-looking calibration must not hide the points it set aside
+		# rejected calibration points stay visible as open grey markers (the
+		# same style as excluded counts on the decay-curve plot) - a
+		# clean-looking calibration must not hide the points it set aside.
+		# Drawn after the y-limits are frozen from the fit and used points,
+		# and underneath them: a wild rejected point must not set the scale
+		# or cover the data it was rejected from
 		d = self._calib_data.get(group, {})
 		if x_col not in d or not len(np.atleast_1d(d[x_col])):
 			return
-		cm = colormap()
+		yl = ax.get_ylim()
 		ax.errorbar(np.atleast_1d(d[x_col]), np.atleast_1d(d[y_col]), yerr=np.atleast_1d(d[unc_col]),
-					ls='None', marker='o', mfc='none', color=cm['r'], label='rejected points')
+					ls='None', marker='o', mfc='none', color='0.6', alpha=0.7, zorder=1.5,
+					label='rejected points')
+		ax.set_ylim(yl)
 		ax.legend(loc=0)
 
 	def plot_engcal(self, **kwargs):
