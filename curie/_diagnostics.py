@@ -6,7 +6,7 @@ after the core set.  The table is rebuilt on every fit, and is an empty frame
 carrying the full schema before any fit has run.  Accessing it never triggers
 a fit and never alters fit results.
 
-Flag vocabulary (fixed, greppable): at_bound:<param>, unmoved, chi2_high,
+Flag vocabulary (fixed): at_bound:<param>, unmoved, chi2_high,
 singular_cov, extrapolated, non_monotonic, empty, fit_failed.
 """
 

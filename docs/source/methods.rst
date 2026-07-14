@@ -264,7 +264,8 @@ the standard empirical log-log polynomial,
 
    \ln \varepsilon(E) = \sum_{i=0}^{n} a_i \,(\ln E)^i
 
-with order :math:`n` = ``effcal_order`` (default 4, allowed 2-8).
+with the order selected by the model name (``'loglog'`` is order 4;
+``'loglog-2'`` through ``'loglog-8'`` choose it explicitly).
 High-order log-log polynomials reproduce germanium efficiency curves very
 well *within* the fitted energy range [Kis1998]_, but being polynomials
 they diverge rapidly outside it — unlike the semi-empirical model, whose
@@ -351,7 +352,7 @@ the instance identified where several may run in a loop (e.g.
 ``dc.diagnostics``) record one row per fit with a shared schema: the
 reduced chi-square and degrees of freedom, the points used and dropped,
 the model tag, the uncertainty scale factor applied (1.0 = none), a
-``flags`` column from a fixed, greppable vocabulary — ``at_bound:<param>``
+``flags`` column from a fixed vocabulary — ``at_bound:<param>``
 (a parameter ended on a fit bound), ``chi2_high`` (reduced chi-square
 above 10), ``fit_failed``, ``unmoved`` (fit returned its starting
 estimate), ``singular_cov`` — and the full message text.  The tables are

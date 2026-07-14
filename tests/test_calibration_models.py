@@ -32,8 +32,8 @@ def test_fit_config_validator(capsys):
     assert "unknown key 'effcal_modle'" in out and "did you mean 'effcal_model'" in out
     with pytest.raises(ValueError, match="'effcal_model' must be one of"):
         cb.fit_config = {'effcal_model': 'spline'}
-    with pytest.raises(ValueError, match="'effcal_order' must be an integer in 2..8"):
-        cb.fit_config = {'effcal_order': 12}
+    with pytest.raises(ValueError, match="'effcal_model' must be one of"):
+        cb.fit_config = {'effcal_model': 'loglog-12'}
 
 
 @requires_data('decay')

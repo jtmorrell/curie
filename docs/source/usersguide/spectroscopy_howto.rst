@@ -106,8 +106,8 @@ Tuning the fit
 The defaults are chosen for typical activation spectra; these are the
 adjustments that real analyses most often need.  In every case, start from
 the fit's own summary line (next section) — it names each filter and how
-many lines it dropped, so you can see which knob is in play before turning
-it.
+many lines it dropped, so you can see which parameter is responsible
+before changing it.
 
 **Short or weak counts** — a low-activity sample or a short count leaves
 marginal peaks below the ``SNR_min`` threshold (default 4).  Lower it to
@@ -142,7 +142,7 @@ Every fit announces what it did on the console, in messages of the form
 
 	[INFO] Spectrum(eu_calib_7cm.Spe).fit_peaks: fit 44 peaks in 33 multiplets
 	from 2 isotopes; dropped 127 candidates (5 SNR<4.0, 122 intensity<0.05%);
-	2 multiplets with chi2/dof>10; 3 peaks with parameters at fit bounds
+	1 multiplets with chi2/dof>10; 2 peaks with parameters at fit bounds
 	(see sp.diagnostics)
 
 Nothing is silently discarded: every candidate line that was not fit is in
@@ -157,8 +157,9 @@ per-item detail behind each summary count is logged at ``DEBUG``::
 
 The same accounting is available as a table.  ``sp.diagnostics`` has one
 row per *attempted* multiplet — including failed ones — with the reduced
-chi-square, the model, the uncertainty scale factor, and a greppable
-``flags`` column (``at_bound:<param>``, ``chi2_high``, ``fit_failed``);
+chi-square, the model, the uncertainty scale factor, and a ``flags``
+column drawn from a fixed vocabulary (``at_bound:<param>``,
+``chi2_high``, ``fit_failed``);
 the ``message`` column holds the full text of everything reported about
 that fit.  To pull out the fits that deserve a second look::
 
@@ -229,8 +230,8 @@ Key                 Models
 ``engcal_model``    ``'linear'``, ``'quadratic'``, ``'cubic'``
 ``rescal_model``    ``'sqrt'``, ``'linear'``, ``'sqrt_quad'``
 ``effcal_model``    ``'vidmar'`` (5/7-parameter automatic, the default),
-                    ``'vidmar-5'``, ``'vidmar-7'``, ``'loglog'`` (order set by
-                    ``effcal_order``, default 4)
+                    ``'vidmar-5'``, ``'vidmar-7'``, ``'loglog'`` (order 4) or
+                    ``'loglog-2'`` through ``'loglog-8'``
 =================== =============================================================
 
 For the functional forms and when each is appropriate, see
@@ -241,7 +242,7 @@ the log-log polynomial often fits tighter *within* them but diverges
 rapidly outside — Curie stores the fitted energy range and warns the first
 time an efficiency is evaluated beyond it::
 
-	cb.calibrate([sp], sources=srcs, effcal_model='loglog', effcal_order=5)
+	cb.calibrate([sp], sources=srcs, effcal_model='loglog-5')
 
 The point-selection thresholds are also configurable:
 ``engcal_max_error``/``rescal_max_error``/``effcal_max_error`` set the

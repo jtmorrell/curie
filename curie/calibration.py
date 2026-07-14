@@ -9,7 +9,7 @@ from scipy.interpolate import interp1d
 from .isotope import Isotope
 from .data import _get_connection
 from .plotting import _init_plot, _draw_plot, colormap
-from ._log import _get_logger, _validate_config, _choice, _Check, _is_int, NUMBER
+from ._log import _get_logger, _validate_config, _choice, NUMBER
 from ._diagnostics import _diagnostics_frame, _at_bound, _unmoved
 
 _log = _get_logger('calibration')
@@ -22,8 +22,8 @@ _CALIB_GROUPS = ['engcal', 'rescal', 'effcal',
 
 _FIT_CONFIG_SPEC = {'engcal_model': _choice(['linear', 'quadratic', 'cubic'], allow_none=True),
 					'rescal_model': _choice(['sqrt', 'linear', 'sqrt_quad'], allow_none=True),
-					'effcal_model': _choice(['vidmar', 'vidmar-5', 'vidmar-7', 'loglog'], allow_none=True),
-					'effcal_order': _Check(lambda v: _is_int(v) and 2<=int(v)<=8, 'an integer in 2..8'),
+					'effcal_model': _choice(['vidmar', 'vidmar-5', 'vidmar-7', 'loglog']
+											+['loglog-{0}'.format(n) for n in range(2, 9)], allow_none=True),
 					'engcal_max_error': NUMBER, 'rescal_max_error': NUMBER,
 					'effcal_max_error': NUMBER, 'outlier_sigma': NUMBER}
 
@@ -155,8 +155,8 @@ class Calibration(object):
 		R = sqrt(a + b*chan + c*chan^2).
 
 	fit_config : dict
-		Calibration-fit configuration: model selectors (engcal_model, rescal_model,
-		effcal_model, effcal_order), the pre-fit uncertainty cuts
+		Calibration-fit configuration: model selectors (engcal_model,
+		rescal_model, effcal_model), the pre-fit uncertainty cuts
 		(engcal/rescal/effcal_max_error) and the post-fit outlier clip
 		(outlier_sigma).  Assignment merges keys; `calibrate()` keyword arguments
 		merge here and persist.  See `calibrate` for the key documentation.
@@ -207,7 +207,7 @@ class Calibration(object):
 		self._effcal_erange = None
 		self._extrap_warned = False
 		self._fit_config = {'engcal_model':None, 'rescal_model':None, 'effcal_model':None,
-							'effcal_order':4, 'engcal_max_error':0.25, 'rescal_max_error':0.33,
+							'engcal_max_error':0.25, 'rescal_max_error':0.33,
 							'effcal_max_error':0.33, 'outlier_sigma':10**0.5}
 
 		if filename is not None:
@@ -813,12 +813,10 @@ class Calibration(object):
 			(sqrt(a + b*ch + c*ch^2)).  Default `None`: inferred by length.
 
 		effcal_model : str, optional
-			'vidmar' (the 5/7-parameter automatic choice, today's behavior),
-			'vidmar-5', 'vidmar-7', or 'loglog' (polynomial of ln(eff) in
-			ln(E), order set by `effcal_order`).  Default `None` = 'vidmar'.
-
-		effcal_order : int, optional
-			Polynomial order for the 'loglog' model, 2..8.  Default 4.
+			'vidmar' (the 5/7-parameter automatic choice, the default
+			behavior), 'vidmar-5', 'vidmar-7', or a polynomial of ln(eff) in
+			ln(E): 'loglog' (order 4) or 'loglog-2' through 'loglog-8' for an
+			explicit order.  Default `None` = 'vidmar'.
 
 		engcal_max_error : float, optional
 			Pre-fit cut: drop energy-calibration points whose relative
@@ -1091,10 +1089,10 @@ class Calibration(object):
 			return f1, u1, chi2n, chi2_0, S2
 
 		em = ccfg['effcal_model'] or 'vidmar'
-		if em == 'loglog':
-			order = int(ccfg['effcal_order'])
+		if em.startswith('loglog'):
+			order = int(em.split('-')[1]) if '-' in em else 4
 			if order+1 > len(x):
-				raise ValueError('Calibration.calibrate: effcal_order {0} needs at least {1} efficiency points to fit (have {2}) - lower the order or loosen the filters.'.format(order, order+1, len(x)))
+				raise ValueError('Calibration.calibrate: effcal_model {0} needs at least {1} efficiency points to fit (have {2}) - lower the order or loosen the filters.'.format('loglog-{0}'.format(order), order+1, len(x)))
 			fn = lambda x, *A: self.eff(x, A, model='loglog')
 			with np.errstate(all='ignore'):
 				p0_ll = np.polyfit(np.log(x), np.log(y), order, w=(y/yerr))[::-1]

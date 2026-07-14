@@ -29,7 +29,7 @@ documented convention (`[LEVEL] Class.method: message`).
 ### Added — diagnostics
 - **`.diagnostics` DataFrames on Spectrum, Calibration and DecayChain**: one
   row per fit with reduced chi2, dof, points used/dropped, model tag,
-  uncertainty scale factor, greppable `flags` (`at_bound:<param>`,
+  uncertainty scale factor, `flags` from a fixed vocabulary (`at_bound:<param>`,
   `chi2_high`, `fit_failed`, `unmoved`, `singular_cov`) and the full message
   text. `sp.fits` is now public.
 - **Calibration point tables** `cb.engcal_data`/`rescal_data`/`effcal_data`:
@@ -50,8 +50,9 @@ documented convention (`[LEVEL] Class.method: message`).
 - **Selectable models via `cb.fit_config`**: energy gains `'cubic'` (with a
   numeric channel inverse and a non-monotonicity warning), resolution gains
   `'sqrt_quad'` (the Genie/InterSpec-family form), efficiency gains
-  `'loglog'` (order 2-8) alongside forced or automatic Vidmar selection.
-  Threshold knobs replace the hardcoded cuts (`engcal/rescal/effcal_max_error`,
+  a log-log polynomial (`'loglog'`, or `'loglog-2'` through `'loglog-8'` for
+  an explicit order) alongside forced or automatic Vidmar selection.
+  Named threshold parameters replace the hardcoded cuts (`engcal/rescal/effcal_max_error`,
   `outlier_sigma`). The fitted model tags and efficiency energy range are
   saved in the calibration .json (older files load unchanged), and the
   efficiency warns once per calibration when evaluated beyond its fitted
