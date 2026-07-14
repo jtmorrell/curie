@@ -649,8 +649,14 @@ class DecayChain(object):
 					ct['line'] = [i+':'+'{:.2f}'.format(e) for i,e in zip(df['isotope'], df['energy'])]
 					ct['unc_corr'] = (df['decays']*df['unc_efficiency']/df['efficiency']).to_numpy()
 					if type(sp)!=str:
-						cal = 'effcal:'+','.join('{:.9g}'.format(p) for p in sp.cb.effcal)
-						self._cal_data[cal] = (np.asarray(sp.cb.effcal, dtype=np.float64), np.asarray(sp.cb.unc_effcal, dtype=np.float64))
+						# the model rides in the identity string for non-vidmar
+						# calibrations - a loglog parameter array can be the
+						# same length as a vidmar one (byte-identical key for
+						# the classic models)
+						em = getattr(sp.cb, '_effcal_model', None)
+						pfx = 'effcal:'+(em+':' if em is not None and em.startswith('loglog') else '')
+						cal = pfx+','.join('{:.9g}'.format(p) for p in sp.cb.effcal)
+						self._cal_data[cal] = (np.asarray(sp.cb.effcal, dtype=np.float64), np.asarray(sp.cb.unc_effcal, dtype=np.float64), em)
 						ct['cal'] = cal
 					elif 'effcal' in df.columns:
 						# rows from files predating the effcal column group conservatively
@@ -672,17 +678,17 @@ class DecayChain(object):
 		# calibration's parameter covariance; falls back to full correlation when
 		# the covariance is unusable
 		from .calibration import Calibration
-		effcal, unc_effcal = cal
+		effcal, unc_effcal, model = cal if len(cal)==3 else (cal[0], cal[1], None)
 		if unc_effcal.shape != (len(effcal), len(effcal)) or not np.all(np.isfinite(unc_effcal)):
 			return np.ones((len(energies), len(energies)))
 		cb = Calibration()
 		eps = 1E-8
-		f0 = cb.eff(energies, effcal)
+		f0 = cb.eff(energies, effcal, model=model)
 		G = []
 		for i in range(len(effcal)):
 			p = np.array(effcal, dtype=np.float64)
 			p[i] += eps
-			G.append((cb.eff(energies, p)-f0)/eps)
+			G.append((cb.eff(energies, p, model=model)-f0)/eps)
 		G = np.array(G)
 		C = G.T @ unc_effcal @ G
 		d = np.sqrt(np.clip(np.diag(C), 1E-300, None))

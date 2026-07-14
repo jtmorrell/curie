@@ -205,10 +205,11 @@ class _Check(object):
 		return self.predicate(v)
 
 
-def _choice(options):
+def _choice(options, allow_none=False):
 	opts = {str(o).lower() for o in options}
 	return _Check(lambda v: isinstance(v, str) and v.lower() in opts,
-				'one of {}'.format(', '.join("'{}'".format(o) for o in sorted(opts))))
+				'one of {}'.format(', '.join("'{}'".format(o) for o in sorted(opts))),
+				allow_none=allow_none)
 
 
 NUMBER = _Check(_is_number, 'a number')
