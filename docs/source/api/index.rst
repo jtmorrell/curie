@@ -32,4 +32,5 @@ The API reference documents Curie's functions, classes and class methods; follow
     :maxdepth: 1
 
     data
+    logging
     plotter

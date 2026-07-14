@@ -139,7 +139,7 @@ writes the stack table (and optionally the fluxes) to .csv/.json/.db.
 Solver options
 --------------
 
-The defaults suit most problems; the knobs, all keyword arguments to
+The defaults suit most problems; the parameters, all keyword arguments to
 `Stack`: ``dE0`` (1-sigma width of the incident beam energy, default 1%
 of ``E0``), ``N`` (number of Monte Carlo particles, default 10000),
 ``accuracy``/``min_steps``/``max_steps`` (energy-loss stepping control

@@ -35,6 +35,7 @@ Use the built-in ``help`` function to view a function or class's docstring::
 
 """
 
+from ._log import set_log_level, quiet_warnings, log_to
 from .data import _data_path, download
 from .plotting import colormap, set_style
 set_style('default')
@@ -53,8 +54,9 @@ from .reaction import Reaction
 
 from .stack import Stack
 
-__version__ = '0.1.0'
+__version__ = '0.2.0'
 __all__ = ['download', 'colormap', 'set_style',
+          'set_log_level', 'quiet_warnings', 'log_to',
           'Isotope', 'Element', 'Compound',
           'Spectrum', 'Calibration', 'DecayChain',
           'Library', 'Reaction', 'Stack']

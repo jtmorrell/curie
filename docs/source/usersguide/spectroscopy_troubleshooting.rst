@@ -8,8 +8,14 @@ The most common spectroscopy problems trace back to one thing: Curie fits
 the peaks it *expects* from the assigned isotopes and the current
 calibration, rather than searching the spectrum for unknown peaks.  When
 the expectation is wrong — usually the energy calibration — peaks are
-missed or misfit, often silently.  This page collects the failure modes we
-see most often, with their symptoms and fixes.
+missed or misfit.  This page collects the failure modes we see most often,
+with their symptoms and fixes.
+
+Whatever the symptom, check the fit's output first: the ``fit_peaks``
+summary line accounts for every candidate line (fit, or dropped with the
+responsible filter named), and ``sp.diagnostics`` records each attempted
+fit with flags for the problematic ones (see :ref:`spectroscopy_howto`).
+Most of the entries below appear as a line item in one or the other.
 
 No peaks are fit, and the spectrum looks uncalibrated
 -----------------------------------------------------
@@ -77,9 +83,15 @@ An expected peak is missing from the results
 isotope emits — does not appear in ``sp.peaks``.  Everything else fits
 fine.
 
-**Cause:** one of the peak-selection filters excluded it before fitting,
-silently.  The defaults are chosen for typical activation spectra and will
-drop some legitimate lines:
+**Cause:** one of the peak-selection filters excluded it before fitting.
+The exclusion is reported: the summary line counts the dropped lines per
+filter, and ``ci.set_log_level('DEBUG')`` names each one individually::
+
+	[INFO] Spectrum(sample.Spe).fit_peaks: fit 12 peaks in 9 multiplets from
+	1 isotopes; dropped 31 candidates (2 SNR<4.0, 29 intensity<0.05%)
+
+The defaults are chosen for typical activation spectra and will drop some
+legitimate lines:
 
 * ``E_min`` (default 75 keV) excludes all lower-energy lines — the 59.5 keV
   line of :sup:`241`\ Am, for example, never fits at the default.
@@ -109,8 +121,10 @@ Fits succeed, but they are bad fits
 -----------------------------------
 
 **Symptom:** fitted curves that visibly miss the data, large ``chi2``
-values in the peak table, or ``WARNING: Peak fit failed`` messages for
-particular multiplets (groups of overlapping peaks that are fit together).
+values in the peak table, or ``peak fit failed`` warnings for particular
+multiplets (groups of overlapping peaks that are fit together).  Failed
+multiplets are crosshatched in red on ``sp.plot()``, and every high-chi2
+or at-bound fit is flagged in ``sp.diagnostics``.
 
 **Cause and fix, by situation:**
 

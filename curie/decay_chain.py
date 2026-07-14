@@ -1,6 +1,7 @@
 
 import json
 import math
+import numbers
 import numpy as np
 import pandas as pd
 import datetime as dtm
@@ -12,6 +13,17 @@ from .data import _get_connection
 from .plotting import _init_plot, _draw_plot, colormap
 from .isotope import Isotope
 from .spectrum import Spectrum
+from ._log import (_get_logger, _validate_config, NUMBER, NUMBER_OR_NONE, BOOLEAN,
+				   STRING_OR_NONE, SEQUENCE_OR_NONE, MAPPING_OR_NONE)
+from ._diagnostics import _diagnostics_frame
+
+_log = _get_logger('decay_chain')
+
+_FIT_CONFIG_SPEC = {'max_error': NUMBER, 'min_counts': NUMBER, 'corr': NUMBER_OR_NONE,
+					'corr_group': STRING_OR_NONE, 'norm_frac': NUMBER,
+					'scale_factor': BOOLEAN, 'max_chi2': NUMBER_OR_NONE,
+					'exclude_lines': SEQUENCE_OR_NONE, 'time_range': MAPPING_OR_NONE,
+					'unc_R_floor': NUMBER_OR_NONE}
 
 class DecayChain(object):
 	"""Radioactive Decay Chain
@@ -106,6 +118,12 @@ class DecayChain(object):
 		self.isotopes = [istps[0].name]
 		self.R, self.A0, self._counts = None, {self.isotopes[0]:0.0}, None
 		self._cal_data = {}
+		self._diagnostics = None
+		self._fit_result = None
+		self._fit_config = {'max_error':0.4, 'min_counts':1, 'corr':None,
+							'corr_group':None, 'norm_frac':1.0, 'scale_factor':True,
+							'max_chi2':None, 'exclude_lines':None, 'time_range':None,
+							'unc_R_floor':None}
 		self._chain = [[istps[0].decay_const(units), [], []]]
 		stable_chain = [False]
 
@@ -503,6 +521,21 @@ class DecayChain(object):
 			self._counts['unc_activity'] = self._counts['unc_counts']*self.counts['activity']/self._counts['counts']
 			
 		
+	def _loc(self, method):
+		# message locator: names the chain by its parent isotope along with the
+		# class and method, so interleaved output from loops over chains stays attributable
+		return 'DecayChain({0}).{1}'.format(self.isotopes[0], method)
+
+	@property
+	def fit_config(self):
+		return self._fit_config
+
+	@fit_config.setter
+	def fit_config(self, _fit_config):
+		accepted = _validate_config(_fit_config, _FIT_CONFIG_SPEC, self._loc('fit_config'), _log)
+		for nm in accepted:
+			self._fit_config[nm] = accepted[nm]
+
 	def get_counts(self, spectra, EoB, peak_data=None):
 		"""Retrieves the number of measured decays
 
@@ -542,7 +575,10 @@ class DecayChain(object):
 
 		counts = []
 		if type(EoB)==str:
-			EoB = dtm.datetime.strptime(EoB, '%m/%d/%Y %H:%M:%S')
+			try:
+				EoB = dtm.datetime.strptime(EoB, '%m/%d/%Y %H:%M:%S')
+			except ValueError:
+				raise ValueError(self._loc('get_counts')+": could not parse EoB {0!r} - expected '%m/%d/%Y %H:%M:%S' (e.g. 01/01/2016 08:39:08)".format(EoB))
 
 		if peak_data is not None:
 			if type(peak_data)==str:
@@ -590,8 +626,18 @@ class DecayChain(object):
 				if len(df):
 					start = (sp.start_time-EoB).total_seconds()*self._r_lm('s')
 					stop = start+(sp.real_time*self._r_lm('s'))
+			if not len(df):
+				# routine when peak data spans many spectra and chains: detail at
+				# DEBUG, matched-of-total in the summary line; all-empty raises below
+				_log.debug(self._loc('get_counts')+': {0} contains no peaks matching chain isotopes [{1}]'.format(sp if type(sp)==str else sp.filename, ', '.join(self.isotopes)))
 			if len(df):
+				if start < 0:
+					_log.warning(self._loc('get_counts')+': {0} starts {1:.4g} {2} before EoB - check EoB and the spectrum start time'.format(sp if type(sp)==str else sp.filename, -start, self.units))
 				ct = pd.DataFrame({'isotope':df['isotope'], 'start':start, 'stop':stop, 'counts':df['decays'], 'unc_counts':df['unc_decays']})
+				if 'chi2' in df.columns:
+					# peak-fit quality rides with the count so the max_chi2
+					# filter can act on it
+					ct['chi2'] = df['chi2'].to_numpy()
 				# decompose the uncertainty by correlation class where the peak data
 				# carries the provenance: counting (independent), gamma intensity
 				# (correlated within a line), efficiency (correlated within a
@@ -604,8 +650,14 @@ class DecayChain(object):
 					ct['line'] = [i+':'+'{:.2f}'.format(e) for i,e in zip(df['isotope'], df['energy'])]
 					ct['unc_corr'] = (df['decays']*df['unc_efficiency']/df['efficiency']).to_numpy()
 					if type(sp)!=str:
-						cal = 'effcal:'+','.join('{:.9g}'.format(p) for p in sp.cb.effcal)
-						self._cal_data[cal] = (np.asarray(sp.cb.effcal, dtype=np.float64), np.asarray(sp.cb.unc_effcal, dtype=np.float64))
+						# the model rides in the identity string for non-vidmar
+						# calibrations - a loglog parameter array can be the
+						# same length as a vidmar one (byte-identical key for
+						# the classic models)
+						em = getattr(sp.cb, '_effcal_model', None)
+						pfx = 'effcal:'+(em+':' if em is not None and em.startswith('loglog') else '')
+						cal = pfx+','.join('{:.9g}'.format(p) for p in sp.cb.effcal)
+						self._cal_data[cal] = (np.asarray(sp.cb.effcal, dtype=np.float64), np.asarray(sp.cb.unc_effcal, dtype=np.float64), em)
 						ct['cal'] = cal
 					elif 'effcal' in df.columns:
 						# rows from files predating the effcal column group conservatively
@@ -614,7 +666,11 @@ class DecayChain(object):
 						ct['cal'] = ''
 				counts.append(ct)
 
+		if not len(counts):
+			raise ValueError(self._loc('get_counts')+': no counts found - none of the {0} spectra contain peaks matching [{1}].'.format(len(spectra), ', '.join(self.isotopes)))
+
 		self.counts = pd.concat(counts, sort=True, ignore_index=True).sort_values(by=['start']).reset_index(drop=True)
+		_log.info(self._loc('get_counts')+': {0} counts from {1} of {2} spectra for [{3}]'.format(len(self.counts), len(counts), len(spectra), ', '.join(self.isotopes)))
 
 
 	@staticmethod
@@ -623,18 +679,24 @@ class DecayChain(object):
 		# calibration's parameter covariance; falls back to full correlation when
 		# the covariance is unusable
 		from .calibration import Calibration
-		effcal, unc_effcal = cal
+		effcal, unc_effcal, model = cal
 		if unc_effcal.shape != (len(effcal), len(effcal)) or not np.all(np.isfinite(unc_effcal)):
 			return np.ones((len(energies), len(energies)))
 		cb = Calibration()
-		eps = 1E-8
-		f0 = cb.eff(energies, effcal)
-		G = []
-		for i in range(len(effcal)):
-			p = np.array(effcal, dtype=np.float64)
-			p[i] += eps
-			G.append((cb.eff(energies, p)-f0)/eps)
-		G = np.array(G)
+		f0 = cb.eff(energies, effcal, model=model)
+		if model is not None and model.startswith('loglog'):
+			# exact gradient (d eff/d a_i = eff * ln(E)^i) - the finite
+			# difference is too coarse for exponent-space coefficients
+			lnE = np.log(np.asarray(energies, dtype=np.float64))
+			G = np.array([f0*lnE**i for i in range(len(effcal))])
+		else:
+			eps = 1E-8
+			G = []
+			for i in range(len(effcal)):
+				p = np.array(effcal, dtype=np.float64)
+				p[i] += eps
+				G.append((cb.eff(energies, p, model=model)-f0)/eps)
+			G = np.array(G)
 		C = G.T @ unc_effcal @ G
 		d = np.sqrt(np.clip(np.diag(C), 1E-300, None))
 		return np.clip(C/np.outer(d, d), -1.0, 1.0)
@@ -687,40 +749,256 @@ class DecayChain(object):
 		V[np.diag_indices_from(V)] = d + 1E-12*np.max(d)
 		return V, Vi
 
-	def _gls_fit(self, X, Y, dY, fc, p0, corr, corr_group, norm_frac, scale_factor, cov):
+	def _gls_fit(self, X, Y, dY, fc, p0, corr, corr_group, norm_frac, scale_factor, cov, label='fit_R'):
 		# Shared fitting core for fit_R/fit_A0: diagonal absolute-sigma pre-fit
 		# (also the bare-counts path), then the generalized fit against the
 		# assembled covariance, with a one-sided chi-square scale factor.
+		# Returns (fit, covariance, chi2/dof of the unscaled fit, sigma scale
+		# factor applied, scale note), where the note describes any applied
+		# inflation for the summary line.
 		func = lambda X_f, *R_f: np.dot(np.asarray(R_f), X_f)
-		fit, cv = curve_fit(func, X, Y, sigma=dY, p0=p0, bounds=(0.0, np.inf), absolute_sigma=True)
-		dof = len(Y)-len(fit)
-		if cov is not None:
-			V, Vi = np.asarray(cov, dtype=np.float64), None
-		else:
-			V, Vi = self._counts_covariance(fc, np.abs(np.dot(fit, X)), corr, corr_group, norm_frac)
-		if V is None:
-			print('WARNING: counts carry only total uncertainties, so correlated systematics (shared gamma intensities, efficiencies) cannot be separated and unc_R may be underestimated. Provide decomposition columns (see get_counts) or the corr= option.')
-			r = Y-np.dot(fit, X)
-			chi2n = np.sum(r**2/dY**2)/dof if dof>0 else np.inf
-			if scale_factor and dof>0 and np.isfinite(chi2n) and chi2n>1.0:
-				cv = cv*chi2n
-			return fit, cv
-		# One-sided scale factor: mutually inconsistent data can only indict the
-		# INDEPENDENT error components (the correlated modes do not contribute to
-		# point-to-point scatter), so only those are inflated, iterated until the
-		# whitened chi-square per degree of freedom is consistent with 1.
-		S2 = 1.0
-		for _ in range(4):
-			Vp = V if S2==1.0 else (V+(S2-1.0)*Vi if Vi is not None else V*S2)
-			fit, cv = curve_fit(func, X, Y, sigma=Vp, p0=p0, bounds=(0.0, np.inf), absolute_sigma=True)
-			r = Y-np.dot(fit, X)
-			chi2n = float(r @ np.linalg.solve(Vp, r))/dof if dof>0 else np.inf
-			if not (scale_factor and dof>0 and np.isfinite(chi2n) and chi2n>1.0):
-				break
-			S2 = S2*chi2n
-		return fit, cv
+		with np.errstate(all='ignore'):
+			fit, cv = curve_fit(func, X, Y, sigma=dY, p0=p0, bounds=(0.0, np.inf), absolute_sigma=True)
+			dof = len(Y)-len(fit)
+			if cov is not None:
+				V, Vi = np.asarray(cov, dtype=np.float64), None
+			else:
+				V, Vi = self._counts_covariance(fc, np.abs(np.dot(fit, X)), corr, corr_group, norm_frac)
+			if V is None:
+				_log.warning(self._loc(label)+': counts carry only total uncertainties, so correlated systematics (shared gamma intensities, efficiencies) cannot be separated and unc_R may be underestimated. Provide decomposition columns (see get_counts) or the corr= option.')
+				r = Y-np.dot(fit, X)
+				chi2n = np.sum(r**2/dY**2)/dof if dof>0 else np.inf
+				scale, scale_note = 1.0, None
+				if scale_factor and dof>0 and np.isfinite(chi2n) and chi2n>1.0:
+					cv = cv*chi2n
+					scale = float(np.sqrt(chi2n))
+					scale_note = 'uncertainties scaled x{0:.2f}'.format(scale)
+				return fit, cv, chi2n, scale, scale_note
+			# One-sided scale factor: mutually inconsistent data can only indict the
+			# INDEPENDENT error components (the correlated modes do not contribute to
+			# point-to-point scatter), so only those are inflated, iterated until the
+			# whitened chi-square per degree of freedom is consistent with 1.
+			S2, chi2_fit = 1.0, np.inf
+			for it in range(4):
+				Vp = V if S2==1.0 else (V+(S2-1.0)*Vi if Vi is not None else V*S2)
+				fit, cv = curve_fit(func, X, Y, sigma=Vp, p0=p0, bounds=(0.0, np.inf), absolute_sigma=True)
+				r = Y-np.dot(fit, X)
+				chi2n = float(r @ np.linalg.solve(Vp, r))/dof if dof>0 else np.inf
+				if it==0:
+					chi2_fit = chi2n
+				if not (scale_factor and dof>0 and np.isfinite(chi2n) and chi2n>1.0):
+					break
+				S2 = S2*chi2n
+		scale = float(np.sqrt(S2)) if S2!=1.0 else 1.0
+		scale_note = 'independent uncertainty components scaled x{0:.2f}'.format(scale) if S2!=1.0 else None
+		return fit, cv, chi2_fit, scale, scale_note
 
-	@property	
+	def _filter_counts(self, cfg, label):
+		# The count-selection filters shared by fit_R/fit_A0, each removal
+		# announced at DEBUG and counted for the summary. The max_error/
+		# min_counts selection is identical to
+		# (counts>min_counts)&(unc_counts<max_error*counts).
+		if self._counts is None:
+			raise ValueError(self._loc(label)+' requires count data: set dc.counts or call dc.get_counts(...) first.')
+		cts = self.counts
+		max_error, min_counts = cfg['max_error'], cfg['min_counts']
+		low = ~(cts['counts']>min_counts)
+		err = (~low)&(~(cts['unc_counts']<max_error*cts['counts']))
+		gone = low|err
+		has_E = 'energy' in cts.columns
+
+		def _line(c):
+			if has_E and pd.notna(c['energy']):
+				return ' ({0:.1f} keV)'.format(c['energy'])
+			return ''
+
+		for _, c in cts[low].iterrows():
+			_log.debug(self._loc(label)+': dropped {0} count at t={1:.4g} {2}{3}: counts {4:.4g} <= min_counts {5}'.format(c['isotope'], c['start'], self.units, _line(c), c['counts'], min_counts))
+		for _, c in cts[err].iterrows():
+			_log.debug(self._loc(label)+': dropped {0} count at t={1:.4g} {2}{3}: relative error {4:.0f}% > max_error {5:.0f}%'.format(c['isotope'], c['start'], self.units, _line(c), 100.0*c['unc_counts']/c['counts'], 100.0*max_error))
+
+		# named lines removed regardless of quality
+		excl = pd.Series(False, index=cts.index)
+		if cfg['exclude_lines'] is not None:
+			entries = cfg['exclude_lines']
+			# the natural single-pair form ('152EU', 444.0) is one entry
+			if len(entries)==2 and isinstance(entries[0], str) and isinstance(entries[1], numbers.Real):
+				entries = [tuple(entries)]
+			for entry in entries:
+				if isinstance(entry, (list, tuple)) and not (len(entry)==2 and isinstance(entry[0], str) and isinstance(entry[1], numbers.Real)):
+					raise ValueError(self._loc(label)+': exclude_lines entries must be an isotope name or an (isotope, energy_keV) pair (got {0!r}).'.format(entry))
+				if isinstance(entry, str):
+					m = cts['isotope']==self._filter_name(entry)
+					if not m.any():
+						_log.warning(self._loc(label)+": exclude_lines entry '{0}' matches no counts - no {1} lines in the count data; entry ignored".format(entry, self._filter_name(entry)))
+						continue
+					excl |= m
+				else:
+					ip, E = self._filter_name(entry[0]), float(entry[1])
+					if not has_E:
+						_log.warning(self._loc(label)+': exclude_lines entry ({0}, {1:g}) needs the per-line energy column from decomposed count data (see get_counts); entry ignored'.format(ip, E))
+						continue
+					engs = cts.loc[cts['isotope']==ip, 'energy'].dropna().unique()
+					if not len(engs):
+						_log.warning(self._loc(label)+': exclude_lines entry ({0}, {1:g}) matches no counts - no {0} lines in the count data; entry ignored'.format(ip, E))
+						continue
+					near = float(engs[np.argmin(np.abs(engs-E))])
+					if abs(near-E)>0.5:
+						_log.warning(self._loc(label)+': exclude_lines entry ({0}, {1:g}) matches no line within 0.5 keV - nearest {0} line is {2:.1f} keV; entry ignored'.format(ip, E, near))
+						continue
+					excl |= (cts['isotope']==ip)&(cts['energy']==near)
+		excl &= ~gone
+		for _, c in cts[excl].iterrows():
+			_log.debug(self._loc(label)+': excluded {0} count at t={1:.4g} {2}{3}: exclude_lines'.format(c['isotope'], c['start'], self.units, _line(c)))
+		gone |= excl
+
+		# counts outside a per-isotope time window (chain units, count start
+		# time; None leaves that side open)
+		tim = pd.Series(False, index=cts.index)
+		win = {}
+		if cfg['time_range'] is not None:
+			win = {self._filter_name(k): v for k, v in cfg['time_range'].items()}
+			for ip in win:
+				t_lo, t_hi = win[ip]
+				m = cts['isotope']==ip
+				if t_lo is not None:
+					tim |= m&(cts['start']<t_lo)
+				if t_hi is not None:
+					tim |= m&(cts['start']>t_hi)
+		tim &= ~gone
+		for _, c in cts[tim].iterrows():
+			t_lo, t_hi = win[c['isotope']]
+			_log.debug(self._loc(label)+': excluded {0} count at t={1:.4g} {2}{3}: outside time_range ({4}, {5})'.format(c['isotope'], c['start'], self.units, _line(c), t_lo, t_hi))
+		gone |= tim
+
+		# counts whose originating peak fit was poor; counts without a chi2
+		# column entry are unaffected (NaN fails the comparison)
+		chi = pd.Series(False, index=cts.index)
+		if cfg['max_chi2'] is not None:
+			if 'chi2' not in cts.columns:
+				_log.warning(self._loc(label)+': max_chi2 is set but the counts carry no peak-fit chi2 column (see get_counts) - filter has no effect')
+			else:
+				chi = (cts['chi2']>cfg['max_chi2'])&(~gone)
+				for _, c in cts[chi].iterrows():
+					_log.debug(self._loc(label)+': dropped {0} count at t={1:.4g} {2}{3}: peak fit chi2/dof {4:.3g} > max_chi2 {5:g}'.format(c['isotope'], c['start'], self.units, _line(c), c['chi2'], cfg['max_chi2']))
+				gone |= chi
+
+		drops = {'err':int(err.sum()), 'low':int(low.sum()), 'lines':int(excl.sum()),
+				 'time':int(tim.sum()), 'chi2':int(chi.sum())}
+		keep = cts[~gone]
+		if not len(keep):
+			raise ValueError(self._loc(label)+': 0 of {0} counts pass the filters ({1}). Loosen the filters (see dc.fit_config) or check the count data.'.format(len(cts), '; '.join(self._drop_parts(drops, cfg))))
+		return keep, drops
+
+	def _drop_parts(self, drops, cfg):
+		# summary clauses for the count filters, in the order they are applied
+		parts = []
+		if drops['err']:
+			parts.append('{0} dropped: relative error>{1:.0f}%'.format(drops['err'], 100.0*cfg['max_error']))
+		if drops['low']:
+			parts.append('{0} dropped: counts<={1}'.format(drops['low'], cfg['min_counts']))
+		if drops['lines']:
+			parts.append('{0} excluded: exclude_lines'.format(drops['lines']))
+		if drops['time']:
+			parts.append('{0} outside time_range'.format(drops['time']))
+		if drops['chi2']:
+			parts.append('{0} dropped: peak chi2>{1:g}'.format(drops['chi2'], cfg['max_chi2']))
+		return parts
+
+	def _log_gls_summary(self, label, what, n_fit, n_used, n_tot, drops, cfg, chi2, scale_note=None):
+		# logs the fit summary and returns its body for the diagnostics table
+		parts = self._drop_parts(drops, cfg)
+		body = 'fit {0} {1} to {2}/{3} counts'.format(n_fit, what, n_used, n_tot)
+		if parts:
+			body += ' ({0})'.format('; '.join(parts))
+		body += '; chi2/dof={0:.2g}'.format(chi2)
+		if scale_note:
+			body += '; '+scale_note
+		_log.info(self._loc(label)+': '+body)
+		return body
+
+	def _diagnose_gls(self, label, what, isotopes, fit, p0, chi2, dof, n_points, n_dropped, scale, singular, body):
+		# Per-isotope diagnostics rows for fit_R/fit_A0 (joint scalars repeated
+		# on every row), surfacing the unmoved flag as a warning; returns the
+		# assembled frame. Emitted-warning text rides in the message column.
+		unmoved = np.isclose(fit, p0, rtol=1E-9, atol=0.0)
+		par = 'R' if label=='fit_R' else 'A0'
+		rows = []
+		for n, ip in enumerate(isotopes):
+			flags, msgs = [], [body]
+			if fit[n]==0.0:
+				flags.append('at_bound:'+par)
+			if unmoved[n]:
+				msg = '{0} {1} unchanged from initial estimate - fit may not have converged (flag: unmoved)'.format(ip, what)
+				_log.warning(self._loc(label)+': '+msg)
+				flags.append('unmoved')
+				msgs.append(msg)
+			if singular:
+				flags.append('singular_cov')
+				msgs.append('covariance estimate is singular - quoted uncertainties are unreliable (flag: singular_cov)')
+			rows.append({'fit':label, 'chi2':(chi2 if (dof>0 and np.isfinite(chi2)) else np.nan), 'dof':int(dof),
+						 'n_points':int(n_points), 'n_dropped':int(n_dropped), 'converged':True,
+						 'model':'', 'scale_factor':float(scale), 'flags':','.join(flags),
+						 'message':'; '.join(msgs), 'isotope':ip})
+		return _diagnostics_frame(rows, extras={'isotope': object})
+
+	@property
+	def diagnostics(self):
+		"""Fit diagnostics from the most recent fit_R or fit_A0 call
+
+		Read-only pd.DataFrame with one row per fitted isotope (`fit` is
+		'fit_R' or 'fit_A0'; the fit is joint, so chi2, dof, n_points,
+		n_dropped and scale_factor repeat on every row): columns chi2
+		(reduced, of the unscaled fit), dof, n_points (counts the fit used),
+		n_dropped (counts removed by the max_error/min_counts filters),
+		converged, model ('' - the chain fit has no model selection),
+		scale_factor (uncertainty inflation applied;
+		1.0 = none), flags (comma-joined, e.g. 'unmoved', 'at_bound:R',
+		'singular_cov'), message (summary and warning text) and isotope.
+		Empty (with the full schema) before any fit; rebuilt on each
+		`fit_R()`/`fit_A0()` call.  Accessing it never triggers a fit.
+		"""
+		if self._diagnostics is None:
+			return _diagnostics_frame(extras={'isotope': object})
+		return self._diagnostics.copy()
+
+	def _isolated_A0(self, ip):
+		# end-of-production activities produced by isotope ip's schedule alone
+		time = np.insert(np.unique(self.R['time']), 0, [0.0])
+		A0 = {p:0.0 for p in self.A0}
+		for n,dt in enumerate(time[1:]-time[:-1]):
+			_R_dict = {ip:self.R[self.R['isotope']==ip].iloc[n]['R']}
+			A0 = {p:self.activity(p, dt, _R_dict=_R_dict, _A_dict=A0) for p in self.A0}
+		return A0
+
+	def _band_sigma(self, istp, time):
+		# 1-sigma activity uncertainty from the stored fit covariance: the
+		# activity is linear in the fitted multipliers, so the band is exact.
+		# Basis curve b_i(t) = activity of istp produced by fitted isotope i
+		# alone at the current (fitted) R/A0; var(t) = b C_rel b^T with C_rel
+		# the relative covariance of the fitted multipliers. Returns None when
+		# no usable fit record exists.
+		fr = self._fit_result
+		if fr is None:
+			return None
+		fit = np.asarray(fr['fit'], dtype=np.float64)
+		cov = np.asarray(fr['cov'], dtype=np.float64)
+		if not (np.all(fit>0) and np.all(np.isfinite(cov))):
+			return None
+		C_rel = cov/np.outer(fit, fit)
+		B = []
+		if fr['label']=='fit_R':
+			for ip in fr['isotopes']:
+				B.append(self.activity(istp, time, _A_dict=self._isolated_A0(ip)))
+		else:
+			for ip in fr['isotopes']:
+				A0 = {p:(self.A0[p] if p==ip else 0.0) for p in self.A0}
+				B.append(self.activity(istp, time, _A_dict=A0))
+		B = np.asarray(B, dtype=np.float64)
+		var = np.einsum('it,ij,jt->t', B, C_rel, B)
+		return np.sqrt(var)
+
+	@property
 	def R_avg(self):
 		df = []
 		for ip in np.unique(self.R['isotope']):
@@ -728,14 +1006,18 @@ class DecayChain(object):
 			df.append({'isotope':ip, 'R_avg':np.average(self.R[self.R['isotope']==ip]['R'], weights=time[1:]-time[:-1])})
 		return pd.DataFrame(df)
 		
-	def fit_R(self, max_error=0.4, min_counts=1, corr=None, corr_group=None, norm_frac=1.0, scale_factor=True, cov=None):
+	def fit_R(self, **kwargs):
 		"""Fit the production rate to count data
 
 		Fits a scalar multiplier to the production rate (as a function of time) for
 		each isotope specified in self.R.  The fit minimizes to the number of
-		measured decays (self.counts) as a function of time, rather than the 
+		measured decays (self.counts) as a function of time, rather than the
 		activity, because the activity at each time point may be sensitive to
 		the shape of the decay curve.
+
+		Keyword arguments other than `p0` and `cov` are `fit_config` keys: they
+		merge into `dc.fit_config` (like `Spectrum.fit_config`) and persist for
+		subsequent fits.
 
 		Parameters
 		----------
@@ -746,6 +1028,28 @@ class DecayChain(object):
 		min_counts : float or int, optional
 			The minimum number of counts (decays) for a datum in self.counts to be included
 			in the fit. Default, 1.
+
+		max_chi2 : float, optional
+			Exclude counts whose originating peak fit had chi2/dof above this
+			bound (needs the `chi2` column `get_counts` carries over from the
+			peak data; counts without one are unaffected). Default `None` (off).
+
+		exclude_lines : list, optional
+			Named lines to exclude from the fit: entries are an isotope name
+			('152EU') or an (isotope, energy_keV) tuple.  The energy matches the
+			closest of that isotope's line energies in the counts, accepted
+			within +-0.5 keV; an entry matching nothing excludes nothing and
+			warns, naming the nearest candidate.  Default `None` (off).
+
+		time_range : dict, optional
+			Per-isotope count-time window, `{isotope: (t_lo, t_hi)}` in chain
+			units; `None` for an open bound (e.g. `{'196AUm2': (None, 60.0)}`).
+			Counts starting outside the window are excluded.  Default `None` (off).
+
+		unc_R_floor : float, optional
+			Relative floor on the returned production-rate uncertainty:
+			unc_R >= floor x R, per isotope, applied after the fit (announced).
+			E.g. 0.05 keeps every unc_R at or above 5%.  Default `None` (off).
 
 		corr : float, optional
 			Opt-in uniform-correlation mode for counts that carry only total
@@ -768,9 +1072,14 @@ class DecayChain(object):
 			per degree of freedom when that exceeds 1 (mutually inconsistent
 			count data); it is never deflated.
 
+		p0 : dict, optional
+			Starting estimate override, `{isotope: R_estimate}` in production-rate
+			units: seeds the fit at the given rate instead of the data-derived
+			estimate (kwarg only - not a fit_config key). Default `None`.
+
 		cov : array_like, optional
 			Full covariance matrix of the count data, overriding the assembled
-			one. For advanced use.
+			one. For advanced use (kwarg only - not a fit_config key).
 
 
 		Returns
@@ -793,9 +1102,14 @@ class DecayChain(object):
 		>>> dc = ci.DecayChain('152EU', R=[[3E5, 36.0]], units='d')
 		>>> dc.get_counts([sp], EoB='01/01/2016 08:39:08')
 		>>> print(dc.fit_R())
-		(array(['152EUg'], dtype=object), array([1291584.51735774]), array([[1.67412376e+09]]))
+		(['152EUg'], array([27527059.31414273]), array([[2.03699956e+11]]))
 
 		"""
+
+		p0_user = kwargs.pop('p0', None)
+		cov = kwargs.pop('cov', None)
+		self.fit_config = kwargs
+		cfg = self.fit_config
 
 		if self.R is None:
 			raise ValueError('Cannot fit R: R=0.')
@@ -803,26 +1117,39 @@ class DecayChain(object):
 		X = []
 		R_isotopes = [i for i in self.isotopes if i in pd.unique(self.R['isotope'])]
 		time = np.insert(np.unique(self.R['time']), 0, [0.0])
-		filter_counts = self.counts[(self.counts['counts']>min_counts)&(self.counts['unc_counts']<max_error*self.counts['counts'])]
+		filter_counts, drops = self._filter_counts(cfg, 'fit_R')
 
 		for ip in R_isotopes:
-			A0 = {p:0.0 for p in self.A0}
-			for n,dt in enumerate(time[1:]-time[:-1]):
-				_R_dict = {ip:self.R[self.R['isotope']==ip].iloc[n]['R']}
-				A0 = {p:self.activity(p, dt, _R_dict=_R_dict, _A_dict=A0) for p in self.A0}
-
+			A0 = self._isolated_A0(ip)
 			X.append([self.decays(c['isotope'], c['start'], c['stop'], _A_dict=A0) for n,c in filter_counts.iterrows()])
 
 		X = np.array(X)
 		Y = filter_counts['counts'].to_numpy()
 		dY = filter_counts['unc_counts'].to_numpy()
 
-		
-		wh = np.array([np.all(x>0) for x in X.T])
-		p0 = np.average(Y[wh]/X[:,wh], axis=1)
-		p0 = np.where((p0>0)&(np.isfinite(p0)), p0, 1.0)
+		with np.errstate(divide='ignore', invalid='ignore'):
+			wh = np.array([np.all(x>0) for x in X.T])
+			p0 = np.average(Y[wh]/X[:,wh], axis=1)
+			p0 = np.where((p0>0)&(np.isfinite(p0)), p0, 1.0)
 
-		fit, cov = self._gls_fit(X, Y, dY, filter_counts, p0, corr, corr_group, norm_frac, scale_factor, cov)
+		if p0_user is not None:
+			# user seed is a production rate; the fitted parameter is a scalar
+			# multiplier on the current R schedule, so convert through R_avg
+			if not isinstance(p0_user, dict):
+				raise ValueError(self._loc('fit_R')+': p0 must be a dict of {{isotope: R_estimate}} (got {0} {1!r})'.format(type(p0_user).__name__, p0_user))
+			R_avg = self.R_avg
+			for ip in p0_user:
+				name = self._filter_name(ip)
+				if name not in R_isotopes:
+					_log.warning(self._loc('fit_R')+": p0 entry '{0}' is not a fitted isotope ([{1}]); entry ignored".format(ip, ', '.join(R_isotopes)))
+					continue
+				ra = float(R_avg[R_avg['isotope']==name]['R_avg'].to_numpy()[0])
+				if ra>0 and np.isfinite(ra):
+					p0[R_isotopes.index(name)] = float(p0_user[ip])/ra
+					_log.debug(self._loc('fit_R')+': starting estimate for {0} seeded at R={1:.4g}'.format(name, float(p0_user[ip])))
+
+		fit, cov, chi2, scale, scale_note = self._gls_fit(X, Y, dY, filter_counts, p0, cfg['corr'], cfg['corr_group'], cfg['norm_frac'], cfg['scale_factor'], cov, 'fit_R')
+		body = self._log_gls_summary('fit_R', 'production rates', len(R_isotopes), len(filter_counts), len(self.counts), drops, cfg, chi2, scale_note)
 
 
 		for n,ip in enumerate(R_isotopes):
@@ -838,18 +1165,42 @@ class DecayChain(object):
 
 		R_avg = self.R_avg
 		R_norm = np.array([R_avg[R_avg['isotope']==i]['R_avg'].to_numpy()[0] for i in R_isotopes])
-		if not np.any(np.isfinite(np.diag(cov))):
+		singular = not np.any(np.isfinite(np.diag(cov)))
+		if singular:
+			_log.warning(self._loc('fit_R')+': covariance estimate is singular - quoted uncertainties are unreliable (flag: singular_cov)')
 			cov = np.ones(cov.shape)*((np.average(dY/Y))*fit)**2
-		return R_isotopes, R_norm, cov*(R_norm/fit)**2
+		if cfg['unc_R_floor'] is not None:
+			# relative floor on the multiplier-space diagonal: cov_norm and the
+			# plot band inherit it (raising a diagonal keeps the matrix PSD)
+			for n, ip in enumerate(R_isotopes):
+				rel = np.sqrt(cov[n][n])/fit[n] if fit[n]>0 else np.inf
+				if rel < cfg['unc_R_floor']:
+					_log.info(self._loc('fit_R')+': unc_R for {0} raised to the floor {1:.3g}% of R (fit gave {2:.3g}%)'.format(ip, 100.0*cfg['unc_R_floor'], 100.0*rel))
+					cov[n][n] = (cfg['unc_R_floor']*fit[n])**2
+		dof = len(Y)-len(fit)
+		self._diagnostics = self._diagnose_gls('fit_R', 'production rate', R_isotopes, fit, p0, chi2, dof,
+											   len(filter_counts), sum(drops.values()), scale, singular, body)
+		cov_norm = cov*(R_norm/fit)**2
+		# private fit record: enough to reconstruct the fitted curve and its
+		# uncertainty band (plotting), and which counts the fit used, without
+		# re-running the fit
+		self._fit_result = {'label':'fit_R', 'isotopes':R_isotopes, 'fit':fit, 'cov':cov, 'p0':p0,
+							'chi2':chi2, 'dof':dof, 'scale_factor':scale, 'value':R_norm, 'cov_norm':cov_norm,
+							'used':filter_counts.index.to_numpy()}
+		return R_isotopes, R_norm, cov_norm
 		
-	def fit_A0(self, max_error=0.4, min_counts=1, corr=None, corr_group=None, norm_frac=1.0, scale_factor=True, cov=None):
+	def fit_A0(self, **kwargs):
 		"""Fit the initial activity to count data
 
 		Fits a scalar multiplier to the initial activity for
 		each isotope specified in self.A0.  The fit minimizes to the number of
-		measured decays (self.counts) as a function of time, rather than the 
+		measured decays (self.counts) as a function of time, rather than the
 		activity, because the activity at each time point may be sensitive to
 		the shape of the decay curve.
+
+		Keyword arguments other than `cov` are `fit_config` keys: they merge
+		into `dc.fit_config` (like `Spectrum.fit_config`) and persist for
+		subsequent fits.
 
 		Parameters
 		----------
@@ -860,6 +1211,23 @@ class DecayChain(object):
 		min_counts : float or int, optional
 			The minimum number of counts (decays) for a datum in self.counts to be included
 			in the fit. Default, 1.
+
+		max_chi2 : float, optional
+			Exclude counts whose originating peak fit had chi2/dof above this
+			bound (needs the `chi2` column `get_counts` carries over from the
+			peak data; counts without one are unaffected). Default `None` (off).
+
+		exclude_lines : list, optional
+			Named lines to exclude from the fit: entries are an isotope name
+			('152EU') or an (isotope, energy_keV) tuple.  The energy matches the
+			closest of that isotope's line energies in the counts, accepted
+			within +-0.5 keV; an entry matching nothing excludes nothing and
+			warns, naming the nearest candidate.  Default `None` (off).
+
+		time_range : dict, optional
+			Per-isotope count-time window, `{isotope: (t_lo, t_hi)}` in chain
+			units; `None` for an open bound.  Counts starting outside the
+			window are excluded.  Default `None` (off).
 
 		corr : float, optional
 			Opt-in uniform-correlation mode for counts that carry only total
@@ -884,7 +1252,7 @@ class DecayChain(object):
 
 		cov : array_like, optional
 			Full covariance matrix of the count data, overriding the assembled
-			one. For advanced use.
+			one. For advanced use (kwarg only - not a fit_config key).
 
 
 		Returns
@@ -906,17 +1274,22 @@ class DecayChain(object):
 
 		>>> dc = ci.DecayChain('152EU', A0=3.7E4, units='d')
 		>>> dc.get_counts([sp], EoB='01/01/2016 08:39:08')
-		>>> print(dc.fit_A0())
-		(['152EUg'], array([6501.93665952]), array([[42425.53832341]]))
+		>>> itp, A0, cov = dc.fit_A0()
+		>>> print(itp[0], A0[0])
+		152EUg 138582.75831764835
 
 		"""
+
+		cov = kwargs.pop('cov', None)
+		self.fit_config = kwargs
+		cfg = self.fit_config
 
 		if self.R is not None:
 			raise ValueError('Cannot fit A0 when R!=0.')
 
 		X = []
 		A0_isotopes = [i for i in self.isotopes if i in self.A0]
-		filter_counts = self.counts[(self.counts['counts']>min_counts)&(self.counts['unc_counts']<max_error*self.counts['counts'])]
+		filter_counts, drops = self._filter_counts(cfg, 'fit_A0')
 		for ip in A0_isotopes:
 			A0 = {p:(self.A0[p] if p==ip else 0.0) for p in self.A0}
 			X.append([self.decays(c['isotope'], c['start'], c['stop'], _A_dict=A0) for n,c in filter_counts.iterrows()])
@@ -926,7 +1299,8 @@ class DecayChain(object):
 		dY = filter_counts['unc_counts'].to_numpy()
 
 		p0 = np.ones(len(X))
-		fit, cov = self._gls_fit(X, Y, dY, filter_counts, p0, corr, corr_group, norm_frac, scale_factor, cov)
+		fit, cov, chi2, scale, scale_note = self._gls_fit(X, Y, dY, filter_counts, p0, cfg['corr'], cfg['corr_group'], cfg['norm_frac'], cfg['scale_factor'], cov, 'fit_A0')
+		body = self._log_gls_summary('fit_A0', 'initial activities', len(A0_isotopes), len(filter_counts), len(self.counts), drops, cfg, chi2, scale_note)
 
 		for n,ip in enumerate(A0_isotopes):
 			self.A0[ip] *= fit[n]
@@ -934,7 +1308,18 @@ class DecayChain(object):
 		self.counts = self.counts
 
 		A_norm = np.array([self.A0[i] for i in A0_isotopes])
-		return A0_isotopes, A_norm, cov*(A_norm/fit)**2
+		singular = not np.any(np.isfinite(np.diag(cov)))
+		if singular:
+			_log.warning(self._loc('fit_A0')+': covariance estimate is singular - quoted uncertainties are unreliable (flag: singular_cov)')
+			cov = np.ones(cov.shape)*((np.average(dY/Y))*fit)**2
+		dof = len(Y)-len(fit)
+		self._diagnostics = self._diagnose_gls('fit_A0', 'initial activity', A0_isotopes, fit, p0, chi2, dof,
+											   len(filter_counts), sum(drops.values()), scale, singular, body)
+		cov_norm = cov*(A_norm/fit)**2
+		self._fit_result = {'label':'fit_A0', 'isotopes':A0_isotopes, 'fit':fit, 'cov':cov, 'p0':p0,
+							'chi2':chi2, 'dof':dof, 'scale_factor':scale, 'value':A_norm, 'cov_norm':cov_norm,
+							'used':filter_counts.index.to_numpy()}
+		return A0_isotopes, A_norm, cov_norm
 		
 	def plot(self, time=None, max_plot=10, max_label=10, max_plot_error=0.4, max_plot_chi2=10, **kwargs):
 		"""Plot the activities in the decay chain
@@ -956,12 +1341,14 @@ class DecayChain(object):
 			Maximum number of isotope activities to label in the legend. Default, 10.
 
 		max_plot_error : float, optional
-			The maximum relative error of a count point to include on the plot. E.g. 0.25=25%
-			(ony points with less than 25% error will be shown). Default, 0.4.
+			The maximum relative error of a count point to draw as a filled
+			marker. E.g. 0.25=25%.  Points above the threshold are drawn as
+			open grey markers rather than hidden.  Default, 0.4.
 
 		max_plot_chi2 : float or int, optional
-			Maximum chi^2 of a count point to include on the plot. Only points with a chi^2
-			less than this value will be shown. Default, 10.
+			Maximum chi^2 of a count point to draw as a filled marker.  Points
+			above the threshold are drawn as open grey markers rather than
+			hidden.  Default, 10.
 
 		Other Parameters
 		----------------
@@ -1016,6 +1403,8 @@ class DecayChain(object):
 
 
 		plot_time = time if self.R is None else np.append(T_grid-T_grid[-1], time.copy())
+		band_label, excl_label = r'fit $\pm 1\sigma$', 'excluded from fit/plot'
+		excluded = []
 		for n,istp in enumerate(self.isotopes):
 			if self._chain[n,0]>1E-12*self._r_lm(self.units, True) and n<max_plot:
 				A = self.activity(istp, time)
@@ -1025,20 +1414,42 @@ class DecayChain(object):
 				label = Isotope(istp).TeX if n<max_label else None
 				line, = ax.plot(plot_time, A*mult, label=label)
 
+				sig = self._band_sigma(istp, time)
+				if sig is not None:
+					A_dec = self.activity(istp, time)
+					ax.fill_between(time, (A_dec-sig)*mult, (A_dec+sig)*mult,
+									color=line.get_color(), alpha=0.2, lw=0, label=band_label)
+					band_label = None
+
 				if self.counts is not None:
 					df = self.counts[self.counts['isotope']==istp]
 					if len(df):
 						x, y, yerr = df['start'].to_numpy(), df['activity'].to_numpy(), df['unc_activity'].to_numpy()
-						idx = np.where((max_plot_error*y>yerr)&(yerr>0.0)&(np.isfinite(yerr)))
-						if len(x[idx]>0):
-							x, y, yerr = x[idx], y[idx], yerr[idx]
-						idx = np.where((self.activity(istp, x)-y)**2/yerr**2<max_plot_chi2)
-						if len(x[idx]>0):
-							x, y, yerr = x[idx], y[idx], yerr[idx]
-					
-						ax.errorbar(x, y*mult, yerr=yerr*mult, ls='None', marker='o', color=line.get_color(), label=None)
+						# points the fit or the plot thresholds set aside stay
+						# visible as open grey markers - a clean-looking plot
+						# must not hide points the fit had to contend with
+						shown = np.ones(len(df), dtype=bool)
+						if self._fit_result is not None and 'used' in self._fit_result:
+							shown &= df.index.isin(self._fit_result['used'])
+						with np.errstate(divide='ignore', invalid='ignore'):
+							shown &= (max_plot_error*y>yerr)&(yerr>0.0)&(np.isfinite(yerr))
+							shown &= (self.activity(istp, x)-y)**2/yerr**2<max_plot_chi2
 
+						if shown.any():
+							ax.errorbar(x[shown], y[shown]*mult, yerr=yerr[shown]*mult, ls='None', marker='o', color=line.get_color(), label=None)
+						if (~shown).any():
+							excluded.append((x[~shown], y[~shown]*mult, yerr[~shown]*mult))
 
+		if excluded:
+			# drawn after the y-limits are frozen from the fitted curves and
+			# used points, and underneath them: a wild excluded point must not
+			# set the scale or cover the data it was excluded from
+			yl = ax.get_ylim()
+			for x, y, yerr in excluded:
+				ax.errorbar(x, y, yerr=yerr, ls='None', marker='o', mfc='none',
+							color='0.6', alpha=0.7, zorder=1.5, label=excl_label)
+				excl_label = None
+			ax.set_ylim(yl)
 
 		ax.set_xlabel('Time ({})'.format(self.units))
 		ax.set_ylabel('Activity ({}Bq)'.format(lb_or))
