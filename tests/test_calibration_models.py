@@ -38,12 +38,13 @@ def test_fit_config_validator(capsys):
 
 @requires_data('decay')
 def test_zero_config_identity():
-    # recorded from the identical calibration immediately before the model
-    # rework (fitting-0.2.0 at e44e9be) - a change means a default moved
+    # recorded at the doublet-merge fix on fitting-0.2.0 (the 443.96/444.01
+    # pair now merges, correcting a 9x-wrong efficiency point and moving the
+    # whole curve by several percent) - a change means a default moved
     cb = ci.Calibration()
     cb.calibrate([eu_sp()], sources=EU_SOURCES)
-    np.testing.assert_allclose(cb.effcal, [5.022063877494E-2, 9.960903894606E1, 2.820023721582,
-                                           2.455838002731, 2.917105791164E-1], rtol=1E-8)
+    np.testing.assert_allclose(cb.effcal, [4.787711897619E-2, 9.999103354365E1, 2.101080969385,
+                                           1.903741571398, 3.955259640760E-1], rtol=1E-8)
     assert (cb._engcal_model, cb._rescal_model, cb._effcal_model) == ('quadratic', 'linear', 'vidmar-5')
     assert cb.diagnostics.set_index('fit')['model'].to_dict() == {
         'engcal': 'quadratic', 'rescal': 'linear', 'effcal': 'vidmar-5'}
@@ -158,7 +159,7 @@ def test_eff_points_augment(capsys):
 @requires_data('decay')
 def test_threshold_knobs(capsys):
     cb = ci.Calibration()
-    cb.calibrate([eu_sp()], sources=EU_SOURCES, effcal_max_error=0.1, outlier_chi2=1E9)
+    cb.calibrate([eu_sp()], sources=EU_SOURCES, effcal_max_error=0.1, outlier_sigma=1E9)
     out = capsys.readouterr().out
     assert 'dropped: unc>10% of value' in out
     assert 'outliers' not in out.split('effcal')[-1]

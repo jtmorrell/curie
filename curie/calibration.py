@@ -25,7 +25,7 @@ _FIT_CONFIG_SPEC = {'engcal_model': _choice(['linear', 'quadratic', 'cubic'], al
 					'effcal_model': _choice(['vidmar', 'vidmar-5', 'vidmar-7', 'loglog'], allow_none=True),
 					'effcal_order': _Check(lambda v: _is_int(v) and 2<=int(v)<=8, 'an integer in 2..8'),
 					'engcal_max_error': NUMBER, 'rescal_max_error': NUMBER,
-					'effcal_max_error': NUMBER, 'outlier_chi2': NUMBER}
+					'effcal_max_error': NUMBER, 'outlier_sigma': NUMBER}
 
 # parameter-count maps for the explicit model tags; effcal loglog is absent
 # deliberately (its length overlaps vidmar's, so the tag is load-bearing)
@@ -198,7 +198,7 @@ class Calibration(object):
 		self._extrap_warned = False
 		self._fit_config = {'engcal_model':None, 'rescal_model':None, 'effcal_model':None,
 							'effcal_order':4, 'engcal_max_error':0.25, 'rescal_max_error':0.33,
-							'effcal_max_error':0.33, 'outlier_chi2':10.0}
+							'effcal_max_error':0.33, 'outlier_sigma':10**0.5}
 
 		if filename is not None:
 			if filename.endswith('.json'):
@@ -595,6 +595,12 @@ class Calibration(object):
 
 		"""
 
+		return np.array(np.rint(self._map_channel_f(energy, engcal)), dtype=np.int32)
+
+	def _map_channel_f(self, energy, engcal=None):
+		# the unrounded inverse of the energy calibration: comparisons of line
+		# positions (e.g. the unresolvable-gamma grouping) must use the float
+		# channel - rounded channels make them fragile at channel boundaries
 		energy = np.asarray(energy)
 
 		if engcal is None:
@@ -613,18 +619,18 @@ class Calibration(object):
 					if not len(r):
 						raise ValueError('Energy calibration {0} cannot be inverted at energy {1} (no real root).'.format(list(engcal), E))
 					ch.append(r[np.argmin(np.abs(r-e0))])
-				return np.array(np.rint(np.array(ch).reshape(energy.shape) if energy.shape else ch[0]), dtype=np.int32)
+				return np.array(np.array(ch).reshape(energy.shape) if energy.shape else ch[0], dtype=np.float64)
 
 		if len(engcal)>=3:
 			if engcal[2]!=0.0:
 				disc = engcal[1]**2-4.0*engcal[2]*(engcal[0]-energy)
 				if np.any(disc<0.0):
 					raise ValueError('Energy calibration {0} cannot be inverted at energy {1} (negative discriminant).'.format(list(engcal), np.atleast_1d(energy)[np.atleast_1d(disc<0.0)].tolist()))
-				return np.array(np.rint(0.5*(np.sqrt(disc)-engcal[1])/engcal[2]), dtype=np.int32)
+				return np.asarray(0.5*(np.sqrt(disc)-engcal[1])/engcal[2], dtype=np.float64)
 
 		if engcal[1]==0.0:
 			raise ValueError('Energy calibration {} cannot be inverted (zero slope).'.format(list(engcal)))
-		return np.array(np.rint((energy-engcal[0])/engcal[1]), dtype=np.int32)
+		return np.asarray((energy-engcal[0])/engcal[1], dtype=np.float64)
 
 	def _rescal_seed(self, model, p0, x, y):
 		# starting estimate for the requested resolution model: the current
@@ -696,6 +702,9 @@ class Calibration(object):
 				continue
 			n = len(np.atleast_1d(d[x_col]))
 			f = {c:(np.atleast_1d(d[c]) if c in d else np.array(['']*n, dtype=object)) for c in cols}
+			if 'isotope' in cols and 'isotope' not in d and 'line' in d:
+				# stored as the line label alone ('isotope:energy')
+				f['isotope'] = np.array([str(ln).split(':')[0] for ln in np.atleast_1d(d['line'])], dtype=object)
 			f['used'] = np.full(n, is_used, dtype=bool)
 			f['reason'] = np.atleast_1d(d['reason']) if 'reason' in d else np.array(['']*n, dtype=object)
 			y = np.asarray(f[y_col], dtype=np.float64)
@@ -724,9 +733,9 @@ class Calibration(object):
 
 		Read-only pd.DataFrame with one row per measured point, including the
 		points the fit rejected: columns channel, width, unc_width, used
-		(False for rejected points - 'outlier chi2>10' rows entered the fit
-		but are clipped from the stored calibration points),
-		reason ('' when used, else 'unc>33%' or 'outlier chi2>10') and
+		(False for rejected points - outlier rows entered the fit but are
+		clipped from the stored calibration points),
+		reason ('' when used, else 'unc>33%' or 'outlier >3.16 sigma') and
 		residual (measured minus fitted width, channels).  Empty (with the
 		full schema) if no calibration data is present.
 		"""
@@ -738,13 +747,13 @@ class Calibration(object):
 
 		Read-only pd.DataFrame with one row per measured point, including the
 		points the fit rejected: columns energy, efficiency, unc_efficiency,
-		isotope (source provenance - which isotope the point came from; ''
-		for calibrations saved before it was recorded), used (False for
-		rejected points - 'outlier chi2>10' rows entered the fit but are
-		clipped from the stored calibration points), reason ('' when used,
-		else 'unc>33%' or 'outlier chi2>10') and residual (measured minus
-		fitted efficiency).  Empty (with the full schema) if no calibration
-		data is present.
+		isotope (source provenance - which isotope the point came from,
+		derived from the stored line label; '' for calibrations saved before
+		it was recorded), used (False for rejected points - outlier rows
+		entered the fit but are clipped from the stored calibration points),
+		reason ('' when used, else 'unc>33%' or 'outlier >3.16 sigma') and
+		residual (measured minus fitted efficiency).  Empty (with the full
+		schema) if no calibration data is present.
 		"""
 		return self._tidy_points('effcal', 'energy', 'efficiency', 'unc_efficiency', self.eff,
 								 str_cols=('isotope',))
@@ -804,10 +813,10 @@ class Calibration(object):
 		effcal_max_error : float, optional
 			As above, for efficiency points.  Default 0.33.
 
-		outlier_chi2 : float, optional
-			Post-fit residual-chi2 threshold above which a point is clipped
-			from the stored calibration points (it stays visible in the
-			`*_data` tables and plots).  Default 10.0.
+		outlier_sigma : float, optional
+			Post-fit residual threshold, in sigma, above which a point is
+			clipped from the stored calibration points (it stays visible in
+			the `*_data` tables and plots).  Default sqrt(10), about 3.16.
 
 		Examples
 		--------
@@ -817,8 +826,8 @@ class Calibration(object):
 		>>> cb = ci.Calibration()
 		>>> cb.calibrate([sp], sources=[{'isotope':'152EU', 'A0':3.7E4, 'ref_date':'01/01/2009 12:00:00'}])
 		>>> print(cb.effcal)
-		[5.02206388e-02 9.96090389e+01 2.82002372e+00 2.45583800e+00
-		 2.91710579e-01]
+		[4.78771190e-02 9.99910335e+01 2.10108097e+00 1.90374157e+00
+		 3.95525964e-01]
 		>>> cb.plot()
 
 		"""
@@ -958,7 +967,7 @@ class Calibration(object):
 		diag_rows.append(self._diag_row('engcal', chi2, dof, len(x), n_tot-len(x), model, 1.0, fit, p0, unc, body))
 
 		res_pct = '{0:g}%'.format(100.0*ccfg['rescal_max_error'])
-		out_chi = '{0:g}'.format(ccfg['outlier_chi2'])
+		out_sig = '{0:.3g}'.format(ccfg['outlier_sigma'])
 		x, y, yerr = self._calib_data['rescal']['channel'], self._calib_data['rescal']['width'], self._calib_data['rescal']['unc_width']
 		n_tot = len(x)
 		keep = (ccfg['rescal_max_error']*y>yerr)&(yerr>0.0)&(np.isfinite(yerr))
@@ -972,13 +981,13 @@ class Calibration(object):
 		fn = lambda x, *A: self.res(x, A)
 		with np.errstate(all='ignore'):
 			fit, unc = curve_fit(fn, x, y, sigma=yerr, p0=p0)
-		kept = (self.res(x, fit)-y)**2/yerr**2 < ccfg['outlier_chi2']
+		kept = (self.res(x, fit)-y)**2/yerr**2 < ccfg['outlier_sigma']**2
 		idx = np.where(kept)
 		self._calib_data['rescal'] = {'channel':x[idx], 'width':y[idx], 'unc_width':yerr[idx], 'fit':fit, 'unc':unc}
 		self._calib_data['rescal_dropped'] = {'channel':np.concatenate([drop['channel'], x[~kept]]),
 											  'width':np.concatenate([drop['width'], y[~kept]]),
 											  'unc_width':np.concatenate([drop['unc_width'], yerr[~kept]]),
-											  'reason':np.array(['unc>'+res_pct]*len(drop['channel'])+['outlier chi2>'+out_chi]*int(np.sum(~kept)))}
+											  'reason':np.array(['unc>'+res_pct]*len(drop['channel'])+['outlier >'+out_sig+' sigma']*int(np.sum(~kept)))}
 		self.rescal = fit
 		self._rescal_model = _RES_MODELS[len(fit)]
 		n_out = len(x)-len(idx[0])
@@ -992,7 +1001,7 @@ class Calibration(object):
 		if n_tot-len(x):
 			body += ' ({0} dropped: unc>{1} of value)'.format(n_tot-len(x), res_pct)
 		if n_out:
-			body += '; {0} outliers: residual chi2>{1}'.format(n_out, out_chi)
+			body += '; {0} outliers: residual >{1} sigma'.format(n_out, out_sig)
 		body += '; chi2/dof={0:.2g}'.format(chi2)
 		_log.info('Calibration.calibrate: '+body)
 		diag_rows.append(self._diag_row('rescal', chi2, dof, len(x), (n_tot-len(x))+n_out, model, 1.0, fit, p0, unc, body))
@@ -1002,7 +1011,7 @@ class Calibration(object):
 		n_tot = len(x)
 		keep = (ccfg['effcal_max_error']*y>yerr)&(yerr>0.0)&(np.isfinite(yerr))
 		drop = {'energy':x[~keep], 'efficiency':y[~keep], 'unc_efficiency':yerr[~keep],
-				'isotope':eff_meta['src'].to_numpy()[~keep], 'line':eff_meta['line'].to_numpy()[~keep]}
+				'line':eff_meta['line'].to_numpy()[~keep]}
 		x, y, yerr = x[keep], y[keep], yerr[keep]
 		if not len(x):
 			raise ValueError('Calibration.calibrate: all {0} effcal points dropped (unc>{1} of value) - cannot fit the efficiency calibration. Check the peak fits and source activities.'.format(n_tot, eff_pct))
@@ -1109,20 +1118,22 @@ class Calibration(object):
 
 			else:
 				fit, unc, _, eff_chi2, eff_S2 = fit_eff(p0[:5], (bounds[0][:5], bounds[1][:5]))
+				_log.info('Calibration.calibrate: effcal model: vidmar-5 (auto - no x-ray peaks fit)')
 			tag = 'vidmar-{0}'.format(len(fit))
 
 		with np.errstate(all='ignore'):
-			kept = (fn(x, *fit)-y)**2/yerr**2 < ccfg['outlier_chi2']
+			kept = (fn(x, *fit)-y)**2/yerr**2 < ccfg['outlier_sigma']**2
 		idx = np.where(kept)
+		# provenance is stored as the line label alone ('isotope:energy');
+		# the isotope is derived from it on read
 		self._calib_data['effcal'] = {'energy':x[idx], 'efficiency':y[idx], 'unc_efficiency':yerr[idx],
-									  'isotope':meta['src'].to_numpy()[idx], 'line':meta['line'].to_numpy()[idx],
+									  'line':meta['line'].to_numpy()[idx],
 									  'fit':fit, 'unc':unc}
 		self._calib_data['effcal_dropped'] = {'energy':np.concatenate([drop['energy'], x[~kept]]),
 											  'efficiency':np.concatenate([drop['efficiency'], y[~kept]]),
 											  'unc_efficiency':np.concatenate([drop['unc_efficiency'], yerr[~kept]]),
-											  'isotope':np.concatenate([drop['isotope'], meta['src'].to_numpy()[~kept]]),
 											  'line':np.concatenate([drop['line'], meta['line'].to_numpy()[~kept]]),
-											  'reason':np.array(['unc>'+eff_pct]*len(drop['energy'])+['outlier chi2>'+out_chi]*int(np.sum(~kept)))}
+											  'reason':np.array(['unc>'+eff_pct]*len(drop['energy'])+['outlier >'+out_sig+' sigma']*int(np.sum(~kept)))}
 		self.effcal = fit
 		self.unc_effcal = unc
 		# the setters reset the tag/range (a manual assignment must not carry a
@@ -1139,7 +1150,7 @@ class Calibration(object):
 		if n_user:
 			body += '; +{0} user-supplied points'.format(n_user)
 		if len(outliers):
-			body += '; {0} outliers: residual chi2>{1} [{2} keV]'.format(len(outliers), out_chi, ', '.join(outliers))
+			body += '; {0} outliers: residual >{1} sigma [{2} keV]'.format(len(outliers), out_sig, ', '.join(outliers))
 		body += '; chi2/dof={0:.2g}'.format(eff_chi2)
 		eff_scale = float(np.sqrt(eff_S2)) if np.isfinite(eff_S2) and eff_S2>1.0 else 1.0
 		if eff_scale>1.0:
@@ -1185,14 +1196,14 @@ class Calibration(object):
 		>>> cb = ci.Calibration()
 		>>> cb.calibrate([sp], sources=[{'isotope':'152EU', 'A0':3.7E4, 'ref_date':'01/01/2009 12:00:00'}])
 		>>> print(cb.effcal)
-		[5.02206388e-02 9.96090389e+01 2.82002372e+00 2.45583800e+00
-		 2.91710579e-01]
+		[4.78771190e-02 9.99910335e+01 2.10108097e+00 1.90374157e+00
+		 3.95525964e-01]
 		>>> cb.saveas('example_calib.json')
 
 		>>> cb = ci.Calibration('example_calib.json')
 		>>> print(cb.effcal)
-		[5.02206388e-02 9.96090389e+01 2.82002372e+00 2.45583800e+00
-		 2.91710579e-01]
+		[4.78771190e-02 9.99910335e+01 2.10108097e+00 1.90374157e+00
+		 3.95525964e-01]
 
 		"""
 

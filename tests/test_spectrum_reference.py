@@ -32,16 +32,23 @@ REFERENCE_SINGLES = {
 }
 # the 152EU 1457.64 / 40K 1460.82 doublet, fit as one multiplet
 REFERENCE_MULTIPLET = {1457.643: ('152EU', 1270.5), 1460.820: ('40K', 2985.8)}
-REFERENCE_N_PEAKS = 45
+# Re-recorded 2026-07-14 (curie 0.2.0 branch): the 443.96/444.01 keV doublet now
+# merges into one combined-intensity peak (float-channel unresolvable grouping -
+# it previously straddled a channel rounding boundary and was fit degenerately),
+# so the spectrum has one fewer peak row.
+REFERENCE_N_PEAKS = 44
 # efficiency curve from the documented calibrate() workflow, evaluated at reference energies.
 # Re-recorded 2026-07-04 (curie 0.0.37): calibrate() now fits against the block covariance
 # of the efficiency points (correlated intensity/decay-data/source terms, absolute sigma),
 # which re-weights the fit and moved the curve by up to ~7% on this spectrum.
+# Re-recorded 2026-07-14 (0.2.0 branch, doublet-merge fix): the corrected 444 keV
+# point (previously 9x high from the degenerate doublet split, and inside the fit)
+# moves the curve by up to ~6% on this spectrum.
 REFERENCE_EFF = {
-    121.7817: 0.033668,
-    344.2785: 0.016283,
-    778.9045: 0.0075848,
-    1408.0130: 0.0038683,
+    121.7817: 0.0338679,
+    344.2785: 0.0152847,
+    778.9045: 0.00714092,
+    1408.0130: 0.00403744,
 }
 REFERENCE_ENGCAL_SLOPE = 0.182647  # keV/channel
 

@@ -138,8 +138,9 @@ def test_filters_default_off_zero_config():
     dc = ci.DecayChain('152EU', R=[[3E5, 36.0]], units='d')
     dc.get_counts([sp], EoB='01/01/2016 08:39:08')
     itp, R, cov = dc.fit_R()
-    # reference recorded from the identical fit immediately before the filter
-    # rework (fitting-0.2.0 at 8aca499; same values in the Gate 3 exhibit's
-    # dc._fit_result) - a change here means a default filter engaged
-    np.testing.assert_allclose(R, [28193802.273050793], rtol=1E-6)
-    np.testing.assert_allclose(cov, [[3.6533885721E12]], rtol=1E-5)
+    # reference re-recorded at the doublet-merge fix on fitting-0.2.0 (the
+    # corrected 444 keV point drops the eu fit_R chi2/dof from 1e3 to 50 and
+    # the scale factor from x38 to x8.6) - a change here means a default
+    # filter engaged or the fit moved
+    np.testing.assert_allclose(R, [27527059.314142734], rtol=1E-6)
+    np.testing.assert_allclose(cov, [[2.036999560345E11]], rtol=1E-5)

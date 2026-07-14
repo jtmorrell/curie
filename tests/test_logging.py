@@ -383,6 +383,34 @@ def test_identical_gamma_drop_keeps_partner_params(capsys):
 
 
 @requires_data('decay')
+def test_same_isotope_doublet_merges_across_channel_boundary(capsys):
+    # 152EU 443.96/444.01 keV: 0.27 channels apart but straddling a rounding
+    # boundary - must merge with combined intensity like the 719 keV pair,
+    # not fit as two degenerate Gaussians that split the counts arbitrarily
+    sp = ci.Spectrum(str(EXAMPLES_DIR / 'eu_calib_7cm.Spe'))
+    sp.isotopes = ['152EU']
+    pks = sp.fit_peaks()
+    out = capsys.readouterr().out
+    assert '444.0, 444.0 keV are unresolvable' in out
+    rows = pks[(pks['energy'] > 443.0) & (pks['energy'] < 445.0)]
+    assert len(rows) == 1
+    assert rows['intensity'].iloc[0] == pytest.approx(0.03125, abs=1E-5)
+
+
+def test_cross_isotope_identical_pair_across_channel_boundary(capsys):
+    # the identical-gamma check must also see pairs that straddle a channel
+    # rounding boundary (float distance, not rounded-channel equality)
+    sp = ci.Spectrum(str(EXAMPLES_DIR / 'eu_calib_7cm.Spe'))
+    gammas = [{'energy': 443.9606, 'intensity': 2.827, 'unc_intensity': 0.014, 'isotope': '152EU'},
+              {'energy': 444.0100, 'intensity': 2.9, 'unc_intensity': 0.02, 'isotope': '154EU'}]
+    sp.fit_peaks(gammas=gammas, SNR_min=-1E9)
+    out = capsys.readouterr().out
+    # the pair is detected (either identical-gamma branch) - previously the
+    # rounding boundary hid it and the two peaks were fit degenerately
+    assert ('have identical gammas at' in out) or ('predicted amplitude <1% of the coincident' in out)
+
+
+@requires_data('decay')
 def test_zero_config_results_unchanged(eu_spectrum):
     # the logging spine must not perturb results: identical fits at any level
     ci.set_log_level('DEBUG')

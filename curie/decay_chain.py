@@ -1083,7 +1083,7 @@ class DecayChain(object):
 		>>> dc = ci.DecayChain('152EU', R=[[3E5, 36.0]], units='d')
 		>>> dc.get_counts([sp], EoB='01/01/2016 08:39:08')
 		>>> print(dc.fit_R())
-		(['152EUg'], array([28193802.27305079]), array([[3.65338857e+12]]))
+		(['152EUg'], array([27527059.31414273]), array([[2.03699956e+11]]))
 
 		"""
 
@@ -1261,7 +1261,7 @@ class DecayChain(object):
 		>>> dc.get_counts([sp], EoB='01/01/2016 08:39:08')
 		>>> itp, A0, cov = dc.fit_A0()
 		>>> print(itp[0], A0[0])
-		152EUg 141939.9060916844
+		152EUg 138582.75831764835
 
 		"""
 

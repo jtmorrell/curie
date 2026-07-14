@@ -910,11 +910,13 @@ class Spectrum(object):
 				g['intensity'] = g['intensity']*1E-2
 				g['unc_intensity'] = g['unc_intensity']*1E-2
 
-				# CHECK FOR IDENTICAL PEAKS
-				ix = self.cb.map_channel(g['energy']) # g is already sorted by energy
+				# CHECK FOR IDENTICAL PEAKS - float channel distance: rounded
+				# channels make the grouping fragile at channel boundaries (two
+				# lines 0.3 channels apart can round to different channels)
+				ix = np.atleast_1d(self.cb._map_channel_f(g['energy'])) # g is already sorted by energy
 				groups = [[0]] if len(ix) else []
 				for n in range(1, len(ix)):
-					if abs(ix[n]-ix[n-1])<=self.fit_config['ident_idx']:
+					if abs(ix[n]-ix[n-1])<=self.fit_config['ident_idx']+0.5:
 						groups[-1].append(n)
 					else:
 						groups.append([n])
@@ -1070,6 +1072,7 @@ class Spectrum(object):
 			self._fit_stats['candidates'] = cand
 
 		df['idx'] = self.cb.map_channel(df['energy'])
+		df['idxf'] = np.atleast_1d(self.cb._map_channel_f(df['energy']))
 		df['sig'] = self.cb.res(df['idx'])
 		df['l'] = np.array(df['idx']-self.fit_config['pk_width']*df['sig'], dtype=np.int32)
 		df['h'] = np.array(df['idx']+self.fit_config['pk_width']*df['sig'], dtype=np.int32)
@@ -1131,9 +1134,10 @@ class Spectrum(object):
 					# drop; the iterator still yields it from its snapshot
 					continue
 				bA_m, bm_m = 1.0, 1.0
-				# CHECK FOR IDENTICAL PEAKS
+				# CHECK FOR IDENTICAL PEAKS (float channel distance - see the
+				# unresolvable-gamma grouping)
 				if n+1 in multi.index:
-					if abs(rw['idx']-multi.loc[n+1]['idx'])<=self.fit_config['ident_idx']:
+					if abs(rw['idxf']-multi.loc[n+1]['idxf'])<=self.fit_config['ident_idx']+0.5:
 						if rw['A']<1E-2*multi.loc[n+1]['A'] or multi.loc[n+1]['A']<1E-2*rw['A']:
 							drop = n if rw['A']<1E-2*multi.loc[n+1]['A'] else n+1
 							other = n+1 if drop==n else n
