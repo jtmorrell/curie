@@ -818,7 +818,7 @@ class DecayChain(object):
 				msgs.append('covariance estimate is singular - quoted uncertainties are unreliable')
 			rows.append({'fit':label, 'chi2':(chi2 if (dof>0 and np.isfinite(chi2)) else np.nan), 'dof':int(dof),
 						 'n_points':int(n_points), 'n_dropped':int(n_dropped), 'converged':True,
-						 'model':'bateman', 'scale_factor':float(scale), 'flags':','.join(flags),
+						 'model':'', 'scale_factor':float(scale), 'flags':','.join(flags),
 						 'message':'; '.join(msgs), 'isotope':ip})
 		return _diagnostics_frame(rows, extras={'isotope': object})
 
@@ -831,7 +831,8 @@ class DecayChain(object):
 		n_dropped and scale_factor repeat on every row): columns chi2
 		(reduced, of the unscaled fit), dof, n_points (counts the fit used),
 		n_dropped (counts removed by the max_error/min_counts filters),
-		converged, model, scale_factor (uncertainty inflation applied;
+		converged, model ('' - the chain fit has no model selection),
+		scale_factor (uncertainty inflation applied;
 		1.0 = none), flags (comma-joined, e.g. 'unmoved', 'at_bound:R',
 		'singular_cov'), message (summary and warning text) and isotope.
 		Empty (with the full schema) before any fit; rebuilt on each

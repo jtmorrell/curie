@@ -509,13 +509,15 @@ class Calibration(object):
 		"""Fit diagnostics from the most recent calibration
 
 		Read-only pd.DataFrame with one row per calibration sub-fit (`fit` is
-		'engcal', 'rescal' or 'effcal') and columns chi2 (reduced), dof,
+		'engcal', 'rescal' or 'effcal') and columns chi2 (reduced, over all
+		n_points that entered the fit - flagged outliers included), dof,
 		n_points (points the fit used), n_dropped (pre-fit drops plus post-fit
-		outlier clips), converged, model, scale_factor (uncertainty inflation
-		applied; 1.0 = none), flags (comma-joined, e.g. 'chi2_high',
-		'at_bound:l') and message (the associated summary text).  Empty (with
-		the full schema) before any calibration has been performed; rebuilt on
-		each `calibrate()` call.  Accessing it never triggers a fit.
+		outlier clips; clipping affects the stored points, not the fit),
+		converged, model, scale_factor (uncertainty inflation applied;
+		1.0 = none), flags (comma-joined, e.g. 'chi2_high', 'at_bound:l') and
+		message (the associated summary text).  Empty (with the full schema)
+		before any calibration has been performed; rebuilt on each
+		`calibrate()` call.  Accessing it never triggers a fit.
 		"""
 		if self._diagnostics is None:
 			return _diagnostics_frame()
@@ -566,7 +568,9 @@ class Calibration(object):
 		"""Resolution-calibration points from the most recent calibration
 
 		Read-only pd.DataFrame with one row per measured point, including the
-		points the fit rejected: columns channel, width, unc_width, used,
+		points the fit rejected: columns channel, width, unc_width, used
+		(the point is retained in the stored calibration points -
+		'outlier chi2>10' rows entered the fit but are clipped from storage),
 		reason ('' when used, else 'unc>33%' or 'outlier chi2>10') and
 		residual (measured minus fitted width, channels).  Empty (with the
 		full schema) if no calibration data is present.
@@ -580,7 +584,9 @@ class Calibration(object):
 		Read-only pd.DataFrame with one row per measured point, including the
 		points the fit rejected: columns energy, efficiency, unc_efficiency,
 		isotope and line (source provenance - which isotope and gamma line the
-		point came from), used, reason ('' when used, else 'unc>33%' or
+		point came from), used (the point is retained in the stored
+		calibration points - 'outlier chi2>10' rows entered the fit but are
+		clipped from storage), reason ('' when used, else 'unc>33%' or
 		'outlier chi2>10') and residual (measured minus fitted efficiency).
 		Provenance columns are '' for calibrations saved before they were
 		recorded.  Empty (with the full schema) if no calibration data is
@@ -762,8 +768,11 @@ class Calibration(object):
 											  'reason':np.array(['unc>33%']*len(drop['channel'])+['outlier chi2>10']*int(np.sum(~kept)))}
 		self.rescal = fit
 		n_out = len(x)-len(idx[0])
-		dof = len(idx[0])-len(fit)
-		chi2 = float(np.sum((self.res(x[idx], fit)-y[idx])**2/yerr[idx]**2))/dof if dof>0 else np.inf
+		# quoted over every point the fit used, flagged outliers included --
+		# same convention as engcal and effcal (outlier clipping affects the
+		# stored points, not the fit)
+		dof = len(x)-len(fit)
+		chi2 = float(np.sum((self.res(x, fit)-y)**2/yerr**2))/dof if dof>0 else np.inf
 		model = 'linear' if len(fit)==2 else 'sqrt'
 		body = 'rescal [{0}] fit to {1}/{2} points'.format(model, len(x), n_tot)
 		if n_tot-len(x):
