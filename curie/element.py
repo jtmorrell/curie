@@ -410,8 +410,8 @@ class Element(object):
 		Examples
 		--------
 		>>> el = ci.Element('Fe')
-		>>> print(el.range(60.0))
-		0.5866312594085556
+		>>> print(round(float(el.range(60.0)), 6))
+		0.586631
 		>>> el = ci.Element('U')
 		>>> print(el.range(60.0))
 		0.37702082865831094

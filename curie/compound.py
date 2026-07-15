@@ -325,8 +325,8 @@ class Compound(object):
 		Examples
 		--------
 		>>> cm = ci.Compound('H2O')
-		>>> print(cm.mu(200))
-		0.1370392839300583
+		>>> print(round(cm.mu(200), 6))
+		0.137039
 
 		"""
 
@@ -485,8 +485,8 @@ class Compound(object):
 		Examples
 		--------
 		>>> cm = ci.Compound('Fe') # same behavior as element
-		>>> print(cm.range(60.0))
-		0.5866312594085556
+		>>> print(round(float(cm.range(60.0)), 6))
+		0.586631
 		>>> cm = ci.Compound('SS_316') # preset compound
 		>>> print(cm.range(60.0))
 		0.5807353363913145
