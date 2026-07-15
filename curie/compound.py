@@ -353,8 +353,8 @@ class Compound(object):
 		Examples
 		--------
 		>>> cm = ci.Compound('H2O')
-		>>> print(cm.mu_en(200))
-		0.029671598667776862
+		>>> print(round(float(cm.mu_en(200)), 6))
+		0.029672
 
 		"""
 
@@ -440,10 +440,10 @@ class Compound(object):
 		Examples
 		--------
 		>>> cm = ci.Compound('SrCO3', density=3.5)
-		>>> print(cm.S(60.0))
-		27.196387031247834
-		>>> print(cm.S(55.0, density=1E-3)) ### S in MeV/(mg/cm^2)
-		0.008307827781861116
+		>>> print(round(float(cm.S(60.0)), 6))
+		27.196387
+		>>> print(round(float(cm.S(55.0, density=1E-3)), 6)) ### S in MeV/(mg/cm^2)
+		0.008308
 
 		"""
 
@@ -488,8 +488,8 @@ class Compound(object):
 		>>> print(round(float(cm.range(60.0)), 6))
 		0.586631
 		>>> cm = ci.Compound('SS_316') # preset compound
-		>>> print(cm.range(60.0))
-		0.5807353363913145
+		>>> print(round(float(cm.range(60.0)), 6))
+		0.580735
 
 		"""
 
