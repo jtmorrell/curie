@@ -29,7 +29,7 @@ API reference) and the guide section that walks through each one.
    * - Task
      - Classes
      - Guide
-   * - Fit photopeaks in HPGe spectra; energy, resolution and efficiency calibration; extract activities
+   * - Fit full-energy peaks in HPGe (high-purity germanium) spectra; energy, resolution and efficiency calibration; extract activities
      - :class:`~curie.Spectrum`, :class:`~curie.Calibration`
      - :ref:`spectroscopy`
    * - Solve the Bateman equations; fit production rates and end-of-bombardment activities to counting data

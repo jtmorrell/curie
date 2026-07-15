@@ -93,9 +93,9 @@ class Stack(object):
 		If N is large, split the stack calculation in to multiple "chunks" of size `chunk_size`. Default 1E7.
 
 	accuracy : float
-		Maximum allowed (absolute) error in the predictor-corrector method. Default 0.01.  If error is
-		above `accuracy`, each foil in the stack will be solved with multiple steps, between `min_steps`
-		and `max_steps`.
+		Target fractional energy loss per step in the predictor-corrector method. Default 0.01.
+		Each foil is solved in a number of steps equal to its expected fractional energy loss
+		divided by `accuracy`, bounded between `min_steps` and `max_steps`.
 
 	min_steps : int
 		The minimum number of steps per foil, in the predictor-corrector solver.  Default 2.

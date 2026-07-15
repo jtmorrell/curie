@@ -58,8 +58,9 @@ are supposed to do.
 energy, resolution and efficiency.  The efficiency calibration is usually
 what you want from the file (it is a property of the detector and counting
 geometry), but the energy calibration it carries describes the electronics
-*on the day the calibration was measured*.  Gain drift since then (or an
-intervening, forgotten recalibration of the ADC) means the file's energy
+*on the day the calibration was measured*.  Drift in the amplifier gain
+since then (or an intervening, forgotten recalibration of the ADC) means
+the file's energy
 calibration no longer matches this spectrum, while the spectrum's own
 header calibration was correct all along.
 
@@ -128,8 +129,10 @@ or at-bound fit is flagged in ``sp.diagnostics``.
 
 **Cause and fix, by situation:**
 
-* **The peak sits on structure** — a backscatter peak, Compton edge, or the
-  shoulder of a much larger neighbor.  The default SNIP background assumes
+* **The peak sits on structure** — the peak sits on a broad spectral
+  feature rather than flat background: a backscatter peak or Compton edge
+  (both produced by scattered gamma rays), or the shoulder of a much
+  larger neighboring peak.  The default SNIP background assumes
   a smoothly varying continuum and will not follow sharp features.  Refit
   with a polynomial background, which is fit jointly with the peaks:
   ``sp.fit_peaks(bg='quadratic')``.

@@ -34,8 +34,8 @@ All cross sections are in mb, and all energies in MeV.
    (``ci.Library('iaea').search(target='natTI', incident='p')``).
 2. **Choose** the source.  By default (``library='best'``) Curie picks
    the highest-priority library carrying the reaction; pass a library
-   name to choose yourself.  ``rx.library.name`` always tells you what
-   you got.
+   name to choose yourself.  ``rx.library.name`` always reports which
+   library was selected.
 3. **Use** the data: ``rx.interpolate(energy)`` for values on your own
    energy grid, ``rx.average(energy, flux)`` for the flux-averaged cross
    section of a measurement, ``rx.plot()`` to look at it.
@@ -47,7 +47,8 @@ common failure modes.
 
 **Uses and limitations.**  These are *evaluated* libraries — smooth, recommended curves produced by
 evaluators from experimental data and nuclear-model calculations — not
-raw experimental data points (EXFOR is not included).  Each library has a
+raw experimental data points (EXFOR, the international compilation of
+such measurements, is not included).  Each library has a
 scope and a character: the IAEA library is a set of precisely evaluated
 monitor (beam-normalization) reactions with uncertainties; IRDFF-II is a
 neutron-dosimetry standard, also with uncertainties; ENDF/B-VII.1 is the

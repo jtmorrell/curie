@@ -33,8 +33,10 @@ need (``range``), how strongly does this sample absorb gamma rays
    want tallied.
 3. **Transport and use**: ``ci.Stack(stack, E0=..., particle='p')``
    computes every foil's mean energy, energy width and full flux
-   distribution — and ``rx.average(*st.get_flux('name'))`` turns the
-   latter into the effective cross section of that foil.
+   distribution (the "flux" here is the beam's energy spectrum within the
+   foil, not a particles-per-area rate) — and
+   ``rx.average(*st.get_flux('name'))`` turns the latter into the
+   effective cross section of that foil.
 
 See the :ref:`stopping_howto` for each step in detail, the
 :ref:`stopping_examples` for the build-up from single stopping powers to
@@ -52,12 +54,18 @@ low energies.
 `Stack` models energy loss only: particles slow down but are never
 absorbed or deflected, so the computed flux distributions describe the
 beam's *energy*, not its attenuated intensity, and lateral spread is not
-modeled.  The width of each foil's energy distribution comes from the
-incident beam spread (``dE0``) plus the spread the beam picks up as it
-degrades — slower particles lose energy faster, so an initially narrow
-beam broadens as it slows.  Collisional straggling is not added on top,
-so very thick degraders will in reality produce a somewhat wider
-distribution than computed (see :ref:`methods_stopping`).
+modeled.  The width of each foil's energy distribution has two parts:
+the energy the beam loses between the foil's front and back faces (which
+alone makes a thick degrader's distribution wide, even for a
+monoenergetic incident beam), plus the incident beam spread (``dE0``)
+and the extra spread the beam picks up as it degrades — slower particles
+lose energy faster, so an initially narrow beam broadens as it slows.
+The width is thus the range of energies the foil samples, not an
+uncertainty on its mean energy.  Collisional straggling — the
+statistical spread in energy loss from the randomness of individual
+collisions — is not added on top, so very thick degraders will in
+reality produce a somewhat wider distribution than computed (see
+:ref:`methods_stopping`).
 
 .. toctree::
    :maxdepth: 1

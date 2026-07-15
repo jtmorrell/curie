@@ -47,8 +47,8 @@ You write         ``ip.name``       Meaning
 ================  ================  ======================================
 
 Structure properties are attributes: ``ip.mass`` (amu), ``ip.abundance``
-(percent), ``ip.E_level`` (MeV), ``ip.J_pi``, ``ip.Delta`` (mass excess,
-MeV), ``ip.TeX`` (a LaTeX-formatted name for plot labels).
+(percent), ``ip.E_level`` (MeV), ``ip.J_pi`` (spin-parity), ``ip.Delta``
+(mass excess, MeV), ``ip.TeX`` (a LaTeX-formatted name for plot labels).
 
 Half-lives and decay constants
 ------------------------------
@@ -88,8 +88,9 @@ fitting peaks.
 Fission yields
 --------------
 
-For fissioning isotopes, independent fission-product yields are
-available: ``get_SFY()`` for spontaneous fission, and ``get_NFY(E)`` for
+For fissioning isotopes, independent fission-product yields (the yield of
+each product as directly formed in fission, before any subsequent decay)
+are available: ``get_SFY()`` for spontaneous fission, and ``get_NFY(E)`` for
 neutron-induced fission.  Unlike everywhere else in Curie, the incident
 energy ``E`` here is in *eV*, on the ENDF grid (0.0253 for thermal, 5E5,
 2E6 or 14E6)::
@@ -234,7 +235,10 @@ decays; ``fit_A0()`` does the same for the initial activity.  In both
 cases the *shape* of what you provided is preserved — the fit adjusts one
 overall multiplier per produced isotope, and returns the isotopes, the
 fitted quantities (the time-averaged rate for ``fit_R``, the initial
-activity for ``fit_A0``) and their covariance::
+activity for ``fit_A0``) and their covariance matrix, whose diagonal
+holds each fitted quantity's variance — take the square root of a
+diagonal entry for that quantity's one-sigma uncertainty (as in the
+worked example)::
 
 	dc = ci.DecayChain('225RA', R=[[9, 0.5], [2, 1.5], [5, 4.5]], units='d')
 	dc.counts = {'225AC': [[5.0, 5.1, 6E5, 2E4]]}
@@ -276,7 +280,7 @@ you set them::
 * ``unc_R_floor`` is not a filter but a floor: the returned production-rate
   uncertainty is raised to at least this fraction of the rate.
 
-Every filter announces its drops in the fit's summary line, each excluded
+Every filter reports its drops in the fit's summary line, each excluded
 count is named at ``DEBUG``, and the accounting lands in
 ``dc.diagnostics`` (see the reporting conventions in
 :ref:`methods_reporting`).  A starting estimate can also be supplied in

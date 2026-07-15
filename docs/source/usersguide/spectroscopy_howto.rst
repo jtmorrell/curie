@@ -42,7 +42,8 @@ data — with energies in keV and intensities in percent::
 Fitting peaks
 -------------
 
-``sp.fit_peaks()`` fits all selected lines and returns the peak table; it
+``sp.fit_peaks()`` fits all selected lines — grouping overlapping peaks
+into *multiplets* that are fit together — and returns the peak table; it
 is also called automatically the first time ``sp.peaks``, ``sp.plot()``,
 ``sp.summarize()`` or ``sp.saveas()`` is used.  The fits are cached: if you
 change the calibration, isotope list or fit options afterwards, call
@@ -57,18 +58,21 @@ Column             Meaning
 ``isotope``        The emitting isotope
 ``energy``         Gamma-line energy, in keV
 ``counts``         Net counts in the peak (background subtracted)
-``intensity``      Gamma intensity :math:`I_\gamma` (branching ratio)
+``intensity``      Gamma intensity :math:`I_\gamma` — the fraction of
+                   decays that emit this line (its branching ratio)
 ``efficiency``     Peak efficiency at the line energy, from the calibration
 ``decays``         Decays of the isotope during the count
 ``decay_rate``     Average decay rate during the count — i.e. the activity,
                    in Bq (``summarize()`` prints this value as "activity")
-``chi2``           Reduced chi-square of the multiplet fit
+``chi2``           Reduced chi-square (chi-square per degree of freedom)
+                   of the multiplet fit
 ================== ============================================================
 
 Each quantity is paired with an ``unc_`` column giving its absolute
-uncertainty.  ``decays`` and ``decay_rate`` are corrected for dead time,
-efficiency, intensity, and any attenuation/geometry corrections that have
-been applied.
+uncertainty.  ``decays`` and ``decay_rate`` are corrected for dead time
+(the fraction of the count during which the detector was unable to record
+events), efficiency, intensity, and any attenuation/geometry corrections
+that have been applied.
 
 Configuring the fit
 -------------------
@@ -191,7 +195,8 @@ for the functional forms and fitting procedure):
 * **energy** — ``cb.engcal``, channel to keV, used by ``cb.eng()``;
 * **resolution** — ``cb.rescal``, peak width vs. channel, used by
   ``cb.res()``;
-* **efficiency** — ``cb.effcal`` with covariance ``cb.unc_effcal``,
+* **efficiency** — ``cb.effcal``, with the fitted-parameter covariance
+  matrix (uncertainties and their correlations) in ``cb.unc_effcal``,
   used by ``cb.eff()`` and ``cb.unc_eff()``.
 
 To fit all three from spectra of reference sources, give the source
@@ -278,8 +283,8 @@ the far-field solid-angle ratio :math:`(R_1/R_2)^2` to carry them from
 distance :math:`R_1` to the calibration distance :math:`R_2` (the first
 parameter of the Vidmar model is exactly this solid-angle scale).  The
 user-supplied points are treated as independent measurements (no shared
-intensity or source-activity uncertainty), announced in the console, and
-carried in ``cb.effcal_data`` with the rest.
+intensity or source-activity uncertainty), reported in the console log,
+and carried in ``cb.effcal_data`` with the rest.
 
 Adjusting a drifted energy calibration
 --------------------------------------
@@ -323,7 +328,8 @@ Plotting, summarizing and saving
 --------------------------------
 
 ``sp.plot()`` draws the spectrum with its fits (``fit=False`` for the raw
-histogram, ``xcalib=False`` for ADC channels on the x-axis).
+histogram, ``xcalib=False`` for raw analog-to-digital converter (ADC)
+channels on the x-axis).
 ``sp.summarize()`` prints the counts, decays and activity of each fitted
 line.  ``sp.saveas()`` writes the peak table to .csv, .json or .db, the
 spectrum itself to .Spe or .Chn (format conversion), or the plot to an
