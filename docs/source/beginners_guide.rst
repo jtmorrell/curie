@@ -38,7 +38,10 @@ kinds of measurement Curie supports:
 * **Measuring cross sections.**  How readily does a particular reaction
   occur, as a function of the beam energy?  This is the goal of the
   charged-particle stacked-target technique, where the measured activities
-  are worked backward into the underlying reaction probabilities.
+  are worked backward into the underlying reaction probabilities — the data
+  that let you predict, before an irradiation, how much of a desired
+  radioisotope (and how much co-produced impurity) a given beam and target
+  will make.
 
 The rest of this guide follows the produce–decay–detect chain forward and
 backward: the physics of production and decay, how activity is measured,
@@ -64,8 +67,8 @@ intervals gives the whole quantitative framework.
 time with decay constant :math:`\lambda = \ln 2 / t_{1/2}`.  The number of
 product atoms climbs until creation and decay balance.  For a constant
 production rate over an irradiation of duration :math:`t_{\mathrm{irr}}`,
-the activity at the end of the irradiation — the *end of bombardment*, or
-EoB — is
+the activity (the number of decays per second) at the end of the
+irradiation — the *end of bombardment*, or EoB — is
 
 .. math::
 
@@ -94,7 +97,7 @@ window (times the fraction it manages to detect).  Because the activity is
 itself falling during a long count, the number of decays is the integral
 of :math:`A(t)` across the counting interval, not simply activity times
 time.  Keeping these three intervals — and their clocks — straight is the
-bookkeeping that the analysis lives or dies by.
+bookkeeping that the whole analysis depends on.
 
 **In Curie.**  `DecayChain` implements exactly this, and generalizes it
 from one isotope to a full decay chain (parents feeding daughters) via the
@@ -124,7 +127,8 @@ and it is worth understanding why each is required:
   fitting routine needs to separate nearby lines.
 
 * **Efficiency calibration** gives the fraction of gammas emitted at a
-  given energy that are actually recorded as full-energy counts.  Without
+  given energy that are actually recorded as full-energy counts — counts
+  from gammas that deposited their entire energy in the detector.  Without
   it a peak area is only a relative number; with it, the count rate becomes
   an absolute emission rate.  Efficiency falls with distance and varies
   strongly with energy, so it must be measured for the specific detector
@@ -239,7 +243,7 @@ distribution of the beam in that foil* — the foil's energy spectrum, which
 mb to cm2; the :ref:`reactions` page gives the fully dimensioned
 form.)
 That flux-averaging is where the
-previous section pays off: for a thin foil the average is essentially the
+physics of the previous section enters: for a thin foil the average is essentially the
 cross section at the beam energy, but for a thick foil, where the beam
 spans a wide energy range, using the cross section at the mean energy alone
 can be badly wrong — the average must be taken over the real distribution.
@@ -292,8 +296,9 @@ design choices are:
 
 * **Range check.**  The beam must actually reach the last foil of interest:
   the material in front of it has to stay within the particle's range at the
-  incident energy (degraders or catchers placed further downstream may lie
-  beyond the range without harm).
+  incident energy (degraders or catchers — passive foils that stop the beam
+  or recoiling reaction products — further downstream may lie beyond the
+  range without harm).
 
 The Curie workflow mirrors the experiment.  *Before* the beam time, define
 the foils and use `Stack` to predict the energy in each, then combine
@@ -315,5 +320,7 @@ For a single script that runs this whole chain on a real dataset, see
 <https://github.com/jtmorrell/curie/blob/master/examples/stacked_target_analysis.py>`_:
 it builds the foil stack of a published :sup:`nat`\ La(p,x) measurement
 (`Morrell et al., arXiv:1907.04431 <https://arxiv.org/abs/1907.04431>`_),
-transports the beam, flux-averages an evaluated excitation function over
-each foil, and compares the result against the published cross sections.
+transports the beam, flux-averages an evaluated excitation function (a
+cross section as a function of energy, taken from a nuclear-data library)
+over each foil, and compares the result against the published cross
+sections.

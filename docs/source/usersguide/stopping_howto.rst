@@ -108,8 +108,9 @@ per-foil.  Every key has a shorthand, used in the example above:
 Foils with a ``'name'`` are tallied; unnamed foils (the Kapton above)
 still degrade the beam and still appear in ``st.stack``, but are
 excluded from the tallied results (``st.fluxes``, ``get_flux``,
-``plot``, ``summarize``, ``saveas``) — the convention for degraders and
-catchers.  The stack can equally be a DataFrame or a .csv/.json/.db
+``plot``, ``summarize``, ``saveas``) — the convention for passive foils
+such as degraders and beam catchers (foils placed to slow or stop the
+beam rather than to be analyzed).  The stack can equally be a DataFrame or a .csv/.json/.db
 file with the same columns, and custom compounds can be supplied with
 the ``compounds=`` argument.
 

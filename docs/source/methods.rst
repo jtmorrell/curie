@@ -17,9 +17,12 @@ Gamma-ray Peak Fitting
 Peak shape
 ~~~~~~~~~~
 
-Curie models a gamma-ray peak in an HPGe spectrum as a Gaussian with an
-optional low-energy skew component and an optional step in the background,
-as a function of ADC channel number :math:`x`:
+Curie models a gamma-ray peak in a spectrum from a high-purity germanium
+(HPGe) detector as a Gaussian with an optional low-energy skew component
+and an optional step in the background, as a function of the
+analog-to-digital converter (ADC) channel number :math:`x` (a bin index
+that increases with detected energy, which the energy calibration below
+maps to keV):
 
 .. math::
 
@@ -37,7 +40,8 @@ low-energy side of the peak, characteristic of incomplete charge collection;
 its relative amplitude :math:`R` and decay constant :math:`\alpha` are shared
 by all peaks in the spectrum.  The third term is a step function (amplitude
 ``step`` relative to the peak) that accounts for the difference in the
-Compton continuum on either side of the peak.  By default :math:`R=0.1`,
+Compton continuum — the broad background left by gamma rays that deposited
+only part of their energy in the detector — on either side of the peak.  By default :math:`R=0.1`,
 :math:`\alpha=0.9` and :math:`\mathrm{step}=0`, and these three parameters
 are held fixed; the ``skew_fit`` and ``step_fit`` options of
 `Spectrum.fit_peaks()` add them to the fitted parameters instead.
@@ -49,7 +53,9 @@ The continuum under the peaks is modeled in one of two ways, selected by the
 ``bg`` option:
 
 * A polynomial — constant, linear or quadratic in channel number — fit
-  jointly with the peaks in each multiplet.
+  jointly with the peaks in each multiplet (a group of peaks close enough
+  on the spectrum that their fit windows overlap and they must be fit
+  together).
 
 * The default, a variant of the SNIP algorithm of Ryan *et al.* [Ryan1988]_,
   which estimates a smooth background non-parametrically and removes it from
@@ -103,9 +109,12 @@ Each multiplet is fit by weighted least squares, minimizing
 
 i.e. with Poisson standard deviations as weights (the small constant keeps
 empty channels finite).  Because these are true counting uncertainties, the
-parameter covariance is taken directly from the fit, without the customary
-rescaling by :math:`\chi^2_\nu` that would shrink the uncertainties of
-clean peaks below the floor set by counting statistics.  When the reduced
+parameter covariance — the matrix of the fitted parameters' variances and
+their correlations — is taken directly from the fit, without the customary
+rescaling by the reduced chi-square :math:`\chi^2_\nu` (the :math:`\chi^2`
+per degree of freedom, near one for a well-modeled fit) that would shrink
+the uncertainties of clean peaks below the floor set by counting
+statistics.  When the reduced
 chi-square (evaluated over the non-empty channels) exceeds one, the
 covariance is inflated by :math:`\chi^2_\nu`: an imperfect peak model can
 increase the uncertainties, but never reduce them.
@@ -169,8 +178,8 @@ with ``fit_config['engcal_model']``; by default the form of the current
 calibration is kept.  The linear and quadratic forms invert analytically
 for the energy-to-channel map; the cubic is inverted numerically (the real
 root nearest the linear estimate), and a fitted cubic whose derivative
-changes sign inside the calibrated channel range is announced as
-non-monotonic.
+changes sign inside the calibrated channel range is flagged as
+non-monotonic with a warning.
 
 Resolution calibration
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -253,9 +262,9 @@ representing the detector entrance window (beryllium attenuation
 coefficient :math:`\mu_{\mathrm{w}}`, thickness :math:`w`) and the
 germanium dead layer (thickness :math:`d`).  Both the 5- and 7-parameter
 forms are fit, and the model whose goodness-of-fit is closer to one is
-kept (the choice is announced; ``effcal_model='vidmar-5'`` or
+kept (the choice is reported; ``effcal_model='vidmar-5'`` or
 ``'vidmar-7'`` forces one form).  The interaction coefficients are log-log
-interpolations of XCOM tabulations.
+interpolations of the NIST XCOM photon cross-section tabulations.
 
 With ``fit_config['effcal_model'] = 'loglog'`` the efficiency is instead
 the standard empirical log-log polynomial,
@@ -375,7 +384,8 @@ markers on the calibration plots.
 **Uncertainty scale factors** follow one rule everywhere: when data are
 mutually inconsistent (reduced chi-square above one), only the independent
 (statistical) uncertainty component is inflated, iteratively, until the
-whitened chi-square is consistent with one — shared systematic components
+reduced chi-square (computed with the full covariance) is consistent with
+one — shared systematic components
 are never scaled, and no uncertainty is ever deflated.  The applied factor
 is reported in the fit's summary line and diagnostics row.
 
@@ -428,7 +438,9 @@ contributes
        {\lambda_j \prod_{k \neq j} (\lambda_k - \lambda_j)}
 
 which for a single isotope reduces to the saturation curve
-:math:`A(t) = R\,(1 - e^{-\lambda t})` familiar from activation work.
+:math:`A(t) = R\,(1 - e^{-\lambda t})`: during a constant irradiation the
+activity builds up from zero toward the saturation value :math:`R`, where
+production and decay balance.
 When the decay graph branches, Curie enumerates
 every distinct path from the parent to the isotope of interest and sums
 the contributions, each weighted by its product of branching ratios.
@@ -446,7 +458,7 @@ Numerical treatment
 ~~~~~~~~~~~~~~~~~~~
 
 The Bateman denominators :math:`\prod_{k \neq j}(\lambda_k - \lambda_j)`
-blow up when two members of a chain have (nearly) equal decay constants —
+diverge when two members of a chain have (nearly) equal decay constants —
 which genuinely happens in the decay database, where two half-lives can
 be identical as rounded.  Rather than perturbing the values, Curie groups
 decay constants that agree to within one part in :math:`10^9` and
@@ -608,23 +620,57 @@ Monte Carlo-sampled from a Gaussian of mean ``E0`` and width ``dE0``
 foil by foil in beam order.  Within each foil the
 energy loss is integrated by a predictor–corrector (Heun) scheme: a
 trial step with the stopping power at the current energy, corrected by
-the average of the stopping powers at the start and trial energies, with
-the number of steps chosen adaptively from the expected fractional
-energy loss (bounded by ``min_steps`` and ``max_steps``).  The energy
+the average of the stopping powers at the start and trial energies.  The
+number of steps is set so that the expected fractional energy loss per
+step is approximately the ``accuracy`` argument (default 0.01, i.e.
+about 1% of the current energy lost per step), clipped to the range
+``min_steps`` to ``max_steps`` (default 2 to 50): a foil that barely
+degrades the beam is integrated in the minimum number of steps, a thick
+degrader in more.  The energy
 distribution — the "flux" — assigned to a foil is the histogram of the
 ensemble's energies over all integration steps inside that foil, i.e. a
 path-averaged distribution through the foil's thickness, from which the
 reported mean energy ``mu_E`` and width ``sig_E`` are the first two
-moments.
+moments.  Because each integration step advances the beam by an equal
+increment of areal density, tallying the ensemble's energy at every step
+weights each energy by the path length the beam spends there.  That
+path-length weighting is, up to normalization, the particle fluence —
+track length per unit volume — as a function of energy, which is
+precisely the spectral weight a reaction rate integrates over:
+convolving this distribution with an excitation function (the flux
+average of :ref:`methods_reaction_data`) yields the effective cross
+section the foil actually experiences.  ``mu_E`` is thus the
+fluence-weighted mean energy of the beam within the foil.
 
-The width of these distributions reflects the initial beam spread and
-the increasing divergence of particle energies as the ensemble slows
-(slower particles lose energy faster).  Collisional energy-loss
+The width ``sig_E`` of a foil's distribution has two distinct physical
+origins.  The first is the energy the beam loses between the front and
+back faces of the foil: because the histogram is accumulated over the
+entire path through the foil, a thick degrader that lowers the beam by
+several MeV produces a broad distribution however narrow the incident
+beam was, and for such a foil this within-foil loss — not the beam
+spread — dominates ``sig_E``.  The second is the incident beam spread
+``dE0`` together with its growth as the ensemble slows: slower particles
+lose energy faster, so an initially narrow beam diverges in energy as it
+degrades.  ``sig_E`` is therefore the physical range of energies the
+foil samples, and it is the energy uncertainty to attach to a cross
+section measured in that foil — not the statistical uncertainty of the
+mean ``mu_E``.  Collisional energy-loss
 straggling — the stochastic variance growth described by Bohr and
 Tschalar — is *not* added, so for very thick degraders the true energy
 spread is somewhat larger than computed.  Particles are neither absorbed
 nor deflected: the distributions describe the beam's energy, not its
 intensity, and lateral spread is not modeled.
+
+Because the beam is degraded foil by foil, uncertainties in ``E0``, the
+areal densities, and the stopping powers accumulate down the stack, so
+the energy assigned to a deep foil can be off by more than its computed
+width.  In stacked-target work this is corrected empirically by
+including monitor foils with independently evaluated cross sections and
+adjusting ``E0`` and the overall density multiplier ``dp`` until the
+beam current inferred from each monitor reaction varies smoothly along
+the stack.  `Stack` does not perform this fit itself; it exposes ``E0``
+and ``dp`` so the transport can be repeated inside a user-driven
+minimization.
 
 .. [AZ1977] H.H. Andersen and J.F. Ziegler, *Hydrogen: Stopping Powers
    and Ranges in All Elements* (Pergamon, New York, 1977).

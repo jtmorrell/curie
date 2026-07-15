@@ -15,7 +15,8 @@ Getting a reaction
 Reactions are written ``TARGET(incident,outgoing)PRODUCT``.  The target
 and product take the same isotope names as everywhere in Curie (see
 :ref:`isotopes_howto`), the incident particle is ``n``, ``p`` or ``d``
-(plus ``a``, ``h``, ``g`` in the IAEA library), and the outgoing particle
+(plus ``a`` alpha, ``h`` helion — a :sup:`3`\ He nucleus — and ``g``
+photon in the IAEA library), and the outgoing particle
 is a shorthand like ``g``, ``2n``, ``p``, ``a``, ``inl`` (inelastic),
 ``f`` (fission) — or ``x``, meaning "anything": only the product is
 specified::
@@ -30,7 +31,8 @@ it is not a valid `Isotope` name.
 
 The product can be omitted when the outgoing particle determines it
 (``'115IN(n,g)'`` is ``'115IN(n,g)116IN'``), but is needed to select an
-isomer (``'115IN(n,inl)115INm1'``).  The data are attributes: ``rx.eng``
+isomer — a longer-lived excited state of the product nucleus, written
+with an ``m`` suffix (``'115IN(n,inl)115INm1'``).  The data are attributes: ``rx.eng``
 (MeV), ``rx.xs`` (mb), ``rx.unc_xs`` (mb; zeros if the library provides
 no uncertainties), and ``rx.TeX`` for plot labels.
 
@@ -51,7 +53,7 @@ alpha, helion, photon   IAEA
 
 The order reflects evaluation care: dosimetry and monitor standards
 first, general-purpose evaluations next, all-encompassing theoretical
-libraries last.  Check which library you got, and pin it explicitly when
+libraries last.  Check which library was selected, and pin it explicitly when
 reproducibility matters (in a publication, name the library — 'best' can
 resolve differently as libraries are added or updated)::
 
@@ -152,5 +154,5 @@ libraries by passing figure and axes through::
 	rx.plot(f=f, ax=ax, label='library')
 
 ``label`` can be ``'reaction'``, ``'library'`` or ``'both'``; pass
-``energy=`` to plot on your own grid; ``scale='loglog'`` (and friends)
-sets the axes.
+``energy=`` to plot on your own grid; ``scale='loglog'`` sets the axes
+(the full list of scale options is on the :ref:`plotter` page).

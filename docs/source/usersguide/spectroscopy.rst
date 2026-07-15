@@ -51,7 +51,7 @@ expects from those isotopes, rather than hunting for unidentified peaks.
 True-coincidence summing — two gammas from the same decay cascade arriving
 together and counted as one event — is not corrected; it matters mainly
 for samples counted very close to the detector, so calibrate at a moderate
-standoff or with single-line sources.
+source-to-detector distance or with single-line sources.
 
 .. toctree::
    :hidden:

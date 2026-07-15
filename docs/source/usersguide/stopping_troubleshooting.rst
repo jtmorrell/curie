@@ -4,7 +4,7 @@
 Stopping Power Troubleshooting
 ==============================
 
-Stack problems usually announce themselves as energies that don't match
+Stack problems usually appear as energies that don't match
 expectations.  The three failure modes below cover most cases; for all of
 them, the first diagnostic is the same — ``print(st.stack)`` and check
 the ``areal_density`` column against what you think is in the beam.

@@ -11,7 +11,7 @@ Plotting
 Class Plotting Methods
 ======================
 
-The following classes have plotting methods callable with the `cls.plot()` function, where `cls` is an instance of the appropriate class:
+The following classes have plotting methods callable as `obj.plot()`, where `obj` is an instance of the appropriate class:
 
 * Calibration
 * Spectrum
@@ -19,7 +19,7 @@ The following classes have plotting methods callable with the `cls.plot()` funct
 * Reaction
 * Stack
 
-All `cls.plot()` methods have no required arguments, and while some have specific optional arguments that are documented in the respective classes,
+All `obj.plot()` methods have no required arguments, and while some have specific optional arguments that are documented in the respective classes,
 all plotting methods share the same optional **keyword arguments**, denoted in the code by `**kwargs`.
 
 f : matplotlib.pyplot figure
@@ -47,9 +47,9 @@ show : bool
 	Whether or not to show the figure using the matplotlib GUI.
 
 saveas : str
-	Full filename for saving the figure.  Any matplotlib-supported image format is accepted; a ``.pickle`` filename instead serializes the figure object itself, so it can be reloaded and edited later.
+	Full filename for saving the figure.  Any matplotlib-supported image format is accepted; a ``.pickle`` filename instead saves the figure object itself to disk, so it can be reloaded and edited later in Python.
 
 return_plot : bool
-	If `True`, then a tuple of (fig, axes) will be returned when calling the `cls.plot()` method.  This can be used to draw multiple plots over each other, e.g. for plotting multiple cross-sections.
+	If `True`, then a tuple of (fig, axes) will be returned when calling the `obj.plot()` method.  This can be used to draw multiple plots over each other, e.g. for plotting multiple cross-sections.
 
 **style**, **palette** and **shade** are also available as keyword arguments, and have the same behavior as in `curie.set_style()`.

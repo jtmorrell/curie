@@ -52,7 +52,7 @@ travels before stopping::
 A 15 MeV proton stops in under a millimeter of titanium.  Numbers like
 these are the first sanity check of any stack design: a foil much
 thinner than the range perturbs the beam gently; one comparable to the
-range consumes it.  Compounds work identically, with presets for common
+range nearly stops it.  Compounds work identically, with presets for common
 materials::
 
 	>>> cm = ci.Compound('Kapton')     # in ci.COMPOUND_LIST
@@ -71,8 +71,11 @@ A first stack
 -------------
 
 Now put foils in a beam.  A common pattern is repeating groups of
-monitor and target foils separated by degraders — here two Al–Ti–Cu
-groups in a 30 MeV proton beam::
+monitor and target foils separated by degraders (a monitor foil carries
+a reaction whose cross section is already well known, so its measured
+activity determines the beam current at that position; a target foil
+carries the reaction under study) — here two Al–Ti–Cu groups in a
+30 MeV proton beam::
 
 	stack = [{'cm':'Al', 't':0.5,   'name':'Al01'},
 	         {'cm':'Ti', 't':0.025, 'name':'Ti01'},
@@ -117,7 +120,7 @@ foils it can fail badly, because the beam spans a wide slice of the
 excitation function (the cross section as a function of energy) inside
 the foil.  Compare a 25 um and a 0.75 mm
 titanium foil, both hit by 15 MeV protons (the range is 0.87 mm — the
-thick foil eats most of the beam's energy)::
+thick foil absorbs most of the beam's energy)::
 
 	rx = ci.Reaction('natTI(p,x)48V')
 
