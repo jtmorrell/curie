@@ -144,7 +144,7 @@ class Element(object):
 		Examples
 		--------
 		>>> el = ci.Element('Hg')
-		>>> print(round(float(el.mu(200)), 6))
+		>>> print(round(el.mu(200), 6))
 		0.9456
 
 		"""
@@ -172,7 +172,7 @@ class Element(object):
 		Examples
 		--------
 		>>> el = ci.Element('Hg')
-		>>> print(round(float(el.mu_en(200)), 6))
+		>>> print(round(el.mu_en(200), 6))
 		0.5661
 
 		"""
@@ -355,9 +355,9 @@ class Element(object):
 		Examples
 		--------
 		>>> el = ci.Element('La')
-		>>> print(round(float(el.S(60.0)), 6))
+		>>> print(round(el.S(60.0), 6))
 		36.868775
-		>>> print(round(float(el.S(55.0, density=1E-3)), 6)) ### S in MeV/(mg/cm^2)
+		>>> print(round(el.S(55.0, density=1E-3), 6)) ### S in MeV/(mg/cm^2)
 		0.006372
 
 		"""

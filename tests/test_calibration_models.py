@@ -49,7 +49,7 @@ def test_zero_config_identity():
     cb = ci.Calibration()
     cb.calibrate([eu_sp()], sources=EU_SOURCES)
     e = np.array([121.7817, 344.2785, 778.9045, 1408.013])
-    np.testing.assert_allclose(ci.Calibration().eff(e, cb.effcal),
+    np.testing.assert_allclose(cb.eff(e),
                                [0.0338679, 0.0152847, 0.00714092, 0.00403744], rtol=1E-4)
     assert (cb._engcal_model, cb._rescal_model, cb._effcal_model) == ('quadratic', 'linear', 'vidmar-5')
     assert cb.diagnostics.set_index('fit')['model'].to_dict() == {
