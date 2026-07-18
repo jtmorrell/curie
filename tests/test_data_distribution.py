@@ -94,7 +94,9 @@ def test_shipped_registry_is_self_consistent():
 		bad = [s for s in shards if not namere.match(s)]
 		assert not bad, '{} shard names the runtime table derivation cannot produce: {}'.format(lib, bad)
 		assert all(hexre.match(h) for h in shards.values()), lib
-		assert len(shards) > 400, lib
+		# lower bound catches an accidentally truncated shard group: the
+		# smallest groups are the curated TENDL cut (~399 shards)
+		assert len(shards) > 350, lib
 	# GitHub caps a release at 1000 assets: each group is one release
 	assert all(len(g['files']) <= 900 for g in reg['shards'].values()), 'shard group too close to the per-release asset cap: split it'
 
