@@ -7,6 +7,41 @@ from .data import _get_connection
 from .plotting import _init_plot, _draw_plot, colormap
 from .isotope import Isotope
 from .library import Library
+from ._log import _get_logger, _choice, _validate_config
+
+_log = _get_logger('reaction')
+
+_INTERP_CONFIG_SPEC = {'interpolation': _choice(['linear', 'pchip-sqrt'])}
+
+
+def _pchip_sqrt(eng, xs, energy):
+	"""Monotone (PCHIP) interpolation in sqrt(E)-sqrt(sigma) space.
+
+	Passes exactly through the evaluated points with no overshoot or
+	ringing between them (a quadratic spline oscillates across sharp
+	threshold rises), and the sqrt energy axis linearizes the
+	near-threshold turn-on. Energies outside the evaluated grid and below
+	the reaction threshold return 0; values are clamped non-negative.
+	"""
+	from scipy.interpolate import PchipInterpolator
+	energy = np.asarray(energy, dtype=float)
+	nonzero = xs > 0
+	if len(eng) < 2 or not nonzero.any():
+		return np.zeros_like(energy)
+	# threshold: the last zero point before the first non-zero one
+	e_first_nz = eng[nonzero].min()
+	zeros_before = eng[(xs == 0.0) & (eng < e_first_nz)]
+	e_threshold = zeros_before.max() if len(zeros_before) else eng[0]
+	es = np.sqrt(np.maximum(eng, 1E-12))
+	ss = np.sqrt(np.maximum(xs, 0.0))
+	# PCHIP requires strictly increasing abscissae; step representations
+	# (duplicate energies) keep their first point
+	keep = np.concatenate(([True], np.diff(es) > 0))
+	f = PchipInterpolator(es[keep], ss[keep], extrapolate=False)
+	y = np.nan_to_num(f(np.sqrt(np.maximum(energy, 1E-12))), nan=0.0)
+	out = np.where((energy < e_threshold) | (energy > eng[-1]), 0.0, y*y)
+	return np.maximum(out, 0.0)
+
 
 class Reaction(object):
 	"""Cross section data for nuclear reactions
@@ -41,6 +76,12 @@ class Reaction(object):
 
 	product : str
 		The product isotope. 
+
+	interp_config : dict
+		Interpolation configuration, set as a property or through keyword
+		arguments to `interpolate`/`interpolate_unc`.  The one key is
+		'interpolation': 'pchip-sqrt' (default for the TENDL libraries) or
+		'linear' (default for ENDF, IRDFF and IAEA).
 
 	eng : np.ndarray
 		Incident particle energy, in MeV. 
@@ -112,6 +153,12 @@ class Reaction(object):
 			self.unc_xs = np.zeros(len(self.xs))
 		self._interp = None
 		self._interp_unc = None
+		# TENDL's coarse TALYS grids get the monotone PCHIP interpolation in
+		# sqrt(E)-sqrt(sigma) space; the pointwise-linearized libraries are
+		# lin-lin by construction (ENDF via RECONR, IRDFF's tabulated form,
+		# the IAEA evaluations)
+		self._interp_config = {'interpolation':
+			'pchip-sqrt' if self.library.db_name.startswith('tendl') else 'linear'}
 
 		try:
 			if 'nat' not in self.target:
@@ -133,18 +180,40 @@ class Reaction(object):
 
 	def __str__(self):
 		return self.name
-		
-	def interpolate(self, energy):
+
+	@property
+	def interp_config(self):
+		return self._interp_config
+
+	@interp_config.setter
+	def interp_config(self, _interp_config):
+		accepted = _validate_config(_interp_config, _INTERP_CONFIG_SPEC,
+									'Reaction({}).interp_config'.format(self.name), _log)
+		if accepted:
+			self._interp = None
+			self._interp_unc = None
+		for nm in accepted:
+			self._interp_config[nm] = accepted[nm]
+
+	def interpolate(self, energy, **interp_config):
 		"""Interpolated cross section
 
-		Linear interpolation of the reaction cross section along the
-		input energy grid.  Energies outside the evaluated grid return 0
-		rather than an extrapolation.
+		Interpolation of the reaction cross section along the input energy
+		grid.  The scheme comes from `interp_config` (per-library defaults:
+		'pchip-sqrt' for the TENDL libraries — monotone PCHIP interpolation
+		in sqrt(E)-sqrt(sigma) space, exact through the evaluated points
+		with no overshoot at thresholds — and 'linear' for the
+		pointwise-linearized ENDF, IRDFF and IAEA libraries).  Energies
+		outside the evaluated grid return 0 rather than an extrapolation.
 
 		Parameters
 		----------
 		energy : array_like
 			Incident particle energy, in MeV.
+
+		interp_config : optional keyword arguments
+			Updates to `interp_config`, applied before interpolating and
+			kept for later calls, e.g. ``rx.interpolate(E, interpolation='linear')``.
 
 		Returns
 		-------
@@ -161,32 +230,31 @@ class Reaction(object):
 
 		""" 
 
+		if interp_config:
+			self.interp_config = interp_config
 		if self._interp is None:
-			kind = 'linear'
-			fv = 0.0
-			i = 0
-			if self.library.name.lower().startswith('tendl'):
-				kind = 'quadratic'
-				fv = 0.0
-				ix = np.where(self.xs>0)[0]
-				if len(ix)>0:
-					i = max((ix[0]-1, 0))
-					if len(self.xs)-i<5:
-						kind = 'linear'
-			self._interp = interp1d(self.eng[i:], self.xs[i:], bounds_error=False, fill_value=fv, kind=kind)
+			if self._interp_config['interpolation'] == 'pchip-sqrt':
+				self._interp = lambda e: _pchip_sqrt(self.eng, self.xs, e)
+			else:
+				self._interp = interp1d(self.eng, self.xs, bounds_error=False, fill_value=0.0)
 		_interp = self._interp(energy)
 		return np.where(_interp>0, _interp, 0.0)
 
-	def interpolate_unc(self, energy):
+	def interpolate_unc(self, energy, **interp_config):
 		"""Uncertainty in interpolated cross section
 
-		Linear interpolation of the uncertainty in the reaction cross section
-		along the input energy grid, for libraries where uncertainties are provided.
+		Interpolation of the uncertainty in the reaction cross section along
+		the input energy grid, for libraries where uncertainties are
+		provided, using the same `interp_config` scheme as `interpolate`.
 
 		Parameters
 		----------
 		energy : array_like
 			Incident particle energy, in MeV.
+
+		interp_config : optional keyword arguments
+			Updates to `interp_config`, applied before interpolating and
+			kept for later calls.
 
 		Returns
 		-------
@@ -203,8 +271,13 @@ class Reaction(object):
 
 		""" 
 
+		if interp_config:
+			self.interp_config = interp_config
 		if self._interp_unc is None:
-			self._interp_unc = interp1d(self.eng, self.unc_xs, bounds_error=False, fill_value=0.0)
+			if self._interp_config['interpolation'] == 'pchip-sqrt':
+				self._interp_unc = lambda e: _pchip_sqrt(self.eng, self.unc_xs, e)
+			else:
+				self._interp_unc = interp1d(self.eng, self.unc_xs, bounds_error=False, fill_value=0.0)
 		return self._interp_unc(energy)
 		
 	def integrate(self, energy, flux, unc=False):

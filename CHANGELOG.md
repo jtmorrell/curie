@@ -26,6 +26,19 @@ Notable changes to curie are documented here. The format follows
   reports `stable = False` with an infinite half-life, instead of being
   presented as stable.
 
+### Changed — interpolation
+- **TENDL cross sections now interpolate with a monotone PCHIP scheme in
+  sqrt(E)-sqrt(sigma) space** ('pchip-sqrt'), replacing the quadratic
+  spline, which could overshoot between points across sharp threshold
+  rises. The scheme is exact through the evaluated points, cannot
+  overshoot or go negative, and linearizes the near-threshold turn-on;
+  values at the evaluated energies themselves are unchanged. ENDF, IRDFF
+  and IAEA remain lin-lin, which is the convention their pointwise data
+  is generated for. The scheme is selectable per reaction through the
+  new `Reaction.interp_config` property or keyword arguments to
+  `interpolate`/`interpolate_unc`, e.g.
+  `rx.interpolate(E, interpolation='linear')`.
+
 ### Added
 - **Alpha-particle residual-product library**: `ci.Library('tendl_a')`
   (TENDL-2025), with `'best'` for alpha-incident reactions searching

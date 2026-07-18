@@ -133,7 +133,9 @@ class TestNatTiPV48:
 
     def test_interpolate(self, rx):
         assert float(rx.interpolate(12.0)) == pytest.approx(383.000434784, rel=REL)
-        assert float(rx.interpolate(25.0)) == pytest.approx(47.73267097397423, rel=REL)
+        # 25.0 MeV falls between grid points: re-recorded 2026-07-18 under the
+        # pchip-sqrt scheme that replaced the quadratic spline
+        assert float(rx.interpolate(25.0)) == pytest.approx(47.67358846552096, rel=REL)
 
     def test_integrate(self, rx):
         assert float(rx.integrate(10.0, 30.0)) > 0.0
