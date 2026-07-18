@@ -27,9 +27,9 @@ class Isotope(object):
 	"""Retrieve isotopic structure and decay data
 
 	The Isotope class provides isotope specific nuclear data, such as masses,
-	abundances, half-lives, decay data and fission yields.  The main data souces 
-	are NuDat 2.0, ENDF/B-VII.0 and the nuclear wallet cards.  Where conflicts
-	were found preference was given to NuDat, then ENDF, then wallet cards.
+	abundances, half-lives, decay data and fission yields.  The main data
+	sources are ENSDF (via the IAEA LiveChart interface), NUBASE2020/AME2020,
+	and the ENDF/B-VIII.1 fission-yield sublibraries.
 	
 	Parameters
 	----------

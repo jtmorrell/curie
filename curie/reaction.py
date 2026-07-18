@@ -67,10 +67,10 @@ class Reaction(object):
 	--------
 	>>> rx = ci.Reaction('226RA(n,2n)')
 	>>> print(rx.library.name)
-	ENDF/B-VII.1
+	ENDF/B-VIII.1
 	>>> rx = ci.Reaction('226RA(n,x)225RA')
 	>>> print(rx.library.name)
-	TENDL-2015
+	TENDL-2025
 	>>> rx = ci.Reaction('115IN(n,inl)')
 	>>> print(rx.library.name)
 	IRDFF-II

@@ -90,13 +90,23 @@ def _check_generation(fnm, con):
 	expected = _generation()
 	if row is None:
 		_log.warning('{0} predates the generation stamp: it was fetched by an earlier '
-					 'curie release (this one uses data generation {1}). Use '
-					 'ci.download({2!r}, overwrite=True) to replace it.'.format(
-						fnm, expected, fnm[:-3]))
+					 'curie release (this one uses data generation {1}). Run '
+					 'ci.download({2!r}) to update it.'.format(fnm, expected, fnm[:-3]))
 	elif row[0] != expected:
 		_log.warning('{0} is from data generation {1}, but this curie release uses '
-					 'generation {2}. Use ci.download({3!r}, overwrite=True) to '
-					 'replace it.'.format(fnm, row[0], expected, fnm[:-3]))
+					 'generation {2}. Run ci.download({3!r}) to update it.'.format(
+						fnm, row[0], expected, fnm[:-3]))
+
+
+def _file_generation(path):
+	"""The _version generation stamp of a database file, or None."""
+	try:
+		con = sqlite3.connect(path)
+		row = con.execute('SELECT generation FROM _version').fetchone()
+		con.close()
+		return row[0] if row else None
+	except sqlite3.Error:
+		return None
 
 
 def _data_path(db=''):
@@ -270,8 +280,10 @@ def download(db='all', overwrite=False):
 
 	Data files are fetched automatically the first time they are needed, so
 	calling this function is only necessary to prepare an offline machine, to
-	pre-populate a fresh data directory, or to repair/update existing data
-	with `overwrite=True`.  Files are stored in a per-user data directory
+	pre-populate a fresh data directory, or to repair/update existing data.
+	An installed file from an older data generation is replaced by the
+	current release automatically; `overwrite=True` replaces files
+	unconditionally.  Files are stored in a per-user data directory
 	(printed by `ci.data._data_path()`), which can be overridden with the
 	`CURIE_DATA_DIR` environment variable.  Every download is verified against
 	the SHA256 recorded for the curie data release.
@@ -328,8 +340,15 @@ def download(db='all', overwrite=False):
 			# a partially assembled library is present, not installed
 			installed = _sha256(path) == _registry()['files'].get(fnm)
 		if installed and not overwrite:
-			_log.info("{0} already installed. Run ci.download('{0}', overwrite=True) to overwrite these files.".format(fnm.replace('.db', '')))
-			continue
+			# an installed file from another data generation is refreshed
+			# without needing overwrite=True: this is the repair the
+			# generation warning points at (ziegler.db carries no stamp
+			# and is carried over between generations)
+			if fnm != 'ziegler.db' and _file_generation(path) != _generation():
+				_log.info('{} is from an older data generation; fetching the current release.'.format(fnm))
+			else:
+				_log.info("{0} already installed. Run ci.download('{0}', overwrite=True) to overwrite these files.".format(fnm.replace('.db', '')))
+				continue
 		# the existing file (if any) is left in place: the fetch verifies and
 		# replaces it atomically, so a failed download never destroys data
 		GLOB_CONNECTIONS_DICT.pop(path, None)

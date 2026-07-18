@@ -5,7 +5,32 @@ Notable changes to curie are documented here. The format follows
 
 ## [Unreleased]
 
+### Changed — nuclear data generation v2
+- **All data libraries rebuilt from current evaluations**: ENDF/B-VIII.1
+  (was VII.1), TENDL-2025 (was 2015), IAEA medical monitors 2025, and
+  decay data from ENSDF via IAEA LiveChart with NUBASE2020/AME2020
+  (`Library.name` reports the new versions). Values everywhere reflect
+  the newer evaluations; target coverage differs where the evaluations
+  themselves changed (for example ENDF/B-VIII.1 provides Cd-115m but no
+  Cd-115 ground-state evaluation).
+- **TENDL target curation**: the TENDL libraries carry targets that are
+  naturally occurring or have half-lives of at least one year (ground
+  states and isomeric targets alike, each state judged on its own
+  half-life), including long-lived second isomers (178HFm2, 192IRm2)
+  and the ten classic long-lived first isomers.
+- **Data generation awareness**: each database now carries a generation
+  stamp; connecting to data fetched by an earlier curie release logs a
+  warning naming the `ci.download(...)` repair, and `ci.download()`
+  refreshes outdated files without needing `overwrite=True`.
+- `Isotope`: a state with no measured half-life in the decay data now
+  reports `stable = False` with an infinite half-life, instead of being
+  presented as stable.
+
 ### Added
+- **Alpha-particle residual-product library**: `ci.Library('tendl_a')`
+  (TENDL-2025), with `'best'` for alpha-incident reactions searching
+  the IAEA monitors first and then tendl_a_rp — mirroring protons and
+  deuterons.
 - **Natural-element targets in the TENDL residual-product libraries**:
   `ci.Reaction('natFe(p,x)56CO', 'tendl_p')` now works for ~80 elements
   in all four residual-product libraries (n, p, d and the new alpha
