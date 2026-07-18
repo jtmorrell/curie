@@ -27,7 +27,7 @@ def __getattr__(name):
 
 
 
-__doctest_skip__ = ['Compound']
+__doctest_skip__ = ['Compound', 'Compound.saveas']
 
 
 class Compound(object):

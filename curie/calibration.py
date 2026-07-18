@@ -170,9 +170,9 @@ class Calibration(object):
 	>>> cb.engcal = [0.1, 0.2, 0.003]
 	>>> print(cb.engcal)
 	[0.1   0.2   0.003]
-	>>> cb.saveas('test_calib.json')
-	>>> cb = Calibration('test_calib.json')
-	>>> print(cb.engcal)
+	>>> cb.saveas('test_calib.json')  # doctest: +SKIP
+	>>> cb = Calibration('test_calib.json')  # doctest: +SKIP
+	>>> print(cb.engcal)  # doctest: +SKIP
 	[0.1   0.2   0.003]
 
 	"""

@@ -1,8 +1,9 @@
 """Library cross-section reference tests (public suite, category 4).
 
-Every value here is pinned to the *shipped* nuclear-data libraries, recorded 2026-06-09 on
-curie v0.0.34: IRDFF-II (IRDFF.db), ENDF/B-VII.1 (endf.db), IAEA charged-particle monitors
-(iaea_monitors.db, ~2017 baseline). They are EXPECTED to change whenever the shipped
+Every value here is pinned to the *shipped* nuclear-data libraries. IRDFF-II values
+recorded 2026-06-09 (unchanged by the v2 rebuild: 119/119 reactions data-identical);
+ENDF/B-VIII.1, IAEA monitor (2025 evaluation) and TENDL-2025 values re-recorded
+2026-07-18 against the v2 data generation. They are EXPECTED to change whenever the shipped
 data libraries are rebuilt against newer evaluations - that is what the `library_value`
 marker means: re-record each value deliberately against the new evaluation. An unexpected
 shift at any other time is a regression in retrieval/interpolation/quadrature, not in data.
@@ -54,7 +55,10 @@ class TestIn115ng:
 
 @requires_data('endf')
 class TestCo59ng:
-    """59CO(n,g)60CO, ENDF/B-VII.1. Classic activation standard."""
+    """59CO(n,g)60CO, ENDF/B-VIII.1. Classic activation standard.
+
+    Re-recorded 2026-07-18 against the v2 data generation.
+    """
 
     @pytest.fixture(scope='class')
     def rx(self):
@@ -64,15 +68,15 @@ class TestCo59ng:
         assert rx.name == '59CO(n,g)60CO'
 
     def test_interpolate_thermal(self, rx):
-        assert float(rx.interpolate(2.53E-8)) == pytest.approx(37173.5, rel=REL)
+        assert float(rx.interpolate(2.53E-8)) == pytest.approx(37171.08, rel=REL)
 
     def test_integrate(self, rx):
-        assert float(rx.integrate(0.5, 2.0)) == pytest.approx(14.7, rel=REL)
+        assert float(rx.integrate(0.5, 2.0)) == pytest.approx(13.973034, rel=REL)
 
     def test_average(self, rx):
         flux_E = np.linspace(0.5, 2.0, 151)
         avg = float(rx.average(flux_E, np.ones(151)))
-        assert avg == pytest.approx(5.302980177664555, rel=REL)
+        assert avg == pytest.approx(5.0926147913150475, rel=REL)
 
 
 @requires_data('iaea_monitors')
@@ -93,17 +97,55 @@ class TestNatCuP63Zn:
         assert np.all(np.diff(rx.eng) > 0.0)
 
     def test_interpolate(self, rx):
-        assert float(rx.interpolate(12.0)) == pytest.approx(343.15, rel=REL)
-        assert float(rx.interpolate(25.0)) == pytest.approx(25.75, rel=REL)
+        assert float(rx.interpolate(12.0)) == pytest.approx(340.29001028, rel=REL)
+        assert float(rx.interpolate(25.0)) == pytest.approx(25.39605128, rel=REL)
 
     def test_interpolate_unc(self, rx):
         # library-provided uncertainty, not a fit uncertainty - safe to pin
-        assert float(rx.interpolate_unc(12.0)) == pytest.approx(16.17, rel=REL)
+        assert float(rx.interpolate_unc(12.0)) == pytest.approx(16.033444414362762, rel=REL)
 
     def test_integrate(self, rx):
-        assert float(rx.integrate(10.0, 40.0)) == pytest.approx(11940.4, rel=REL)
+        assert float(rx.integrate(10.0, 40.0)) == pytest.approx(11525.1987016, rel=REL)
 
     def test_average(self, rx):
         flux_E = np.linspace(10.0, 40.0, 31)
         avg = float(rx.average(flux_E, np.ones(31)))
-        assert avg == pytest.approx(99.58161290322582, rel=REL)
+        assert avg == pytest.approx(99.2062452448387, rel=REL)
+
+
+@requires_data('tendl_p_rp')
+class TestNatTiPV48:
+    """natTI(p,x)48Vg from the TENDL proton residual-product library.
+
+    The natural-element tables are abundance-weighted sums of the isotopic tables,
+    synthesized at build time (v2 data generation). Values recorded 2026-07-18 from the
+    v2 build. Independent context (deliberately not asserted): the IAEA monitor
+    evaluation of this reaction peaks at 377 mb / 11.0 MeV; the TENDL synthesis peaks
+    at 383 mb / 12.0 MeV.
+    """
+
+    @pytest.fixture(scope='class')
+    def rx(self):
+        return ci.Reaction('natTi(p,x)48V', 'tendl_p')
+
+    def test_grid_sorted(self, rx):
+        assert np.all(np.diff(rx.eng) > 0.0)
+
+    def test_interpolate(self, rx):
+        assert float(rx.interpolate(12.0)) == pytest.approx(383.000434784, rel=REL)
+        # 25.0 MeV falls between grid points: re-recorded 2026-07-18 under the
+        # pchip-sqrt scheme that replaced the quadratic spline
+        assert float(rx.interpolate(25.0)) == pytest.approx(47.67358846552096, rel=REL)
+
+    def test_integrate(self, rx):
+        assert float(rx.integrate(10.0, 30.0)) > 0.0
+
+
+@requires_data('tendl_p_rp')
+def test_natural_element_with_m_in_symbol():
+    """'natSm' must resolve to the SM_000 table: the legacy letters+digits
+    derivation mangles every nat spelling, and this title-case one would also
+    gain a spurious isomer flag from its trailing m (recorded 2026-07-18 from
+    the v2 build)."""
+    rx = ci.Reaction('natSm(p,x)153EUg', 'tendl_p')
+    assert float(rx.interpolate(20.0)) == pytest.approx(115.5922798456, rel=REL)

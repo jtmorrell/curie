@@ -1,6 +1,6 @@
 # CI: install from source, import smoke test, and run the public test suite
-# against a data fixture (ziegler + decay + iaea_monitors + IRDFF, ~133 MB)
-# fetched from the curie-data v1 release into a pre-populated data directory.
+# against a data fixture (ziegler + decay + iaea_monitors + IRDFF, ~165 MB)
+# fetched from the curie-data v2 release into a pre-populated data directory.
 # Tests needing endf/tendl skip with reported reasons. The cold-cache job installs the built wheel on a clean
 # machine and lets curie fetch its own data (whole-file and endf shards) from
 # the data release, end to end.
@@ -36,13 +36,13 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/curie-ci-data
-          key: curie-data-v1-${{ hashFiles('curie/data_registry.json') }}
+          key: curie-data-v2-${{ hashFiles('curie/data_registry.json') }}
 
-      - name: Fetch data fixture from the curie-data v1 release
+      - name: Fetch data fixture from the curie-data v2 release
         if: steps.data-cache.outputs.cache-hit != 'true'
         run: |
           mkdir -p ~/curie-ci-data && cd ~/curie-ci-data
-          base="https://github.com/jtmorrell/curie-data/releases/download/v1"
+          base="https://github.com/jtmorrell/curie-data/releases/download/v2"
           for f in SHA256SUMS ziegler.db decay.db iaea_monitors.db IRDFF.db; do
             curl -sSL --retry 3 -O "$base/$f"
           done

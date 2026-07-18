@@ -147,8 +147,8 @@ def log_to(filename, level='INFO', mode='overwrite'):
 
 	Examples
 	--------
-	>>> ci.log_to('analysis.log')
-	>>> ci.log_to('debug.log', level='DEBUG', mode='append')
+	>>> ci.log_to('analysis.log')  # doctest: +SKIP
+	>>> ci.log_to('debug.log', level='DEBUG', mode='append')  # doctest: +SKIP
 
 	"""
 

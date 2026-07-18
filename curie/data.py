@@ -33,13 +33,15 @@ GLOB_CONNECTIONS_DICT = {}
 _REGISTRY_CACHE = None
 
 _FILES = ['decay.db', 'ziegler.db', 'endf.db', 'tendl.db', 'tendl_n_rp.db',
-		  'tendl_p_rp.db', 'tendl_d_rp.db', 'IRDFF.db', 'iaea_monitors.db']
+		  'tendl_p_rp.db', 'tendl_d_rp.db', 'tendl_a_rp.db', 'IRDFF.db',
+		  'iaea_monitors.db']
 
 # accepted spellings beyond the filename stem itself
 _ALIASES = {
 	'tendl_n_rp.db': ['tendl_nrp', 'tendl_n', 'nrp', 'rpn'],
 	'tendl_p_rp.db': ['tendl_prp', 'tendl_p', 'prp', 'rpp'],
 	'tendl_d_rp.db': ['tendl_drp', 'tendl_d', 'drp', 'rpd'],
+	'tendl_a_rp.db': ['tendl_arp', 'tendl_a', 'arp', 'rpa'],
 	'iaea_monitors.db': ['iaea', 'iaea-cpr', 'iaea-monitor', 'cpr', 'iaea_cpr',
 						 'iaea_monitor', 'medical', 'iaea-medical', 'iaea_medical'],
 }
@@ -63,6 +65,37 @@ def _canonical(db):
 		if nm in aliases:
 			return fnm
 	return None
+
+
+def _generation():
+	"""The data generation this registry fetches: its release-tag name."""
+	return _registry()['base_url'].rstrip('/').rsplit('/', 1)[-1]
+
+
+def _check_generation(fnm, con):
+	"""Warn when a local database is not from the generation this curie
+	release fetches. Runs once per database per session (at first
+	connection). ziegler.db carries no stamp by design (carried over
+	between generations); a stampless file otherwise means data fetched by
+	an earlier curie release. A mixed shard-assembled file cannot occur
+	silently: assembly only stamps a database it created empty, so an
+	older file keeps warning until it is replaced.
+	"""
+	if fnm == 'ziegler.db':
+		return
+	try:
+		row = con.execute('SELECT generation FROM _version').fetchone()
+	except sqlite3.Error:
+		row = None
+	expected = _generation()
+	if row is None:
+		_log.warning('{0} predates the generation stamp: it was fetched by an earlier '
+					 'curie release (this one uses data generation {1}). Run '
+					 'ci.download({2!r}) to update it.'.format(fnm, expected, fnm[:-3]))
+	elif row[0] != expected:
+		_log.warning('{0} is from data generation {1}, but this curie release uses '
+					 'generation {2}. Run ci.download({3!r}) to update it.'.format(
+						fnm, row[0], expected, fnm[:-3]))
 
 
 def _data_path(db=''):
@@ -142,7 +175,7 @@ def _adopt_legacy(fnm):
 		return False
 	known = _registry()['files'].get(fnm)
 	if known is not None and _sha256(legacy) != known:
-		_log.warning('Existing {} does not match the data release (stale or corrupted); fetching a fresh copy.'.format(fnm))
+		_log.warning('Existing {} is from an older data generation (or corrupted); it will be replaced from the current data release.'.format(fnm))
 		return False
 	dest = _data_path(fnm)
 	try:
@@ -195,6 +228,14 @@ def _ensure_table(db, table):
 	if _ensure_file(fnm) != _data_path(fnm):
 		return  # served from a site-wide copy: use as-is
 	con = _get_connection(db)
+	if table != '_version':
+		# a database assembled from scratch carries the generation stamp
+		# from its first table; an older stampless file is deliberately
+		# left unstamped, so the generation check keeps warning about it
+		# rather than a mixed-generation file passing as current
+		empty = con.execute("SELECT count(*) FROM sqlite_master WHERE type='table'").fetchone()[0] == 0
+		if empty and '{}__version.db'.format(fnm[:-3]) in group['files']:
+			_ensure_table(db, '_version')
 	if con.execute("SELECT name FROM sqlite_master WHERE type='table' AND name=?", (table,)).fetchone():
 		return
 	shard_fnm = '{}_{}.db'.format(fnm[:-3], table)
@@ -228,8 +269,10 @@ def download(db='all', overwrite=False):
 
 	Data files are fetched automatically the first time they are needed, so
 	calling this function is only necessary to prepare an offline machine, to
-	pre-populate a fresh data directory, or to repair/update existing data
-	with `overwrite=True`.  Files are stored in a per-user data directory
+	pre-populate a fresh data directory, or to repair/update existing data.
+	An installed file from an older data generation is replaced by the
+	current release automatically; `overwrite=True` replaces files
+	unconditionally.  Files are stored in a per-user data directory
 	(printed by `ci.data._data_path()`), which can be overridden with the
 	`CURIE_DATA_DIR` environment variable.  Every download is verified against
 	the SHA256 recorded for the curie data release.
@@ -246,7 +289,7 @@ def download(db='all', overwrite=False):
 	db : str, optional
 		Name of database to download, default is 'all'.  Options include:
 		'all', 'decay', 'ziegler', 'endf', 'tendl', 'tendl_n_rp', 'tendl_p_rp',
-		'tendl_d_rp', 'IRDFF', 'iaea_monitors'.
+		'tendl_d_rp', 'tendl_a_rp', 'IRDFF', 'iaea_monitors'.
 
 	overwrite : bool, optional
 		If overwrite is `True`, will save write over existing data.  Default is `False`.
@@ -279,18 +322,30 @@ def download(db='all', overwrite=False):
 	for fnm in d:
 		path = _data_path(fnm)
 		installed = os.path.isfile(path) and os.path.getsize(path) > 0
-		if not installed and not overwrite and _site_file(fnm) is not None:
-			_log.info('{} is provided by the site-wide data directory; nothing to download.'.format(fnm))
-			continue
-		if installed and fnm[:-3] in _registry().get('shards', {}):
-			# a partially assembled library is present, not installed
-			installed = _sha256(path) == _registry()['files'].get(fnm)
+		if not installed and not overwrite:
+			site = _site_file(fnm)
+			if site is not None:
+				if _sha256(site) == _registry()['files'].get(fnm):
+					_log.info('{} is provided by the site-wide data directory; nothing to download.'.format(fnm))
+					continue
+				# a stale site-wide copy cannot be replaced in place (it may
+				# be read-only); the fetched user-directory copy takes
+				# precedence over it
+				_log.info('{} in the site-wide data directory does not match the current data release; fetching a copy into the user data directory (which takes precedence).'.format(fnm))
 		if installed and not overwrite:
-			_log.info("{0} already installed. Run ci.download('{0}', overwrite=True) to overwrite these files.".format(fnm.replace('.db', '')))
-			continue
+			if _sha256(path) == _registry()['files'].get(fnm):
+				_log.info("{0} already installed. Run ci.download('{0}', overwrite=True) to overwrite these files.".format(fnm.replace('.db', '')))
+				continue
+			# a file that no longer matches the current data release — an
+			# older generation, a repaired file within one, or a partial
+			# shard assembly — is replaced without needing overwrite=True:
+			# this is the repair the generation warning points at
+			_log.info('{} does not match the current data release; fetching the current file.'.format(fnm))
 		# the existing file (if any) is left in place: the fetch verifies and
 		# replaces it atomically, so a failed download never destroys data
-		GLOB_CONNECTIONS_DICT.pop(path, None)
+		_stale_con = GLOB_CONNECTIONS_DICT.pop(path, None)
+		if _stale_con is not None:
+			_stale_con.close()
 		try:
 			_retrieve(fnm)
 		except Exception as e:
@@ -329,6 +384,10 @@ def _get_connection(db='decay'):
 			# a generous lock timeout lets concurrent processes assembling
 			# shards into the same database wait for each other
 			GLOB_CONNECTIONS_DICT[path] = sqlite3.connect(path, timeout=30.0) if fresh else connector(path)
+			if not fresh:
+				# a fresh sharded file has no generation yet; it is stamped
+				# at first assembly instead
+				_check_generation(fnm, GLOB_CONNECTIONS_DICT[path])
 		return GLOB_CONNECTIONS_DICT[path]
 
 	else:

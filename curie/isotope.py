@@ -27,9 +27,9 @@ class Isotope(object):
 	"""Retrieve isotopic structure and decay data
 
 	The Isotope class provides isotope specific nuclear data, such as masses,
-	abundances, half-lives, decay data and fission yields.  The main data souces 
-	are NuDat 2.0, ENDF/B-VII.0 and the nuclear wallet cards.  Where conflicts
-	were found preference was given to NuDat, then ENDF, then wallet cards.
+	abundances, half-lives, decay data and fission yields.  The main data
+	sources are ENSDF (via the IAEA LiveChart interface), NUBASE2020/AME2020,
+	and the ENDF/B-VIII.1 fission-yield sublibraries.
 	
 	Parameters
 	----------
@@ -96,7 +96,7 @@ class Isotope(object):
 	>>> ip = ci.Isotope('Co-60')
 	>>> ip = ci.Isotope('58NI')
 	>>> print(ip.abundance)
-	68.077
+	68.0769
 	
 	>>> ip = ci.Isotope('135CEm')
 	>>> print(ip.dc)
@@ -104,7 +104,7 @@ class Isotope(object):
 
 	>>> ip = ci.Isotope('235U')
 	>>> print(ip.half_life('My'))
-	703.7987679671457
+	703.9849635622725
 
 
 	"""
@@ -138,21 +138,27 @@ class Isotope(object):
 		else:
 			self.Delta = None
 
-		if self.abundance>0.0:
+		if self.abundance>0.0 and df['unc_abundance'][0] is not None:
 			self.unc_abundance = float(df['unc_abundance'][0])
 		else:
+			# mononuclidic elements carry an exact 100% abundance with no
+			# recorded uncertainty
 			self.unc_abundance = 0.0
 
 
 		self._SFY = None
 
 		if not self.stable and df['half_life'][0] is None:
-			_log.warning('Isotope: {} has no half-life in the decay database, and will be treated as stable.'.format(self.name))
-			self.stable = True
+			# dripline states with spectroscopy data but no measured
+			# half-life: unstable, with an infinite half-life standing in —
+			# `stable` remains False so the state is not misreported
+			_log.warning('Isotope: {} has no measured half-life in the decay database; treating its half-life as infinite.'.format(self.name))
+			self._t_half = np.inf
+			self._unc_t_half = 0.0
 			self.dc = 0.0
 			self.decay_products = {}
 
-		if not self.stable:
+		elif not self.stable:
 			self._t_half = float(df['half_life'][0])
 			self._unc_t_half = float(df['unc_half_life'][0]) if df['unc_half_life'][0] is not None else 0.0
 			self.dc = np.log(2.0)/self._t_half
@@ -320,11 +326,11 @@ class Isotope(object):
 		--------
 		>>> ip = ci.Isotope('226RA')
 		>>> print(ip.half_life())
-		50492200000.0
+		50491081559.3472
 		>>> print(ip.optimum_units())
 		y
 		>>> print(ip.half_life(ip.optimum_units()))
-		1600.0012675235125
+		1599.965826277892
 
 		"""
 
@@ -421,17 +427,16 @@ class Isotope(object):
 
 		>>> ip = ci.Isotope('64CU')
 		>>> print(ip.gammas())
-			energy  intensity  unc_intensity
-		0   511.00     35.200          0.400
-		1  1345.77      0.475          0.011
+		    energy  intensity  unc_intensity
+		0   511.00     34.980            NaN
+		1  1345.77      0.472          0.004
 		>>> print(ip.gammas(xrays=True, dE_511=1.0))
-			 energy  intensity  unc_intensity
-		0     0.850      0.489          0.024
-		1     7.461      4.740          0.240
-		2     7.478      9.300          0.400
-		3     8.265      1.120          0.050
-		4     8.265      0.580          0.030
-		5  1345.770      0.475          0.011
+		     energy  intensity  unc_intensity
+		0     0.874   0.491121       0.023528
+		1     7.461   4.896772       0.058365
+		2     7.478   9.556543       0.103925
+		3     8.296   1.991667       0.029457
+		4  1345.770   0.472000       0.004000
 
 		"""
 
@@ -494,9 +499,9 @@ class Isotope(object):
 		>>> ip = ci.Isotope('Pt-193m')
 		>>> print(ip.electrons(I_lim=5.0, E_lim=(10.0, 130.0)))
 		    energy  intensity  unc_intensity
-		0   11.912       17.1          0.855
-		1   57.110       15.5          0.775
-		2  121.620       60.0          3.000
+		0   11.907       17.1            1.0
+		1   57.101       15.5            0.3
+		2  121.617       60.0            0.8
 
 		"""
 
@@ -550,7 +555,7 @@ class Isotope(object):
 		>>> ip = ci.Isotope('35S')
 		>>> print(ip.beta_minus())
 		   mean_energy  endpoint_energy  intensity  unc_intensity
-		0       48.758           167.33      100.0            5.0
+		0       48.758           167.33      100.0            0.0
 
 		"""
 
@@ -599,7 +604,7 @@ class Isotope(object):
 		>>> ip = ci.Isotope('18F')
 		>>> print(ip.beta_plus())
 		   mean_energy  endpoint_energy  intensity  unc_intensity
-		0        249.8            633.5      96.73           0.04
+		0        249.8            633.4      96.73           0.04
 
 		"""
 
@@ -648,7 +653,7 @@ class Isotope(object):
 		>>> ip = ci.Isotope('210PO')
 		>>> print(ip.alphas(I_lim=1.0))
 		    energy  intensity  unc_intensity
-		0  5304.33      100.0            5.0
+		0  5304.33      100.0            NaN
 
 		"""
 
@@ -700,10 +705,10 @@ class Isotope(object):
 		>>> ip = ci.Isotope('Co-60')
 		>>> print(ip.dose_rate(activity=3.7E10, units='R/hr')) # 1 Ci of Co-60 at 30 cm
 		{'gammas': 14.454, 'alphas': 0.0, 'beta_minus': 1545.1658,
-		'beta_plus': 0.0, 'electrons': 18.3254, 'total': 1577.9452}
+		'beta_plus': 0.0, 'electrons': 17.032, 'total': 1576.6518}
 		>>> print(ip.dose_rate(activity=3.7E10, units='uSv/hr')) # the same, in uSv/hr
-		{'gammas': 126761.9286, 'alphas': 0.0, 'beta_minus': 13551103.67,
-		'beta_plus': 0.0, 'electrons': 160713.9628, 'total': 13838579.5615}
+		{'gammas': 126761.9304, 'alphas': 0.0, 'beta_minus': 13551103.67,
+		'beta_plus': 0.0, 'electrons': 149370.8364, 'total': 13827236.4368}
 
 		"""
 

@@ -45,7 +45,8 @@ See the :ref:`isotopes_howto` for each task in detail, the
 **Uses and limitations.**  `Isotope` serves quick lookups (a half-life in sensible units, a table of
 gamma lines above some intensity) and provides the decay data that
 `Spectrum`, `Calibration` and `DecayChain` use internally.  The decay data
-are compiled from NuDat 2.0, ENDF/B-VII.0 and the nuclear wallet cards.
+are compiled from ENSDF (via the IAEA LiveChart interface), with
+NUBASE2020/AME2020 closures and ENDF/B-VIII.1 fission yields.
 
 `DecayChain` solves the Bateman equations exactly (see
 :ref:`methods_decay_chains`), including chains with branching and

@@ -13,7 +13,7 @@ class Library(object):
 	"""Library of nuclear reaction data
 
 	Provides a means of searching and retrieving data from various nuclear reaction
-	libraries.  The currently available libraries are ENDF/B-VII.1, TENDL-2015, IRDFF-II,
+	libraries.  The currently available libraries are ENDF/B-VIII.1, TENDL-2025, IRDFF-II,
 	and the IAEA Medical Monitor reaction library.  For neutrons, the libraries are
 	categorized by either the exlusive reaction, as in ENDF, TENDL, and partially IRDFF,
 	or by the residual product (rp), in TENDL and partially IRDFF.  For charged particles,
@@ -26,16 +26,17 @@ class Library(object):
 	name : str
 		The name of the library.  For exclusive neutron reactions, use 'endf', 'tendl', 
 		or 'irdff'.  For residual product neutron reactions, use 'tendl_n' or 'irdff'.  Use
-		'tendl_p' for proton reactions, 'tendl_d' for deuteron reactions, or 'iaea' for either.
+		'tendl_p' for proton reactions, 'tendl_d' for deuteron reactions, 'tendl_a' for
+		alpha reactions, or 'iaea' for any of them.
 
 	Examples
 	--------
 	>>> lb = ci.Library('tendl_n')
 	>>> print(lb.name)
-	TENDL-2015
+	TENDL-2025
 	>>> lb = ci.Library('endf')
 	>>> print(lb.name)
-	ENDF/B-VII.1
+	ENDF/B-VIII.1
 
 	"""
 
@@ -51,6 +52,8 @@ class Library(object):
 			self.db_name = 'tendl_p_rp'
 		elif name in ['tendl_d_rp','tendl_drp','tendl_d','drp','rpd']:
 			self.db_name = 'tendl_d_rp'
+		elif name in ['tendl_a_rp','tendl_arp','tendl_a','arp','rpa']:
+			self.db_name = 'tendl_a_rp'
 		elif name in ['irdff']:
 			self.db_name = 'irdff'
 		elif name in ['iaea','iaea-cpr','iaea-monitor','cpr','iaea_cpr','iaea_monitor','medical','iaea-medical','iaea_medical']:
@@ -59,7 +62,7 @@ class Library(object):
 			raise ValueError('Library {} not recognized.'.format(name))
 
 		self._con = _get_connection(self.db_name)
-		self.name = {'endf':'ENDF/B-VII.1','tendl':'TENDL-2015','irdff':'IRDFF-II','iaea':'IAEA CP-Reference (2017)'}[self.db_name.split('_')[0]]
+		self.name = {'endf':'ENDF/B-VIII.1','tendl':'TENDL-2025','irdff':'IRDFF-II','iaea':'IAEA Medical Monitors (2025)'}[self.db_name.split('_')[0]]
 		self._warn = True
 
 	def __str__(self):
@@ -77,10 +80,11 @@ class Library(object):
 		Parameters
 		----------
 		target : str, optional
-			The target nucleus.  Some libraries support natural elements, e.g. 'natEl'.
+			The target nucleus.  The IAEA monitor, IRDFF and TENDL residual-product
+			libraries also carry natural elements, e.g. 'natEl'.
 
 		incident : str, optional
-			Incident particle.  Must be one of 'n', 'p' or 'd'.  Only needed for IAEA
+			Incident particle.  Must be one of 'n', 'p', 'd' or 'a'.  Only needed for IAEA
 			library with multiple incident projectiles optional.
 
 		outgoing : str, optional
@@ -141,7 +145,7 @@ class Library(object):
 			reacs = [r.to_list() for n,r in pd.read_sql(ss, self._con, params=tuple(q)).iterrows()]
 			fmt = '{0}(n,{1}){2}'
 
-		elif self.db_name in ['tendl_n_rp','tendl_p_rp','tendl_d_rp']:
+		elif self.db_name in ['tendl_n_rp','tendl_p_rp','tendl_d_rp','tendl_a_rp']:
 			if incident is not None:
 				if incident!=self.db_name.split('_')[1]:
 					return []
@@ -184,10 +188,11 @@ class Library(object):
 		Parameters
 		----------
 		target : str, optional
-			The target nucleus.  Some libraries support natural elements, e.g. 'natEl'.
+			The target nucleus.  The IAEA monitor, IRDFF and TENDL residual-product
+			libraries also carry natural elements, e.g. 'natEl'.
 
 		incident : str, optional
-			Incident particle.  Must be one of 'n', 'p' or 'd'.  Only needed for IAEA
+			Incident particle.  Must be one of 'n', 'p', 'd' or 'a'.  Only needed for IAEA
 			library with multiple incident projectiles optional.
 
 		outgoing : str, optional
@@ -235,8 +240,23 @@ class Library(object):
 			else:
 				target = Isotope(target)._short_name
 
-		if self.db_name in ['endf','tendl','tendl_n_rp','tendl_p_rp','tendl_d_rp']:
-			table = ''.join(re.findall('[A-Z]+', target))+'_'+''.join(re.findall('[0-9]+', target))+('m' if 'm' in target else '')
+		if self.db_name in ['endf','tendl','tendl_n_rp','tendl_p_rp','tendl_d_rp','tendl_a_rp']:
+			if target.lower().startswith('nat'):
+				# natural-element tables are stored under an elemental mass
+				# number of 000 ('natFe' -> FE_000); the letters+digits rule
+				# below mangles every nat spelling ('natFe' -> 'F_', and
+				# 'natSm' would gain a spurious isomer flag from its
+				# trailing m)
+				table = target[3:].upper()+'_000'
+			else:
+				# '110AGm' -> AG_110m, '178HFm2' -> HF_178m2; the legacy
+				# letters+digits fallback covers any spelling the pattern
+				# does not (its digits would absorb an isomer ordinal)
+				mt = re.fullmatch('([0-9]+)([A-Za-z]+?)(m[0-9]?)?', target)
+				if mt:
+					table = mt.group(2).upper()+'_'+mt.group(1)+(mt.group(3) or '')
+				else:
+					table = ''.join(re.findall('[A-Z]+', target))+'_'+''.join(re.findall('[0-9]+', target))+('m' if 'm' in target else '')
 
 			_ensure_table(self.db_name, table)
 			q = pd.read_sql('SELECT energy,{0} FROM {1}'.format(labels[0], table), self._con).to_numpy()*(np.array([1E-6, 1E3]) if self.db_name=='endf' else np.ones(2))

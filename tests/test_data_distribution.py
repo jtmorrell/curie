@@ -73,23 +73,38 @@ def test_shipped_registry_is_self_consistent():
 		reg = json.load(f)
 	# the base_urls are hand-edited when releases move: pin them exactly, so a
 	# typo fails here instead of at a user's first fetch
-	assert reg['base_url'] == 'https://github.com/jtmorrell/curie-data/releases/download/v1/'
+	assert reg['base_url'] == 'https://github.com/jtmorrell/curie-data/releases/download/v2/'
 	hexre = re.compile(r'^[0-9a-f]{64}$')
 	assert set(reg['files']) == {'decay.db', 'ziegler.db', 'endf.db', 'tendl.db',
 								 'tendl_n_rp.db', 'tendl_p_rp.db', 'tendl_d_rp.db',
-								 'IRDFF.db', 'iaea_monitors.db'}
+								 'tendl_a_rp.db', 'IRDFF.db', 'iaea_monitors.db'}
 	assert all(hexre.match(h) for h in reg['files'].values())
-	assert set(reg['shards']) == {'endf', 'tendl', 'tendl_n_rp', 'tendl_p_rp', 'tendl_d_rp'}
+	# the reverse coupling: every registry file must be reachable through the
+	# runtime resolver (a registry entry no API can name is dead weight)
+	assert sorted(data._FILES) == sorted(reg['files'])
+	assert all(data._canonical(f) == f for f in reg['files'])
+	assert set(reg['shards']) == {'endf', 'tendl', 'tendl_n_rp', 'tendl_p_rp',
+								  'tendl_d_rp', 'tendl_a_rp'}
 	for lib, group in reg['shards'].items():
 		assert lib + '.db' in reg['files'], '{} has shards but no whole-file entry'.format(lib)
-		assert group['base_url'] == 'https://github.com/jtmorrell/curie-data/releases/download/v1-{}/'.format(lib.replace('_', '-'))
+		assert group['base_url'] == 'https://github.com/jtmorrell/curie-data/releases/download/v2-{}/'.format(lib.replace('_', '-'))
 		shards = group['files']
 		assert '{}_all_reactions.db'.format(lib) in shards, lib
-		namere = re.compile(r'^{}_([A-Z]+_[0-9]+m?|all_reactions)\.db$'.format(lib))
+		# _version is the one metadata shard: the generation stamp the
+		# connection-time skew check reads must reach shard-assembled
+		# local databases too
+		assert '{}__version.db'.format(lib) in shards, lib
+		# natural-element tables (EL_000) ship in the residual-product
+		# groups only: a nat exclusive channel would sum different
+		# residuals under one label
+		assert ('{}_FE_000.db'.format(lib) in shards) == lib.endswith('_rp'), lib
+		namere = re.compile(r'^{}_([A-Z]+_[0-9]+(m[0-9]?)?|all_reactions|_version)\.db$'.format(lib))
 		bad = [s for s in shards if not namere.match(s)]
 		assert not bad, '{} shard names the runtime table derivation cannot produce: {}'.format(lib, bad)
 		assert all(hexre.match(h) for h in shards.values()), lib
-		assert len(shards) > 400, lib
+		# lower bound catches an accidentally truncated shard group: the
+		# smallest groups are the curated TENDL cut (~399 shards)
+		assert len(shards) > 350, lib
 	# GitHub caps a release at 1000 assets: each group is one release
 	assert all(len(g['files']) <= 900 for g in reg['shards'].values()), 'shard group too close to the per-release asset cap: split it'
 
@@ -103,8 +118,23 @@ def test_every_endf_table_has_a_registry_shard():
 	with open(os.path.join(os.path.dirname(data.__file__), 'data_registry.json')) as f:
 		shards = json.load(f)['shards']['endf']['files']
 	con = data._get_connection('endf')
+	# coverage is only defined against the current data generation: an
+	# ambient cache from an earlier generation legitimately holds tables
+	# (e.g. its evaluation's target set) the current registry does not ship
+	try:
+		row = con.execute('SELECT generation FROM _version').fetchone()
+		local_gen = row[0] if row else None
+	except sqlite3.Error:
+		local_gen = None
+	if local_gen != data._generation():
+		pytest.skip('local endf.db is generation {!r}; registry fetches {!r}'.format(
+			local_gen, data._generation()))
 	tables = [r[0] for r in con.execute("SELECT name FROM sqlite_master WHERE type='table'")]
-	missing = [t for t in tables if 'endf_{}.db'.format(t) not in shards]
+	# _build_meta is the one build-internal table that ships in the whole
+	# file only; every other table — including the _version generation
+	# stamp, which shard-assembled databases need — must have a shard
+	missing = [t for t in tables if 'endf_{}.db'.format(t) not in shards
+			   and t != '_build_meta']
 	assert not missing, 'tables with no shard in the registry: {}'.format(missing)
 
 
@@ -113,6 +143,8 @@ def test_canonical_aliases():
 		assert data._canonical(alias) == 'decay.db'
 	for alias in ['tendl_n_rp', 'tendl_nrp', 'tendl_n', 'nrp', 'rpn']:
 		assert data._canonical(alias) == 'tendl_n_rp.db'
+	for alias in ['tendl_a_rp', 'tendl_arp', 'tendl_a', 'arp', 'rpa']:
+		assert data._canonical(alias) == 'tendl_a_rp.db'
 	for alias in ['iaea', 'cpr', 'iaea_medical', 'iaea-monitor', 'medical']:
 		assert data._canonical(alias) == 'iaea_monitors.db'
 	assert data._canonical('irdff') == 'IRDFF.db'
@@ -332,3 +364,85 @@ def test_download_prefetches_whole_file(sandbox, capsys):
 	data.download('ziegler')  # second call skips
 	assert sandbox['fetched'] == ['ziegler.db']
 	assert 'already installed' in capsys.readouterr().out
+
+
+def _make_version_shard(path, library, generation):
+	con = sqlite3.connect(path)
+	con.execute('CREATE TABLE _version (library TEXT, generation TEXT)')
+	con.execute('INSERT INTO _version VALUES (?,?)', (library, generation))
+	con.commit()
+	con.close()
+	with open(path, 'rb') as f:
+		return hashlib.sha256(f.read()).hexdigest()
+
+
+def test_fresh_assembly_carries_generation_stamp(sandbox):
+	"""A database assembled from scratch fetches the _version shard with its
+	first table, so shard-assembled local files carry the generation stamp."""
+	sha = _make_db(sandbox['remote'] / 'endf_XX_1.db', 'XX_1')
+	vsha = _make_version_shard(sandbox['remote'] / 'endf__version.db', 'endf', 'test:')
+	sandbox['registry']['shards']['endf'] = {'base_url': 'test://', 'files': {
+		'endf_XX_1.db': sha, 'endf__version.db': vsha}}
+	con = data._get_connection('endf')
+	data._ensure_table('endf', 'XX_1')
+	assert con.execute('SELECT generation FROM _version').fetchone() == ('test:',)
+	assert set(sandbox['fetched']) == {'endf_XX_1.db', 'endf__version.db'}
+
+
+def test_stampless_database_is_never_stamped_by_assembly(sandbox):
+	"""A pre-stamp (earlier-generation) assembled file must NOT acquire the
+	current stamp when new tables are assembled into it: the generation
+	check has to keep warning about it."""
+	_make_db(sandbox['cache'] / 'endf.db', 'OLD_1')
+	sha = _make_db(sandbox['remote'] / 'endf_XX_1.db', 'XX_1')
+	vsha = _make_version_shard(sandbox['remote'] / 'endf__version.db', 'endf', 'test:')
+	sandbox['registry']['shards']['endf'] = {'base_url': 'test://', 'files': {
+		'endf_XX_1.db': sha, 'endf__version.db': vsha}}
+	data._ensure_table('endf', 'XX_1')
+	con = data._get_connection('endf')
+	assert con.execute('SELECT COUNT(*) FROM XX_1').fetchone()[0] == 2
+	assert 'endf__version.db' not in sandbox['fetched']
+
+
+def test_generation_mismatch_warns_once(sandbox, capsys):
+	"""First connection to a database from another generation warns, naming
+	both generations and the repair command."""
+	path = sandbox['cache'] / 'endf.db'
+	_make_db(path, 'XX_1')
+	con = sqlite3.connect(path)
+	con.execute('CREATE TABLE _version (library TEXT, generation TEXT)')
+	con.execute("INSERT INTO _version VALUES ('endf','v1')")
+	con.commit()
+	con.close()
+	data._get_connection('endf')
+	out = capsys.readouterr().out
+	assert 'generation v1' in out and 'test:' in out and "ci.download('endf')" in out
+	data._get_connection('endf')  # cached connection: no second warning
+	assert 'generation v1' not in capsys.readouterr().out
+
+
+def test_stampless_database_warns(sandbox, capsys):
+	_make_db(sandbox['cache'] / 'endf.db', 'XX_1')
+	data._get_connection('endf')
+	assert 'predates the generation stamp' in capsys.readouterr().out
+
+
+def test_matching_generation_is_quiet(sandbox, capsys):
+	path = sandbox['cache'] / 'endf.db'
+	_make_db(path, 'XX_1')
+	con = sqlite3.connect(path)
+	con.execute('CREATE TABLE _version (library TEXT, generation TEXT)')
+	con.execute("INSERT INTO _version VALUES ('endf','test:')")
+	con.commit()
+	con.close()
+	data._get_connection('endf')
+	out = capsys.readouterr().out
+	assert 'generation' not in out
+
+
+def test_ziegler_exempt_from_generation_check(sandbox, capsys):
+	"""ziegler.db carries no stamp by design (carried over unchanged
+	between generations) and must connect quietly."""
+	_make_db(sandbox['cache'] / 'ziegler.db', 'compounds')
+	data._get_connection('ziegler')
+	assert 'generation' not in capsys.readouterr().out

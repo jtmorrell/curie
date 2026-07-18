@@ -143,13 +143,14 @@ def test_filters_default_off_zero_config():
     dc = ci.DecayChain('152EU', R=[[3E5, 36.0]], units='d')
     dc.get_counts([sp], EoB='01/01/2016 08:39:08')
     itp, R, cov = dc.fit_R()
-    # reference re-recorded at the doublet-merge fix on fitting-0.2.0 (the
-    # corrected 444 keV point drops the eu fit_R chi2/dof from 1e3 to 50 and
-    # the scale factor from x38 to x8.6).  The count accounting is exact
+    # reference re-recorded 2026-07-18 against the v2 data generation (the
+    # refreshed 152EU intensities shift the fitted rate ~0.2% and one more
+    # count crosses the relative-error floor; originally recorded at the
+    # doublet-merge fix on fitting-0.2.0).  The count accounting is exact
     # (a default filter engaging changes the integers); the fitted rate and
     # its relative uncertainty carry tolerances sized for cross-platform
     # optimizer drift (~1E-5 observed), far below any real change
     d = dc.diagnostics
-    assert int(d['n_points'].iloc[0]) == 42 and int(d['n_dropped'].iloc[0]) == 1
-    np.testing.assert_allclose(R, [27527059.314142734], rtol=1E-3)
-    assert float(np.sqrt(cov[0][0])/R[0]) == pytest.approx(0.016396, rel=1E-2)
+    assert int(d['n_points'].iloc[0]) == 42 and int(d['n_dropped'].iloc[0]) == 2
+    np.testing.assert_allclose(R, [27581526.896975107], rtol=1E-3)
+    assert float(np.sqrt(cov[0][0])/R[0]) == pytest.approx(0.016464, rel=1E-2)

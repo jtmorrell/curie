@@ -3,6 +3,80 @@
 Notable changes to curie are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.3.0] - 2026-07-18
+
+### Changed — nuclear data generation v2
+- **All data libraries rebuilt from current evaluations**: ENDF/B-VIII.1
+  (was VII.1), TENDL-2025 (was 2015), IAEA medical monitors 2025, and
+  decay data from ENSDF via IAEA LiveChart with NUBASE2020/AME2020
+  (`Library.name` reports the new versions). Values everywhere reflect
+  the newer evaluations; target coverage differs where the evaluations
+  themselves changed (for example ENDF/B-VIII.1 provides Cd-115m but no
+  Cd-115 ground-state evaluation).
+- **TENDL target curation**: the TENDL libraries carry targets that are
+  naturally occurring or have half-lives of at least one year (ground
+  states and isomeric targets alike, each state judged on its own
+  half-life), including long-lived second isomers (178HFm2, 192IRm2)
+  and the ten classic long-lived first isomers.
+- **Data generation awareness**: each database now carries a generation
+  stamp; connecting to data fetched by an earlier curie release logs a
+  warning naming the `ci.download(...)` repair, and `ci.download()`
+  refreshes outdated files without needing `overwrite=True`.
+- `Isotope`: a state with no measured half-life in the decay data now
+  reports `stable = False` with an infinite half-life, instead of being
+  presented as stable.
+- `ci.download()` without `overwrite=True` now replaces any installed
+  file that does not match the current data release (an older
+  generation, or a repaired file within one); a stale site-wide copy is
+  shadowed by a fresh user-directory download.
+
+### Removed — migration notes
+- **The IAEA library's legacy neutron and gamma monitor tables are
+  gone**: the 2025 IAEA re-evaluation covers charged-particle monitors
+  only, so reactions such as `98MO(n,g)` no longer resolve from
+  `'iaea'` (the neutron libraries carry them). `'best'` is unaffected.
+- **Target coverage follows the new evaluations**: ENDF/B-VIII.1 drops
+  a few evaluations VII.1 carried (notably the Cd-115 ground state —
+  Cd-115m remains, and TENDL covers the ground state), and the TENDL
+  curation floor (one year) removes short-lived targets the previous
+  generation included.
+- **A small number of decay-data states lost or changed their gamma
+  lines** with the move to ENSDF/LiveChart: 9 states whose intensities
+  ENSDF cannot currently normalize, 7 with no lines in the source, and
+  2 whose lines the previous generation had misfiled on the wrong
+  state; 11 further states' absolute intensities were recovered
+  directly from ENSDF normalization records. Every value everywhere
+  reflects the newer evaluations — expect small shifts in fitted
+  activities and cross sections, and re-record any values your own
+  analyses pin against curie's libraries.
+
+### Changed — interpolation
+- **TENDL cross sections now interpolate with a monotone PCHIP scheme in
+  sqrt(E)-sqrt(sigma) space** ('pchip-sqrt'), replacing the quadratic
+  spline, which could overshoot between points across sharp threshold
+  rises. The scheme is exact through the evaluated points, cannot
+  overshoot or go negative, and linearizes the near-threshold turn-on;
+  values at the evaluated energies themselves are unchanged. ENDF, IRDFF
+  and IAEA remain lin-lin, which is the convention their pointwise data
+  is generated for. The scheme is selectable per reaction through the
+  new `Reaction.interp_config` property or keyword arguments to
+  `interpolate`/`interpolate_unc`, e.g.
+  `rx.interpolate(E, interpolation='linear')`.
+
+### Added
+- **Alpha-particle residual-product library**: `ci.Library('tendl_a')`
+  (TENDL-2025), with `'best'` for alpha-incident reactions searching
+  the IAEA monitors first and then tendl_a_rp — mirroring protons and
+  deuterons.
+- **Natural-element targets in the TENDL residual-product libraries**:
+  `ci.Reaction('natFe(p,x)56CO', 'tendl_p')` now works for ~80 elements
+  in all four residual-product libraries (n, p, d and the new alpha
+  library). The cross sections are abundance-weighted sums of the
+  isotopic tables, computed at data-build time from the same decay-data
+  generation; elements whose lightest isotopes TENDL does not provide
+  (H, He, Li, Be) are not available. The `natEl` notation matches the
+  IAEA monitor and IRDFF libraries.
+
 ## [0.2.0] - 2026-07-14
 
 Fitting transparency release: every fit reports a summary of its results

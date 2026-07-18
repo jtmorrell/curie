@@ -51,8 +51,8 @@ raw experimental data points (EXFOR, the international compilation of
 such measurements, is not included).  Each library has a
 scope and a character: the IAEA library is a set of precisely evaluated
 monitor (beam-normalization) reactions with uncertainties; IRDFF-II is a
-neutron-dosimetry standard, also with uncertainties; ENDF/B-VII.1 is the
-general-purpose neutron evaluation; and the TENDL-2015 libraries are
+neutron-dosimetry standard, also with uncertainties; ENDF/B-VIII.1 is the
+general-purpose neutron evaluation; and the TENDL-2025 libraries are
 theory-driven (TALYS-based) evaluations whose strength is complete
 coverage — nearly every target and product, including reactions no one
 has measured.  Where they overlap, they will not agree perfectly; which

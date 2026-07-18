@@ -55,8 +55,8 @@ uncertainties even though you thought it should.
 takes the first library in the priority list (see
 :ref:`reactions_howto`) that contains a unique match.  Two consequences
 are easy to miss.  First, similar-looking reactions can come from
-different libraries — ``'226RA(n,2n)'`` resolves to ENDF/B-VII.1, but
-the residual-product form ``'226RA(n,x)225RA'`` resolves to TENDL-2015 —
+different libraries — ``'226RA(n,2n)'`` resolves to ENDF/B-VIII.1, but
+the residual-product form ``'226RA(n,x)225RA'`` resolves to TENDL-2025 —
 with different grids, values and uncertainty availability.  Second, the
 resolution can change over time, as data libraries are updated or the
 priority evolves between Curie versions.
