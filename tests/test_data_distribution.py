@@ -109,11 +109,11 @@ def test_every_endf_table_has_a_registry_shard():
 		shards = json.load(f)['shards']['endf']['files']
 	con = data._get_connection('endf')
 	tables = [r[0] for r in con.execute("SELECT name FROM sqlite_master WHERE type='table'")]
-	# underscore tables are metadata: _version ships as a shard (the skew
-	# check needs the stamp in shard-assembled databases), build-internal
-	# ones (_build_meta) live in the whole file only
+	# _build_meta is the one build-internal table that ships in the whole
+	# file only; every other table — including the _version generation
+	# stamp, which shard-assembled databases need — must have a shard
 	missing = [t for t in tables if 'endf_{}.db'.format(t) not in shards
-			   and (not t.startswith('_') or t == '_version')]
+			   and t != '_build_meta']
 	assert not missing, 'tables with no shard in the registry: {}'.format(missing)
 
 

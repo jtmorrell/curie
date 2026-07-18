@@ -142,7 +142,7 @@ def _adopt_legacy(fnm):
 		return False
 	known = _registry()['files'].get(fnm)
 	if known is not None and _sha256(legacy) != known:
-		_log.warning('Existing {} does not match the data release (stale or corrupted); fetching a fresh copy.'.format(fnm))
+		_log.warning('Existing {} is from an older data generation (or corrupted); fetching the current release.'.format(fnm))
 		return False
 	dest = _data_path(fnm)
 	try:
