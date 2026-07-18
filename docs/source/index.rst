@@ -35,7 +35,7 @@ API reference) and the guide section that walks through each one.
    * - Solve the Bateman equations; fit production rates and end-of-bombardment activities to counting data
      - :class:`~curie.DecayChain`
      - :ref:`isotopes`
-   * - Retrieve, interpolate, and flux-average evaluated cross sections (ENDF/B-VII.1, TENDL-2015, IRDFF-II, IAEA)
+   * - Retrieve, interpolate, and flux-average evaluated cross sections (ENDF/B-VIII.1, TENDL-2025, IRDFF-II, IAEA)
      - :class:`~curie.Reaction`, :class:`~curie.Library`
      - :ref:`reactions`
    * - Compute charged-particle energy loss and flux distributions through a target stack
