@@ -84,7 +84,7 @@ class Library(object):
 			libraries also carry natural elements, e.g. 'natEl'.
 
 		incident : str, optional
-			Incident particle.  Must be one of 'n', 'p' or 'd'.  Only needed for IAEA
+			Incident particle.  Must be one of 'n', 'p', 'd' or 'a'.  Only needed for IAEA
 			library with multiple incident projectiles optional.
 
 		outgoing : str, optional
@@ -192,7 +192,7 @@ class Library(object):
 			libraries also carry natural elements, e.g. 'natEl'.
 
 		incident : str, optional
-			Incident particle.  Must be one of 'n', 'p' or 'd'.  Only needed for IAEA
+			Incident particle.  Must be one of 'n', 'p', 'd' or 'a'.  Only needed for IAEA
 			library with multiple incident projectiles optional.
 
 		outgoing : str, optional
@@ -243,12 +243,20 @@ class Library(object):
 		if self.db_name in ['endf','tendl','tendl_n_rp','tendl_p_rp','tendl_d_rp','tendl_a_rp']:
 			if target.lower().startswith('nat'):
 				# natural-element tables are stored under an elemental mass
-				# number of 000 ('natFe' -> FE_000); the generic rule below
-				# would drop the digits and misread the 'm' of e.g. 'natSM'
-				# as an isomer flag
+				# number of 000 ('natFe' -> FE_000); the letters+digits rule
+				# below mangles every nat spelling ('natFe' -> 'F_', and
+				# 'natSm' would gain a spurious isomer flag from its
+				# trailing m)
 				table = target[3:].upper()+'_000'
 			else:
-				table = ''.join(re.findall('[A-Z]+', target))+'_'+''.join(re.findall('[0-9]+', target))+('m' if 'm' in target else '')
+				# '110AGm' -> AG_110m, '178HFm2' -> HF_178m2; the legacy
+				# letters+digits fallback covers any spelling the pattern
+				# does not (its digits would absorb an isomer ordinal)
+				mt = re.fullmatch('([0-9]+)([A-Za-z]+?)(m[0-9]?)?', target)
+				if mt:
+					table = mt.group(2).upper()+'_'+mt.group(1)+(mt.group(3) or '')
+				else:
+					table = ''.join(re.findall('[A-Z]+', target))+'_'+''.join(re.findall('[0-9]+', target))+('m' if 'm' in target else '')
 
 			_ensure_table(self.db_name, table)
 			q = pd.read_sql('SELECT energy,{0} FROM {1}'.format(labels[0], table), self._con).to_numpy()*(np.array([1E-6, 1E3]) if self.db_name=='endf' else np.ones(2))

@@ -2,14 +2,14 @@
  "base_url": "https://github.com/jtmorrell/curie-data/releases/download/v2/",
  "files": {
   "IRDFF.db": "1ac958c5a80785aa8a0892fd662448674d537545a84a521e0e84cf73686e7e6b",
-  "decay.db": "403453300c4e81237466dfe23165eb1581405825aa337e2a98252fa49f6ef87d",
+  "decay.db": "2175214b71cd786e08f2df4f1c2fdd09fd27b3f330663d918d1d5c300926b7cb",
   "endf.db": "ad3163becb085c36a6eca02e1a14979bb70cf3ce5c19f8ec143e34b670582cff",
   "iaea_monitors.db": "b96c76a47c2433fba66d71f49146943e22de5588c6b5d3f0e6c5f32dcc24e29d",
-  "tendl.db": "52ac25bcd9b6b1fe359cca28ebae43dc91f30e424e192354e45ea7378f6dff1d",
-  "tendl_a_rp.db": "cf3dc8fb8bc9f73d7567e73eb38595fc36ab8144c9037d8412cab652c5b10208",
-  "tendl_d_rp.db": "ceba722bda0f7c84143fe6dd0cfc9aa3f6c871bdee8e0fecb3483a581d7043b9",
-  "tendl_n_rp.db": "8df55b1162cd08845995c332f61f154ccd01c5863f329e056a360263e5083c8f",
-  "tendl_p_rp.db": "11454f024c96c1261461226f4bd71f6241ff0b9a69c963874e7785d38d0c4886",
+  "tendl.db": "c50637ce861a2d136b54a857d8ef39904d6b8b6f375462e56e697dc536b2f374",
+  "tendl_a_rp.db": "ba06675e4160825f18b1394b8ff675fb713c183cef2211594448f93f2e1c2eaf",
+  "tendl_d_rp.db": "f4b8fa9b87b6e8d532fa23d3ca188bfc3496291fabc3a30814e749635aa5220a",
+  "tendl_n_rp.db": "21d31668c9735aa4ea5bd1cd4c3af7e5fa88fde26706f74761f09d4ced7ef888",
+  "tendl_p_rp.db": "50cb848c6a9150e7e2b9958152c47ea1227ee4f5571986fc369aec4cc8b560a5",
   "ziegler.db": "44be2f483ea7c86bd3a71c3098dd2c57b343e7165c8a31750df1230dba93d60e"
  },
  "shards": {
@@ -714,6 +714,7 @@
     "tendl_HF_176.db": "4fad397a49fdf4c29f6778acf423771c477483a4e1b7b9647a3d08e31a98be72",
     "tendl_HF_177.db": "e69761255f64b9fa73dc92df63b31887cbd15647ac2a791eaec0fd99eb61276a",
     "tendl_HF_178.db": "8d17f8360a93d8ced429cc6f33baf5059f9d22a96b774a48653b8a1a4100b7df",
+    "tendl_HF_178m2.db": "59dce10ff2a172929eb7bc74473ec8bc9a69064e1ae70c62ca0dd98ddd5d7572",
     "tendl_HF_179.db": "3653244381f5aba79b0aba0b9b390637b2364c2949cc0097ec7e5356ed7fe1c7",
     "tendl_HF_180.db": "7457d908e51e774109d41ec98d27bc7baec98be38b3b0443c6580dc79033e5a3",
     "tendl_HF_182.db": "3218c5745dc579eb21acc8b06bb92451e793d4086f89b74eeba4c5afc05e0668",
@@ -731,6 +732,7 @@
     "tendl_IN_113.db": "963d5cc1edeb1b28c9f0e1e5e19dc354a0510719f8480d97371d00d4db33e831",
     "tendl_IN_115.db": "7c01cc93b2a690ff4d785600479965aca5a01073ed2b9280b739a4decc937688",
     "tendl_IR_191.db": "3e24ae29590b083fc5f7044b28949a8f677b0b749ed9f072bf9f2f032b4e4fc4",
+    "tendl_IR_192m2.db": "41c104bb0ad576498e0ea95c51a274828e3ce4e7a85a3e631fd93b40c3779363",
     "tendl_IR_193.db": "b95eb7aef3dc4eb2d28c428fb46b123c5fe5f3e2998a1e6a454fea8ba404304a",
     "tendl_I_127.db": "15cd592dd90432ebe206955c21b361300c09d1666cc98f4988111dcd4d999d3c",
     "tendl_I_129.db": "3ba800b9c8c7e234494e57feedb95d36ea9ff25e335209eef51e1252dba1408b",
@@ -978,7 +980,7 @@
     "tendl_ZR_94.db": "110dfb39341e9c2278f1ec24fb78e5ca8ad9d5b246d2b728f75bc32240afe33a",
     "tendl_ZR_96.db": "2848451b5cc1c9ddd1996452797f24649f02b689e4ecae32ec8cc8f60b3ca7f2",
     "tendl__version.db": "ce8fb1058c316a45edae626cb2258156f1e010728ad4df933a59759d9964f576",
-    "tendl_all_reactions.db": "169024e0971266d616a2ea7e9783c240adf14a74b29a3e3b1766ebd89f110e0c"
+    "tendl_all_reactions.db": "1a12a742b52d41cdbb196746ace199b4e78b9ed000c5fc7bb65272ed3cb1ba59"
    }
   },
   "tendl_a_rp": {
@@ -1145,6 +1147,7 @@
     "tendl_a_rp_HF_176.db": "ba0720a4143a0bebbbc09a7ae71221928dc478bf484b4e0ba05cc43c5b8ca177",
     "tendl_a_rp_HF_177.db": "112e9e83284578739100095b85bddff7c6ef01fd8bad38c4e279953f49626709",
     "tendl_a_rp_HF_178.db": "6f850cd589220d9afd201a57c9355d2b2cec138734e626246c7037e3d496d6dc",
+    "tendl_a_rp_HF_178m2.db": "c398b0182444249a89cf287522d0d9d53472e781cdfd7799ba1dc9038cf008aa",
     "tendl_a_rp_HF_179.db": "522d223801d783727ab2cad31b7bf2c968e998e8c53fc744679fc60f0b5cbaef",
     "tendl_a_rp_HF_180.db": "d90ad7fe3ebfdfc34be3df251cd89a92c5af929689e4f7056413a448a3be1494",
     "tendl_a_rp_HF_182.db": "7d283ae4024d442e017190f4573c7dd84e100505d89161db6a0d8c2cb75165c1",
@@ -1166,6 +1169,7 @@
     "tendl_a_rp_IN_115.db": "f87a37716793af2d969e8a90368dca9dcdbd3c70875c0773e3c4ee70b0dd9c9c",
     "tendl_a_rp_IR_000.db": "fda00dec8a718fd1beb5e47845e738339d27d95c58d498a9a1f55105cb0e529f",
     "tendl_a_rp_IR_191.db": "94d22e7276709c12b3ed03239e7bd9a725fb2943f3f937a19c24c426027ca43d",
+    "tendl_a_rp_IR_192m2.db": "ffbd9ce54109a7cfaa5df98ad42919d2297789441c4016eef9992e58d3b831ed",
     "tendl_a_rp_IR_193.db": "aa5a9554ccb84b9e40c0c85c86ecf6ef6c225f04a9d5f5c835f9b8b4a7e0cb52",
     "tendl_a_rp_I_000.db": "19e3283334d0c5bae1575932a1b50ab45bb73aa3ac796e89acf8ad75674de6a9",
     "tendl_a_rp_I_127.db": "6085134b9393dd851d44316af1bf3261e74397b8b126e8b11f368b2933913884",
@@ -1373,7 +1377,7 @@
     "tendl_a_rp_S_33.db": "d1fbbccc879e10efb847fde2e3fb606054cc1ca59c66faa249b7122f50e1fa11",
     "tendl_a_rp_S_34.db": "920dd27c68ae144515f70d9fc04170f2e08f44434d66644c9a33fb534e55b94c",
     "tendl_a_rp_S_36.db": "89e3a7ab2eb36e6d0a88fa22c09ea315d366bd092346cc9171ca3f24b79d533b",
-    "tendl_a_rp_TA_000.db": "a273c3a1759a5716f21c1f00e6657cc1655e9b0063efb6c01bb617620900cd5f",
+    "tendl_a_rp_TA_000.db": "63306ee2c1365593c6dc778ef72491427912d4c5ac2e3f819f70c9e34d92bf50",
     "tendl_a_rp_TA_179.db": "cb7ad943540198899dea929b3af704d5b8816fde21ff447de01c0ef0dffda678",
     "tendl_a_rp_TA_180m.db": "67fc62fc8375e887a9b901f06b1df9e09af25d05235697bb0eb282900d30ba0c",
     "tendl_a_rp_TA_181.db": "53b4a54ca1aa81fa6040aa8825dedd9dca34696e1c19a89ca26c3ffd14231343",
@@ -1462,7 +1466,7 @@
     "tendl_a_rp_ZR_94.db": "22c0432c54ab05932480d6128b3478b5d6c6afe5192b87b9f2c76f9559c83493",
     "tendl_a_rp_ZR_96.db": "894b2ace59717bedf3b5a68693c49c1399ed0318df688717bcc6f5eb49948cea",
     "tendl_a_rp__version.db": "1d6b3c168699402c7e6dba6fc278177ecb7f3b3bcc29aae7c5252442b69c238a",
-    "tendl_a_rp_all_reactions.db": "d8197499db2964c8ec3df29db2d2d1c891343caedf533c6a3ef2006c4b7e412d"
+    "tendl_a_rp_all_reactions.db": "faa8ef0f2e25a9198c07732d8e41c450ff32c54aa6b8971696af57ef345b1eaa"
    }
   },
   "tendl_d_rp": {
@@ -1629,6 +1633,7 @@
     "tendl_d_rp_HF_176.db": "e0d7fbf321cd6b0ecdd01f8d66efc550e82db91fb3aacefa427560ce53ecf60e",
     "tendl_d_rp_HF_177.db": "065159bc7769f10f338c864a3bb96b7cf3d37850974d9bd4fe8dff00a2df1983",
     "tendl_d_rp_HF_178.db": "6d88dd4645808567f873967f7db6bd2580f13cc65f19f4143d169a05325aa5d8",
+    "tendl_d_rp_HF_178m2.db": "f016a71cb84b98e3b1c47fec93891f8a9908a3fd64116d0e0306ce4e410ab3d4",
     "tendl_d_rp_HF_179.db": "12b9520f40de700a79a44599dba8d4a004fe35963bca2c0c3fc3dd1034acc27b",
     "tendl_d_rp_HF_180.db": "304be2e9d13752961fca2d5810628c459eb9ce7b05b9efefe33a3a5dee833f74",
     "tendl_d_rp_HF_182.db": "bb1ddbb9444a61eb0fcff254e9d825c3dfe3d9fa26a8980899ea5109b018cd99",
@@ -1650,6 +1655,7 @@
     "tendl_d_rp_IN_115.db": "342fa76984a6bcf55a57409a2b03976d0d911d999186898b7464a9dc4e7a6d62",
     "tendl_d_rp_IR_000.db": "c38dacb2f4102f771eaf5e4bea64dd0721e92f322f28ac082822501b9fab5b1d",
     "tendl_d_rp_IR_191.db": "4271faf2eec29af3d7b92c9218334aeaed3f575602b500551dc9a388fa8e4b66",
+    "tendl_d_rp_IR_192m2.db": "ea62c250b9fb234b1ca463c43ec0ceed01496817b92e2c7cf50cdd1906a42f60",
     "tendl_d_rp_IR_193.db": "b089db9bbe492be0e31bd1d6929cff55c326e20086ea4ea6988b6ff59c33cd4d",
     "tendl_d_rp_I_000.db": "08905f566610fbc65f43aa3418cd8e9192259ee613d7a79dd1d0593903d4a8d9",
     "tendl_d_rp_I_127.db": "3b25e6f7d047c8b61ee8a1a1191655d8b95f5d7edf54d91ed6b5937f04613b30",
@@ -1857,7 +1863,7 @@
     "tendl_d_rp_S_33.db": "152897d467716de2250d74a771f5f57417aaf7b62608b4f35d1d8e5b2de19e20",
     "tendl_d_rp_S_34.db": "473006242304ee08369a7449a31f682518041e62d0b234dc2cad3342892c26c8",
     "tendl_d_rp_S_36.db": "32d49b241aafb3de8bb81e28eb31767ab78abfeea343801e9a0817d3f0e36a9b",
-    "tendl_d_rp_TA_000.db": "98dae55cb49ffdc038d02996cf7a780e9cf3577d90f5c1a7d6026fce9a20069b",
+    "tendl_d_rp_TA_000.db": "b379b0eda95c31721875dda3a66e98bee134ec200c6d4119113c98f21fbeb5df",
     "tendl_d_rp_TA_179.db": "2277d1c6321fc1674072518d87618e6b85c5801801e1983b499d585444c09bee",
     "tendl_d_rp_TA_180m.db": "c4775d2af0176590ab72dbdebc51d92a57d8104e595f6fa7cd5fad4111e5dff9",
     "tendl_d_rp_TA_181.db": "d4aafff3735236ff6977f3bc0468d556c1e2c46d836e6fdd92c6f23bafe3585c",
@@ -1946,7 +1952,7 @@
     "tendl_d_rp_ZR_94.db": "28803b4bc8ffb1efcc9cfc99c7b5303146b0e04147005f0ea3c1a69e66ca335b",
     "tendl_d_rp_ZR_96.db": "412cba5675ef60d90df5ae4d9411652b0df837572929b3139109cb562b7e5c74",
     "tendl_d_rp__version.db": "7d279ee4f145f675ae12906649ef616a487ad5b5cc19a6efbd24bddbd08c86a7",
-    "tendl_d_rp_all_reactions.db": "cbd7870e3914c4be42b539cf54669d79ef0c72a169ef7a4e0e4fa6c91b563143"
+    "tendl_d_rp_all_reactions.db": "83c1782d9cccef5cced12efe4b2ba22fa718dcaecc04083e957edd2bcb3df9ed"
    }
   },
   "tendl_n_rp": {
@@ -2113,6 +2119,7 @@
     "tendl_n_rp_HF_176.db": "2980d5cd5e027550f5be628c51be47db9eedde86df2497682b907f90f751ca8a",
     "tendl_n_rp_HF_177.db": "b25f537fd9d5e8001bc0561d1255ed879bdee0a583e58a3a7edd40af649c204c",
     "tendl_n_rp_HF_178.db": "196a3514136f64c2f24a6bcd60da108765694457f57f0c96b6490f5c1b1b3691",
+    "tendl_n_rp_HF_178m2.db": "5a87e37d6ee870b27040c81fa337c4de1d0937d000d163c91e2f59a24198cf3a",
     "tendl_n_rp_HF_179.db": "05b17bf1439a0e1eecc0c7224dcee8b7b051e594cdba773ebf9139023af16f6e",
     "tendl_n_rp_HF_180.db": "157202d803e27c9f79286272e61fcca4f94ff740c5750bdf3bfc1de5cce64d9a",
     "tendl_n_rp_HF_182.db": "55a43ded2b94e21b14a42b2ef067074317c0737f9bd1322bd8f5a9b0cf690e1e",
@@ -2134,6 +2141,7 @@
     "tendl_n_rp_IN_115.db": "d67b4f85e6fda1a022892b84a8bdf39adbfba8f6472cf16735224dacf4c91db7",
     "tendl_n_rp_IR_000.db": "d50366e2c8edad9cfab03b796a5e6e990caee982d989f2db09e6a711cb988571",
     "tendl_n_rp_IR_191.db": "2ed1ff75d86cb9dd3dc2bb859ac52f5844910545cb9621b57f46bd20375268eb",
+    "tendl_n_rp_IR_192m2.db": "ac0bd1e40aacb092724af713802ceec86676a2f4557e7b3bdfb7e74eb1e4ed61",
     "tendl_n_rp_IR_193.db": "e0d52ae187bb653dba983b94de8b9da7aa1e88f1bf3543d42d77f616b6e2c0f3",
     "tendl_n_rp_I_000.db": "6ad2e5bcc0fd49883ecc5bfd301d642c25498b08d127c2d73db8d30314502745",
     "tendl_n_rp_I_127.db": "8cc4bae30186d967a1c21c601d58e098213fcf07160340fdca198e5e68e5c7d3",
@@ -2341,7 +2349,7 @@
     "tendl_n_rp_S_33.db": "8571e758d342811af74389ac052d8e2bf62e7d01603c8806692a91af9f36e35b",
     "tendl_n_rp_S_34.db": "acfe2399f14f2af17a0a90d066c6b0fa723a4865e122dcd50bebadee599fc381",
     "tendl_n_rp_S_36.db": "979a79d5dd3fcf132e336d320e3eb74eabf21c907de1661aa19916c1ab24b745",
-    "tendl_n_rp_TA_000.db": "020e47060a56260f6315123ce3df64016a37bc81dccc46d54756786cd886e464",
+    "tendl_n_rp_TA_000.db": "ac05426214f3e388ad477eb37a2974d88e6cec814acea97d44b2a530eab0108f",
     "tendl_n_rp_TA_179.db": "ffdbc8bc24a2eb8ff52fb6e0c1f7b690f691066b9641e396c372f5da7808a80e",
     "tendl_n_rp_TA_180m.db": "36194c5bd5aa1f43cfd02e45856613c5e2915ed342d7372056716a95e74b9185",
     "tendl_n_rp_TA_181.db": "8a7a6ba7c6e489ddb6b7681fe3c84a357c4e0c9c161f41ed173b8cbb75ec99da",
@@ -2430,7 +2438,7 @@
     "tendl_n_rp_ZR_94.db": "4d9029a650d3c202189b30e6f9f3aa64df4f2cbfe10af3e979f9d903adf8bf7e",
     "tendl_n_rp_ZR_96.db": "881f2e0264f11e3839135c1bbb196cae5b51e7a9b8990b134ebe692938716fe3",
     "tendl_n_rp__version.db": "16a70fafce6a692bd2c171d592768fc6e85a3513b1397fc63db85c53176a85c1",
-    "tendl_n_rp_all_reactions.db": "87dcc2eeb62fe4d7e4416fb61f577d8ba606d1828a426aee7d604f75d41bc86d"
+    "tendl_n_rp_all_reactions.db": "c56ec78bfdd95aa6e04ce9cff903d8140732451fe5fca9fc9a71a184d5c1d512"
    }
   },
   "tendl_p_rp": {
@@ -2597,6 +2605,7 @@
     "tendl_p_rp_HF_176.db": "d7f41feb6bae31d1d5be3797f998bfe74b1edfe444907c2de1a904bed9b7f9bf",
     "tendl_p_rp_HF_177.db": "fc020eb797dbf156b9ad0a7e353b2ed4e48a5f4933ad13a3cffb2c7743386f6c",
     "tendl_p_rp_HF_178.db": "062a04b15ed42dbe76cbf28ba1d0eecb745fd8e0a60a78f39b324f735a44b1a2",
+    "tendl_p_rp_HF_178m2.db": "796aead1728cdd18e4f5378981f743e2677f880e6b84f8635c980432c429b711",
     "tendl_p_rp_HF_179.db": "55c726dbc1ad85eb8284d4913f147eb57512f57718b9ed64ddac818d08cfde6b",
     "tendl_p_rp_HF_180.db": "68c896ea562483036bb110bb6870b518bb383da23937f05553c0d6e50e2106dc",
     "tendl_p_rp_HF_182.db": "9983350f064b3d1188d6e4293def5571d2d7b25aa07185d9604bfc91b70532a8",
@@ -2618,6 +2627,7 @@
     "tendl_p_rp_IN_115.db": "091e5db71ec155f72a90d69bf984722fe314e0bfae6153b3d29f38a0f5b3a79e",
     "tendl_p_rp_IR_000.db": "b5f6e14f915e00f9e67530767f9eb64d1e4225bd29094decbcd003f8e5700753",
     "tendl_p_rp_IR_191.db": "e245aa20bd3cd3a96e6a4051e3548b1b9e2901f6f7f78bdb297e7e53e3af4441",
+    "tendl_p_rp_IR_192m2.db": "05c92ab3b76e033e3a93503bb3371026a4ea5ecc10653a4d1c30ba2d0048e3ec",
     "tendl_p_rp_IR_193.db": "b7b26292179338aee73a45af052bdbadfeb1063efc97bb485f3ca9e54011cd84",
     "tendl_p_rp_I_000.db": "c1d2f5ab3367a46e52996d444b53dfaf0836c6b7f27a544dbd12774c07025f28",
     "tendl_p_rp_I_127.db": "53ea3b59e0c69c01b138649b10ffb6040749c57d6d1ea589a59b79fb82b51494",
@@ -2825,7 +2835,7 @@
     "tendl_p_rp_S_33.db": "d0d8f0f2afee915231fff08f71d6408cb46d31132c2b158320fc6410551f057e",
     "tendl_p_rp_S_34.db": "f932a695366b918a85052a0e4946d072b1707cd492d79a346763792d772267c0",
     "tendl_p_rp_S_36.db": "24202283556f361d6b55d0054d0f7e9504f1af97e329a9ac5c4338c5ffc8ad61",
-    "tendl_p_rp_TA_000.db": "e5816e15364f7c3940dd03b90072093db8483bd190d1a7c9bd9e5a876f1852fb",
+    "tendl_p_rp_TA_000.db": "ce18836c896dcd990fda80f008db915e82d5a991aeccc59babb4f723011f6e71",
     "tendl_p_rp_TA_179.db": "35f80f1897c5d07753e3157f0dc4b762a7a797765db6af2a6d552317263840e1",
     "tendl_p_rp_TA_180m.db": "9d5a6032973ee9a8e472e5d93498e391cb0eaecece434da78f77f7a613b4fe87",
     "tendl_p_rp_TA_181.db": "e6ca48a9b5521e7ccd25638f49a036f1218ef4ea4738a3ecd22bb898b06e528d",
@@ -2914,7 +2924,7 @@
     "tendl_p_rp_ZR_94.db": "5a27b27d13c872b9c2090cb166d25ff500a4ceda0a4fe5804be90912800be53d",
     "tendl_p_rp_ZR_96.db": "a4023d4ee9d62c9716e54460a5d7113e2770295c847703f79140249b608836d7",
     "tendl_p_rp__version.db": "6045e74c515c2a8e120f52c4655c8a26993b8688768158974a828ff5b2513a53",
-    "tendl_p_rp_all_reactions.db": "563046e5f810be0c9095252513adac3d6dce4fc6cc1e6e962b206ecb94c3508f"
+    "tendl_p_rp_all_reactions.db": "3ba2cfd8571822046a15056dad71329688f831dc7071b2f65b2547af5d57d051"
    }
   }
  }

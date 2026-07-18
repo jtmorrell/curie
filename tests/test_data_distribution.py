@@ -98,7 +98,7 @@ def test_shipped_registry_is_self_consistent():
 		# groups only: a nat exclusive channel would sum different
 		# residuals under one label
 		assert ('{}_FE_000.db'.format(lib) in shards) == lib.endswith('_rp'), lib
-		namere = re.compile(r'^{}_([A-Z]+_[0-9]+m?|all_reactions|_version)\.db$'.format(lib))
+		namere = re.compile(r'^{}_([A-Z]+_[0-9]+(m[0-9]?)?|all_reactions|_version)\.db$'.format(lib))
 		bad = [s for s in shards if not namere.match(s)]
 		assert not bad, '{} shard names the runtime table derivation cannot produce: {}'.format(lib, bad)
 		assert all(hexre.match(h) for h in shards.values()), lib
@@ -118,6 +118,17 @@ def test_every_endf_table_has_a_registry_shard():
 	with open(os.path.join(os.path.dirname(data.__file__), 'data_registry.json')) as f:
 		shards = json.load(f)['shards']['endf']['files']
 	con = data._get_connection('endf')
+	# coverage is only defined against the current data generation: an
+	# ambient cache from an earlier generation legitimately holds tables
+	# (e.g. its evaluation's target set) the current registry does not ship
+	try:
+		row = con.execute('SELECT generation FROM _version').fetchone()
+		local_gen = row[0] if row else None
+	except sqlite3.Error:
+		local_gen = None
+	if local_gen != data._generation():
+		pytest.skip('local endf.db is generation {!r}; registry fetches {!r}'.format(
+			local_gen, data._generation()))
 	tables = [r[0] for r in con.execute("SELECT name FROM sqlite_master WHERE type='table'")]
 	# _build_meta is the one build-internal table that ships in the whole
 	# file only; every other table — including the _version generation
@@ -405,7 +416,7 @@ def test_generation_mismatch_warns_once(sandbox, capsys):
 	con.close()
 	data._get_connection('endf')
 	out = capsys.readouterr().out
-	assert 'generation v1' in out and 'test:' in out and 'overwrite=True' in out
+	assert 'generation v1' in out and 'test:' in out and 'ci.download' in out
 	data._get_connection('endf')  # cached connection: no second warning
 	assert 'generation v1' not in capsys.readouterr().out
 

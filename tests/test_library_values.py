@@ -137,8 +137,9 @@ class TestNatTiPV48:
 
 @requires_data('tendl_p_rp')
 def test_natural_element_with_m_in_symbol():
-    """'natSM' must resolve to the SM_000 table: the generic letters+digits table
-    derivation would misread the element symbol's M as an isomer flag (recorded
-    2026-07-18 from the v2 build)."""
-    rx = ci.Reaction('natSM(p,x)153EUg', 'tendl_p')
+    """'natSm' must resolve to the SM_000 table: the legacy letters+digits
+    derivation mangles every nat spelling, and this title-case one would also
+    gain a spurious isomer flag from its trailing m (recorded 2026-07-18 from
+    the v2 build)."""
+    rx = ci.Reaction('natSm(p,x)153EUg', 'tendl_p')
     assert float(rx.interpolate(20.0)) == pytest.approx(115.5922798456, rel=REL)
