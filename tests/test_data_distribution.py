@@ -79,6 +79,10 @@ def test_shipped_registry_is_self_consistent():
 								 'tendl_n_rp.db', 'tendl_p_rp.db', 'tendl_d_rp.db',
 								 'tendl_a_rp.db', 'IRDFF.db', 'iaea_monitors.db'}
 	assert all(hexre.match(h) for h in reg['files'].values())
+	# the reverse coupling: every registry file must be reachable through the
+	# runtime resolver (a registry entry no API can name is dead weight)
+	assert sorted(data._FILES) == sorted(reg['files'])
+	assert all(data._canonical(f) == f for f in reg['files'])
 	assert set(reg['shards']) == {'endf', 'tendl', 'tendl_n_rp', 'tendl_p_rp',
 								  'tendl_d_rp', 'tendl_a_rp'}
 	for lib, group in reg['shards'].items():
@@ -128,6 +132,8 @@ def test_canonical_aliases():
 		assert data._canonical(alias) == 'decay.db'
 	for alias in ['tendl_n_rp', 'tendl_nrp', 'tendl_n', 'nrp', 'rpn']:
 		assert data._canonical(alias) == 'tendl_n_rp.db'
+	for alias in ['tendl_a_rp', 'tendl_arp', 'tendl_a', 'arp', 'rpa']:
+		assert data._canonical(alias) == 'tendl_a_rp.db'
 	for alias in ['iaea', 'cpr', 'iaea_medical', 'iaea-monitor', 'medical']:
 		assert data._canonical(alias) == 'iaea_monitors.db'
 	assert data._canonical('irdff') == 'IRDFF.db'
@@ -347,3 +353,85 @@ def test_download_prefetches_whole_file(sandbox, capsys):
 	data.download('ziegler')  # second call skips
 	assert sandbox['fetched'] == ['ziegler.db']
 	assert 'already installed' in capsys.readouterr().out
+
+
+def _make_version_shard(path, library, generation):
+	con = sqlite3.connect(path)
+	con.execute('CREATE TABLE _version (library TEXT, generation TEXT)')
+	con.execute('INSERT INTO _version VALUES (?,?)', (library, generation))
+	con.commit()
+	con.close()
+	with open(path, 'rb') as f:
+		return hashlib.sha256(f.read()).hexdigest()
+
+
+def test_fresh_assembly_carries_generation_stamp(sandbox):
+	"""A database assembled from scratch fetches the _version shard with its
+	first table, so shard-assembled local files carry the generation stamp."""
+	sha = _make_db(sandbox['remote'] / 'endf_XX_1.db', 'XX_1')
+	vsha = _make_version_shard(sandbox['remote'] / 'endf__version.db', 'endf', 'test:')
+	sandbox['registry']['shards']['endf'] = {'base_url': 'test://', 'files': {
+		'endf_XX_1.db': sha, 'endf__version.db': vsha}}
+	con = data._get_connection('endf')
+	data._ensure_table('endf', 'XX_1')
+	assert con.execute('SELECT generation FROM _version').fetchone() == ('test:',)
+	assert set(sandbox['fetched']) == {'endf_XX_1.db', 'endf__version.db'}
+
+
+def test_stampless_database_is_never_stamped_by_assembly(sandbox):
+	"""A pre-stamp (earlier-generation) assembled file must NOT acquire the
+	current stamp when new tables are assembled into it: the generation
+	check has to keep warning about it."""
+	_make_db(sandbox['cache'] / 'endf.db', 'OLD_1')
+	sha = _make_db(sandbox['remote'] / 'endf_XX_1.db', 'XX_1')
+	vsha = _make_version_shard(sandbox['remote'] / 'endf__version.db', 'endf', 'test:')
+	sandbox['registry']['shards']['endf'] = {'base_url': 'test://', 'files': {
+		'endf_XX_1.db': sha, 'endf__version.db': vsha}}
+	data._ensure_table('endf', 'XX_1')
+	con = data._get_connection('endf')
+	assert con.execute('SELECT COUNT(*) FROM XX_1').fetchone()[0] == 2
+	assert 'endf__version.db' not in sandbox['fetched']
+
+
+def test_generation_mismatch_warns_once(sandbox, capsys):
+	"""First connection to a database from another generation warns, naming
+	both generations and the repair command."""
+	path = sandbox['cache'] / 'endf.db'
+	_make_db(path, 'XX_1')
+	con = sqlite3.connect(path)
+	con.execute('CREATE TABLE _version (library TEXT, generation TEXT)')
+	con.execute("INSERT INTO _version VALUES ('endf','v1')")
+	con.commit()
+	con.close()
+	data._get_connection('endf')
+	out = capsys.readouterr().out
+	assert 'generation v1' in out and 'test:' in out and 'overwrite=True' in out
+	data._get_connection('endf')  # cached connection: no second warning
+	assert 'generation v1' not in capsys.readouterr().out
+
+
+def test_stampless_database_warns(sandbox, capsys):
+	_make_db(sandbox['cache'] / 'endf.db', 'XX_1')
+	data._get_connection('endf')
+	assert 'predates the generation stamp' in capsys.readouterr().out
+
+
+def test_matching_generation_is_quiet(sandbox, capsys):
+	path = sandbox['cache'] / 'endf.db'
+	_make_db(path, 'XX_1')
+	con = sqlite3.connect(path)
+	con.execute('CREATE TABLE _version (library TEXT, generation TEXT)')
+	con.execute("INSERT INTO _version VALUES ('endf','test:')")
+	con.commit()
+	con.close()
+	data._get_connection('endf')
+	out = capsys.readouterr().out
+	assert 'generation' not in out
+
+
+def test_ziegler_exempt_from_generation_check(sandbox, capsys):
+	"""ziegler.db carries no stamp by design (carried over unchanged
+	between generations) and must connect quietly."""
+	_make_db(sandbox['cache'] / 'ziegler.db', 'compounds')
+	data._get_connection('ziegler')
+	assert 'generation' not in capsys.readouterr().out
