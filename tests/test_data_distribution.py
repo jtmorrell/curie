@@ -90,6 +90,10 @@ def test_shipped_registry_is_self_consistent():
 		# connection-time skew check reads must reach shard-assembled
 		# local databases too
 		assert '{}__version.db'.format(lib) in shards, lib
+		# natural-element tables (EL_000) ship in the residual-product
+		# groups only: a nat exclusive channel would sum different
+		# residuals under one label
+		assert ('{}_FE_000.db'.format(lib) in shards) == lib.endswith('_rp'), lib
 		namere = re.compile(r'^{}_([A-Z]+_[0-9]+m?|all_reactions|_version)\.db$'.format(lib))
 		bad = [s for s in shards if not namere.match(s)]
 		assert not bad, '{} shard names the runtime table derivation cannot produce: {}'.format(lib, bad)

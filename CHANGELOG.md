@@ -3,6 +3,18 @@
 Notable changes to curie are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+### Added
+- **Natural-element targets in the TENDL residual-product libraries**:
+  `ci.Reaction('natFe(p,x)56CO', 'tendl_p')` now works for ~80 elements
+  in all four residual-product libraries (n, p, d and the new alpha
+  library). The cross sections are abundance-weighted sums of the
+  isotopic tables, computed at data-build time from the same decay-data
+  generation; elements whose lightest isotopes TENDL does not provide
+  (H, He, Li, Be) are not available. The `natEl` notation matches the
+  IAEA monitor and IRDFF libraries.
+
 ## [0.2.0] - 2026-07-14
 
 Fitting transparency release: every fit reports a summary of its results

@@ -29,7 +29,8 @@ class Reaction(object):
 	Attributes
 	----------
 	target : str
-		The target nucleus.  Some libraries support natural elements, e.g. 'natEl'. 
+		The target nucleus.  The IAEA monitor, IRDFF and TENDL residual-product
+		libraries also carry natural elements, e.g. 'natEl'. 
 
 	incident : str
 		Incident particle. E.g. 'n', 'p', 'd'. 

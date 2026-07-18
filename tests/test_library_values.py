@@ -107,3 +107,38 @@ class TestNatCuP63Zn:
         flux_E = np.linspace(10.0, 40.0, 31)
         avg = float(rx.average(flux_E, np.ones(31)))
         assert avg == pytest.approx(99.58161290322582, rel=REL)
+
+
+@requires_data('tendl_p_rp')
+class TestNatTiPV48:
+    """natTI(p,x)48Vg from the TENDL proton residual-product library.
+
+    The natural-element tables are abundance-weighted sums of the isotopic tables,
+    synthesized at build time (v2 data generation). Values recorded 2026-07-18 from the
+    v2 build. Independent context (deliberately not asserted): the IAEA monitor
+    evaluation of this reaction peaks at 377 mb / 11.0 MeV; the TENDL synthesis peaks
+    at 383 mb / 12.0 MeV.
+    """
+
+    @pytest.fixture(scope='class')
+    def rx(self):
+        return ci.Reaction('natTi(p,x)48V', 'tendl_p')
+
+    def test_grid_sorted(self, rx):
+        assert np.all(np.diff(rx.eng) > 0.0)
+
+    def test_interpolate(self, rx):
+        assert float(rx.interpolate(12.0)) == pytest.approx(383.000434784, rel=REL)
+        assert float(rx.interpolate(25.0)) == pytest.approx(47.73267097397423, rel=REL)
+
+    def test_integrate(self, rx):
+        assert float(rx.integrate(10.0, 30.0)) > 0.0
+
+
+@requires_data('tendl_p_rp')
+def test_natural_element_with_m_in_symbol():
+    """'natSM' must resolve to the SM_000 table: the generic letters+digits table
+    derivation would misread the element symbol's M as an isomer flag (recorded
+    2026-07-18 from the v2 build)."""
+    rx = ci.Reaction('natSM(p,x)153EUg', 'tendl_p')
+    assert float(rx.interpolate(20.0)) == pytest.approx(115.5922798456, rel=REL)

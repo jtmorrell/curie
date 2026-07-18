@@ -77,7 +77,8 @@ class Library(object):
 		Parameters
 		----------
 		target : str, optional
-			The target nucleus.  Some libraries support natural elements, e.g. 'natEl'.
+			The target nucleus.  The IAEA monitor, IRDFF and TENDL residual-product
+			libraries also carry natural elements, e.g. 'natEl'.
 
 		incident : str, optional
 			Incident particle.  Must be one of 'n', 'p' or 'd'.  Only needed for IAEA
@@ -184,7 +185,8 @@ class Library(object):
 		Parameters
 		----------
 		target : str, optional
-			The target nucleus.  Some libraries support natural elements, e.g. 'natEl'.
+			The target nucleus.  The IAEA monitor, IRDFF and TENDL residual-product
+			libraries also carry natural elements, e.g. 'natEl'.
 
 		incident : str, optional
 			Incident particle.  Must be one of 'n', 'p' or 'd'.  Only needed for IAEA
@@ -236,7 +238,14 @@ class Library(object):
 				target = Isotope(target)._short_name
 
 		if self.db_name in ['endf','tendl','tendl_n_rp','tendl_p_rp','tendl_d_rp']:
-			table = ''.join(re.findall('[A-Z]+', target))+'_'+''.join(re.findall('[0-9]+', target))+('m' if 'm' in target else '')
+			if target.lower().startswith('nat'):
+				# natural-element tables are stored under an elemental mass
+				# number of 000 ('natFe' -> FE_000); the generic rule below
+				# would drop the digits and misread the 'm' of e.g. 'natSM'
+				# as an isomer flag
+				table = target[3:].upper()+'_000'
+			else:
+				table = ''.join(re.findall('[A-Z]+', target))+'_'+''.join(re.findall('[0-9]+', target))+('m' if 'm' in target else '')
 
 			_ensure_table(self.db_name, table)
 			q = pd.read_sql('SELECT energy,{0} FROM {1}'.format(labels[0], table), self._con).to_numpy()*(np.array([1E-6, 1E3]) if self.db_name=='endf' else np.ones(2))
