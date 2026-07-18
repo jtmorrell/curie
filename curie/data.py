@@ -98,17 +98,6 @@ def _check_generation(fnm, con):
 						fnm, row[0], expected, fnm[:-3]))
 
 
-def _file_generation(path):
-	"""The _version generation stamp of a database file, or None."""
-	try:
-		con = sqlite3.connect(path)
-		row = con.execute('SELECT generation FROM _version').fetchone()
-		con.close()
-		return row[0] if row else None
-	except sqlite3.Error:
-		return None
-
-
 def _data_path(db=''):
 	"""The writable nuclear-data directory (CURIE_DATA_DIR overrides)."""
 	path = os.environ.get('CURIE_DATA_DIR')
@@ -333,25 +322,30 @@ def download(db='all', overwrite=False):
 	for fnm in d:
 		path = _data_path(fnm)
 		installed = os.path.isfile(path) and os.path.getsize(path) > 0
-		if not installed and not overwrite and _site_file(fnm) is not None:
-			_log.info('{} is provided by the site-wide data directory; nothing to download.'.format(fnm))
-			continue
-		if installed and fnm[:-3] in _registry().get('shards', {}):
-			# a partially assembled library is present, not installed
-			installed = _sha256(path) == _registry()['files'].get(fnm)
+		if not installed and not overwrite:
+			site = _site_file(fnm)
+			if site is not None:
+				if _sha256(site) == _registry()['files'].get(fnm):
+					_log.info('{} is provided by the site-wide data directory; nothing to download.'.format(fnm))
+					continue
+				# a stale site-wide copy cannot be replaced in place (it may
+				# be read-only); the fetched user-directory copy takes
+				# precedence over it
+				_log.info('{} in the site-wide data directory does not match the current data release; fetching a copy into the user data directory (which takes precedence).'.format(fnm))
 		if installed and not overwrite:
-			# an installed file from another data generation is refreshed
-			# without needing overwrite=True: this is the repair the
-			# generation warning points at (ziegler.db carries no stamp
-			# and is carried over between generations)
-			if fnm != 'ziegler.db' and _file_generation(path) != _generation():
-				_log.info('{} is from an older data generation; fetching the current release.'.format(fnm))
-			else:
+			if _sha256(path) == _registry()['files'].get(fnm):
 				_log.info("{0} already installed. Run ci.download('{0}', overwrite=True) to overwrite these files.".format(fnm.replace('.db', '')))
 				continue
+			# a file that no longer matches the current data release — an
+			# older generation, a repaired file within one, or a partial
+			# shard assembly — is replaced without needing overwrite=True:
+			# this is the repair the generation warning points at
+			_log.info('{} does not match the current data release; fetching the current file.'.format(fnm))
 		# the existing file (if any) is left in place: the fetch verifies and
 		# replaces it atomically, so a failed download never destroys data
-		GLOB_CONNECTIONS_DICT.pop(path, None)
+		_stale_con = GLOB_CONNECTIONS_DICT.pop(path, None)
+		if _stale_con is not None:
+			_stale_con.close()
 		try:
 			_retrieve(fnm)
 		except Exception as e:

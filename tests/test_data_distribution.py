@@ -416,7 +416,7 @@ def test_generation_mismatch_warns_once(sandbox, capsys):
 	con.close()
 	data._get_connection('endf')
 	out = capsys.readouterr().out
-	assert 'generation v1' in out and 'test:' in out and 'ci.download' in out
+	assert 'generation v1' in out and 'test:' in out and "ci.download('endf')" in out
 	data._get_connection('endf')  # cached connection: no second warning
 	assert 'generation v1' not in capsys.readouterr().out
 

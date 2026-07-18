@@ -705,10 +705,10 @@ class Isotope(object):
 		>>> ip = ci.Isotope('Co-60')
 		>>> print(ip.dose_rate(activity=3.7E10, units='R/hr')) # 1 Ci of Co-60 at 30 cm
 		{'gammas': 14.454, 'alphas': 0.0, 'beta_minus': 1545.1658,
-		'beta_plus': 0.0, 'electrons': 18.3254, 'total': 1577.9452}
+		'beta_plus': 0.0, 'electrons': 17.032, 'total': 1576.6518}
 		>>> print(ip.dose_rate(activity=3.7E10, units='uSv/hr')) # the same, in uSv/hr
-		{'gammas': 126761.9286, 'alphas': 0.0, 'beta_minus': 13551103.67,
-		'beta_plus': 0.0, 'electrons': 160713.9628, 'total': 13838579.5615}
+		{'gammas': 126761.9304, 'alphas': 0.0, 'beta_minus': 13551103.67,
+		'beta_plus': 0.0, 'electrons': 149370.8364, 'total': 13827236.4368}
 
 		"""
 

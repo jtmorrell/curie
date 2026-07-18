@@ -37,6 +37,8 @@ def _pchip_sqrt(eng, xs, energy):
 	# PCHIP requires strictly increasing abscissae; step representations
 	# (duplicate energies) keep their first point
 	keep = np.concatenate(([True], np.diff(es) > 0))
+	if keep.sum() < 2:
+		return np.zeros_like(energy)
 	f = PchipInterpolator(es[keep], ss[keep], extrapolate=False)
 	y = np.nan_to_num(f(np.sqrt(np.maximum(energy, 1E-12))), nan=0.0)
 	out = np.where((energy < e_threshold) | (energy > eng[-1]), 0.0, y*y)
@@ -183,7 +185,9 @@ class Reaction(object):
 
 	@property
 	def interp_config(self):
-		return self._interp_config
+		# a copy: in-place mutation would bypass the setter's validation
+		# and its interpolator-cache invalidation
+		return dict(self._interp_config)
 
 	@interp_config.setter
 	def interp_config(self, _interp_config):
@@ -233,12 +237,14 @@ class Reaction(object):
 		if interp_config:
 			self.interp_config = interp_config
 		if self._interp is None:
-			if self._interp_config['interpolation'] == 'pchip-sqrt':
-				self._interp = lambda e: _pchip_sqrt(self.eng, self.xs, e)
-			else:
-				self._interp = interp1d(self.eng, self.xs, bounds_error=False, fill_value=0.0)
+			self._interp = self._build_interp(self.xs)
 		_interp = self._interp(energy)
 		return np.where(_interp>0, _interp, 0.0)
+
+	def _build_interp(self, col):
+		if self._interp_config['interpolation'] == 'pchip-sqrt':
+			return lambda e: _pchip_sqrt(self.eng, col, e)
+		return interp1d(self.eng, col, bounds_error=False, fill_value=0.0)
 
 	def interpolate_unc(self, energy, **interp_config):
 		"""Uncertainty in interpolated cross section
@@ -274,10 +280,7 @@ class Reaction(object):
 		if interp_config:
 			self.interp_config = interp_config
 		if self._interp_unc is None:
-			if self._interp_config['interpolation'] == 'pchip-sqrt':
-				self._interp_unc = lambda e: _pchip_sqrt(self.eng, self.unc_xs, e)
-			else:
-				self._interp_unc = interp1d(self.eng, self.unc_xs, bounds_error=False, fill_value=0.0)
+			self._interp_unc = self._build_interp(self.unc_xs)
 		return self._interp_unc(energy)
 		
 	def integrate(self, energy, flux, unc=False):

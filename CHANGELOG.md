@@ -25,6 +25,30 @@ Notable changes to curie are documented here. The format follows
 - `Isotope`: a state with no measured half-life in the decay data now
   reports `stable = False` with an infinite half-life, instead of being
   presented as stable.
+- `ci.download()` without `overwrite=True` now replaces any installed
+  file that does not match the current data release (an older
+  generation, or a repaired file within one); a stale site-wide copy is
+  shadowed by a fresh user-directory download.
+
+### Removed — migration notes
+- **The IAEA library's legacy neutron and gamma monitor tables are
+  gone**: the 2025 IAEA re-evaluation covers charged-particle monitors
+  only, so reactions such as `98MO(n,g)` no longer resolve from
+  `'iaea'` (the neutron libraries carry them). `'best'` is unaffected.
+- **Target coverage follows the new evaluations**: ENDF/B-VIII.1 drops
+  a few evaluations VII.1 carried (notably the Cd-115 ground state —
+  Cd-115m remains, and TENDL covers the ground state), and the TENDL
+  curation floor (one year) removes short-lived targets the previous
+  generation included.
+- **A small number of decay-data states lost or changed their gamma
+  lines** with the move to ENSDF/LiveChart: 9 states whose intensities
+  ENSDF cannot currently normalize, 7 with no lines in the source, and
+  2 whose lines the previous generation had misfiled on the wrong
+  state; 11 further states' absolute intensities were recovered
+  directly from ENSDF normalization records. Every value everywhere
+  reflects the newer evaluations — expect small shifts in fitted
+  activities and cross sections, and re-record any values your own
+  analyses pin against curie's libraries.
 
 ### Changed — interpolation
 - **TENDL cross sections now interpolate with a monotone PCHIP scheme in
