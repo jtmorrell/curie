@@ -73,19 +73,24 @@ def test_shipped_registry_is_self_consistent():
 		reg = json.load(f)
 	# the base_urls are hand-edited when releases move: pin them exactly, so a
 	# typo fails here instead of at a user's first fetch
-	assert reg['base_url'] == 'https://github.com/jtmorrell/curie-data/releases/download/v1/'
+	assert reg['base_url'] == 'https://github.com/jtmorrell/curie-data/releases/download/v2/'
 	hexre = re.compile(r'^[0-9a-f]{64}$')
 	assert set(reg['files']) == {'decay.db', 'ziegler.db', 'endf.db', 'tendl.db',
 								 'tendl_n_rp.db', 'tendl_p_rp.db', 'tendl_d_rp.db',
-								 'IRDFF.db', 'iaea_monitors.db'}
+								 'tendl_a_rp.db', 'IRDFF.db', 'iaea_monitors.db'}
 	assert all(hexre.match(h) for h in reg['files'].values())
-	assert set(reg['shards']) == {'endf', 'tendl', 'tendl_n_rp', 'tendl_p_rp', 'tendl_d_rp'}
+	assert set(reg['shards']) == {'endf', 'tendl', 'tendl_n_rp', 'tendl_p_rp',
+								  'tendl_d_rp', 'tendl_a_rp'}
 	for lib, group in reg['shards'].items():
 		assert lib + '.db' in reg['files'], '{} has shards but no whole-file entry'.format(lib)
-		assert group['base_url'] == 'https://github.com/jtmorrell/curie-data/releases/download/v1-{}/'.format(lib.replace('_', '-'))
+		assert group['base_url'] == 'https://github.com/jtmorrell/curie-data/releases/download/v2-{}/'.format(lib.replace('_', '-'))
 		shards = group['files']
 		assert '{}_all_reactions.db'.format(lib) in shards, lib
-		namere = re.compile(r'^{}_([A-Z]+_[0-9]+m?|all_reactions)\.db$'.format(lib))
+		# _version is the one metadata shard: the generation stamp the
+		# connection-time skew check reads must reach shard-assembled
+		# local databases too
+		assert '{}__version.db'.format(lib) in shards, lib
+		namere = re.compile(r'^{}_([A-Z]+_[0-9]+m?|all_reactions|_version)\.db$'.format(lib))
 		bad = [s for s in shards if not namere.match(s)]
 		assert not bad, '{} shard names the runtime table derivation cannot produce: {}'.format(lib, bad)
 		assert all(hexre.match(h) for h in shards.values()), lib
@@ -104,7 +109,11 @@ def test_every_endf_table_has_a_registry_shard():
 		shards = json.load(f)['shards']['endf']['files']
 	con = data._get_connection('endf')
 	tables = [r[0] for r in con.execute("SELECT name FROM sqlite_master WHERE type='table'")]
-	missing = [t for t in tables if 'endf_{}.db'.format(t) not in shards]
+	# underscore tables are metadata: _version ships as a shard (the skew
+	# check needs the stamp in shard-assembled databases), build-internal
+	# ones (_build_meta) live in the whole file only
+	missing = [t for t in tables if 'endf_{}.db'.format(t) not in shards
+			   and (not t.startswith('_') or t == '_version')]
 	assert not missing, 'tables with no shard in the registry: {}'.format(missing)
 
 

@@ -51,6 +51,18 @@ def test_element_stopping_power_needs_only_ziegler(tmp_path):
 
 @requires_data('ziegler', 'decay')
 def test_element_abundances_lazy(tmp_path):
+	# decay.db is pre-seeded from the ambient environment: since the v2 data
+	# generation the legacy in-package copy fails the registry checksum by
+	# design (it is v1 data), so a fresh cache could acquire decay.db only
+	# over the network. Import laziness is proven by
+	# test_import_touches_no_database; this test pins that abundances work
+	# from decay.db + ziegler.db alone, with nothing else acquired.
+	from curie import data
+	src = next(p for p in [data._data_path('decay.db')]
+			   + data._site_data_paths('decay.db')
+			   + [data._legacy_data_path('decay.db')]
+			   if os.path.isfile(p) and os.path.getsize(p) > 0)
+	shutil.copy(src, str(tmp_path / 'decay.db'))
 	code = ('import curie as ci\n'
 			'el = ci.Element("Fe")\n'
 			'assert "56FE" in el.isotopes\n'
