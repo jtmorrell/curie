@@ -147,12 +147,16 @@ class Isotope(object):
 		self._SFY = None
 
 		if not self.stable and df['half_life'][0] is None:
-			_log.warning('Isotope: {} has no half-life in the decay database, and will be treated as stable.'.format(self.name))
-			self.stable = True
+			# dripline states with spectroscopy data but no measured
+			# half-life: unstable, with an infinite half-life standing in —
+			# `stable` remains False so the state is not misreported
+			_log.warning('Isotope: {} has no measured half-life in the decay database; treating its half-life as infinite.'.format(self.name))
+			self._t_half = np.inf
+			self._unc_t_half = 0.0
 			self.dc = 0.0
 			self.decay_products = {}
 
-		if not self.stable:
+		elif not self.stable:
 			self._t_half = float(df['half_life'][0])
 			self._unc_t_half = float(df['unc_half_life'][0]) if df['unc_half_life'][0] is not None else 0.0
 			self.dc = np.log(2.0)/self._t_half
