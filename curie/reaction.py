@@ -88,7 +88,7 @@ class Reaction(object):
 		if library.lower()=='best':
 			if self.incident=='n':
 				libs = ['irdff','endf','iaea','tendl','tendl_n_rp']
-			elif self.incident in ['p','d']:
+			elif self.incident in ['p','d','a']:
 				libs = ['iaea','tendl_'+self.incident+'_rp']
 			else:
 				libs = ['iaea']

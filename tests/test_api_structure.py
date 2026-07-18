@@ -118,7 +118,7 @@ def test_compound_structure():
 @requires_data('endf')
 def test_library_structure():
     lb = ci.Library('endf')
-    assert lb.name == 'ENDF/B-VII.1'
+    assert lb.name == 'ENDF/B-VIII.1'
     assert lb.search(target='59CO', incident='n', outgoing='g') == ['59CO(n,g)60CO']
     q = np.asarray(lb.retrieve(target='59CO', incident='n', outgoing='g'))
     assert q.ndim == 2 and q.shape[1] == 2 and q.shape[0] > 0
