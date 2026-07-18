@@ -2,7 +2,7 @@
  "base_url": "https://github.com/jtmorrell/curie-data/releases/download/v2/",
  "files": {
   "IRDFF.db": "1ac958c5a80785aa8a0892fd662448674d537545a84a521e0e84cf73686e7e6b",
-  "decay.db": "2175214b71cd786e08f2df4f1c2fdd09fd27b3f330663d918d1d5c300926b7cb",
+  "decay.db": "9cde49cea0f7c588bba48afa15d9c79780976f59e1cc5d06c1d72c8a19291ab0",
   "endf.db": "ad3163becb085c36a6eca02e1a14979bb70cf3ce5c19f8ec143e34b670582cff",
   "iaea_monitors.db": "b96c76a47c2433fba66d71f49146943e22de5588c6b5d3f0e6c5f32dcc24e29d",
   "tendl.db": "c50637ce861a2d136b54a857d8ef39904d6b8b6f375462e56e697dc536b2f374",

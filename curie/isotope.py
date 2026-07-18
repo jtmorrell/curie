@@ -138,9 +138,11 @@ class Isotope(object):
 		else:
 			self.Delta = None
 
-		if self.abundance>0.0:
+		if self.abundance>0.0 and df['unc_abundance'][0] is not None:
 			self.unc_abundance = float(df['unc_abundance'][0])
 		else:
+			# mononuclidic elements carry an exact 100% abundance with no
+			# recorded uncertainty
 			self.unc_abundance = 0.0
 
 
