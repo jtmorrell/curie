@@ -101,6 +101,6 @@ def test_secular_equilibrium_137cs():
 
 @pytest.mark.library_value
 def test_half_life_152eu_frozen_reference():
-    """Frozen reference value, recorded 2026-06-09 from decay.db (NuDat 2.0 era), curie
-    v0.0.34. Expected to change on a decay-data rebuild - re-record deliberately."""
-    assert ci.Isotope('152EU').half_life('y') == pytest.approx(13.537, rel=1E-4)
+    """Frozen reference value, re-recorded 2026-07-18 from the v2 decay.db (ENSDF via
+    LiveChart). Expected to change on a decay-data rebuild - re-record deliberately."""
+    assert ci.Isotope('152EU').half_life('y') == pytest.approx(13.5167, rel=1E-4)

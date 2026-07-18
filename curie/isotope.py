@@ -96,7 +96,7 @@ class Isotope(object):
 	>>> ip = ci.Isotope('Co-60')
 	>>> ip = ci.Isotope('58NI')
 	>>> print(ip.abundance)
-	68.077
+	68.0769
 	
 	>>> ip = ci.Isotope('135CEm')
 	>>> print(ip.dc)
@@ -104,7 +104,7 @@ class Isotope(object):
 
 	>>> ip = ci.Isotope('235U')
 	>>> print(ip.half_life('My'))
-	703.7987679671457
+	703.9849635622725
 
 
 	"""
@@ -326,11 +326,11 @@ class Isotope(object):
 		--------
 		>>> ip = ci.Isotope('226RA')
 		>>> print(ip.half_life())
-		50492200000.0
+		50491081559.3472
 		>>> print(ip.optimum_units())
 		y
 		>>> print(ip.half_life(ip.optimum_units()))
-		1600.0012675235125
+		1599.965826277892
 
 		"""
 
@@ -427,17 +427,16 @@ class Isotope(object):
 
 		>>> ip = ci.Isotope('64CU')
 		>>> print(ip.gammas())
-			energy  intensity  unc_intensity
-		0   511.00     35.200          0.400
-		1  1345.77      0.475          0.011
+		    energy  intensity  unc_intensity
+		0   511.00     34.980            NaN
+		1  1345.77      0.472          0.004
 		>>> print(ip.gammas(xrays=True, dE_511=1.0))
-			 energy  intensity  unc_intensity
-		0     0.850      0.489          0.024
-		1     7.461      4.740          0.240
-		2     7.478      9.300          0.400
-		3     8.265      1.120          0.050
-		4     8.265      0.580          0.030
-		5  1345.770      0.475          0.011
+		     energy  intensity  unc_intensity
+		0     0.874   0.491121       0.023528
+		1     7.461   4.896772       0.058365
+		2     7.478   9.556543       0.103925
+		3     8.296   1.991667       0.029457
+		4  1345.770   0.472000       0.004000
 
 		"""
 
@@ -500,9 +499,9 @@ class Isotope(object):
 		>>> ip = ci.Isotope('Pt-193m')
 		>>> print(ip.electrons(I_lim=5.0, E_lim=(10.0, 130.0)))
 		    energy  intensity  unc_intensity
-		0   11.912       17.1          0.855
-		1   57.110       15.5          0.775
-		2  121.620       60.0          3.000
+		0   11.907       17.1            1.0
+		1   57.101       15.5            0.3
+		2  121.617       60.0            0.8
 
 		"""
 
@@ -556,7 +555,7 @@ class Isotope(object):
 		>>> ip = ci.Isotope('35S')
 		>>> print(ip.beta_minus())
 		   mean_energy  endpoint_energy  intensity  unc_intensity
-		0       48.758           167.33      100.0            5.0
+		0       48.758           167.33      100.0            0.0
 
 		"""
 
@@ -605,7 +604,7 @@ class Isotope(object):
 		>>> ip = ci.Isotope('18F')
 		>>> print(ip.beta_plus())
 		   mean_energy  endpoint_energy  intensity  unc_intensity
-		0        249.8            633.5      96.73           0.04
+		0        249.8            633.4      96.73           0.04
 
 		"""
 
@@ -654,7 +653,7 @@ class Isotope(object):
 		>>> ip = ci.Isotope('210PO')
 		>>> print(ip.alphas(I_lim=1.0))
 		    energy  intensity  unc_intensity
-		0  5304.33      100.0            5.0
+		0  5304.33      100.0            NaN
 
 		"""
 

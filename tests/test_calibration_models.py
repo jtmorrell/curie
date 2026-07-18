@@ -38,10 +38,10 @@ def test_fit_config_validator(capsys):
 
 @requires_data('decay')
 def test_zero_config_identity():
-    # curve values recorded at the doublet-merge fix on fitting-0.2.0 (the
-    # 443.96/444.01 pair now merges, correcting a 9x-wrong efficiency point
-    # and moving the whole curve by several percent) - a change means a
-    # default moved.  The efficiency CURVE is pinned rather than the raw
+    # curve values re-recorded 2026-07-18 against the v2 data generation
+    # (the refreshed 152EU line list adds a peak and shifts intensities;
+    # originally recorded at the doublet-merge fix on fitting-0.2.0) -
+    # a change means a default moved.  The efficiency CURVE is pinned rather than the raw
     # parameters: the effective-length parameter is nearly degenerate once
     # saturated, so different scipy/BLAS stacks converge to different
     # parameterizations of the same curve (observed cross-platform curve
@@ -50,7 +50,7 @@ def test_zero_config_identity():
     cb.calibrate([eu_sp()], sources=EU_SOURCES)
     e = np.array([121.7817, 344.2785, 778.9045, 1408.013])
     np.testing.assert_allclose(cb.eff(e),
-                               [0.0338679, 0.0152847, 0.00714092, 0.00403744], rtol=1E-4)
+                               [0.0338885, 0.0153034, 0.0071113, 0.0039926], rtol=1E-4)
     assert (cb._engcal_model, cb._rescal_model, cb._effcal_model) == ('quadratic', 'linear', 'vidmar-5')
     assert cb.diagnostics.set_index('fit')['model'].to_dict() == {
         'engcal': 'quadratic', 'rescal': 'linear', 'effcal': 'vidmar-5'}

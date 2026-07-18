@@ -36,7 +36,9 @@ REFERENCE_MULTIPLET = {1457.643: ('152EU', 1270.5), 1460.820: ('40K', 2985.8)}
 # merges into one combined-intensity peak (float-channel unresolvable grouping -
 # it previously straddled a channel rounding boundary and was fit degenerately),
 # so the spectrum has one fewer peak row.
-REFERENCE_N_PEAKS = 44
+# Re-recorded 2026-07-18 (v2 data generation): the refreshed 152EU line list
+# adds one identified peak to the same spectrum.
+REFERENCE_N_PEAKS = 45
 # efficiency curve from the documented calibrate() workflow, evaluated at reference energies.
 # Re-recorded 2026-07-04 (curie 0.0.37): calibrate() now fits against the block covariance
 # of the efficiency points (correlated intensity/decay-data/source terms, absolute sigma),
