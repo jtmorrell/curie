@@ -501,16 +501,17 @@ The libraries
 
 Curie distributes cross sections from four evaluated libraries:
 
-================  ==========================  =========  ==============  =============
-Name              Evaluation                  Particles  Organization    Uncertainties
-================  ==========================  =========  ==============  =============
-``endf``          ENDF/B-VII.1 [ENDF]_        n          exclusive       no
-``tendl``         TENDL-2015 [TENDL]_         n          exclusive       no
-``tendl_n/p/d``   TENDL-2015 [TENDL]_         n, p, d    residual        no
-``irdff``         IRDFF-II [IRDFF]_           n          exclusive       yes
-``iaea``          IAEA CP-Reference           n, p, d,   residual        yes
-                  (2017) [IAEA]_              a, h, g
-================  ==========================  =========  ==============  =============
+=================  ==========================  =========  ==============  =============
+Name               Evaluation                  Particles  Organization    Uncertainties
+=================  ==========================  =========  ==============  =============
+``endf``           ENDF/B-VIII.1 [ENDF]_       n          exclusive       no
+``tendl``          TENDL-2025 [TENDL]_         n          exclusive       no
+``tendl_n/p/d/a``  TENDL-2025 [TENDL]_         n, p, d,   residual        no
+                                               a
+``irdff``          IRDFF-II [IRDFF]_           n          exclusive       yes
+``iaea``           IAEA Medical Monitors       n, p, d,   residual        yes
+                   (2025) [IAEA]_              a, h, g
+=================  ==========================  =========  ==============  =============
 
 An *exclusive* library indexes reactions by their outgoing channel —
 (n,2n), (n,p), (n,inl) (inelastic scattering) — while a
@@ -524,6 +525,12 @@ distinguish the two where both are useful).  IRDFF-II is a dosimetry
 standard: most of its entries are exclusive channels, with a few indexed
 by product.
 
+The TENDL residual-product libraries also carry *natural-element*
+targets (``natFe``, ``natTi``, ...): abundance-weighted sums of the
+isotopic tables, computed when the databases are built from the same
+decay-data generation's abundances.  Elements whose lightest isotopes
+TENDL does not evaluate (H, He, Li, Be) have no natural entry.
+
 Energies are in MeV and cross sections in mb throughout (converted on
 retrieval from any source library that uses eV and barns).  On
 retrieval, energy grids are sorted and exact duplicate points dropped;
@@ -535,13 +542,24 @@ artifact, so there they are removed.
 Interpolation and flux averages
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-`Reaction.interpolate()` is piecewise-linear on the evaluated grid, with
-two exceptions: TENDL curves, which are smooth model calculations, are
-interpolated quadratically (from just below the reaction threshold, and
-falling back to linear for very short grids), and negative interpolants
-are clamped to zero.  **Outside the evaluated energy range the
-interpolated cross section is zero** — Curie never extrapolates
-evaluated data.
+`Reaction.interpolate()` selects its scheme per library, through the
+`Reaction.interp_config` parameter ``'interpolation'``.  The
+pointwise-linearized libraries (ENDF — reconstructed to a 0.5 %
+linearization tolerance — IRDFF and IAEA) default to ``'linear'``, the
+convention their tabulated grids are generated for.  The TENDL
+libraries, whose smooth model calculations sit on a coarse energy grid,
+default to ``'pchip-sqrt'``: monotone piecewise-cubic (PCHIP)
+interpolation carried out in :math:`\sqrt{E}`–:math:`\sqrt{\sigma}`
+space.  The monotone construction passes exactly through the evaluated
+points and cannot overshoot or ring between them (a conventional
+quadratic or cubic spline can, badly, across a sharp threshold rise),
+and the square-root energy axis linearizes the
+:math:`\sigma \propto \sqrt{E - E_{thr}}` turn-on just above
+threshold.  Interpolants are clamped non-negative, and below the
+reaction threshold the cross section is zero.  **Outside the evaluated
+energy range the interpolated cross section is zero** — Curie never
+extrapolates evaluated data.  Either scheme can be selected per
+reaction: ``rx.interpolate(E, interpolation='linear')``.
 
 Flux integrals treat the energy points as bin centers, with bin edges at
 the midpoints between them; the first and last points take the full
@@ -688,18 +706,21 @@ and verified against published SHA256 checksums (see
 :ref:`quickinstall`); the large cross-section libraries are fetched in
 per-target pieces.  The reaction libraries are described in
 :ref:`methods_reaction_data`.  The decay data (half-lives, branching
-ratios, emission energies and intensities) are compiled from NuDat 2.0,
-ENDF/B-VII.0 and the nuclear wallet cards; photon attenuation
+ratios, emission energies and intensities) are compiled from ENSDF via
+the IAEA LiveChart interface, with NUBASE2020/AME2020 masses and
+half-life closures and ENDF/B-VIII.1 fission yields (see
+:ref:`data_sources` for full provenance); photon attenuation
 coefficients derive from the NIST XCOM tabulations; charged-particle
 stopping powers use the Andersen–Ziegler formulation.  Gamma-ray
 energies are in keV in the spectroscopy classes, and every half-life is
 in seconds unless a unit argument says otherwise.
 
-.. [ENDF] M.B. Chadwick et al., "ENDF/B-VII.1 Nuclear Data for Science
-   and Technology", *Nucl. Data Sheets* **112** (2011) 2887.
+.. [ENDF] "ENDF/B-VIII.1", National Nuclear Data Center, Brookhaven
+   National Laboratory (2024), https://www.nndc.bnl.gov/endf-b8.1/.
 
 .. [TENDL] A.J. Koning and D. Rochman, "Modern Nuclear Data Evaluation
-   with the TALYS Code System", *Nucl. Data Sheets* **113** (2012) 2841.
+   with the TALYS Code System", *Nucl. Data Sheets* **113** (2012) 2841;
+   TENDL-2025 files from https://tendl.imperial.ac.uk (CC BY 4.0).
 
 .. [IRDFF] A. Trkov et al., "IRDFF-II: A New Neutron Metrology Library",
    *Nucl. Data Sheets* **163** (2020) 1.

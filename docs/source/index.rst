@@ -70,5 +70,6 @@ experimental nuclear data* (2019–), https://jtmorrell.github.io/curie/.
    beginners_guide
    usersguide/index
    methods
+   data_sources
    api/index
    license

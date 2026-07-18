@@ -45,10 +45,11 @@ priority order and keeps the first one that carries the reaction:
 ======================  ====================================================
 Incident particle       Priority order
 ======================  ====================================================
-neutron                 IRDFF-II -> ENDF/B-VII.1 -> IAEA -> TENDL-2015 ->
-                        TENDL-2015 (residual product)
-proton, deuteron        IAEA -> TENDL-2015 (residual product)
-alpha, helion, photon   IAEA
+neutron                 IRDFF-II -> ENDF/B-VIII.1 -> IAEA -> TENDL-2025 ->
+                        TENDL-2025 (residual product)
+proton, deuteron,       IAEA -> TENDL-2025 (residual product)
+alpha
+helion, photon          IAEA
 ======================  ====================================================
 
 The order reflects evaluation care: dosimetry and monitor standards
@@ -97,8 +98,8 @@ nucleus — for ENDF that includes totals, elastic scattering and
 level-by-level inelastic channels, not just activation products.
 
 Library names are ``'endf'``, ``'tendl'``, ``'irdff'``, ``'iaea'``, and
-``'tendl_n'``/``'tendl_p'``/``'tendl_d'`` for the residual-product
-libraries.  ``search`` returns reaction names ready to pass to
+``'tendl_n'``/``'tendl_p'``/``'tendl_d'``/``'tendl_a'`` for the
+residual-product libraries.  ``search`` returns reaction names ready to pass to
 `Reaction`.
 
 Values on your energy grid
@@ -110,7 +111,15 @@ it, and ``rx.interpolate_unc(energy)`` its uncertainty::
 	rx = ci.Reaction('115IN(n,g)', 'irdff')
 	print(rx.interpolate([0.5, 1.0, 5.0]))       # mb, at 0.5, 1 and 5 MeV
 
-Interpolation is linear (quadratic for the smooth TENDL curves).  One
+Interpolation is linear for the pointwise-linearized libraries and
+monotone PCHIP in sqrt(E)-sqrt(sigma) space for the smooth TENDL curves
+(exact through the evaluated points, no overshoot at thresholds); either
+scheme can be selected per reaction::
+
+	rx.interpolate(energy, interpolation='linear')   # kept for later calls
+	rx.interp_config = {'interpolation': 'pchip-sqrt'}
+
+One
 convention to know: **outside the library's evaluated energy range the
 interpolated cross section is zero** — Curie never extrapolates.  Check
 ``rx.eng.min()`` and ``rx.eng.max()`` when working near the edges of a

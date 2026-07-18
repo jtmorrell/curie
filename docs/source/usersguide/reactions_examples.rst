@@ -36,16 +36,24 @@ For a proton spectrum centered at 20 MeV::
 	>>> eng = np.linspace(10, 30, 50)
 	>>> phi = np.exp(-0.5*((eng - 20)/3.5)**2)
 	>>> print(rx.average(eng, phi, unc=True))
-	(116.4..., 4.8...)
+	(115.2..., 5.2...)
 
 Natural vs. isotopic targets
 ----------------------------
 
-The TENDL-2015 residual-product library also carries this reaction — but
-only for *isotopic* targets; it has no natural-element entries.  A
-natural-target cross section is the abundance-weighted sum over the
-stable isotopes.  ``ci.Element('Ti').abundances`` provides exactly what
-the sum needs: a table of the stable isotopes with their percent
+The TENDL-2025 residual-product libraries carry this reaction for the
+natural target directly — ``natTI(p,x)48V`` works there just as it does
+in the IAEA library.  The natural-element entries are abundance-weighted
+sums of the isotopic tables, computed when the databases are built::
+
+	r_nat = ci.Reaction('natTi(p,x)48Vg', 'tendl_p')
+
+(The explicit ``g`` on the product picks the ground state — leaving it
+off works, but prints the ground-state-assumed warning.)
+
+The weighted sum is also easy to carry out by hand, which shows exactly
+what the natural entry *is*.  ``ci.Element('Ti').abundances`` provides
+the table the sum needs — the stable isotopes with their percent
 abundances (columns ``isotope`` and ``abundance``)::
 
 	el = ci.Element('Ti')
@@ -59,24 +67,22 @@ abundances (columns ``isotope`` and ``abundance``)::
 			continue      # this isotope has no route to 48V
 		xs_nat += 1E-2*row['abundance']*r.interpolate(eng)
 
-(The explicit ``g`` on the product picks the ground state — leaving it
-off works, but prints the ground-state-assumed warning for every
-isotope.)
-
 The ``try``/``except`` is doing real physics: :sup:`46`\ Ti + p has only
 47 nucleons, so it cannot make :sup:`48`\ V at any energy, and TENDL has
-no such entry.  Overlaying the weighted sum on the IAEA evaluation::
+no such entry.  Overlaying the natural-target entry on the IAEA
+evaluation::
 
 	f, ax = rx.plot(return_plot=True, label='library')
-	ax.plot(eng, xs_nat, ls='--', label='TENDL-2015 (abundance-weighted)')
+	ax.plot(eng, r_nat.interpolate(eng), ls='--', label='TENDL-2025 (natural target)')
 	ax.legend()
 
 .. figure:: ../images/ti48v_monitor.png
    :width: 80%
    :align: center
 
-The two agree in shape but differ by ~15% at the peak.  That is typical,
-and it reflects what each library *is*: the IAEA curve is an evaluation
+The two agree in shape, and for this reaction within ~1% at the peak —
+closer than is typical.  The distinction still matters, and it reflects
+what each library *is*: the IAEA curve is an evaluation
 of decades of monitor-foil measurements; the TENDL curve comes from
 nuclear-model (TALYS) calculations, whose strength is covering every
 reaction — including ones never measured — rather than pinpoint accuracy
@@ -115,7 +121,7 @@ Neutron libraries and the 20 MeV cutoff
 ---------------------------------------
 
 The same look-before-you-use advice applies to energy grids.  Most
-ENDF/B-VII.1 neutron evaluations stop at 20 MeV; IRDFF-II extends its
+ENDF/B-VIII.1 neutron evaluations stop at 20 MeV; IRDFF-II extends its
 dosimetry reactions to 60 MeV::
 
 	r1 = ci.Reaction('90ZR(n,2n)', 'irdff')
