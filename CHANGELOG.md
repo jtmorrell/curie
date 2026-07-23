@@ -3,6 +3,17 @@
 Notable changes to curie are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+### Added
+- **Installation on restricted networks**: release tags now attach the built
+  wheel and sdist to a GitHub release, so machines whose network blocks PyPI
+  can install from a browser-downloaded wheel. A failed nuclear-data download
+  now raises with manual instructions — the data release page to download the
+  whole database from in a browser, and the data directory (created on first
+  use) to place it in. The installation guide gains a troubleshooting section
+  covering the full manual recipe.
+
 ## [0.3.0] - 2026-07-18
 
 ### Changed — nuclear data generation v2

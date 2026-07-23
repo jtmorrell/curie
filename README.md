@@ -44,7 +44,8 @@ pip install curie
 ```
 
 Nuclear data is fetched automatically on first use.  Detailed installation
-instructions and troubleshooting can be found in the
+instructions — including manual installation on machines whose network blocks
+pip and the automatic data downloads — can be found in the
 [installation guide](https://jtmorrell.github.io/curie/quickinstall.html).
 
 ## Citing Curie

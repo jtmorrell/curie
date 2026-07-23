@@ -295,6 +295,38 @@ def test_retrieve_uses_per_group_base_url(monkeypatch, tmp_path):
 	assert calls == [('whole://decay.db', 'a' * 64), ('shard://endf_XX_1.db', 'b' * 64)]
 
 
+def test_failed_download_gives_manual_instructions(monkeypatch, tmp_path):
+	"""A failed fetch raises with the release page to browser-download the
+	whole database from and the data directory to place it in; a shard
+	failure names the parent whole-file database, not the shard."""
+	import sys
+	import types
+
+	def failing_pooch_retrieve(url, known_hash, fname, path):
+		raise IOError('connection refused')
+
+	monkeypatch.setitem(sys.modules, 'pooch', types.SimpleNamespace(retrieve=failing_pooch_retrieve))
+	monkeypatch.setenv('CURIE_DATA_DIR', str(tmp_path))
+	registry = {'base_url': 'https://example.com/releases/download/v9/',
+				'files': {'decay.db': 'a' * 64},
+				'shards': {'endf': {'base_url': 'https://example.com/releases/download/v9-endf/',
+									'files': {'endf_XX_1.db': 'b' * 64}}}}
+	monkeypatch.setattr(data, '_registry', lambda: registry)
+	with pytest.raises(ConnectionError) as exc:
+		data._retrieve('decay.db')
+	msg = str(exc.value)
+	assert 'decay.db' in msg
+	assert 'https://example.com/releases/tag/v9' in msg
+	assert str(tmp_path) in msg
+	assert isinstance(exc.value.__cause__, IOError)
+	with pytest.raises(ConnectionError) as exc:
+		data._retrieve('endf_XX_1.db')
+	msg = str(exc.value)
+	assert 'endf.db' in msg
+	assert 'https://example.com/releases/tag/v9' in msg
+	assert str(tmp_path) in msg
+
+
 def test_sharded_site_copy_never_assembled_into(sandbox):
 	"""A site-provided endf.db is used as-is: a missing table must not
 	trigger a shard fetch or any write to the site file."""

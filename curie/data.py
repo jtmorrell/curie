@@ -148,24 +148,45 @@ def _sha256(path):
 	return h.hexdigest()
 
 
+def _release_page(base_url):
+	"""Browser URL of the release page serving the registry's asset base_url."""
+	url = base_url.rstrip('/')
+	if '/releases/download/' in url:
+		return url.replace('/releases/download/', '/releases/tag/', 1)
+	return url
+
+
 def _retrieve(fnm):
 	"""Download one data-release asset into the data directory, verifying its SHA256.
 
 	Whole files live on the main data release (top-level base_url); each
 	sharded library's shards live on their own release tag (the group's
 	base_url), keeping every release well under GitHub's assets-per-release
-	limit.
+	limit. A failed download raises with manual instructions — the release
+	page to download the whole database from in a browser, and the data
+	directory to place it in — for machines that cannot reach GitHub
+	directly.
 	"""
 	import pooch
 	reg = _registry()
-	url, known = reg['base_url'] + fnm, reg['files'].get(fnm)
+	url, known, whole = reg['base_url'] + fnm, reg['files'].get(fnm), fnm
 	if known is None:
-		for group in reg.get('shards', {}).values():
+		for lib, group in reg.get('shards', {}).items():
 			if fnm in group['files']:
 				url, known = group['base_url'] + fnm, group['files'][fnm]
+				whole = lib + '.db'
 				break
 	_log.info('Downloading {} from the curie data release...'.format(fnm))
-	return pooch.retrieve(url=url, known_hash=known, fname=fnm, path=_data_path())
+	try:
+		return pooch.retrieve(url=url, known_hash=known, fname=fnm, path=_data_path())
+	except Exception as err:
+		msg = ('Could not download {0} from the curie data release. If this machine '
+			   'cannot reach GitHub directly (e.g. behind a restrictive proxy), '
+			   'download {1} in a browser from {2} and place it in {3} (see '
+			   'https://jtmorrell.github.io/curie/quickinstall.html for full '
+			   'instructions).'.format(fnm, whole, _release_page(reg['base_url']), _data_path()))
+		_log.error(msg)
+		raise ConnectionError(msg) from err
 
 
 def _adopt_legacy(fnm):
