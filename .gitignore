@@ -43,6 +43,9 @@ curie_improvement_plan.md
 # Local Claude Code working notes (do not commit upstream)
 CLAUDE.md
 .claude/
+scratch/
+docs/PRD.md
+docs/architecture.md
 
 
 # Scratch files written to CWD by docstring/doctest examples (saveas targets)
