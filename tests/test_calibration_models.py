@@ -63,7 +63,11 @@ def test_zero_config_identity():
     # close-doublet fit recovers the 152Eu 1084.0 keV line (previously 138%
     # rel. unc. from the unconstrained width degeneracy), adding it to the
     # bounded efficiency fit (42 to 43 base points); measured together with
-    # the physical-bounds values above, largest move +1.0% at 1408 keV
+    # the physical-bounds values above, largest move +1.0% at 1408 keV.
+    # The recovered area still carries an intrinsic low-SNR positive bias of
+    # order +10% at this line's ~41:1 intensity ratio (ensemble-measured at
+    # full SNR-screen survival), inherent to weak-line fitting rather than
+    # introduced by the constraint.
     np.testing.assert_allclose(cb.eff(e),
                                [0.03390682, 0.01527646, 0.00716950, 0.00400189], rtol=1E-4)
     assert (cb._engcal_model, cb._rescal_model, cb._effcal_model) == ('quadratic', 'linear', 'vidmar-5')
@@ -198,7 +202,10 @@ def test_eff_points_augment(capsys):
     d = cb.effcal_data
     assert (d['isotope'] == '56CO').sum() == 2
     # 45 = 43 base 152Eu points (the constrained close-doublet fit recovers
-    # the 1084.0 keV line) + 2 user-supplied points
+    # the 1084.0 keV line) + 2 user-supplied points. The recovered area still
+    # carries an intrinsic low-SNR positive bias of order +10% at this line's
+    # ~41:1 intensity ratio (ensemble-measured at full SNR-screen survival),
+    # inherent to weak-line fitting rather than introduced by the constraint.
     assert int(cb.diagnostics.set_index('fit').loc['effcal', 'n_points']) == 45
 
 

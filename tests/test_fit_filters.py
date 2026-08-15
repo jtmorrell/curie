@@ -155,7 +155,11 @@ def test_filters_default_off_zero_config():
     # previously fit with a free, degenerate width and carried ~138% relative
     # uncertainty; sharing the pair's width tightens it to ~15%, bringing the
     # point above the relative-error cut, so one more count is kept
-    # (43 points, 1 dropped) and the fitted rate shifts ~0.9%.
+    # (43 points, 1 dropped) and the fitted rate shifts ~0.9%. The recovered
+    # area itself still carries an intrinsic low-SNR positive bias of order
+    # +10% at this line's ~41:1 intensity ratio (ensemble-measured at full
+    # SNR-screen survival), inherent to weak-line fitting rather than
+    # introduced by the constraint.
     d = dc.diagnostics
     assert int(d['n_points'].iloc[0]) == 43 and int(d['n_dropped'].iloc[0]) == 1
     np.testing.assert_allclose(R, [27338279.177043], rtol=1E-3)
