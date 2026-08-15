@@ -3,6 +3,23 @@
 Notable changes to curie are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.3.1] - 2026-08-16
+
+### Fixed
+- **decay.db coincidence table no longer lists pairs separated by a
+  long-lived isomer**: the v2 decay data carried spurious coincidence pairs
+  whose cascade transits an intermediate level with a half-life above one
+  microsecond, so the two gammas are not truly coincident (verified cases:
+  the 109Cd 88 keV gamma following the 39.8 s 109mAg level, and the 113Sn
+  391.7 keV gamma following the 99.5 min 113mIn level). A pair is removed
+  only when every cascade path between its two gammas transits such a level.
+  The repaired database (16,953 pairs removed, 1.3% of the table) replaced
+  the decay.db asset on the v2 data release, and this release updates the
+  registry checksum to match, so fresh downloads verify again. An existing
+  installation keeps its cached copy until `ci.download()` is run. The
+  coincidence table is not yet consumed by any curie code path, so no
+  analysis results change.
+
 ## [0.3.0] - 2026-07-18
 
 ### Changed — nuclear data generation v2
