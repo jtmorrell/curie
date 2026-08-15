@@ -11,6 +11,7 @@ parameters (peak-to-total at most one), the low-energy route to the
 range stored from the points the fit kept.
 """
 import json
+import re
 
 import numpy as np
 import pandas as pd
@@ -327,7 +328,8 @@ def test_vidmar7_low_energy_routing(capsys):
     # 7-parameter form is tried once two fit points land there.  The example
     # spectrum supplies one (121.8 keV); a user-supplied point at 59.5 keV is
     # the second, and with no x-ray peaks in the fit those two are the whole
-    # trigger
+    # trigger.  Routing means both forms are fit and compared; which one is
+    # kept is the model-selection decision tested separately
     sp = eu_sp()
     cb = ci.Calibration()
     cb.calibrate([sp], sources=EU_SOURCES,
@@ -339,8 +341,9 @@ def test_vidmar7_low_energy_routing(capsys):
     # not the points effcal_data adds back
     in_fit = cb.effcal_data[~cb.effcal_data['reason'].str.startswith('unc>')]
     assert int(np.sum(in_fit['energy'].to_numpy() < cal_mod._VIDMAR_LOW_E)) >= 2
-    assert 'effcal model selection: vidmar-' in out
-    assert cb._effcal_model == 'vidmar-7' and len(cb.effcal) == 7
+    # both forms were fit and compared: the selection message names each one
+    sel = [l for l in out.splitlines() if 'effcal model selection' in l]
+    assert len(sel) == 1 and 'vidmar-5' in sel[0] and 'vidmar-7' in sel[0]
     # a single point below the threshold does not widen the trigger: without
     # the user point the same spectrum takes the 5-parameter route directly
     cb2 = ci.Calibration()
@@ -348,6 +351,29 @@ def test_vidmar7_low_energy_routing(capsys):
     out2 = capsys.readouterr().out
     assert 'vidmar-5 (auto - no x-ray peaks fit, fewer than two points below 150 keV)' in out2
     assert cb2._effcal_model == 'vidmar-5' and len(cb2.effcal) == 5
+
+
+@requires_data('decay')
+def test_effcal_selection_prefers_smaller_inflation(capsys):
+    # the 5-vs-7 choice is decided on the uncertainty inflation each form needed
+    # to reach a self-consistent fit (smaller is better), not on the converged
+    # whitened chi2 the inflation loop drives to one by construction.  On this
+    # spectrum the two rules disagree: the 7-parameter form reaches a marginally
+    # smaller converged chi2 (which the chi2 rule would keep) but a larger
+    # inflation, so the inflation rule keeps the simpler 5-parameter form
+    sp = eu_sp()
+    cb = ci.Calibration()
+    cb.calibrate([sp], sources=EU_SOURCES,
+                 eff_points=pd.DataFrame({'energy': [59.5], 'efficiency': [0.0385],
+                                          'unc_efficiency': [0.0019], 'isotope': ['241AM']}))
+    out = capsys.readouterr().out
+    line = [l for l in out.splitlines() if 'effcal model selection' in l][0]
+    # the kept form is the one with the smaller uncertainty inflation
+    assert 'smaller uncertainty inflation' in line
+    assert cb._effcal_model == 'vidmar-5' and len(cb.effcal) == 5
+    # the message reports the kept form first: its S2 is the smaller of the two
+    s2 = [float(v) for v in re.findall(r'S2=([0-9.eE+-]+)', line)]
+    assert len(s2) == 2 and s2[0] <= s2[1]
 
 
 @requires_data('decay')

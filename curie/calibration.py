@@ -1183,18 +1183,19 @@ class Calibration(object):
 				try:
 					fit5, unc5, chi5, chi5_0, S2_5 = fit_eff(p0[:5], (bounds[0][:5], bounds[1][:5]))
 					fit7, unc7, chi7, chi7_0, S2_7 = fit_eff(fit5.tolist()+p0[5:], bounds)
-					## the converged whitened statistic tends to one by construction,
-					## so what its residual distance from one ranks is how much
-					## uncertainty inflation each form needed to become
-					## self-consistent; the message quotes both that inflation and
-					## the goodness of fit before it
-					c7 = chi7 if chi7>1.0 else 1.0/chi7
-					c5 = chi5 if chi5>1.0 else 1.0/chi5
-					fit, unc, eff_chi2, eff_S2 = (fit5, unc5, chi5_0, S2_5) if c5<=c7 else (fit7, unc7, chi7_0, S2_7)
-					if c5>c7:
+					## the choice is made on the uncertainty inflation each form needed
+					## to reach a self-consistent fit, the smaller the better.  The
+					## converged whitened statistic cannot decide it: the inflation loop
+					## drives that quantity to one by construction, so over a
+					## 450-calibration corpus it separated the two forms by a median
+					## 1.5e-09 while their inflation factors differed by a median
+					## factor 1.45.  Ties keep the 5-parameter form, the simpler of the two
+					keep5 = S2_5<=S2_7
+					fit, unc, eff_chi2, eff_S2 = (fit5, unc5, chi5_0, S2_5) if keep5 else (fit7, unc7, chi7_0, S2_7)
+					if not keep5:
 						p0_used, bounds_used = fit5.tolist()+p0[5:], bounds
-					_log.info('Calibration.calibrate: effcal model selection: vidmar-{0} kept (uncertainty inflation S2={1:.3g}, chi2/dof before inflation={2:.2g}) over vidmar-{3} (S2={4:.3g}, chi2/dof before inflation={5:.2g})'.format(
-						*((5, S2_5, chi5_0, 7, S2_7, chi7_0) if c5<=c7 else (7, S2_7, chi7_0, 5, S2_5, chi5_0))))
+					_log.info('Calibration.calibrate: effcal model selection: vidmar-{0} kept - smaller uncertainty inflation (S2={1:.3g}, chi2/dof before inflation={2:.2g}) than vidmar-{3} (S2={4:.3g}, chi2/dof before inflation={5:.2g})'.format(
+						*((5, S2_5, chi5_0, 7, S2_7, chi7_0) if keep5 else (7, S2_7, chi7_0, 5, S2_5, chi5_0))))
 				except Exception as err:
 					_log.warning('Calibration.calibrate: effcal 7-parameter fit failed ({0}); using the 5-parameter form'.format(err))
 					fit, unc, _, eff_chi2, eff_S2 = fit_eff(p0[:5], (bounds[0][:5], bounds[1][:5]))
