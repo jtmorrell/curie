@@ -59,8 +59,13 @@ def test_zero_config_identity():
     cb = ci.Calibration()
     cb.calibrate([eu_sp()], sources=EU_SOURCES)
     e = np.array([121.7817, 344.2785, 778.9045, 1408.013])
+    # re-recorded 2026-08-16 on the combined tree: the constrained
+    # close-doublet fit recovers the 152Eu 1084.0 keV line (previously 138%
+    # rel. unc. from the unconstrained width degeneracy), adding it to the
+    # bounded efficiency fit (42 to 43 base points); measured together with
+    # the physical-bounds values above, largest move +1.0% at 1408 keV
     np.testing.assert_allclose(cb.eff(e),
-                               [0.0339014, 0.0152819, 0.0071402, 0.0039618], rtol=1E-4)
+                               [0.03390682, 0.01527646, 0.00716950, 0.00400189], rtol=1E-4)
     assert (cb._engcal_model, cb._rescal_model, cb._effcal_model) == ('quadratic', 'linear', 'vidmar-5')
     assert cb.diagnostics.set_index('fit')['model'].to_dict() == {
         'engcal': 'quadratic', 'rescal': 'linear', 'effcal': 'vidmar-5'}
@@ -192,7 +197,9 @@ def test_eff_points_augment(capsys):
     assert cb._effcal_erange[1] == 2500.0
     d = cb.effcal_data
     assert (d['isotope'] == '56CO').sum() == 2
-    assert int(cb.diagnostics.set_index('fit').loc['effcal', 'n_points']) == 44
+    # 45 = 43 base 152Eu points (the constrained close-doublet fit recovers
+    # the 1084.0 keV line) + 2 user-supplied points
+    assert int(cb.diagnostics.set_index('fit').loc['effcal', 'n_points']) == 45
 
 
 @requires_data('decay')
