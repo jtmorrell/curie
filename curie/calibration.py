@@ -381,11 +381,12 @@ class Calibration(object):
 			msg = 'Calibration.eff: efficiency evaluated at {0:.1f} keV - outside the fitted range {1:.1f}-{2:.1f} keV ({3} extrapolation)'.format(
 				first, lo, hi, self._effcal_model or 'model')
 			# below the lowest fitted point the Vidmar forms are unconstrained
-			# and tend to run high; the caution rides on the below-range
-			# direction only
+			# in either direction (vidmar-5 rises toward low energy, vidmar-7
+			# rolls over and falls below its peak), so the caution names no
+			# direction; it rides on the below-range direction only
 			low_note = len(below) > 0 and (self._effcal_model or '').startswith('vidmar')
 			if low_note:
-				msg += '. Below the lowest fitted point the curve is an unconstrained extrapolation of the fitted shape and tends to run high; check it against any excluded low-energy points (effcal_data, used == False) before use'
+				msg += '. Below the lowest fitted point the curve is an unconstrained extrapolation of the fitted shape and its accuracy there is unreliable; check it against any excluded low-energy points (effcal_data, used == False) before use'
 			# the below-range caution always gets one warning, even after an
 			# above-range warning has already fired; repeats in either
 			# direction fall to DEBUG
@@ -1172,6 +1173,15 @@ class Calibration(object):
 				p0[0] = max([min([p0[0]*np.average(y/eff0, weights=(eff0/yerr)**2),4.99]),0.0001])
 
 			p0_used, bounds_used = p0[:5], (bounds[0][:5], bounds[1][:5])
+			# a fit form is determined only when there are at least as many
+			# points as free parameters; mirror the loglog guard rather than
+			# ship an underdetermined curve.  The 5-parameter form is the floor
+			# (raise below it, as loglog does); the 7-parameter form is attempted
+			# only when the points can determine it, otherwise the 5-parameter
+			# form is taken directly
+			n_min = 7 if em == 'vidmar-7' else 5
+			if len(x) < n_min:
+				raise ValueError('Calibration.calibrate: effcal_model {0} needs at least {1} efficiency points to fit (have {2}) - lower the order or loosen the filters.'.format('vidmar-{0}'.format(n_min), n_min, len(x)))
 			if em == 'vidmar-7':
 				fit, unc, _, eff_chi2, eff_S2 = fit_eff(p0, bounds)
 				p0_used, bounds_used = p0, bounds
@@ -1180,25 +1190,32 @@ class Calibration(object):
 				fit, unc, _, eff_chi2, eff_S2 = fit_eff(p0[:5], (bounds[0][:5], bounds[1][:5]))
 				_log.info('Calibration.calibrate: effcal model: vidmar-5 (user-selected)')
 			elif any([sp.fit_config['xrays'] for sp in spectra]) or np.sum(x<_VIDMAR_LOW_E)>=2:
-				try:
-					fit5, unc5, chi5, chi5_0, S2_5 = fit_eff(p0[:5], (bounds[0][:5], bounds[1][:5]))
-					fit7, unc7, chi7, chi7_0, S2_7 = fit_eff(fit5.tolist()+p0[5:], bounds)
-					## the choice is made on the uncertainty inflation each form needed
-					## to reach a self-consistent fit, the smaller the better.  The
-					## converged whitened statistic cannot decide it: the inflation loop
-					## drives that quantity to one by construction, so over a
-					## 450-calibration corpus it separated the two forms by a median
-					## 1.5e-09 while their inflation factors differed by a median
-					## factor 1.45.  Ties keep the 5-parameter form, the simpler of the two
-					keep5 = S2_5<=S2_7
-					fit, unc, eff_chi2, eff_S2 = (fit5, unc5, chi5_0, S2_5) if keep5 else (fit7, unc7, chi7_0, S2_7)
-					if not keep5:
-						p0_used, bounds_used = fit5.tolist()+p0[5:], bounds
-					_log.info('Calibration.calibrate: effcal model selection: vidmar-{0} kept - smaller uncertainty inflation (S2={1:.3g}, chi2/dof before inflation={2:.2g}) than vidmar-{3} (S2={4:.3g}, chi2/dof before inflation={5:.2g})'.format(
-						*((5, S2_5, chi5_0, 7, S2_7, chi7_0) if keep5 else (7, S2_7, chi7_0, 5, S2_5, chi5_0))))
-				except Exception as err:
-					_log.warning('Calibration.calibrate: effcal 7-parameter fit failed ({0}); using the 5-parameter form'.format(err))
+				if len(x) < 7:
+					# the low-energy route is triggered but the 7-parameter form
+					# is underdetermined: take the 5-parameter form directly
+					# rather than fit or select a form the points cannot decide
 					fit, unc, _, eff_chi2, eff_S2 = fit_eff(p0[:5], (bounds[0][:5], bounds[1][:5]))
+					_log.info('Calibration.calibrate: effcal model: vidmar-5 (auto - {0} fit points cannot determine the 7-parameter form)'.format(len(x)))
+				else:
+					try:
+						fit5, unc5, chi5, chi5_0, S2_5 = fit_eff(p0[:5], (bounds[0][:5], bounds[1][:5]))
+						fit7, unc7, chi7, chi7_0, S2_7 = fit_eff(fit5.tolist()+p0[5:], bounds)
+						## the choice is made on the uncertainty inflation each form needed
+						## to reach a self-consistent fit, the smaller the better.  The
+						## converged whitened statistic cannot decide it: the inflation loop
+						## drives that quantity to one by construction, so over a
+						## 450-calibration corpus it separated the two forms by a median
+						## 1.5e-09 while their inflation factors differed by a median
+						## factor 1.45.  Ties keep the 5-parameter form, the simpler of the two
+						keep5 = S2_5<=S2_7
+						fit, unc, eff_chi2, eff_S2 = (fit5, unc5, chi5_0, S2_5) if keep5 else (fit7, unc7, chi7_0, S2_7)
+						if not keep5:
+							p0_used, bounds_used = fit5.tolist()+p0[5:], bounds
+						_log.info('Calibration.calibrate: effcal model selection: vidmar-{0} kept - smaller uncertainty inflation (S2={1:.3g}, chi2/dof before inflation={2:.2g}) than vidmar-{3} (S2={4:.3g}, chi2/dof before inflation={5:.2g})'.format(
+							*((5, S2_5, chi5_0, 7, S2_7, chi7_0) if keep5 else (7, S2_7, chi7_0, 5, S2_5, chi5_0))))
+					except Exception as err:
+						_log.warning('Calibration.calibrate: effcal 7-parameter fit failed ({0}); using the 5-parameter form'.format(err))
+						fit, unc, _, eff_chi2, eff_S2 = fit_eff(p0[:5], (bounds[0][:5], bounds[1][:5]))
 
 			else:
 				fit, unc, _, eff_chi2, eff_S2 = fit_eff(p0[:5], (bounds[0][:5], bounds[1][:5]))

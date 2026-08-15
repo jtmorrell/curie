@@ -224,14 +224,16 @@ def test_extrapolation_warning_once(capsys):
     _ = cb.eff(50.0)
     out = capsys.readouterr().out
     assert out.count('outside the fitted range') == 2
-    assert 'tends to run high' in out
+    # the below-range caution is direction-neutral (vidmar-7 rolls over and
+    # runs low below its peak, so "runs high" would mislead the low-energy case)
+    assert 'unconstrained extrapolation' in out
     # and the below-range caution rides on the below direction only: a bare
     # above-range evaluation does not carry it
     cb._extrap_warned = cb._extrap_low_warned = False
     capsys.readouterr()
     _ = cb.eff(3000.0)
     out = capsys.readouterr().out
-    assert 'outside the fitted range' in out and 'tends to run high' not in out
+    assert 'outside the fitted range' in out and 'unconstrained extrapolation' not in out
 
 
 @requires_data('decay')
@@ -383,3 +385,21 @@ def test_forced_vidmar_7(capsys):
     out = capsys.readouterr().out
     assert 'effcal model: vidmar-7 (user-selected)' in out
     assert cb._effcal_model == 'vidmar-7' and len(cb.effcal) == 7
+
+
+@requires_data('decay')
+def test_effcal_underdetermined_vidmar_guard():
+    # a Vidmar fit cannot be determined by fewer points than it has free
+    # parameters.  A tight uncertainty cut drops the poorly-quantified measured
+    # points, leaving one; two sub-150 keV user points route to the low-energy
+    # (7-parameter) branch with only three fit points.  Without a guard that
+    # ships a 3-point 7-parameter fit - a rank-deficient covariance and an
+    # unphysical curve that rises to a peak near 400 keV.  The 5-parameter form
+    # is the floor: mirror the loglog guard and raise, matching its wording
+    ep = pd.DataFrame([
+        {'isotope': 'user', 'energy': 50.0, 'efficiency': 0.0060, 'unc_efficiency': 0.0003},
+        {'isotope': 'user', 'energy': 90.0, 'efficiency': 0.0075, 'unc_efficiency': 0.0004}])
+    cb = ci.Calibration()
+    with pytest.raises(ValueError, match=r'effcal_model vidmar-5 needs at least 5 efficiency points to fit \(have 3\)'):
+        cb.calibrate([eu_sp()], sources=EU_SOURCES,
+                     effcal_max_error=0.008, outlier_sigma=1E9, eff_points=ep)
