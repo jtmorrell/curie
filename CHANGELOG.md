@@ -62,10 +62,12 @@ Notable changes to curie are documented here. The format follows
   the 109Cd 88 keV gamma following the 39.8 s 109mAg level, and the 113Sn
   391.7 keV gamma following the 99.5 min 113mIn level). The repaired database
   removes 18,859 such pairs (1.49% of the table) and replaces the decay.db
-  asset on the existing data release; the registry checksum is bumped, so
-  existing installations re-fetch the corrected file automatically on next
-  use (the checksum-keyed refresh introduced in 0.3.0). The coincidence
-  table is not yet consumed by any curie code path, so no analysis results
+  asset on the existing data release, with the registry checksum bumped to
+  match. An existing installation keeps its cached copy until
+  `ci.download()` is run, which replaces any file whose checksum no longer
+  matches the registry (the refresh introduced in 0.3.0); a fresh
+  installation fetches the corrected file directly. The coincidence table
+  is not yet consumed by any curie code path, so no analysis results
   change.
 
 ## [0.3.0] - 2026-07-18
