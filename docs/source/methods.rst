@@ -98,6 +98,16 @@ expected centroid.  Lines with :math:`\mathrm{SNR} < \mathrm{SNR}_{\min}`
 together as a multiplet, up to ``multi_max`` peaks per fit; each fit spans
 ``pk_width`` (default 7.5) expected peak widths around the peaks.
 
+When a multiplet contains two lines of the same isotope closer than 4.25
+detector-resolution widths apart, an unconstrained joint fit is nearly
+degenerate — the weaker line's width and area are poorly determined and can
+absorb area from the stronger line.  Such pairs are instead fit with a
+single shared width and a centroid separation fixed to the known energy
+difference through the energy calibration, leaving both lines' amplitudes
+free.  This resolves the degeneracy but does not remove the modest positive
+bias inherent to fitting any line near the detection limit; that residual
+bias is of order 5–10% and is independent of the constraint.
+
 Fitting and uncertainties
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 

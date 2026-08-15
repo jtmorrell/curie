@@ -41,6 +41,20 @@ Notable changes to curie are documented here. The format follows
 - Two frozen efficiency-curve reference values used in the test suite
   move by at most 1.9% as a result of the bounds change; no underlying
   efficiency data changed.
+- **133Ba 79.614/80.998 keV doublet fit no longer lets the weak line steal
+  area from the strong one**: gamma pairs of the same isotope closer than
+  4.25 detector-resolution widths apart are now fit with a shared width and
+  a centroid separation fixed to the known energy difference, instead of as
+  two independent Gaussians. The unconstrained fit went degenerate at 1.38
+  keV separation and corrupted 7.5% of sub-150 keV corpus efficiency points
+  (median eff(79.61 keV)/eff(81.00 keV) = 1.50 for two lines of near-equal
+  true efficiency); the constrained fit brings the corpus median to 1.16 and
+  roughly halves the weak line's area uncertainty. A side effect recovers
+  the 152Eu 1084.0 keV line, previously unusable at 138% relative
+  uncertainty and now usable at 15%. A residual positive-area bias of order
+  +5-10% remains for the faintest lines near the detection limit,
+  independent of this fix (present before it too) and not corrected by it;
+  it is documented where affected reference values are pinned.
 
 ## [0.3.0] - 2026-07-18
 
