@@ -149,8 +149,14 @@ def test_filters_default_off_zero_config():
     # doublet-merge fix on fitting-0.2.0).  The count accounting is exact
     # (a default filter engaging changes the integers); the fitted rate and
     # its relative uncertainty carry tolerances sized for cross-platform
-    # optimizer drift (~1E-5 observed), far below any real change
+    # optimizer drift (~1E-5 observed), far below any real change.
+    # Re-recorded 2026-08-15 (constrained same-isotope doublet fit): the
+    # 152EU 1084.0 keV line, the weak partner of the 1085.8 keV line, was
+    # previously fit with a free, degenerate width and carried ~138% relative
+    # uncertainty; sharing the pair's width tightens it to ~15%, bringing the
+    # point above the relative-error cut, so one more count is kept
+    # (43 points, 1 dropped) and the fitted rate shifts ~0.9%.
     d = dc.diagnostics
-    assert int(d['n_points'].iloc[0]) == 42 and int(d['n_dropped'].iloc[0]) == 2
-    np.testing.assert_allclose(R, [27581526.896975107], rtol=1E-3)
-    assert float(np.sqrt(cov[0][0])/R[0]) == pytest.approx(0.016464, rel=1E-2)
+    assert int(d['n_points'].iloc[0]) == 43 and int(d['n_dropped'].iloc[0]) == 1
+    np.testing.assert_allclose(R, [27338279.177043], rtol=1E-3)
+    assert float(np.sqrt(cov[0][0])/R[0]) == pytest.approx(0.016603, rel=1E-2)

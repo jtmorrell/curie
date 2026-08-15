@@ -27,6 +27,17 @@ _log = _get_logger('spectrum')
 # per-multiplet extra columns appended after the shared diagnostics core
 _DIAG_EXTRAS = {'energy_min': float, 'energy_max': float, 'isotopes': object, 'n_peaks': int}
 
+# Two gammas of one isotope separated by fewer than this many detector-resolution
+# widths overlap too strongly for a joint fit to constrain each width on its own:
+# the weaker line's fitted width drifts outward and absorbs area from the stronger
+# line's flank. Below this separation the pair is fit as a constrained doublet - a
+# single shared width and a centroid spacing fixed to the known energy difference
+# through the calibration. The value sits above the largest same-isotope separation
+# at which this degeneracy is observed (the 133Ba 79.61/81.00 keV pair, 1.38 keV
+# apart, reaches ~4.0 resolution widths at the finest HPGe binning) and below
+# cleanly resolved same-isotope pairs.
+_DOUBLET_SEP_SIGMA = 4.25
+
 _FIT_CONFIG_SPEC = {'snip_adj': NUMBER, 'R': NUMBER, 'alpha': NUMBER, 'step': NUMBER,
 					'bg': _choice(['snip', 'constant', 'linear', 'quadratic']),
 					'skew_fit': BOOLEAN, 'step_fit': BOOLEAN, 'xrays': BOOLEAN,
@@ -935,10 +946,12 @@ class Spectrum(object):
 		else:
 			return self._gmls
 
-	def _chi2(self, fit, l ,h):
-		# returns (reduced chi2, dof) of a multiplet fit
+	def _chi2(self, fit, l ,h, n_par=None):
+		# returns (reduced chi2, dof) of a multiplet fit; n_par overrides the
+		# free-parameter count when the fit vector carries constraint-derived
+		# parameters that are not independently varied
 		non_zero = np.where(self.hist[l:h]>0)
-		dof = len(non_zero[0])-len(fit)-1
+		dof = len(non_zero[0])-(len(fit) if n_par is None else n_par)-1
 		if dof<=0:
 			return np.inf, dof
 		resid = self.hist[l:h][non_zero]-self._multiplet(np.arange(l,h)[non_zero], *fit)
@@ -1176,11 +1189,72 @@ class Spectrum(object):
 					p['bounds'][0] += [0.0]
 					p['bounds'][1] += [0.1]
 
+			# constrain nearly-degenerate same-isotope line pairs: where two
+			# gammas of one isotope sit within _DOUBLET_SEP_SIGMA resolution
+			# widths, fix their centroid spacing to the known energy difference
+			# (through the calibration) and share one width, so the weaker
+			# line's width cannot inflate and steal the stronger line's area.
+			# Positional peak indices match the block order built above; each
+			# peak joins at most one pair.
+			constraints = []
+			mr = multi.reset_index(drop=True)
+			used = set()
+			for k in range(len(mr)-1):
+				a, b = mr.iloc[k], mr.iloc[k+1]
+				if k in used or k+1 in used:
+					continue
+				if a['isotope'] is None or a['isotope']!=b['isotope']:
+					continue
+				sep = abs(b['idxf']-a['idxf'])/np.mean([a['sig'], b['sig']])
+				if sep<_DOUBLET_SEP_SIGMA:
+					constraints.append({'anchor':k, 'dependent':k+1, 'delta':float(b['idxf']-a['idxf'])})
+					used.update([k, k+1])
+			p['constraints'] = constraints
+
 			p['istp'] = multi['isotope'].to_list()
 			p['df'] = multi
 			p0.append(p)
 
 		return p0
+
+	def _constrained_model(self, p0):
+		# for a multiplet carrying constrained doublet pairs, build the reduced
+		# free-parameter fit: each dependent peak's centroid and width drop out
+		# of the free set (centroid = anchor centroid + fixed channel spacing,
+		# width = anchor width). Returns the model closure over the reduced
+		# parameters, the reduced p0/bounds, an expand() from reduced to the full
+		# per-peak layout, the source-index map (full -> reduced) for propagating
+		# the covariance, and the full parameter count (None when unconstrained).
+		cons = p0.get('constraints') or []
+		if not cons:
+			return self._multiplet, p0['p0'], p0['bounds'], None, None, None
+
+		B, pk_pars = self._fit_layout()
+		L = len(pk_pars)
+		F = len(p0['p0'])
+		derived = {}  # full index -> (anchor full index, additive offset)
+		for c in cons:
+			dep, anc, delta = c['dependent'], c['anchor'], c['delta']
+			derived[B+dep*L+1] = (B+anc*L+1, delta)  # centroid
+			derived[B+dep*L+2] = (B+anc*L+2, 0.0)     # width
+		free_idx = [j for j in range(F) if j not in derived]
+		pos = {j:i for i,j in enumerate(free_idx)}
+		src = np.array([pos[derived[j][0]] if j in derived else pos[j] for j in range(F)])
+		add = np.zeros(F)
+		for j,(_,off) in derived.items():
+			add[j] = off
+
+		red_p0 = [p0['p0'][j] for j in free_idx]
+		red_bounds = [[p0['bounds'][0][j] for j in free_idx],
+					  [p0['bounds'][1][j] for j in free_idx]]
+
+		def expand(free):
+			return np.asarray(free, dtype=float)[src]+add
+
+		def model(x, *free):
+			return self._multiplet(x, *expand(free))
+
+		return model, red_p0, red_bounds, expand, src, F
 
 	def _split_fits(self):
 		fits, istp, lh, N_sub = [], [], [], []
@@ -1218,8 +1292,15 @@ class Spectrum(object):
 			# numeric warnings from the optimizer's internal evaluations carry no
 			# context; failures re-emerge below as a curie message with the reason
 			with np.errstate(all='ignore'):
-				fit, unc = curve_fit(self._multiplet, chan[p0['l']:p0['h']], self.hist[p0['l']:p0['h']], p0=p0['p0'], bounds=p0['bounds'], sigma=np.sqrt(self.hist[p0['l']:p0['h']]+0.1), absolute_sigma=True)
-				chi2, dof = self._chi2(fit, p0['l'], p0['h'])
+				model, red_p0, red_bounds, expand, src, F = self._constrained_model(p0)
+				fit, unc = curve_fit(model, chan[p0['l']:p0['h']], self.hist[p0['l']:p0['h']], p0=red_p0, bounds=red_bounds, sigma=np.sqrt(self.hist[p0['l']:p0['h']]+0.1), absolute_sigma=True)
+				n_par = len(fit)
+				if F is not None:
+					# expand the reduced fit and covariance back to the full
+					# per-peak layout the downstream accounting expects
+					fit = expand(fit)
+					unc = unc[np.ix_(src, src)]
+				chi2, dof = self._chi2(fit, p0['l'], p0['h'], n_par=n_par)
 				if np.isfinite(chi2) and chi2>1.0:
 					unc = unc*chi2
 				p0['fit'] = fit
