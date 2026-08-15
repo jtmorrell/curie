@@ -60,8 +60,11 @@ Notable changes to curie are documented here. The format follows
   whose cascade transits an intermediate level with a half-life above one
   microsecond, so the two gammas are not truly coincident (verified cases:
   the 109Cd 88 keV gamma following the 39.8 s 109mAg level, and the 113Sn
-  391.7 keV gamma following the 99.5 min 113mIn level). The repaired database
-  removes 18,859 such pairs (1.49% of the table) and replaces the decay.db
+  391.7 keV gamma following the 99.5 min 113mIn level). A pair is removed
+  only when every cascade path between its two gammas transits such a level;
+  a pair with any prompt path is kept, since it is at least partially
+  coincident (the tabulated intensity is not resolved by path). The repaired
+  database removes 16,953 such pairs (1.3% of the table) and replaces the decay.db
   asset on the existing data release, with the registry checksum bumped to
   match. An existing installation keeps its cached copy until
   `ci.download()` is run, which replaces any file whose checksum no longer
