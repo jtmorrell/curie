@@ -261,10 +261,21 @@ the model to seven parameters,
 representing the detector entrance window (beryllium attenuation
 coefficient :math:`\mu_{\mathrm{w}}`, thickness :math:`w`) and the
 germanium dead layer (thickness :math:`d`).  Both the 5- and 7-parameter
-forms are fit, and the model whose goodness-of-fit is closer to one is
-kept (the choice is reported; ``effcal_model='vidmar-5'`` or
-``'vidmar-7'`` forces one form).  The interaction coefficients are log-log
-interpolations of the NIST XCOM photon cross-section tabulations.
+forms are fit, and the two are compared by the uncertainty inflation each
+needed to reach a self-consistent fit (see the efficiency-uncertainty
+discussion below), not by the raw goodness-of-fit: the inflation loop
+drives the converged reduced chi-square to one by construction, so it
+cannot separate the two forms on its own.  The form with the smaller
+inflation is kept (the choice is reported; ``effcal_model='vidmar-5'`` or
+``'vidmar-7'`` forces one form).  The 7-parameter form is attempted when
+the spectra carry x-ray fit regions or when at least two efficiency
+points fall below 150 keV; a form with fewer efficiency points than
+parameters raises rather than returning an underdetermined fit.  The
+fitted parameters are physically bounded: the Compton-recovery scale
+:math:`\kappa` cannot exceed one (it scales a peak-to-total ratio), the
+effective crystal chord length is capped at 10 cm, and the reference
+absorption length is boxed to 0.5-3 cm.  The interaction coefficients are
+log-log interpolations of the NIST XCOM photon cross-section tabulations.
 
 With ``fit_config['effcal_model'] = 'loglog'`` the efficiency is instead
 the standard empirical log-log polynomial,

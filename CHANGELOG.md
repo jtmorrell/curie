@@ -14,6 +14,34 @@ Notable changes to curie are documented here. The format follows
   use) to place it in. The installation guide gains a troubleshooting section
   covering the full manual recipe.
 
+### Fixed
+- **Efficiency-fit bounds are now physical**: the Vidmar efficiency
+  model's Compton-recovery scale is capped at one (the implied
+  peak-to-total ratio cannot exceed one), the effective crystal chord
+  length at 10 cm, and the reference absorption length to 0.5-3 cm,
+  replacing bounds that let the fit settle on unphysical values. The
+  7-parameter form (window and dead-layer attenuation) is now also
+  tried whenever two or more efficiency points fall below 150 keV, and
+  the choice between the 5- and 7-parameter forms is made on the
+  uncertainty inflation each needed to reach a self-consistent fit
+  rather than the converged chi-square, which could not separate them.
+  A calibration with fewer efficiency points than the chosen form's
+  parameters now raises instead of shipping an underdetermined fit
+  (mirrors the existing log-log guard).
+- **Low-energy disagreement is now visible**: an efficiency point
+  clipped as an outlier is announced with its signed residual, and low
+  systematic disagreement below 150 keV between the fit and the
+  calibration points now sets a flag on the calibration. The
+  below-range extrapolation warning is direction-neutral (it previously
+  claimed the curve runs high below the lowest fitted point, which is
+  backwards for the 7-parameter form) and now warns once per direction
+  rather than once overall. The fitted energy range stored with a
+  calibration reflects the points actually kept by the fit, not the
+  full input range.
+- Two frozen efficiency-curve reference values used in the test suite
+  move by at most 1.9% as a result of the bounds change; no underlying
+  efficiency data changed.
+
 ## [0.3.0] - 2026-07-18
 
 ### Changed — nuclear data generation v2
