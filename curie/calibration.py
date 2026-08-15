@@ -32,6 +32,17 @@ _FIT_CONFIG_SPEC = {'engcal_model': _choice(['linear', 'quadratic', 'cubic'], al
 _ENG_MODELS = {2: 'linear', 3: 'quadratic', 4: 'cubic'}
 _RES_MODELS = {1: 'sqrt', 2: 'linear', 3: 'sqrt_quad'}
 
+# Vidmar's reference absorption length: the fitted l0 is not pinned to it, but
+# is boxed within a factor of a few of it (0.5 to 3 cm), since with l0 free
+# over a wide range it trades off against the effective chord length and the
+# exponent alpha without improving the curve.
+_VIDMAR_L0 = 1.0
+# below this energy the entrance window and dead layer shape the efficiency
+# curve, so the 7-parameter form is worth trying - but only when at least two
+# points land there, since two free low-energy parameters cannot be resolved
+# by a single point in the region where they act
+_VIDMAR_LOW_E = 150.0
+
 
 
 
@@ -206,6 +217,7 @@ class Calibration(object):
 		self._effcal_model = None
 		self._effcal_erange = None
 		self._extrap_warned = False
+		self._extrap_low_warned = False
 		self._fit_config = {'engcal_model':None, 'rescal_model':None, 'effcal_model':None,
 							'engcal_max_error':0.25, 'rescal_max_error':0.33,
 							'effcal_max_error':0.33, 'outlier_sigma':10**0.5}
@@ -353,20 +365,36 @@ class Calibration(object):
 	def _check_erange(self, energy):
 		# extrapolation guard for the calibration's own efficiency: WARNING on
 		# the first evaluation outside the fitted range, DEBUG on repeats so
-		# evaluation loops do not spam the console
+		# evaluation loops do not spam the console.  Below-range and above-range
+		# each warn once: an above-range warning must not swallow the
+		# below-range caution a later call deserves, since below the lowest
+		# fitted point the Vidmar shape is an unconstrained extrapolation
 		if self._effcal_erange is None:
 			return
 		e = np.atleast_1d(np.asarray(energy, dtype=np.float64))
 		lo, hi = self._effcal_erange
-		out = e[(e<lo)|(e>hi)]
-		if len(out):
+		below, above = e[e<lo], e[e>hi]
+		if len(below) or len(above):
+			# a below-range energy names the message when one is present, so
+			# the caution below is never attached to an above-range value
+			first = float(below[0]) if len(below) else float(above[0])
 			msg = 'Calibration.eff: efficiency evaluated at {0:.1f} keV - outside the fitted range {1:.1f}-{2:.1f} keV ({3} extrapolation)'.format(
-				float(out[0]), lo, hi, self._effcal_model or 'model')
-			if self._extrap_warned:
-				_log.debug(msg)
-			else:
+				first, lo, hi, self._effcal_model or 'model')
+			# below the lowest fitted point the Vidmar forms are unconstrained
+			# and tend to run high; the caution rides on the below-range
+			# direction only
+			low_note = len(below) > 0 and (self._effcal_model or '').startswith('vidmar')
+			if low_note:
+				msg += '. Below the lowest fitted point the curve is an unconstrained extrapolation of the fitted shape and tends to run high; check it against any excluded low-energy points (effcal_data, used == False) before use'
+			# the below-range caution always gets one warning, even after an
+			# above-range warning has already fired; repeats in either
+			# direction fall to DEBUG
+			if not self._extrap_warned or (low_note and not self._extrap_low_warned):
 				_log.warning(msg)
 				self._extrap_warned = True
+				self._extrap_low_warned = self._extrap_low_warned or low_note
+			else:
+				_log.debug(msg)
 
 	def eff(self, energy, effcal=None, model=None):
 		"""Efficiency calibration function
@@ -380,7 +408,11 @@ class Calibration(object):
 		semi-empirical formula proposed by Vidmar (2001):
 		eff(E) = c[0]*(1.0-exp(-mu(eng)*c[1]))*(tau(eng)+sigma(eng)*(1.0-exp(-(mu(eng)*c[3])**c[2]))*c[4])/mu(eng) if the effcal is length 5 or
 		eff(E) = c[0]*exp(-mu_w(eng)*c[5])*exp(-mu(eng)*c[6])*(1.0-exp(-mu(eng)*c[1]))*(tau(eng)+sigma(eng)*(1.0-exp(-(mu(eng)*c[3])**c[2]))*c[4])/mu(eng)
-		if the effcal is length 7.
+		if the effcal is length 7.  `calibrate` boxes c[3] (the reference
+		absorption length) within 0.5 to 3 cm and keeps c[4] (the scale on
+		the Compton-recovery term) at or below one, so the implied
+		peak-to-total ratio cannot exceed one, but any parameter values may
+		be evaluated here.
 
 		Parameters
 		----------
@@ -816,7 +848,17 @@ class Calibration(object):
 			'vidmar' (the 5/7-parameter automatic choice, the default
 			behavior), 'vidmar-5', 'vidmar-7', or a polynomial of ln(eff) in
 			ln(E): 'loglog' (order 4) or 'loglog-2' through 'loglog-8' for an
-			explicit order.  Default `None` = 'vidmar'.
+			explicit order.  Default `None` = 'vidmar'.  The automatic choice
+			fits both Vidmar forms - and keeps the one that needs the smaller
+			uncertainty inflation to reach a self-consistent fit - when x-ray
+			peaks were fit or two or more efficiency points fall below 150 keV,
+			where the entrance window and dead layer shape the curve;
+			otherwise it fits the 5-parameter form.  The Vidmar fits are
+			bounded to physical values: the scale on the Compton-recovery term
+			(kappa) at most one, so the implied peak-to-total ratio cannot
+			exceed one; the effective mean chord length at most 10 cm; and the
+			reference absorption length l0 boxed within a factor of a few of
+			Vidmar's 1 cm (0.5 to 3 cm).
 
 		engcal_max_error : float, optional
 			Pre-fit cut: drop energy-calibration points whose relative
@@ -1102,11 +1144,32 @@ class Calibration(object):
 			tag = 'loglog-{0}'.format(order)
 			_log.info('Calibration.calibrate: effcal model: {0} (user-selected)'.format(tag))
 		else:
-			p0 = spectra[0].cb.effcal
-			p0 = p0.tolist() if len(p0)==7 else p0.tolist()+[0.5, 0.001]
-			p0[0] = max([min([p0[0]*np.average(y/self.eff(x, p0), weights=(self.eff(x, p0)/yerr)**2),4.99]),0.0001])
-			bounds = ([0.0, 0.0, 0.1, 0.0, 0.0, 0.001, 1E-12], [12, 100, 6, 50, 6, 6, 0.2])
+			# the fit is bounded to physical values: the scale on Vidmar's
+			# Compton-recovery term (kappa, index 4) at most one, so the
+			# implied peak-to-total ratio cannot exceed one (a detector cannot
+			# record more full-energy counts than the photons it registers);
+			# the effective mean chord length l (index 1) at most 10 cm,
+			# beyond which it describes no real coaxial crystal; and the
+			# reference absorption length l0 (index 3) boxed within a factor of
+			# a few of Vidmar's value, which with it free trades off against l
+			# and the exponent alpha without improving the curve.
+			bounds = ([0.0, 0.0, 0.1, 0.5*_VIDMAR_L0, 0.0, 0.001, 1E-12], [12, 10, 6, 3.0*_VIDMAR_L0, 1, 6, 0.2])
 			par_names = ['sa','l','alpha','l0','kappa','w','d']
+			p0 = np.asarray(spectra[0].cb.effcal, dtype=np.float64)
+			if str(spectra[0].cb._effcal_model or '').startswith('loglog') or len(p0) not in (5, 7):
+				# a stored loglog (or otherwise unrecognized) calibration is not
+				# a Vidmar parameter vector - a short one cannot even be indexed
+				# as such - so seed the Vidmar refit from the package default
+				p0 = np.asarray(Calibration().effcal, dtype=np.float64)
+			p0 = p0.tolist() if len(p0)==7 else p0.tolist()+[0.5, 0.001]
+			# a calibration fitted under looser historical bounds can seed
+			# outside the current box; clip it back before the optimizer sees it
+			p0 = np.clip(p0, bounds[0], bounds[1]).tolist()
+			eff0 = self.eff(x, p0)
+			if np.any(eff0>0):
+				# rescale the solid angle onto the measured points; a seed curve
+				# that is identically zero carries no scale to rescale from
+				p0[0] = max([min([p0[0]*np.average(y/eff0, weights=(eff0/yerr)**2),4.99]),0.0001])
 
 			p0_used, bounds_used = p0[:5], (bounds[0][:5], bounds[1][:5])
 			if em == 'vidmar-7':
@@ -1116,30 +1179,36 @@ class Calibration(object):
 			elif em == 'vidmar-5':
 				fit, unc, _, eff_chi2, eff_S2 = fit_eff(p0[:5], (bounds[0][:5], bounds[1][:5]))
 				_log.info('Calibration.calibrate: effcal model: vidmar-5 (user-selected)')
-			elif any([sp.fit_config['xrays'] for sp in spectra]):
+			elif any([sp.fit_config['xrays'] for sp in spectra]) or np.sum(x<_VIDMAR_LOW_E)>=2:
 				try:
 					fit5, unc5, chi5, chi5_0, S2_5 = fit_eff(p0[:5], (bounds[0][:5], bounds[1][:5]))
 					fit7, unc7, chi7, chi7_0, S2_7 = fit_eff(fit5.tolist()+p0[5:], bounds)
-					## Invert to find which is closer to one: selection uses the converged
-					## whitened statistic; the messages report the pre-inflation chi2/dof
+					## the converged whitened statistic tends to one by construction,
+					## so what its residual distance from one ranks is how much
+					## uncertainty inflation each form needed to become
+					## self-consistent; the message quotes both that inflation and
+					## the goodness of fit before it
 					c7 = chi7 if chi7>1.0 else 1.0/chi7
 					c5 = chi5 if chi5>1.0 else 1.0/chi5
 					fit, unc, eff_chi2, eff_S2 = (fit5, unc5, chi5_0, S2_5) if c5<=c7 else (fit7, unc7, chi7_0, S2_7)
 					if c5>c7:
 						p0_used, bounds_used = fit5.tolist()+p0[5:], bounds
-					_log.info('Calibration.calibrate: effcal model selection: vidmar-{0} (chi2/dof={1:.2g}) preferred over vidmar-{2} (chi2/dof={3:.2g})'.format(
-						*((5, chi5_0, 7, chi7_0) if c5<=c7 else (7, chi7_0, 5, chi5_0))))
+					_log.info('Calibration.calibrate: effcal model selection: vidmar-{0} kept (uncertainty inflation S2={1:.3g}, chi2/dof before inflation={2:.2g}) over vidmar-{3} (S2={4:.3g}, chi2/dof before inflation={5:.2g})'.format(
+						*((5, S2_5, chi5_0, 7, S2_7, chi7_0) if c5<=c7 else (7, S2_7, chi7_0, 5, S2_5, chi5_0))))
 				except Exception as err:
 					_log.warning('Calibration.calibrate: effcal 7-parameter fit failed ({0}); using the 5-parameter form'.format(err))
 					fit, unc, _, eff_chi2, eff_S2 = fit_eff(p0[:5], (bounds[0][:5], bounds[1][:5]))
 
 			else:
 				fit, unc, _, eff_chi2, eff_S2 = fit_eff(p0[:5], (bounds[0][:5], bounds[1][:5]))
-				_log.info('Calibration.calibrate: effcal model: vidmar-5 (auto - no x-ray peaks fit)')
+				_log.info('Calibration.calibrate: effcal model: vidmar-5 (auto - no x-ray peaks fit, fewer than two points below {0:.0f} keV)'.format(_VIDMAR_LOW_E))
 			tag = 'vidmar-{0}'.format(len(fit))
 
 		with np.errstate(all='ignore'):
-			kept = (fn(x, *fit)-y)**2/yerr**2 < ccfg['outlier_sigma']**2
+			# the signed residual is kept so a low-energy outlier can report
+			# which side of the curve it fell on, not only its magnitude
+			res_sig = (y-fn(x, *fit))/yerr
+			kept = res_sig**2 < ccfg['outlier_sigma']**2
 		idx = np.where(kept)
 		# provenance is stored as the line label alone ('isotope:energy');
 		# the isotope is derived from it on read
@@ -1156,8 +1225,13 @@ class Calibration(object):
 		# the setters reset the tag/range (a manual assignment must not carry a
 		# stale tag); restore them for the fitted result
 		self._effcal_model = tag
-		self._effcal_erange = (float(np.min(x)), float(np.max(x)))
+		# the stored range is the range the fit actually has: a point the
+		# outlier screen removed must not extend the floor or ceiling the
+		# extrapolation guard defends
+		x_kept = x[idx] if len(idx[0]) else x
+		self._effcal_erange = (float(np.min(x_kept)), float(np.max(x_kept)))
 		self._extrap_warned = False
+		self._extrap_low_warned = False
 
 		outliers = ['{0} {1:.1f}'.format(ln.split(':')[0], float(ln.split(':')[1])) for ln in meta[~kept]['line']]
 		model = tag
@@ -1168,14 +1242,38 @@ class Calibration(object):
 			body += '; +{0} user-supplied points'.format(n_user)
 		if len(outliers):
 			body += '; {0} outliers: residual >{1} sigma [{2} keV]'.format(len(outliers), out_sig, ', '.join(outliers))
+		# an outlier below the low-energy boundary is not scatter to clip
+		# quietly: this is the range where the bounded forms tend to run high,
+		# and a clipped point there is evidence a user should see.  The
+		# exclusion stands - one point cannot outvote the fit - but it is
+		# announced, flagged, and the points stay readable in effcal_data
+		# (used == False).  What is announced is what the outlier screen
+		# removes; a point disagreeing within its own quoted uncertainty is
+		# not screened here
+		low_out = np.where(~kept & (x < _VIDMAR_LOW_E))[0]
+		if len(low_out):
+			detail = ', '.join('{0:.1f} keV {1:+.1f} sigma'.format(float(x[i]), float(res_sig[i])) for i in low_out)
+			same_side = len(low_out) > 1 and (np.all(res_sig[low_out] > 0) or np.all(res_sig[low_out] < 0))
+			n_kept_low = int(np.sum(kept & (x < _VIDMAR_LOW_E)))
+			tail = ('below {0:.0f} keV the curve now rests on the fit shape alone'.format(_VIDMAR_LOW_E)
+					if n_kept_low == 0 else
+					'near the excluded energies the curve is set by the {0} remaining point(s) below {1:.0f} keV and the fit shape'.format(n_kept_low, _VIDMAR_LOW_E))
+			_log.warning('Calibration.calibrate: the fitted efficiency disagrees with {0} point(s) below {1:.0f} keV, excluded as >{2} sigma outliers: {3}{4}. The exclusion removes them from the fit, not from the disagreement - {5}, and the excluded points (effcal_data, used == False) should be checked before the curve is used there.'.format(
+				len(low_out), _VIDMAR_LOW_E, out_sig, detail,
+				' - all on the same side of the curve' if same_side else '',
+				tail))
+			body += '; disagreement below {0:.0f} keV: {1} point(s) excluded'.format(_VIDMAR_LOW_E, len(low_out))
 		body += '; chi2/dof={0:.2g}'.format(eff_chi2)
 		eff_scale = float(np.sqrt(eff_S2)) if np.isfinite(eff_S2) and eff_S2>1.0 else 1.0
 		if eff_scale>1.0:
 			body += '; independent uncertainty components scaled x{0:.2f}'.format(eff_scale)
 		_log.info('Calibration.calibrate: '+body)
-		diag_rows.append(self._diag_row('effcal', eff_chi2, len(x)-len(fit), len(x), (n_tot-(len(x)-n_user))+len(outliers),
-										model, eff_scale, fit, p0_used, unc, body, bounds=bounds_used,
-										par_names=par_names))
+		eff_row = self._diag_row('effcal', eff_chi2, len(x)-len(fit), len(x), (n_tot-(len(x)-n_user))+len(outliers),
+								 model, eff_scale, fit, p0_used, unc, body, bounds=bounds_used,
+								 par_names=par_names)
+		if len(low_out):
+			eff_row['flags'] = ','.join([f for f in [eff_row['flags'], 'low_e_disagreement'] if f])
+		diag_rows.append(eff_row)
 		self._diagnostics = _diagnostics_frame(diag_rows)
 
 		for sp in spectra:

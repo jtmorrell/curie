@@ -4,7 +4,11 @@ Covers the model tags (explicit state, .json persistence, infer-by-length
 backcompat), the loglog efficiency model (whose parameter length can collide
 with Vidmar's, making the tag load-bearing), the cubic energy calibration and
 its numeric inverse, the sqrt_quad resolution model, the eff_points
-augment-and-refit, the threshold knobs, and the extrapolation warning.
+augment-and-refit, the threshold knobs, the extrapolation warning and its
+per-direction warn-once behavior, the physical range of the fitted Vidmar
+parameters (peak-to-total at most one), the low-energy route to the
+7-parameter form, the low-energy disagreement announcement, and the fitted
+range stored from the points the fit kept.
 """
 import json
 
@@ -38,22 +42,29 @@ def test_fit_config_validator(capsys):
 
 @requires_data('decay')
 def test_zero_config_identity():
-    # curve values re-recorded 2026-07-18 against the v2 data generation
-    # (the refreshed 152EU line list adds a peak and shifts intensities;
-    # originally recorded at the doublet-merge fix on fitting-0.2.0) -
-    # a change means a default moved.  The efficiency CURVE is pinned rather than the raw
-    # parameters: the effective-length parameter is nearly degenerate once
-    # saturated, so different scipy/BLAS stacks converge to different
+    # curve values re-recorded 2026-08-15 for the physical efficiency bounds
+    # (kappa <= 1, effective chord length <= 10 cm, l0 boxed to 0.5-3 cm),
+    # which reshape the fitted vidmar-5 curve by up to ~0.8% here - largest at
+    # the high-energy tail where the tighter length and kappa bounds bite.
+    # The model stays vidmar-5: this spectrum has one efficiency point below
+    # 150 keV (121.8 keV), one short of the two the low-energy route needs.
+    # Recorded against the v2 data generation, as the previous values were
+    # (originally recorded at the doublet-merge fix on fitting-0.2.0) - a
+    # change means a default moved.  The efficiency CURVE is pinned rather than
+    # the raw parameters: the effective-length parameter is nearly degenerate
+    # once saturated, so different scipy/BLAS stacks converge to different
     # parameterizations of the same curve (observed cross-platform curve
     # reproducibility ~2E-6; tolerance gives 50x margin)
     cb = ci.Calibration()
     cb.calibrate([eu_sp()], sources=EU_SOURCES)
     e = np.array([121.7817, 344.2785, 778.9045, 1408.013])
     np.testing.assert_allclose(cb.eff(e),
-                               [0.0338885, 0.0153034, 0.0071113, 0.0039926], rtol=1E-4)
+                               [0.0339014, 0.0152819, 0.0071402, 0.0039618], rtol=1E-4)
     assert (cb._engcal_model, cb._rescal_model, cb._effcal_model) == ('quadratic', 'linear', 'vidmar-5')
     assert cb.diagnostics.set_index('fit')['model'].to_dict() == {
         'engcal': 'quadratic', 'rescal': 'linear', 'effcal': 'vidmar-5'}
+    # no point below 150 keV is discarded here, so the disagreement flag is absent
+    assert 'low_e_disagreement' not in cb.diagnostics.set_index('fit').loc['effcal', 'flags']
 
 
 @requires_data('decay')
@@ -203,6 +214,140 @@ def test_extrapolation_warning_once(capsys):
     out = capsys.readouterr().out
     assert out.count('outside the fitted range') == 1
     assert '[WARNING]' in out
+    # each direction warns once: an above-range warning must not swallow the
+    # below-range caution a later call deserves, since below the lowest fitted
+    # point the Vidmar shape is an unconstrained extrapolation
+    cb._extrap_warned = cb._extrap_low_warned = False
+    capsys.readouterr()
+    _ = cb.eff(3000.0)
+    _ = cb.eff(50.0)
+    out = capsys.readouterr().out
+    assert out.count('outside the fitted range') == 2
+    assert 'tends to run high' in out
+    # and the below-range caution rides on the below direction only: a bare
+    # above-range evaluation does not carry it
+    cb._extrap_warned = cb._extrap_low_warned = False
+    capsys.readouterr()
+    _ = cb.eff(3000.0)
+    out = capsys.readouterr().out
+    assert 'outside the fitted range' in out and 'tends to run high' not in out
+
+
+@requires_data('decay')
+def test_low_energy_disagreement_announced(capsys):
+    # a user-supplied point at 100 keV, far above anything the bounded forms
+    # can reach: the exclusion stands - one point cannot outvote the fit - but
+    # it is announced with its signed residual, flagged on the diagnostics row,
+    # and stays readable in effcal_data.  Below 150 keV a clipped point is the
+    # only evidence of a disagreement a user would ever see, so clipping it
+    # quietly is what would hide a low-energy regression
+    cb = ci.Calibration()
+    pts = pd.DataFrame([{'energy': 100.0, 'efficiency': 0.06, 'unc_efficiency': 0.005}])
+    capsys.readouterr()
+    cb.calibrate([eu_sp()], sources=EU_SOURCES, eff_points=pts)
+    out = capsys.readouterr().out
+    assert 'disagrees with 1 point(s) below 150 keV' in out and '[WARNING]' in out
+    assert '100.0 keV +' in out  # signed residual, above the curve
+    row = cb.diagnostics.set_index('fit').loc['effcal']
+    assert 'low_e_disagreement' in row['flags']
+    assert 'disagreement below 150 keV: 1 point(s) excluded' in row['message']
+    dropped = cb.effcal_data
+    dropped = dropped[~dropped['used'] & (dropped['energy'] == 100.0)]
+    assert len(dropped) == 1 and dropped['reason'].iloc[0].startswith('outlier')
+
+
+@requires_data('decay')
+def test_effcal_erange_from_kept_points(capsys):
+    # a low-energy point the outlier screen removed must not extend the fitted
+    # range: the stored floor is the lowest KEPT point, so the gap the
+    # exclusion opened is guarded by the extrapolation warning rather than
+    # silently reported as in-range
+    cb = ci.Calibration()
+    pts = pd.DataFrame([{'energy': 100.0, 'efficiency': 0.06, 'unc_efficiency': 0.005}])
+    cb.calibrate([eu_sp()], sources=EU_SOURCES, eff_points=pts)
+    # the 100 keV point was clipped; the floor is the lowest surviving point
+    used_lo = cb.effcal_data.loc[cb.effcal_data['used'], 'energy'].min()
+    assert cb._effcal_erange[0] == pytest.approx(used_lo)
+    assert cb._effcal_erange[0] > 100.0
+    # evaluating in the gap the exclusion opened now warns
+    capsys.readouterr()
+    _ = cb.eff(110.0)
+    out = capsys.readouterr().out
+    assert 'outside the fitted range {0:.1f}'.format(cb._effcal_erange[0]) in out
+
+
+def _peak_to_total(cb, energy):
+    # the peak-to-total ratio implied by the fitted parameters: photoelectric
+    # absorption plus the recovered-Compton fraction, over the total attenuation
+    sa, l, alpha, l0, kappa = tuple(np.asarray(cb.effcal, dtype=np.float64)[:5])
+    kappa_eff = kappa*(1.0-np.exp(-(cal_mod._MU(energy)*l0)**alpha))
+    return (cal_mod._TAU(energy)+kappa_eff*cal_mod._SIGMA(energy))/cal_mod._MU(energy)
+
+
+def _kappa_driving_points():
+    # efficiency points sampled from a Vidmar-5 curve with kappa = 2.5 - an
+    # unphysical peak-to-total above one - at tight uncertainty, so the fit is
+    # pulled toward that kappa.  The unbounded fit follows it (kappa runs to
+    # its old ceiling, P/T well above one); the bounded fit must cap kappa at
+    # one and hold P/T at or below one
+    synth = np.array([0.03, 5.0, 1.6, 1.2, 2.5])
+    e = np.linspace(120.0, 2400.0, 40)
+    eff = ci.Calibration().eff(e, synth)
+    return pd.DataFrame({'energy': e, 'efficiency': eff,
+                         'unc_efficiency': eff*0.002, 'isotope': ['synthetic']*len(e)})
+
+
+@requires_data('decay')
+def test_effcal_physical_range():
+    # one registered photon can make at most one full-energy count, so the
+    # fitted peak-to-total ratio cannot exceed one.  It follows from kappa <= 1;
+    # a fit that escapes the bound reports a detector that counts more
+    # full-energy events than the interactions it recorded.  Both the natural
+    # example fits and a fit deliberately pulled toward an unphysical kappa
+    # must stay at or below one
+    driving = _kappa_driving_points()
+    cases = [('auto', {}, None), ('vidmar-5', {'effcal_model': 'vidmar-5'}, None),
+             ('vidmar-7', {'effcal_model': 'vidmar-7'}, None),
+             ('vidmar-5 pulled', {'effcal_model': 'vidmar-5'}, driving),
+             ('vidmar-7 pulled', {'effcal_model': 'vidmar-7'}, driving)]
+    for name, kw, ep in cases:
+        cb = ci.Calibration()
+        cb.calibrate([eu_sp()], sources=EU_SOURCES,
+                     **kw, **({} if ep is None else {'eff_points': ep}))
+        lo, hi = cb._effcal_erange
+        e = np.linspace(lo, hi, 500)
+        p_over_t = _peak_to_total(cb, e)
+        assert np.all(p_over_t <= 1.0), '{0}: max P/T = {1:.4f}'.format(name, p_over_t.max())
+        assert cb.effcal[4] <= 1.0 + 1E-9, '{0}: kappa = {1:.4f}'.format(name, cb.effcal[4])
+
+
+@requires_data('decay')
+def test_vidmar7_low_energy_routing(capsys):
+    # below 150 keV the entrance window and dead layer shape the curve, so the
+    # 7-parameter form is tried once two fit points land there.  The example
+    # spectrum supplies one (121.8 keV); a user-supplied point at 59.5 keV is
+    # the second, and with no x-ray peaks in the fit those two are the whole
+    # trigger
+    sp = eu_sp()
+    cb = ci.Calibration()
+    cb.calibrate([sp], sources=EU_SOURCES,
+                 eff_points=pd.DataFrame({'energy': [59.5], 'efficiency': [0.0385],
+                                          'unc_efficiency': [0.0019], 'isotope': ['241AM']}))
+    out = capsys.readouterr().out
+    assert not sp.fit_config['xrays']
+    # the trigger counts the points that survived the pre-fit uncertainty cut,
+    # not the points effcal_data adds back
+    in_fit = cb.effcal_data[~cb.effcal_data['reason'].str.startswith('unc>')]
+    assert int(np.sum(in_fit['energy'].to_numpy() < cal_mod._VIDMAR_LOW_E)) >= 2
+    assert 'effcal model selection: vidmar-' in out
+    assert cb._effcal_model == 'vidmar-7' and len(cb.effcal) == 7
+    # a single point below the threshold does not widen the trigger: without
+    # the user point the same spectrum takes the 5-parameter route directly
+    cb2 = ci.Calibration()
+    cb2.calibrate([eu_sp()], sources=EU_SOURCES)
+    out2 = capsys.readouterr().out
+    assert 'vidmar-5 (auto - no x-ray peaks fit, fewer than two points below 150 keV)' in out2
+    assert cb2._effcal_model == 'vidmar-5' and len(cb2.effcal) == 5
 
 
 @requires_data('decay')

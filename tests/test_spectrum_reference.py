@@ -46,11 +46,14 @@ REFERENCE_N_PEAKS = 45
 # Re-recorded 2026-07-14 (0.2.0 branch, doublet-merge fix): the corrected 444 keV
 # point (previously 9x high from the degenerate doublet split, and inside the fit)
 # moves the curve by up to ~6% on this spectrum.
+# Re-recorded 2026-08-15 (physical efficiency bounds): the vidmar-5 fit is now
+# bounded (kappa <= 1, effective chord length <= 10 cm, l0 boxed to 0.5-3 cm),
+# reshaping the curve by up to ~1.9% here (largest at the high-energy tail).
 REFERENCE_EFF = {
-    121.7817: 0.0338679,
-    344.2785: 0.0152847,
-    778.9045: 0.00714092,
-    1408.0130: 0.00403744,
+    121.7817: 0.0339014,
+    344.2785: 0.0152819,
+    778.9045: 0.00714016,
+    1408.0130: 0.00396180,
 }
 REFERENCE_ENGCAL_SLOPE = 0.182647  # keV/channel
 
