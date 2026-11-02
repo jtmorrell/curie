@@ -30,6 +30,7 @@ require ziegler+decay (relevant to the minimal-CI data fixture).
 """
 import numpy as np
 import pytest
+from scipy.integrate import trapezoid
 
 import curie as ci
 from conftest import requires_data
@@ -90,7 +91,7 @@ def test_range_is_integral_of_inverse_S(element):
     E1, E2 = 20.0, 80.0
     grid = np.linspace(E1, E2, 4001)
     S = el.S(grid)                              # MeV/cm at natural density
-    quad = np.trapezoid(1.0 / S, grid)          # cm
+    quad = trapezoid(1.0 / S, grid)             # cm
     delta_range = float(el.range(E2) - el.range(E1))
     assert delta_range == pytest.approx(quad, rel=5E-3)
 

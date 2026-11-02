@@ -12,7 +12,7 @@ authors = [{ name = "Jonathan Morrell", email = "jmorrell@berkeley.edu" }]
 requires-python = ">=3.9"
 dependencies = [
     "numpy",
-    "scipy",
+    "scipy>=1.6",
     "pandas",
     "matplotlib",
     "pooch",
