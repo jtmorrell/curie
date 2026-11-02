@@ -75,10 +75,10 @@ Notable changes to curie are documented here. The format follows
 - **`Isotope.dose_rate` and `Spectrum.__add__` work on numpy 2.4 and
   newer**: numpy 2.4 removed `np.trapz`, so both raised `AttributeError`
   on a fresh install. They now integrate with `scipy.integrate.trapezoid`
-  (scipy 1.6 or newer is required), which gives identical results on
-  numpy 1.26 and on current numpy. The fix also ships in the 0.3.2 patch
-  release. The test suite now runs both features, and CI includes a job
-  pinned to numpy 1.26.
+  (scipy 1.6 or newer is required), which leaves results unchanged on
+  numpy versions that still provide `np.trapz`. The fix also ships in the
+  0.3.2 patch release. The test suite now runs both features, and CI
+  includes a job pinned to numpy 1.26.
 
 ## [0.3.0] - 2026-07-18
 

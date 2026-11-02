@@ -61,7 +61,7 @@ SELF_ENGCAL = [0.0, 0.5]    # keV, keV/channel
 OTHER_ENGCAL = [1.0, 0.4]
 PEAK_CHANNEL = 1500         # in `other`: 1.0 + 0.4*1500 = 601 keV
 PEAK_SIGMA = 3.0
-PEAK_AMPLITUDE = 1.0E5
+PEAK_AMPLITUDE = 1.0E8      # high counts make the Poisson limits below about 0.02% on the total
 SELF_PEAK_CHANNEL = 500
 
 
@@ -97,3 +97,15 @@ def test_add_rebins_onto_self_calibration():
     span = np.ceil((support[-1] - support[0] + 1)*OTHER_ENGCAL[1]/SELF_ENGCAL[1]) + 2
     limit = 5.0*np.sqrt(N)
     assert N - span - limit < added.sum() < N + limit
+
+    # Position and width below the one-channel resolution of argmax. The variance in `self`
+    # channels sums the peak's rebinned width, the linear interpolation between `other`'s channels
+    # (spacing h: h^2/6), a `self` channel's width (1/12), and the 10-point trapezoid rule over it.
+    channels = np.arange(N_CHANNELS)
+    total = added.sum()
+    centroid = (channels*added).sum()/total
+    width = np.sqrt(((channels - centroid)**2*added).sum()/total)
+    h = OTHER_ENGCAL[1]/SELF_ENGCAL[1]
+    expected_width = np.sqrt((PEAK_SIGMA*h)**2 + h**2/6.0 + 1.0/12.0 + (1.0/9.0)**2/6.0)
+    assert abs(centroid - 1202.0) < 5.0*expected_width/np.sqrt(total)
+    assert abs(width - expected_width) < 5.0*expected_width/np.sqrt(2.0*total)
