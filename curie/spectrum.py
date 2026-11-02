@@ -13,6 +13,7 @@ import time
 from scipy.optimize import curve_fit
 from scipy.special import erfc
 from scipy.interpolate import interp1d
+from scipy.integrate import trapezoid
 
 from .data import _get_connection
 from .plotting import _init_plot, _draw_plot, colormap
@@ -512,7 +513,7 @@ class Spectrum(object):
 			e_grid = np.linspace(edges[0], edges[1], num=10).T
 		else:
 			e_grid = np.array([np.linspace(edges[0][n], edges[1][n], num=10) for n in range(len(edges[0]))])
-		N = np.asarray(np.trapz(f(e_grid), e_grid, axis=1), dtype=np.int64)
+		N = np.asarray(trapezoid(f(e_grid), e_grid, axis=1), dtype=np.int64)
 		self.hist += np.random.poisson(N)
 		self._snip_bg()
 		
