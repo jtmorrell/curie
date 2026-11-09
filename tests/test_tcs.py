@@ -23,6 +23,7 @@ import pytest
 import curie as ci
 from conftest import requires_data
 from curie._tcs import _pairs, _factors, _summing_factor
+from curie.calibration import _peak_to_total, _TAU, _SIGMA
 
 
 def efficiencies(scale=1.0):
@@ -296,3 +297,45 @@ def test_summing_factor_shapes_and_unknown_energy():
     assert isinstance(_Fsum('60CO', 1173.228), float)
     with pytest.raises(ValueError, match='1173.23.*60CO'):
         _Fsum('60CO', 1173.23)
+
+
+# ---------------------------------------------------------------- peak-to-total ratio
+
+PT_ENERGIES = np.geomspace(15.0, 5000.0, 400)
+PT_LENGTHS = np.geomspace(0.01, 30.0, 40)
+
+
+@pytest.mark.validation
+def test_peak_to_total_bounded_and_non_increasing_in_energy():
+    # above about 7 MeV pair production makes the ratio rise, so the range is 15 keV-5 MeV
+    for L in PT_LENGTHS:
+        pt = _peak_to_total(PT_ENERGIES, L)
+        assert np.all(pt > 0.0) and np.all(pt <= 1.0), L
+        # a value saturated at 1 moves in the last float digit
+        assert np.all(np.diff(pt) <= 1e-12), L
+
+
+@pytest.mark.validation
+def test_peak_to_total_increasing_in_length():
+    for E in [15.0, 50.0, 122.0, 344.0, 662.0, 1408.0, 3000.0, 5000.0]:
+        pt = np.array([_peak_to_total(E, L) for L in PT_LENGTHS])
+        step = np.diff(pt)
+        assert np.all(step >= 0.0), E
+        below = pt[:-1] < 1.0 - 1e-9
+        assert below.any() and np.all(step[below] > 0.0), E
+
+
+@pytest.mark.validation
+def test_peak_to_total_limits():
+    # no Compton-scattered photon is reabsorbed in a vanishing crystal; all are in a thick one
+    assert np.allclose(_peak_to_total(PT_ENERGIES, 1e-12),
+                       _TAU(PT_ENERGIES) / (_TAU(PT_ENERGIES) + _SIGMA(PT_ENERGIES)), rtol=0.0, atol=1e-9)
+    assert np.allclose(_peak_to_total(PT_ENERGIES, 1e4), 1.0, rtol=0.0, atol=1e-12)
+
+
+@pytest.mark.characterization
+def test_peak_to_total_reference_values():
+    # computed 2026-11-09 from (tau + kappa*sigma)/(tau + sigma), kappa = 1 - exp(-mu*L),
+    # on curie's Ge attenuation table at L = 1 cm
+    for E, ref in [(122.0, 0.9481), (344.0, 0.4785), (662.0, 0.3314), (1408.0, 0.2316)]:
+        assert float(_peak_to_total(E, 1.0)) == pytest.approx(ref, abs=5e-4), E

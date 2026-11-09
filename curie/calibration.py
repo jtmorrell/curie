@@ -124,6 +124,34 @@ _SIGMA = lambda E_keV: np.exp(interp1d(np.log(_MU_Ge[:,0]), np.log(_MU_Ge[:,2]),
 _MU = lambda E_keV: np.exp(interp1d(np.log(_MU_Ge[:,0]), np.log(_MU_Ge[:,3]), bounds_error=False, fill_value='extrapolate', kind='quadratic')(np.log(E_keV)))
 
 
+def _peak_to_total(E, L):
+	"""Peak-to-total ratio of a germanium crystal from its attenuation coefficients.
+
+	Of the photons that interact, a fraction tau/(tau + sigma) is photoabsorbed and
+	deposits the full energy; a Compton-scattered photon does so when it is absorbed
+	in turn, taken with probability kappa = 1 - exp(-mu*L) over an effective length L.
+	Pair production is not counted, so the ratio rises with energy above about 7 MeV.
+
+	Parameters
+	----------
+	E : float or array_like
+		Photon energy, in keV.
+
+	L : float
+		Effective length for reabsorption of the scattered photon, in cm.
+
+	Returns
+	-------
+	float or np.ndarray
+		(tau + kappa*sigma) / (tau + sigma), between tau/(tau + sigma) at L = 0 and
+		1 for a large L.
+
+	"""
+
+	kappa = 1.0-np.exp(-_MU(E)*L)
+	return (_TAU(E)+kappa*_SIGMA(E))/(_TAU(E)+_SIGMA(E))
+
+
 __doctest_skip__ = ['Calibration.calibrate', 'Calibration.saveas',
 					'Calibration.plot', 'Calibration.plot_engcal',
 					'Calibration.plot_rescal', 'Calibration.plot_effcal']
