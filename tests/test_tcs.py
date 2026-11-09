@@ -174,6 +174,23 @@ def test_pairwise_exact_on_single_cascade(scheme):
     assert all(abs(exact[e] - 1.0) > 1e-3 for e in scheme.energies)
 
 
+# a crossover cascade beside a level of its own at 800.4 keV, 0.4 keV above the
+# crossover line and within the default sum_tol of the 300 + 500 keV sum
+CLOSE_LINE = Scheme({0: 0.0, 1: 300.0, 2: 800.0, 3: 800.4}, {2: 0.7, 3: 0.3},
+                    {2: {1: 0.9, 0: 0.1}, 1: {0: 1.0}, 3: {0: 1.0}})
+
+
+@pytest.mark.validation
+def test_gain_counted_once_on_the_nearest_line():
+    exact, _ = CLOSE_LINE.exact(EPS_P, EPS_T)
+    F = CLOSE_LINE.pairwise(EPS_P, EPS_T)
+    assert sorted(F) == CLOSE_LINE.energies
+    assert exact[800.0] - 1.0 > 1e-3
+    assert exact[800.4] == pytest.approx(1.0, abs=1e-12)
+    for e in CLOSE_LINE.energies:
+        assert F[e] == pytest.approx(exact[e], abs=1e-12), e
+
+
 @pytest.mark.validation
 def test_pairwise_second_order_on_branched_scheme():
     exact, T = BRANCHED.exact(EPS_P, EPS_T)

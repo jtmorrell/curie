@@ -16,7 +16,9 @@ F = loss + gain, where
   is at or above the floor E_min, of 1 - (pair / line) * eps_t(partner);
 - gain is the sum, over pairs of coincident gamma rays with both energies at
   or above E_min that add up to the line energy within sum_tol, of
-  (pair / line) * eps_p(E1) * eps_p(E2) / eps_p(line).
+  (pair / line) * eps_p(E1) * eps_p(E2) / eps_p(line).  A pair whose summed
+  energy lies within sum_tol of several lines adds only to the nearest one,
+  so its summed-in counts are counted once.
 
 The product form is exact for a single cascade; on a branched scheme the
 pairwise table carries no correlation between three or more photons, which
@@ -24,11 +26,12 @@ leaves an error of second order in the efficiencies.  Angular correlations are
 not included.
 
 Two table conventions enter the factor.  A pair of equal-energy gamma rays in
-cascade is stored once, so it counts twice toward the loss of that line.  An
-annihilation partner (type '511') counts both quanta of each annihilation; the
-two quanta leave back to back, so at most one reaches a detector that does not
-surround the source, which makes their loss additive, a single factor in the
-product, and the (511, 511) self-pair contributes neither loss nor gain.
+cascade is stored once, so it counts twice toward the loss of that line.  A
+pair with an annihilation photon (type '511') counts both quanta of each
+annihilation; the two quanta leave back to back, so at most one reaches a
+detector that does not surround the source, which makes their loss additive, a
+single factor in the product, and the (511, 511) self-pair contributes neither
+loss nor gain.
 """
 import numpy as np
 import pandas as pd
@@ -48,8 +51,10 @@ def _pairs(isotope):
 	Returns
 	-------
 	pd.DataFrame
-		Columns 'energy' and 'coinc_energy' (keV), 'coinc_type' ('g', 'XR' or
-		'511', the type of the partner), and 'intensity' and 'unc_intensity'
+		Columns 'energy' and 'coinc_energy' (keV), 'coinc_type' (the class of
+		the pair, the same under both orderings: 'g' when both photons are gamma
+		rays, 'XR' when it holds an x-ray, '511' when it holds an annihilation
+		photon), and 'intensity' and 'unc_intensity'
 		(pairs per 100 decays; NaN where no uncertainty is given).  Each pair is
 		listed under both orderings of its energies, except a pair of
 		equal-energy photons, which is listed once.  A state without coincident
@@ -87,7 +92,8 @@ def _factors(lines, pairs, eps_p, eps_t, E_min=15.0, sum_tol=1.0):
 
 	sum_tol : float, optional
 		Largest difference, in keV, between the summed energy of a gamma-ray pair
-		and a line energy for the pair to add to that line.  Default 1.0.
+		and a line energy for the pair to add to that line; a pair adds only to
+		the line nearest its summed energy.  Default 1.0.
 
 	Returns
 	-------
@@ -112,13 +118,15 @@ def _factors(lines, pairs, eps_p, eps_t, E_min=15.0, sum_tol=1.0):
 
 	gain = np.zeros(len(E))
 	g = pairs[(pairs['coinc_type']=='g')&(pairs['energy']<=pairs['coinc_energy'])&(pairs['energy']>=E_min)]
-	if len(g):
+	if len(g) and len(E):
 		e1, e2 = g['energy'].to_numpy(dtype=float), g['coinc_energy'].to_numpy(dtype=float)
-		near = np.abs(e1+e2-E[:,np.newaxis])<=sum_tol
-		rows, cols = near.any(axis=1), near.any(axis=0)
-		if rows.any():
-			w = g['intensity'].to_numpy(dtype=float)[cols]*np.asarray(eps_p(e1[cols]), dtype=float)*np.asarray(eps_p(e2[cols]), dtype=float)
-			gain[rows] = near[rows][:,cols].astype(float).dot(w)/(I[rows]*np.asarray(eps_p(E[rows]), dtype=float))
+		k = np.abs(e1+e2-E[:,np.newaxis]).argmin(axis=0)
+		hit = np.abs(e1+e2-E[k])<=sum_tol
+		if hit.any():
+			w = g['intensity'].to_numpy(dtype=float)[hit]*np.asarray(eps_p(e1[hit]), dtype=float)*np.asarray(eps_p(e2[hit]), dtype=float)
+			np.add.at(gain, k[hit], w)
+			rows = np.unique(k[hit])
+			gain[rows] /= I[rows]*np.asarray(eps_p(E[rows]), dtype=float)
 
 	F = loss+gain
 	return F[np.array([pos[e] for e in lines['energy']], dtype=int)]
