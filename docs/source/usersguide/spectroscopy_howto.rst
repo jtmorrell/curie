@@ -254,8 +254,12 @@ time an efficiency is evaluated beyond it::
 
 The point-selection thresholds are also configurable:
 ``engcal_max_error``/``rescal_max_error``/``effcal_max_error`` set the
-pre-fit uncertainty cuts (defaults 25%/33%/33%), and ``outlier_sigma``
-(default 3.16) sets the post-fit residual clip.  The fitted models are
+pre-fit uncertainty cuts (defaults 25%/33%/33%), ``effcal_I_min`` leaves
+efficiency points measured from lines weaker than that intensity, in
+percent per decay with default 1, out of the efficiency fit, and ``outlier_sigma``
+(default 3.16) sets the post-fit residual clip.  The dropped points stay in
+``cb.effcal_data`` with the reason ``intensity<1%``.  ``effcal_I_min=0``
+keeps every line, the selection of earlier Curie versions.  The fitted models are
 saved in the calibration .json and restored on load; files from older
 versions of Curie load unchanged.
 

@@ -239,6 +239,14 @@ where :math:`A_0` is the reference activity, :math:`t_d` the elapsed time
 from the reference date to the start of the count, :math:`\lambda` the
 decay constant, and the remaining symbols are as defined above.
 
+Only peaks of lines with an intensity of at least ``effcal_I_min`` percent
+per decay enter the efficiency fit; the default is 1.  A weak line beside a
+stronger one, such as a room-background line, reads high when the peak fit
+fails to separate the two.  The post-fit outlier clip leaves such a point in
+the fit, so the floor removes these lines before it.  The floor
+leaves user-supplied ``eff_points`` and the energy and resolution points
+alone, and ``effcal_I_min=0`` keeps every line.
+
 Efficiency model
 ~~~~~~~~~~~~~~~~
 
@@ -396,7 +404,8 @@ rebuilt on each fit and reading them never triggers one.
 **Calibration point tables** (``cb.engcal_data``, ``cb.rescal_data``,
 ``cb.effcal_data``) present every measured calibration point with a
 ``used`` column and the ``reason`` a point was rejected.  Pre-fit cuts
-(``unc>25%``/``unc>33%``) exclude points from the fit; post-fit outlier
+(``unc>25%``/``unc>33%``, and ``intensity<1%`` for efficiency points) exclude
+points from the fit; post-fit outlier
 clips (``outlier >3.16 sigma``) remove points from the *stored* calibration
 data but not from the fit that produced it.  Nothing is silently
 discarded: rejected points stay in these tables and appear as grey open

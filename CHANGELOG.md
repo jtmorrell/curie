@@ -14,6 +14,37 @@ Notable changes to curie are documented here. The format follows
   use) to place it in. The installation guide gains a troubleshooting section
   covering the full manual recipe.
 
+### Changed
+- **Default efficiency-point selection leaves out weak lines**: `calibrate()`
+  now fits the efficiency curve only to points measured from lines of at
+  least 1% intensity per decay. The new `Calibration.fit_config` entry
+  `effcal_I_min`, in percent per decay with default 1, sets the floor, and
+  `effcal_I_min=0` gives the previous selection exactly. A weak line beside
+  a stronger one, such as a room-background line, reads high when the peak
+  fit fails to separate the two, and the post-fit outlier clip leaves such a
+  point in the fit. On five measured 152Eu calibration sets
+  the previous default curve lay 0.8 to 9.0% higher than the curve fitted to lines
+  of at least 1% intensity at 661.657 keV, at the farthest source distance
+  of each set. The default curve now lies within 0.1% of it, and at the 31
+  source distances of 10 cm and beyond the ratio of its 137Cs closure to
+  that of the 1% curve is within 0.15% of 1, where it was up to 9.0% off. The
+  floor acts on measured points only and leaves user `eff_points` and the
+  energy and resolution points as they were. A calibration file saved
+  before the change loads and evaluates identically. Points left out carry the reason
+  `intensity<1%` in `effcal_data` and on the calibration plots, and the
+  summary line counts them in a clause of their own. A calibration that
+  leaves too few points now raises an error that gives the number of points
+  the floor dropped and names `effcal_I_min`.
+  **Re-running `calibrate()` on the same spectra gives a different curve.**
+  Across 132 calibrations of measured spectra, 129 still fit, with a median
+  of 19 points, and at most 35, left out of each; the curve moves by a median of
+  1.6% at 661.657 keV and 2.6% at 1408 keV, and 39 curves move by more than
+  5% at 1408 keV, all toward the curve fitted to lines of at least 1%
+  intensity. The automatic choice between the 5- and 7-parameter forms
+  changes for 22. Three calibrations that fitted before, from one detector at
+  15, 20 and 30 cm, now stop for lack of points, and need a lower
+  `effcal_I_min`.
+
 ### Fixed
 - **Efficiency-fit bounds are now physical**: the Vidmar efficiency
   model's Compton-recovery scale is capped at one (the implied

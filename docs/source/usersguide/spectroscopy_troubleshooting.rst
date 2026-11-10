@@ -118,6 +118,33 @@ If a line is missing because the isotope's decay data doesn't include it,
 add it manually with the ``gammas`` argument (see
 :ref:`spectroscopy_howto`).
 
+``calibrate()`` stops with too few efficiency points
+----------------------------------------------------
+
+**Symptom:** ``calibrate()`` raises a ``ValueError`` such as ``effcal_model
+vidmar-5 needs at least 5 efficiency points to fit (have 3)``, or ``all 44
+effcal points dropped``.  The message gives the points that each filter
+dropped, for example ``The line-intensity floor (intensity<1%) dropped 9 and
+the uncertainty filter (unc>33% of value) 14 of 26 measured points``.
+
+**Cause:** the efficiency fit uses only measured points from lines of at
+least ``effcal_I_min`` percent, default 1, and a relative uncertainty below
+``effcal_max_error``, default 33%.  A source with few strong lines can
+leave fewer points than the model has parameters.  So can large counting
+uncertainties from a short count or a large source distance.
+Every dropped point stays in ``cb.effcal_data`` with its reason.
+
+**Fix:** by the filter that dropped the most points, either:
+
+* Lower the intensity floor to keep weaker lines, accepting that a weak line
+  beside a stronger one can read high: ``cb.calibrate([sp], sources=srcs,
+  effcal_I_min=0.3)``.
+* Loosen the uncertainty cut with ``effcal_max_error``.
+* Add known efficiency points with ``eff_points`` (see
+  :ref:`spectroscopy_howto`), which the floor keeps.
+* Check the energy calibration and the peak fits, because the uncertainty
+  filter drops a mis-centred peak.
+
 Fits succeed, but they are bad fits
 -----------------------------------
 
