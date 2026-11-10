@@ -7,9 +7,10 @@ from scipy.optimize import curve_fit
 from scipy.interpolate import interp1d
 
 from .isotope import Isotope
-from .data import _get_connection
+from .data import _get_connection, _pair_table_usable
+from . import _tcs
 from .plotting import _init_plot, _draw_plot, colormap
-from ._log import _get_logger, _validate_config, _choice, _Check, _is_number, NUMBER
+from ._log import _get_logger, _validate_config, _choice, _Check, _is_number, NUMBER, BOOLEAN
 from ._diagnostics import _diagnostics_frame, _at_bound, _unmoved
 
 _log = _get_logger('calibration')
@@ -30,7 +31,7 @@ _FIT_CONFIG_SPEC = {'engcal_model': _choice(['linear', 'quadratic', 'cubic'], al
 											+['loglog-{0}'.format(n) for n in range(2, 9)], allow_none=True),
 					'engcal_max_error': NUMBER, 'rescal_max_error': NUMBER,
 					'effcal_max_error': NUMBER, 'effcal_I_min': _NONNEG_NUMBER,
-					'outlier_sigma': NUMBER}
+					'outlier_sigma': NUMBER, 'summing': BOOLEAN}
 
 # parameter-count maps for the explicit model tags; effcal loglog is absent
 # deliberately (its length overlaps vidmar's, so the tag is load-bearing)
@@ -53,7 +54,16 @@ _VIDMAR_LOW_E = 150.0
 # to about 1600 evaluations; a fit that converges within the default never
 # reaches this limit, so its result is unchanged
 _EFF_MAXFEV = 20000
-
+# coincidence-summing correction of the efficiency fit: the effective length
+# (cm) of the peak-to-total ratio that turns the full-energy-peak curve into
+# the total efficiency of a summing partner
+_SUMMING_L = 0.69
+# the x-ray partner scale is measured on the Sm K-alpha lines (keV) of 152Eu,
+# as their window sum over the fitted counts of its 121.78 keV line, divided by
+# the ratio on a detector that records the K x-rays fully
+_SM_KALPHA = (39.522, 40.118)
+_EU_121 = 121.7817
+_KX_RATIO_FULL = 1.947
 
 
 
@@ -209,8 +219,9 @@ class Calibration(object):
 		rescal_model, effcal_model), the pre-fit uncertainty cuts
 		(engcal/rescal/effcal_max_error) and the post-fit outlier clip
 		(outlier_sigma).  The entry effcal_I_min sets the line-intensity floor
-		on the measured efficiency points, in percent (default 1).
-		Assignment merges keys; `calibrate()` keyword arguments
+		on the measured efficiency points, in percent (default 1).  The
+		entry summing turns the coincidence-summing correction of the
+		efficiency fit on or off (default on).  Assignment merges keys; `calibrate()` keyword arguments
 		merge here and persist.  See `calibrate` for the key documentation.
 
 
@@ -257,12 +268,15 @@ class Calibration(object):
 		self._rescal_model = None
 		self._effcal_model = None
 		self._effcal_erange = None
+		# the summing correction the efficiency parameters were fitted with
+		# ({'L': cm, 'xray_partners': scale}), None for an apparent curve
+		self._summing = None
 		self._extrap_warned = False
 		self._extrap_low_warned = False
 		self._fit_config = {'engcal_model':None, 'rescal_model':None, 'effcal_model':None,
 							'engcal_max_error':0.25, 'rescal_max_error':0.33,
 							'effcal_max_error':0.33, 'effcal_I_min':1.0,
-							'outlier_sigma':10**0.5}
+							'outlier_sigma':10**0.5, 'summing':True}
 
 		if filename is not None:
 			if filename.endswith('.json'):
@@ -309,6 +323,7 @@ class Calibration(object):
 		self._effcal = np.asarray(cal)
 		self._effcal_model = None
 		self._effcal_erange = None
+		self._summing = None
 
 	@property
 	def unc_effcal(self):
@@ -851,6 +866,119 @@ class Calibration(object):
 								 lambda x, f: self.eff(x, f, model=self._effcal_model),
 								 str_cols=('isotope',))
 
+	def _summing_factors(self, isotopes, energy, effcal, scale, L=_SUMMING_L):
+		"""Coincidence-summing factor of lines, at Vidmar efficiency parameters.
+
+		The full-energy-peak efficiency is the curve of `effcal` and the total
+		efficiency that curve over `_peak_to_total(E, L)`; the factors are those
+		of `curie._tcs`, from arrays built once per decaying state.
+
+		Parameters
+		----------
+		isotopes : sequence
+			Per line, the name of its decaying state, or None for a line that
+			takes no factor.
+
+		energy : array_like
+			Per line, its energy in keV, as the state's gamma-ray table gives it.
+
+		effcal : array_like
+			Vidmar efficiency parameters (length 5 or 7).
+
+		scale : float
+			Multiplies the total efficiency of the x-ray partners of a line.
+
+		L : float, optional
+			Effective length of the peak-to-total ratio, in cm.
+
+		Returns
+		-------
+		F, c : np.ndarray
+			Per line, the factor and the size of the correction; 1 and 0 for a
+			line without a factor: None for its state, not a line energy of
+			the state, or guarded.
+
+		guarded : np.ndarray
+			Per line, True where the coincidence data of the line disagree with
+			its intensity (`curie._tcs` gives it no factor).
+
+		"""
+
+		# the per-line layout is kept with the decay-database connection, as
+		# the arrays it refers to are, so a replaced data file is read anew
+		con = _get_connection('decay')
+		key = (tuple(isotopes), tuple(np.asarray(energy, dtype=np.float64).tolist()))
+		plans = con.cache.setdefault('summing_plans', {})
+		if key not in plans:
+			E = np.array(key[1], dtype=np.float64)
+			groups, grids = [], []
+			for nm in dict.fromkeys(i for i in key[0] if i is not None):
+				arr = _tcs._arrays(nm)
+				sel = np.array([n for n, i in enumerate(key[0]) if i == nm], dtype=int)
+				j = arr.index(E[sel])
+				# NaN at any finite efficiencies marks a guarded line
+				g = np.isnan(arr.terms(np.full(len(arr.grid), 1E-3), np.full(len(arr.grid), 1E-3))[0])
+				groups.append([arr, sel[j>=0], j[j>=0], g[j[j>=0]]])
+				grids.append(arr.grid)
+			grid = np.unique(np.concatenate(grids)) if grids else np.zeros(0)
+			for gp in groups:
+				gp.append(np.searchsorted(grid, gp[0].grid))
+			plans[key] = (groups, grid, {})
+		groups, grid, pt = plans[key]
+
+		n = len(key[1])
+		F, c, guarded = np.ones(n), np.zeros(n), np.zeros(n, dtype=bool)
+		if not len(grid):
+			return F, c, guarded
+		if L not in pt:
+			pt[L] = np.asarray(_peak_to_total(grid, L), dtype=np.float64)
+		# explicit parameters: the curve at partner energies is taken without
+		# the extrapolation warning
+		ep = np.asarray(self.eff(grid, effcal), dtype=np.float64)
+		et = ep/pt[L]
+		for arr, sel, j, g, gi in groups:
+			f, cc = arr.terms(ep[gi], et[gi], scale)
+			F[sel] = np.where(g, 1.0, f[j])
+			c[sel] = np.where(g, 0.0, cc[j])
+			guarded[sel] = g
+		return F, c, guarded
+
+	def _xray_scale(self, spectra):
+		"""The x-ray partner scale of the summing correction, from the 152Eu
+		spectra among `spectra`, on this calibration's energy and resolution
+		calibrations.  Returns (scale, n): n is the number of spectra measured,
+		and scale is None when there is none."""
+
+		eu = Isotope('152EU').name
+		names = {}
+		net, g, n = 0.0, 0.0, 0
+		for sp in spectra:
+			pk = sp.peaks
+			if pk is None or not len(pk):
+				continue
+			for nm in pk['isotope'].unique():
+				if nm not in names:
+					names[nm] = Isotope(nm).name
+			rows = pk[(pk['isotope'].map(names)==eu)&(np.abs(pk['energy']-_EU_121)<0.01)]
+			G = float(rows['counts'].sum()) if len(rows) else np.nan
+			# the Sm K-alpha window, 1.5 FWHM beyond either line (FWHM at the
+			# middle of the window), less a baseline from sidebands of one
+			# FWHM (two channels at least) on either side
+			h = np.asarray(sp.hist, dtype=np.float64)
+			ch = np.asarray(self._map_channel_f(np.array(_SM_KALPHA)), dtype=np.float64)
+			fw = 2.355*float(self.res(np.mean(ch)))
+			lo, hi = int(np.floor(ch[0]-1.5*fw)), int(np.ceil(ch[-1]+1.5*fw))
+			s = max(int(round(fw)), 2)
+			if not (np.isfinite(G) and G>0) or lo-s<0 or hi+1+s>len(h):
+				continue
+			w = h[lo:hi+1]
+			net += float(w.sum()-len(w)*0.5*(h[lo-s:lo].mean()+h[hi+1:hi+1+s].mean()))
+			g += G
+			n += 1
+		if not n:
+			return None, 0
+		return max(net/g, 0.0)/_KX_RATIO_FULL, n
+
 	def calibrate(self, spectra, sources, eff_points=None, **kwargs):
 		"""Generate calibration parameters from spectra
 
@@ -935,6 +1063,41 @@ class Calibration(object):
 			clipped from the stored calibration points (it stays visible in
 			the `*_data` tables and plots).  Default sqrt(10), about 3.16.
 
+		summing : bool, optional
+			Correct the efficiency fit for true-coincidence summing.  Default
+			True.  A line emitted in cascade with other photons loses
+			full-energy-peak counts when the detector also records a photon of
+			the same decay.  It gains counts when two photons of one decay add
+			up to its energy.  Near the detector, summing biases the
+			efficiency points of a multi-line source such as 152Eu.  With the
+			correction, the fit finds the curve whose values times the summing
+			factor of each line match the measured points.  The stored points
+			(`effcal_data`) are the measured values divided by their factors.
+			The factors come from the coincidence pairs of the decay data and
+			the fitted curve.  The total efficiency of a partner photon is the
+			curve over a computed peak-to-total ratio.  For the K x-rays that
+			accompany a line, a scale multiplies this total efficiency.  The
+			scale comes from the 152Eu spectra of the set.  It is their Sm
+			K-alpha counts over their 121.78 keV counts, divided by the same
+			ratio on a detector that records them fully.  The scale is 0 on
+			a detector that records no K x-rays and about 1 on one that
+			records them fully.  Between the two, it is an interpolation, not
+			a measured result.  A set without a 152Eu spectrum takes 0, which
+			under-corrects lines with x-ray partners close to a detector that
+			records them.  Three kinds of points keep their measured values.
+			They are user `eff_points`, lines of a nuclide without coincidence
+			data, and lines whose coincidence data disagree with the line
+			intensity, which a warning names.  The fit applies no correction
+			under a 'loglog' model, or when the decay database fails the
+			data-generation check or has no coincidences table.  A message
+			then says so.  Near the detector, some weak lines read high by
+			more than the correction describes.  An example is 152Eu 1005.27
+			keV, which can gain counts from the sum of an x-ray and a gamma
+			ray.  The correction counts the gains from gamma-ray pairs only.
+			A lower effcal_I_min brings such lines back into the fit.  False
+			fits the measured points as they are.  Like every entry, it
+			persists in `fit_config`.
+
 		Examples
 		--------
 		>>> sp = ci.Spectrum('eu_calib_7cm.Spe')
@@ -943,8 +1106,7 @@ class Calibration(object):
 		>>> cb = ci.Calibration()
 		>>> cb.calibrate([sp], sources=[{'isotope':'152EU', 'A0':3.7E4, 'ref_date':'01/01/2009 12:00:00'}])
 		>>> print(cb.effcal)
-		[4.78771190e-02 9.99910335e+01 2.10108097e+00 1.90374157e+00
-		 3.95525964e-01]
+		[ 0.0491557  10.          1.91847628  1.6916646   0.46589409]
 		>>> cb.plot()
 
 		"""
@@ -1156,6 +1318,7 @@ class Calibration(object):
 		drop = {'energy':x[~keep], 'efficiency':y[~keep], 'unc_efficiency':yerr[~keep],
 				'line':eff_meta['line'].to_numpy()[~keep],
 				'reason':np.where(low_I[~keep], 'intensity<'+eff_imin, 'unc>'+eff_pct)}
+		drop_src = eff_meta['src'].to_numpy()[~keep]
 		x, y, yerr = x[keep], y[keep], yerr[keep]
 		# where the floor dropped a point, the stop messages count what each
 		# cut dropped and name the floor's entry; otherwise they are unchanged
@@ -1245,6 +1408,9 @@ class Calibration(object):
 			return f1, u1, chi2n, chi2_0, S2
 
 		em = ccfg['effcal_model'] or 'vidmar'
+		# the x-ray partner scale of the summing correction, None when the fit
+		# takes no correction
+		xr_scale = None
 		# a wrong energy calibration misplaces the line energies, so fit_peaks
 		# misses lines and they never become efficiency points
 		# vidmar-5, which the default model also reaches here, is the floor of
@@ -1260,6 +1426,8 @@ class Calibration(object):
 			order = int(em.split('-')[1]) if '-' in em else 4
 			if order+1 > len(x):
 				raise ValueError('Calibration.calibrate: effcal_model {0} needs at least {1} efficiency points to fit (have {2}){3}'.format('loglog-{0}'.format(order), order+1, len(x), too_few_eff))
+			if ccfg['summing']:
+				_log.warning('Calibration.calibrate: the coincidence-summing correction needs a Vidmar efficiency model, so calibrate() fits the {0} curve without it. Set summing=False to fit it without this warning.'.format('loglog-{0}'.format(order)))
 			fn = lambda x, *A: self.eff(x, A, model='loglog')
 			with np.errstate(all='ignore'):
 				p0_ll = np.polyfit(np.log(x), np.log(y), order, w=(y/yerr))[::-1]
@@ -1306,6 +1474,26 @@ class Calibration(object):
 			n_min = 7 if em == 'vidmar-7' else 5
 			if len(x) < n_min:
 				raise ValueError('Calibration.calibrate: effcal_model {0} needs at least {1} efficiency points to fit (have {2}){3}'.format('vidmar-{0}'.format(n_min), n_min, len(x), too_few_eff))
+			if ccfg['summing'] and not _pair_table_usable():
+				_log.warning("Calibration.calibrate: calibrate() applies no coincidence-summing correction, because the decay database failed the data-generation check or has no coincidences table. Run ci.download('decay') to update it.")
+			elif ccfg['summing']:
+				xr_scale, n_eu = self._xray_scale(spectra)
+				xr_note = ('x-ray partner scale {0:.3g} from {1} 152EU spectr{2}'.format(xr_scale, n_eu, 'um' if n_eu==1 else 'a')
+						   if xr_scale is not None else 'x-ray partners off, as no spectrum has a fitted 152EU 121.8 keV peak')
+				xr_scale = 0.0 if xr_scale is None else xr_scale
+				# the factor enters the model function, so the covariance, the
+				# inflation passes and the choice of form act on the corrected
+				# model; user points (the last n_user) take no factor, by
+				# position, as their label can name a nuclide
+				pt_iso = meta['src'].tolist()[:len(x)-n_user]+[None]*n_user
+				fn = lambda x_, *A: self.eff(x_, A)*self._summing_factors(pt_iso, x_, A, xr_scale)[0]
+				# the guard depends on the coincidence data alone: one warning
+				# per nuclide names its guarded lines among the measured points
+				_, _, gd = self._summing_factors(eff_meta['src'].tolist(), cb_dat[:,1], p0, xr_scale)
+				for nm in dict.fromkeys(eff_meta['src'][gd]):
+					es = sorted(set(cb_dat[:,1][gd&(eff_meta['src']==nm).to_numpy()]))
+					_log.warning('Calibration.calibrate: no coincidence-summing correction for {0} {1} keV: in the decay data a coincidence pair of each of these lines is more intense than the line itself.'.format(
+						nm, ', '.join('{0:.1f}'.format(e) for e in es)))
 			if em == 'vidmar-7':
 				fit, unc, _, eff_chi2, eff_S2 = fit_eff(p0, bounds)
 				p0_used, bounds_used = p0, bounds
@@ -1356,14 +1544,22 @@ class Calibration(object):
 			res_sig = (y-fn(x, *fit))/yerr
 			kept = res_sig**2 < ccfg['outlier_sigma']**2
 		idx = np.where(kept)
+		ys, us, dys, dus = y, yerr, drop['efficiency'], drop['unc_efficiency']
+		if xr_scale is not None:
+			# every point with a factor, used or dropped, is stored as the
+			# measured value over its factor at the final curve, comparable
+			# with the summing-free curve
+			F_fit = self._summing_factors(pt_iso, x, fit, xr_scale)[0]
+			F_drop = self._summing_factors(drop_src.tolist(), drop['energy'], fit, xr_scale)[0]
+			ys, us, dys, dus = y/F_fit, yerr/F_fit, dys/F_drop, dus/F_drop
 		# provenance is stored as the line label alone ('isotope:energy');
 		# the isotope is derived from it on read
-		self._calib_data['effcal'] = {'energy':x[idx], 'efficiency':y[idx], 'unc_efficiency':yerr[idx],
+		self._calib_data['effcal'] = {'energy':x[idx], 'efficiency':ys[idx], 'unc_efficiency':us[idx],
 									  'line':meta['line'].to_numpy()[idx],
 									  'fit':fit, 'unc':unc}
 		self._calib_data['effcal_dropped'] = {'energy':np.concatenate([drop['energy'], x[~kept]]),
-											  'efficiency':np.concatenate([drop['efficiency'], y[~kept]]),
-											  'unc_efficiency':np.concatenate([drop['unc_efficiency'], yerr[~kept]]),
+											  'efficiency':np.concatenate([dys, ys[~kept]]),
+											  'unc_efficiency':np.concatenate([dus, us[~kept]]),
 											  'line':np.concatenate([drop['line'], meta['line'].to_numpy()[~kept]]),
 											  'reason':np.array(drop['reason'].tolist()+['outlier >'+out_sig+' sigma']*int(np.sum(~kept)))}
 		self.effcal = fit
@@ -1371,6 +1567,8 @@ class Calibration(object):
 		# the setters reset the tag/range (a manual assignment must not carry a
 		# stale tag); restore them for the fitted result
 		self._effcal_model = tag
+		if xr_scale is not None:
+			self._summing = {'L':_SUMMING_L, 'xray_partners':float(xr_scale)}
 		# the stored range is the range the fit actually has: a point the
 		# outlier screen removed must not extend the floor or ceiling the
 		# extrapolation guard defends
@@ -1417,6 +1615,13 @@ class Calibration(object):
 		if eff_scale>1.0:
 			body += '; independent uncertainty components scaled x{0:.2f}'.format(eff_scale)
 		_log.info('Calibration.calibrate: '+body)
+		if xr_scale is not None:
+			dev = np.abs(F_fit-1.0)
+			i = int(np.argmax(dev))
+			largest = '{0:.2%}'.format(dev[i]) if dev[i]>0 else 'none'
+			if dev[i]>0:
+				largest += ' ({0} {1:.1f} keV, factor {2:.4f})'.format(meta['line'][i].split(':')[0], x[i], F_fit[i])
+			_log.info('Calibration.calibrate: coincidence-summing correction applied (summing=True); {0}; largest correction of a fit point {1}'.format(xr_note, largest))
 		eff_row = self._diag_row('effcal', eff_chi2, len(x)-len(fit), len(x), (n_tot-(len(x)-n_user))+len(outliers),
 								 model, eff_scale, fit, p0_used, unc, body, bounds=bounds_used,
 								 par_names=par_names)
@@ -1460,14 +1665,12 @@ class Calibration(object):
 		>>> cb = ci.Calibration()
 		>>> cb.calibrate([sp], sources=[{'isotope':'152EU', 'A0':3.7E4, 'ref_date':'01/01/2009 12:00:00'}])
 		>>> print(cb.effcal)
-		[4.78771190e-02 9.99910335e+01 2.10108097e+00 1.90374157e+00
-		 3.95525964e-01]
+		[ 0.0491557  10.          1.91847628  1.6916646   0.46589409]
 		>>> cb.saveas('example_calib.json')
 
 		>>> cb = ci.Calibration('example_calib.json')
 		>>> print(cb.effcal)
-		[4.78771190e-02 9.99910335e+01 2.10108097e+00 1.90374157e+00
-		 3.95525964e-01]
+		[ 0.0491557  10.          1.91847628  1.6916646   0.46589409]
 
 		"""
 

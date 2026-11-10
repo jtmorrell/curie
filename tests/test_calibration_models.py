@@ -20,7 +20,7 @@ import pytest
 
 import curie as ci
 import curie.calibration as cal_mod
-from conftest import EXAMPLES_DIR, requires_data
+from conftest import EXAMPLES_DIR, requires_data, requires_pairs
 
 EU_SOURCES = [{'isotope': '152EU', 'A0': 3.7E4, 'ref_date': '01/01/2009 12:00:00'}]
 
@@ -58,7 +58,7 @@ def test_zero_config_identity():
     # parameterizations of the same curve (observed cross-platform curve
     # reproducibility ~2E-6; tolerance gives 50x margin)
     cb = ci.Calibration()
-    cb.calibrate([eu_sp()], sources=EU_SOURCES, effcal_I_min=0)
+    cb.calibrate([eu_sp()], sources=EU_SOURCES, effcal_I_min=0, summing=False)
     e = np.array([121.7817, 344.2785, 778.9045, 1408.013])
     # re-recorded 2026-08-16 on the combined tree: the constrained
     # close-doublet fit recovers the 152Eu 1084.0 keV line (previously 138%
@@ -382,7 +382,8 @@ def test_effcal_selection_prefers_smaller_inflation(capsys):
     cb = ci.Calibration()
     cb.calibrate([sp], sources=EU_SOURCES,
                  eff_points=pd.DataFrame({'energy': [59.5], 'efficiency': [0.0385],
-                                          'unc_efficiency': [0.0019], 'isotope': ['241AM']}))
+                                          'unc_efficiency': [0.0019], 'isotope': ['241AM']}),
+                 summing=False)
     out = capsys.readouterr().out
     line = [l for l in out.splitlines() if 'effcal model selection' in l][0]
     # the kept form is the one with the smaller uncertainty inflation
@@ -687,7 +688,7 @@ def test_effcal_I_min_default_floor(capsys):
     n_low = sum(100.0*i < 1.0 for i in inten.values())
     capsys.readouterr()
     cb = ci.Calibration()
-    cb.calibrate([sp], sources=EU_SOURCES)
+    cb.calibrate([sp], sources=EU_SOURCES, summing=False)
     out = capsys.readouterr().out
     used = cb._calib_data['effcal']['energy']
     assert len(used) and all(100.0*inten[round(e, 4)] >= 1.0 for e in used)
@@ -719,7 +720,7 @@ def test_effcal_I_min_zero_is_pre_floor_selection(capsys):
     # existed (the curve itself is pinned in test_zero_config_identity)
     capsys.readouterr()
     cb = ci.Calibration()
-    cb.calibrate([eu_sp()], sources=EU_SOURCES, effcal_I_min=0)
+    cb.calibrate([eu_sp()], sources=EU_SOURCES, effcal_I_min=0, summing=False)
     out = capsys.readouterr().out
     assert _effcal_info(out) == [PRE_FLOOR_EFFCAL_INFO]
     row = cb.diagnostics.set_index('fit').loc['effcal']
@@ -727,6 +728,29 @@ def test_effcal_I_min_zero_is_pre_floor_selection(capsys):
     reasons = cb.effcal_data.loc[~cb.effcal_data['used'], 'reason'].tolist()
     assert reasons == ['unc>33%'] + ['outlier >3.16 sigma']*6
     assert 'intensity<' not in out.split('effcal [')[-1]
+
+
+@requires_data('decay')
+@requires_pairs()
+def test_summing_default_curve():
+    # the default curve, with the coincidence-summing correction, recorded
+    # 2026-11-10 from this calibrate() call when the correction became the
+    # default.  It lies above the summing=False curve of
+    # test_effcal_I_min_default_floor by 5.9% at 121.8 keV, 4.0% at 344.3
+    # keV, 3.2% at 778.9 keV and 5.1% at 1408 keV: at 7 cm the summing-out
+    # loss of each line exceeds its gain, so the measured points lie below the
+    # curve that is free of summing.  Tolerance as in test_zero_config_identity
+    if not cal_mod._pair_table_usable():
+        pytest.skip('the installed decay database fails the data-generation check')
+    cb = ci.Calibration()
+    cb.calibrate([eu_sp()], sources=EU_SOURCES)
+    off = ci.Calibration()
+    off.calibrate([eu_sp()], sources=EU_SOURCES, summing=False)
+    e = np.array([121.7817, 344.2785, 778.9045, 1408.013])
+    np.testing.assert_allclose(cb.eff(e), [0.03588573, 0.01590491, 0.00735884, 0.00410683], rtol=1E-4)
+    assert cb.eff(121.7817)/off.eff(121.7817) > 1.05
+    assert cb._effcal_model == 'vidmar-5'
+    assert cb._summing['L'] == 0.69 and cb._summing['xray_partners'] == pytest.approx(0.581, abs=5E-4)
 
 
 @requires_data('decay')
@@ -1033,7 +1057,7 @@ def test_effcal_I_min_recovers_known_curve_beside_interfered_line():
         sp, weak = _synthetic_eu(interferer)
         pk = sp.peaks
         cb = ci.Calibration()
-        cb.calibrate([sp], sources=src, **kw)
+        cb.calibrate([sp], sources=src, summing=False, **kw)
         return cb.eff(E)/truth-1.0, pk, weak
 
     dev, pk, weak = departure(True)

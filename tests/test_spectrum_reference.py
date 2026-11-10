@@ -100,7 +100,7 @@ def test_efficiency_calibration():
     sp.isotopes = ['152EU', '40K']
     cb = ci.Calibration()
     cb.calibrate([sp], sources=[{'isotope': '152EU', 'A0': 3.7E4,
-                                 'ref_date': '01/01/2009 12:00:00'}])
+                                 'ref_date': '01/01/2009 12:00:00'}], summing=False)
 
     # energy calibration is the most stable fitted quantity
     assert cb.engcal[1] == pytest.approx(REFERENCE_ENGCAL_SLOPE, rel=1E-3)
