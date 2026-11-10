@@ -15,9 +15,9 @@ from scipy.special import erfc
 from scipy.interpolate import interp1d
 from scipy.integrate import trapezoid
 
-from .data import _get_connection
+from .data import _get_connection, _pair_table_usable
 from .plotting import _init_plot, _draw_plot, colormap
-from .calibration import Calibration
+from .calibration import Calibration, _SUMMING_S, _SUMMING_K
 from .isotope import Isotope
 from .compound import Compound
 from ._log import _get_logger, _validate_config, _choice, NUMBER, NUMBER_OR_PAIR, INTEGER, BOOLEAN
@@ -119,7 +119,14 @@ class Spectrum(object):
 		information.  The complete list of columns is 'filename', 'isotope', 'energy', 'counts',
 		'unc_counts', 'intensity', 'unc_intensity', 'efficiency', 'unc_efficiency',
 		'decays', 'unc_decays', 'decay_rate', 'unc_decay_rate', 'chi2', 'start_time',
-		'live_time', and 'real_time'.
+		'live_time', and 'real_time'.  The 'efficiency' of a peak is the
+		full-energy-peak efficiency of its line.  For a calibration fitted with
+		the coincidence-summing correction, it is the curve value times the
+		summing factor of that line of that nuclide.  Its 'unc_efficiency'
+		then includes the uncertainty of the factor.  Otherwise it is the
+		curve value.  `DecayChain.get_counts` treats all of 'unc_efficiency' as
+		common to the lines of one calibration, as it treats the uncertainty
+		of the curve.
 
 	Examples
 	--------
@@ -1013,17 +1020,45 @@ class Spectrum(object):
 				unc_N.append(np.inf)
 		return np.array(N_cts), np.array(unc_N)
 	
-	def _decays(self, N, unc_N, df):
+	def _line_efficiency(self, df):
+		# the full-energy-peak efficiency of each line of df and its absolute
+		# uncertainty: the curve value, times the coincidence-summing factor of
+		# the line where the calibration was fitted with the correction, with
+		# the factor's term in the relative variance
+		eff, unc = self.cb.eff(df['energy']), self.cb.unc_eff(df['energy'])
+		sm = self.cb._summing
+		if sm is None or not len(df):
+			return eff, unc
+		stats = self._fit_stats if self._fit_stats is not None else {}
+		if not _pair_table_usable():
+			stats['summing_stale'] = True
+			return eff, unc
+		E = df['energy'].to_numpy(dtype=np.float64)
+		# a line of the spectrum's isotopes takes the factor of its state; a
+		# peak that holds merged lines the weighted factor of its lines
+		iso = [i if i in self.isotopes else None for i in df['isotope']]
+		merged = [None if i is None else self._merged.get((i, float(e))) for i, e in zip(iso, E)]
+		F, c, guarded, on = self.cb._summing_factors(iso, E, self.cb.effcal, sm['xray_partners'], L=sm['L'], merged=merged)
+		for i, e in zip([i for i, g in zip(iso, guarded) if g], E[guarded]):
+			stats.setdefault('summing_guarded', {}).setdefault(i, set()).add(float(e))
+		eff_l = eff*F
+		with np.errstate(all='ignore'):
+			unc_l = np.where(on, eff_l*np.sqrt((unc/eff)**2+_SUMMING_S**2+(_SUMMING_K*c)**2), unc)
+		return eff_l, unc_l
+
+	def _decays(self, N, unc_N, df, eff, unc_eff):
+		# eff, unc_eff: the efficiency of each line and its uncertainty, as
+		# _line_efficiency gives them
 		if self._atten_corr is None:
 			corr = self._geom_corr
 		else:
 			corr = self._geom_corr*self._atten_corr(df['energy'])
-			
-		D = N/(df['intensity']*self.cb.eff(df['energy'])*corr*(self.live_time/self.real_time))
+
+		D = N/(df['intensity']*eff*corr*(self.live_time/self.real_time))
 		# unc_N is propagated from the weighted-least-squares covariance, which is the
 		# full sampling covariance under Poisson channel counts - it already contains
 		# the counting statistics of the peak area, so no separate 1/N term is added
-		unc_D = D*np.sqrt((unc_N/N)**2+(self.cb.unc_eff(df['energy'])/self.cb.eff(df['energy']))**2+(df['unc_intensity']/df['intensity'])**2)
+		unc_D = D*np.sqrt((unc_N/N)**2+(unc_eff/eff)**2+(df['unc_intensity']/df['intensity'])**2)
 
 		A, unc_A = D/self.real_time, unc_D/self.real_time
 		return D, unc_D, A, unc_A
@@ -1314,7 +1349,8 @@ class Spectrum(object):
 				p0['chi2'] = chi2
 				p0['dof'] = dof
 				N, unc_N = self._counts(fit, unc)
-				D, unc_D, A, unc_A = self._decays(N, unc_N, p0['df'])
+				eff, unc_eff = self._line_efficiency(p0['df'])
+				D, unc_D, A, unc_A = self._decays(N, unc_N, p0['df'], eff, unc_eff)
 
 			f = p0['df']
 			cols = ['filename','isotope','energy','counts','unc_counts',
@@ -1324,8 +1360,8 @@ class Spectrum(object):
 
 			df = pd.DataFrame({'filename':self.filename, 'isotope':f['isotope'], 'energy':f['energy'],
 							'counts':N, 'unc_counts':unc_N, 'intensity':f['intensity'],
-							'unc_intensity':f['unc_intensity'], 'efficiency':self.cb.eff(f['energy']),
-							'unc_efficiency':self.cb.unc_eff(f['energy']), 'decays':D,
+							'unc_intensity':f['unc_intensity'], 'efficiency':eff,
+							'unc_efficiency':unc_eff, 'decays':D,
 							'unc_decays':unc_D, 'decay_rate':A, 'unc_decay_rate':unc_A, 'chi2':chi2,
 							'start_time':dtm.datetime.strftime(self.start_time, '%m/%d/%Y %H:%M:%S'),
 							'live_time':self.live_time, 'real_time':self.real_time,
@@ -1481,6 +1517,13 @@ class Spectrum(object):
 			self._peaks = None
 			self._diagnostics = _diagnostics_frame(extras=_DIAG_EXTRAS)
 
+		# the summing correction of the peak efficiencies: one message for a
+		# pair table that may not be used, one per nuclide for guarded lines
+		if self._fit_stats.get('summing_stale'):
+			_log.warning(self._loc('fit_peaks')+": the peak efficiencies take no coincidence-summing correction, because the decay database failed the data-generation check or has no coincidences table. Run ci.download('decay') to update it.")
+		for i, es in self._fit_stats.get('summing_guarded', {}).items():
+			_log.warning(self._loc('fit_peaks')+': no coincidence-summing correction for {0} {1} keV: in the decay data a coincidence pair of each of these lines is more intense than the line itself.'.format(
+				i, ', '.join('{0:.1f}'.format(e) for e in sorted(es))))
 		self._log_fit_summary(failed, gammas)
 		return self._peaks
 

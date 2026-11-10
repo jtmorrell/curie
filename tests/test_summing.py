@@ -736,3 +736,183 @@ def test_summing_entry_carried_to_the_spectra(eu_fitted, pairs_usable):
     assert sp.cb._summing is not cb._summing
     cb.calibrate([sp], sources=EU_SOURCES, summing=False)
     assert cb._summing is None and sp.cb._summing is None
+
+
+# ---------------------------------------------------------------------------
+# Spectrum: the peak table of a spectrum whose calibration carries the entry
+
+@pytest.fixture(scope='module')
+def eu_corrected(eu_fitted):
+    """The example spectrum's calibration fitted with the summing correction."""
+    with contextlib.redirect_stdout(io.StringIO()):
+        cb, _ = _calibrate([eu_fitted], EU_SOURCES)
+    return cb
+
+
+def _refit(cb, capsys=None, sp0=None, entry=True):
+    """The example spectrum (or sp0) refitted on a copy of cb, with the entry or without
+    it (the same curve); returns the spectrum and its log lines."""
+    if capsys is not None:
+        capsys.readouterr()
+    sp = copy.deepcopy(sp0)
+    sp.cb = cb
+    if not entry:
+        sp.cb._summing = None
+    if capsys is None:
+        with contextlib.redirect_stdout(io.StringIO()):
+            sp.fit_peaks()
+        return sp, []
+    sp.fit_peaks()
+    return sp, [l for l in capsys.readouterr().out.splitlines() if 'Spectrum' in l]
+
+
+def _factors_of(sp):
+    """The factor, c and paired flag of each peak of sp at its calibration's entry."""
+    pk = sp.peaks
+    rec = [sp._merged.get((i, float(e))) for i, e in zip(pk['isotope'], pk['energy'])]
+    F, c, _, on = sp.cb._summing_factors(pk['isotope'].tolist(), pk['energy'].to_numpy(), sp.cb.effcal,
+                                         sp.cb._summing['xray_partners'], L=sp.cb._summing['L'], merged=rec)
+    return F, c, on
+
+
+@requires_data('decay')
+def test_peaks_without_entry_are_the_parent(eu_fitted, monkeypatch):
+    # without the entry no factor, scale or table check is reached, and each
+    # efficiency column is the curve: the default calibration, and one fitted
+    # with summing=False
+    def unreachable(*a, **k):
+        raise AssertionError('summing code reached without the entry')
+    off, _ = _calibrate([eu_fitted], EU_SOURCES, summing=False)
+    monkeypatch.setattr(cal_mod.Calibration, '_summing_factors', unreachable)
+    monkeypatch.setattr(ci.spectrum, '_pair_table_usable', unreachable)
+    for cb in (eu_fitted.cb, off):
+        sp, _ = _refit(cb, sp0=eu_fitted)
+        pk = sp.peaks
+        assert sp.cb._summing is None
+        np.testing.assert_array_equal(pk['efficiency'], sp.cb.eff(pk['energy']))
+        np.testing.assert_array_equal(pk['unc_efficiency'], sp.cb.unc_eff(pk['energy']))
+    np.testing.assert_allclose(_refit(eu_fitted.cb, sp0=eu_fitted)[0].peaks['counts'], PARENT_COUNTS, rtol=1E-5)
+
+
+@requires_data('decay')
+@requires_pairs()
+def test_peaks_with_entry_take_the_factor(eu_fitted, eu_corrected, pairs_usable):
+    # with the entry, the decays of each line are those of the same curve
+    # without it over the line's factor; efficiency is the curve times the
+    # factor, unc_efficiency adds the factor's term in quadrature, and the
+    # decays follow from the table's own columns
+    on_sp, _ = _refit(eu_corrected, sp0=eu_fitted)
+    off_sp, _ = _refit(eu_corrected, sp0=eu_fitted, entry=False)
+    a, b = on_sp.peaks, off_sp.peaks
+    np.testing.assert_array_equal(a['counts'], b['counts'])
+    F, c, on = _factors_of(on_sp)
+    eu = (a['isotope'] == '152EU').to_numpy()
+    assert eu.sum() > 30 and np.all(on[eu]) and np.all(np.abs(F[eu]-1.0) > 1E-4)
+    np.testing.assert_allclose(a['decays'], b['decays']/F, rtol=1E-12)
+    np.testing.assert_allclose(a['efficiency'], b['efficiency']*F, rtol=1E-14)
+    rel2 = (b['unc_efficiency']/b['efficiency'])**2+np.where(on, cal_mod._SUMMING_S**2+(cal_mod._SUMMING_K*c)**2, 0.0)
+    np.testing.assert_allclose(a['unc_efficiency']/a['efficiency'], np.sqrt(rel2), rtol=1E-12)
+    lt = on_sp.live_time/on_sp.real_time
+    np.testing.assert_allclose(a['decays'], a['counts']/(a['intensity']*a['efficiency']*lt), rtol=1E-12)
+    np.testing.assert_allclose(a['unc_decays']/a['decays'], np.sqrt((a['unc_counts']/a['counts'])**2+(
+        a['unc_efficiency']/a['efficiency'])**2+(a['unc_intensity']/a['intensity'])**2), rtol=1E-12)
+    # the merged 443.96 keV peak takes the weighted factor of its lines
+    e1, e2 = on_sp._merged[('152EU', 443.9606)][0]
+    Fm = on_sp.cb._summing_factors(['152EU'], [e1], on_sp.cb.effcal, on_sp.cb._summing['xray_partners'],
+                                   merged=[on_sp._merged[('152EU', 443.9606)]])[0][0]
+    F1 = on_sp.cb._summing_factors(['152EU'], [e1], on_sp.cb.effcal, on_sp.cb._summing['xray_partners'])[0][0]
+    i = int(np.where(a['energy'] == e1)[0][0])
+    assert F[i] == Fm and abs(Fm/F1-1.0) > 1E-3
+
+
+@requires_data('decay')
+@requires_pairs()
+def test_peaks_with_entry_in_decay_chain(eu_fitted, eu_corrected, pairs_usable, tmp_path):
+    # get_counts decomposes unc_counts into its three classes (counting, line
+    # intensity, efficiency), which add in quadrature to it; a saved peak file
+    # read back gives the same table and the same counts, to the precision of
+    # the file (the json writer keeps 10 decimal places)
+    sp, _ = _refit(eu_corrected, sp0=eu_fitted)
+    eob = '01/01/2009 12:00:00'
+    dc = ci.DecayChain('152EU', A0=3.7E4, units='h')
+    with contextlib.redirect_stdout(io.StringIO()):
+        dc.get_counts([sp], EoB=eob)
+    ct = dc.counts
+    np.testing.assert_allclose(np.sqrt(ct['unc_stat']**2+ct['unc_line']**2+ct['unc_corr']**2), ct['unc_counts'], rtol=1E-12)
+    pk = sp.peaks[sp.peaks['isotope'] == '152EU']
+    np.testing.assert_allclose(np.sort(ct['unc_corr']/ct['counts']), np.sort(pk['unc_efficiency']/pk['efficiency']), rtol=1E-12)
+    cols = ['energy', 'counts', 'efficiency', 'unc_efficiency', 'decays', 'unc_decays']
+    for ext, rtol in (('csv', 1E-12), ('json', 1E-5)):
+        fn = str(tmp_path / ('peaks.'+ext))
+        sp.saveas(fn)
+        back = pd.read_csv(fn) if ext == 'csv' else pd.read_json(fn, orient='records')
+        np.testing.assert_allclose(back[cols].to_numpy(dtype=float), sp.peaks[cols].to_numpy(dtype=float), rtol=rtol)
+        dc_f = ci.DecayChain('152EU', A0=3.7E4, units='h')
+        with contextlib.redirect_stdout(io.StringIO()):
+            dc_f.get_counts([sp.filename], EoB=eob, peak_data=fn)
+        for col in ('counts', 'unc_counts', 'unc_corr'):
+            np.testing.assert_allclose(dc_f.counts[col], ct[col], rtol=rtol)
+
+
+@requires_data('decay')
+@requires_pairs()
+def test_peaks_stale_table(eu_fitted, eu_corrected, capsys, monkeypatch):
+    # a pair table that may not be used: the table of the curve without the
+    # entry, and one message
+    off_sp, _ = _refit(eu_corrected, sp0=eu_fitted, entry=False)
+    monkeypatch.setitem(data._get_connection('decay').cache, 'pair_table_usable', False)
+    sp, log = _refit(eu_corrected, capsys, sp0=eu_fitted)
+    pd.testing.assert_frame_equal(sp.peaks, off_sp.peaks, check_exact=True)
+    msg = [l for l in log if 'summing' in l]
+    assert msg == ["[WARNING] Spectrum(eu_calib_7cm.Spe).fit_peaks: the peak efficiencies take no coincidence-summing "
+                   "correction, because the decay database failed the data-generation check or has no coincidences "
+                   "table. Run ci.download('decay') to update it."]
+
+
+@requires_data('decay')
+@requires_pairs()
+def test_peaks_guarded_line_and_no_range_warning(eu_fitted, eu_corrected, capsys, monkeypatch):
+    # the factors raise no warning of their own (the curve's own range
+    # warnings are those of the table without the entry); then, with pair rows
+    # in which a partner of 344.28 keV is three times as intense as the line,
+    # that line keeps factor 1 and one warning names it
+    _, log_off = _refit(eu_corrected, capsys, sp0=eu_fitted, entry=False)
+    sp, log = _refit(eu_corrected, capsys, sp0=eu_fitted)
+    assert [l for l in log if 'WARNING' in l] == [l for l in log_off if 'WARNING' in l]
+    off = _refit(eu_corrected, sp0=eu_fitted, entry=False)[0].peaks
+    real = _tcs._pairs
+    g = ci.Isotope('152EU').gammas()
+    I_344 = float(g.loc[g['energy'] == 344.2785, 'intensity'].iloc[0])
+
+    def pairs(isotope):
+        p = real(isotope)
+        if isotope.name == '152EUg':
+            on = (p['energy'] == 344.2785)&(p['coinc_type'] == 'g')
+            p.loc[p[on]['intensity'].idxmax(), 'intensity'] = 3.0*I_344
+        return p
+    monkeypatch.setattr(_tcs, '_pairs', pairs)
+    con = data._get_connection('decay')
+    monkeypatch.setattr(con, 'cache', {k: v for k, v in con.cache.items() if k in ('generation_ok', 'pair_table_usable')})
+    sp, log = _refit(eu_corrected, capsys, sp0=eu_fitted)
+    pk = sp.peaks
+    assert [l for l in log if 'no coincidence-summing correction for' in l] == [
+        '[WARNING] Spectrum(eu_calib_7cm.Spe).fit_peaks: no coincidence-summing correction for 152EU 344.3 keV: in '
+        'the decay data a coincidence pair of each of these lines is more intense than the line itself.']
+    i, j = [int(np.where(pk['energy'] == e)[0][0]) for e in (344.2785, 778.9045)]
+    assert pk['efficiency'][i] == off['efficiency'][i] and pk['unc_efficiency'][i] == off['unc_efficiency'][i]
+    assert abs(pk['efficiency'][j]/off['efficiency'][j]-1.0) > 1E-3
+
+
+@requires_data('decay')
+@requires_pairs()
+def test_peaks_nuclide_outside_the_calibration_set(eu_synthetic, pairs_usable):
+    # 60Co is not in the calibration set: its lines take their factors from
+    # the stored entry and the curve
+    cb, _ = _calibrate([eu_synthetic], _sources(['152EU']))
+    co = _synthetic(['60CO'], SYN_SCALE)
+    sp, _ = _refit(cb, sp0=co)
+    off, _ = _refit(cb, sp0=co, entry=False)
+    F, _, on = _factors_of(sp)
+    assert np.all(on) and np.all(F < 0.99) and len(F) == 2
+    np.testing.assert_allclose(sp.peaks['decays'], off.peaks['decays']/F, rtol=1E-12)
+    np.testing.assert_allclose(sp.peaks['efficiency'], cb.eff(sp.peaks['energy'])*F, rtol=1E-14)
