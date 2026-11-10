@@ -147,7 +147,7 @@ class Scheme(object):
 
     def pairwise(self, eps_p, eps_t):
         lines = self.lines_frame()
-        F = _factors(lines, self.pairs_frame(), eps_p, eps_t)
+        F = _factors(lines, self.pairs_frame(), eps_p, eps_t, xray_lines=())
         out = {}
         for e, f in zip(lines['energy'], F):
             assert out.get(e, f) == f
@@ -163,13 +163,21 @@ EQUAL = Scheme({0: 0.0, 1: 100.0, 2: 200.0}, {2: 1.0}, {2: {1: 0.8, 0: 0.2}, 1: 
 BRANCHED = Scheme(LEVELS, {4: 0.6, 3: 0.3, 2: 0.1},
                   {4: {3: 0.5, 2: 0.3, 1: 0.2}, 3: {2: 0.4, 1: 0.35, 0: 0.25},
                    2: {1: 0.7, 0: 0.3}, 1: {0: 1.0}})
+# one cascade 600 -> 300 -> 100 -> 0 keV: the 300 keV line is also the sum of the
+# 200 and 100 keV photons below it, so its summed-in counts need the 300 keV
+# photon to escape, not the 200 and 100 keV photons that make up the sum
+SUM_IN_CASCADE = Scheme({0: 0.0, 1: 100.0, 2: 300.0, 3: 600.0}, {3: 1.0},
+                        {3: {2: 1.0}, 2: {1: 1.0}, 1: {0: 1.0}})
 
 
 # ---------------------------------------------------------------- synthetic schemes
 
 @pytest.mark.validation
-@pytest.mark.parametrize('scheme', [CASCADE3, CROSSOVER, EQUAL],
-                         ids=['cascade3-loss', 'crossover-gain', 'equal-energy'])
+@pytest.mark.parametrize('scheme', [
+    CASCADE3, CROSSOVER, EQUAL,
+    pytest.param(SUM_IN_CASCADE, id='sum-in-cascade', marks=pytest.mark.xfail(
+        strict=True, reason='the gain carries the loss factors of its own summing photons')),
+], ids=['cascade3-loss', 'crossover-gain', 'equal-energy', 'sum-in-cascade'])
 def test_pairwise_exact_on_single_cascade(scheme):
     exact, _ = scheme.exact(EPS_P, EPS_T)
     F = scheme.pairwise(EPS_P, EPS_T)
@@ -424,7 +432,7 @@ def test_xray_partners_of_two_vacancies_second_order():
 def test_factors_empty_pairs_and_order():
     lines = pd.DataFrame({'energy': [300.0, 100.0, 300.0], 'intensity': [10.0, 50.0, 5.0]})
     pairs = pd.DataFrame(columns=['energy', 'coinc_energy', 'coinc_type', 'intensity', 'unc_intensity'])
-    F = _factors(lines, pairs, EPS_P, EPS_T)
+    F = _factors(lines, pairs, EPS_P, EPS_T, xray_lines=())
     assert len(F) == 3
     assert all(f == 1.0 for f in F)
 
@@ -476,13 +484,14 @@ def test_mn54_xray_partners_below_floor():
 def test_eu152_close_lines_keyed_on_own_energy():
     eu = ci.Isotope('152EU')
     lines, pairs = eu.gammas(xrays=True), _pairs(eu)
+    xray_lines = set(lines['energy']) - set(eu.gammas()['energy'])
     E1, E2 = 443.9606, 444.01
     rows1, rows2 = pairs[pairs['energy'] == E1], pairs[pairs['energy'] == E2]
     assert len(rows1) and len(rows2)
     assert not set(rows1.index) & set(rows2.index)
 
     def F_at(p):
-        F = _factors(lines, p, EPS_P, EPS_T)
+        F = _factors(lines, p, EPS_P, EPS_T, xray_lines=xray_lines)
         return F[np.flatnonzero(lines['energy'] == E1)[0]], F[np.flatnonzero(lines['energy'] == E2)[0]]
 
     F1, F2 = F_at(pairs)

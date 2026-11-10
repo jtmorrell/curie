@@ -29,10 +29,12 @@ with the summing pair are those in coincidence with the line.
 
 The x-ray partners share one factor because a vacancy is filled by at most one
 K x-ray, so the x-rays of one vacancy are exclusive and their summing-out
-probabilities add; this is exact for one vacancy per decay and leaves an
-error of second order where electron capture and internal conversion both
-leave one.  On an x-ray line the partners of type 'XR' are gamma rays, which
-stay one factor each.
+probabilities add.  On a gamma-ray or annihilation line this is exact for one
+vacancy per decay and leaves an error of second order where electron capture
+and internal conversion both leave one.  On an x-ray line the partners of type
+'XR' are gamma rays, which stay one factor each; the table pairs no two
+x-rays, so where a decay leaves two vacancies the loss of an x-ray line misses
+the x-ray of the other vacancy, an error of first order in the efficiencies.
 
 The product form is exact for a single cascade; on a branched scheme the
 pairwise table carries no correlation between three or more photons, which
@@ -83,7 +85,7 @@ def _pairs(isotope):
 	return df.astype({'energy':float, 'coinc_energy':float, 'intensity':float, 'unc_intensity':float})
 
 
-def _factors(lines, pairs, eps_p, eps_t, E_min=15.0, sum_tol=1.0, xray_lines=()):
+def _factors(lines, pairs, eps_p, eps_t, E_min=15.0, sum_tol=1.0, *, xray_lines):
 	"""Coincidence-summing factor of every line of a decaying state.
 
 	Parameters
@@ -109,9 +111,11 @@ def _factors(lines, pairs, eps_p, eps_t, E_min=15.0, sum_tol=1.0, xray_lines=())
 		and a line energy for the pair to add to that line; a pair adds only to
 		the line nearest its summed energy.  Default 1.0.
 
-	xray_lines : array_like, optional
-		Energies of the x-ray lines among `lines`, whose 'XR' partners are gamma
-		rays and enter the loss one factor each.  Default none.
+	xray_lines : array_like
+		Energies of the x-ray lines among `lines` (empty when there are none),
+		whose 'XR' partners are gamma rays and enter the loss one factor each.
+		Required, since an x-ray line taken for a gamma-ray line would have its
+		gamma-ray partners combined into one factor.
 
 	Returns
 	-------
