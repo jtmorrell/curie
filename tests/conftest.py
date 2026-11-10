@@ -26,6 +26,32 @@ def requires_data(*names):
         reason='nuclear data not installed: {}'.format(', '.join(missing)))
 
 
+def _has_pair_table():
+    """True if the installed decay database holds the coincidence-pair table."""
+    import sqlite3
+    from curie import data
+    for path in [data._data_path('decay.db')] + data._site_data_paths('decay.db') + [data._legacy_data_path('decay.db')]:
+        if os.path.isfile(path) and os.path.getsize(path) > 0:
+            con = sqlite3.connect(path)
+            try:
+                return con.execute("SELECT name FROM sqlite_master WHERE type='table' "
+                                   "AND name='coincidences'").fetchone() is not None
+            finally:
+                con.close()
+    return False
+
+
+def requires_pairs():
+    """Skip marker: test needs the coincidence-pair table of the decay database."""
+    if not _db_present('decay'):
+        reason = 'nuclear data not installed: decay'
+    elif not _has_pair_table():
+        reason = 'the installed decay database has no coincidences table'
+    else:
+        reason = None
+    return pytest.mark.skipif(reason is not None, reason=reason or '')
+
+
 @pytest.fixture(scope='session')
 def eu_spectrum():
     """The shipped 152Eu calibration spectrum, isotopes assigned and peaks fit once."""

@@ -67,6 +67,16 @@ def _canonical(db):
 	return None
 
 
+class _Connection(sqlite3.Connection):
+	"""A database connection that carries what is derived from its file in
+	`cache`, so that state is dropped with the connection: a re-download or
+	another data directory opens a new connection and derives it anew."""
+
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		self.cache = {}
+
+
 def _generation():
 	"""The data generation this registry fetches: its release-tag name."""
 	return _registry()['base_url'].rstrip('/').rsplit('/', 1)[-1]
@@ -379,7 +389,7 @@ def _get_connection(db='decay'):
 		if os.path.exists(dbnm):
 			try:
 				if os.path.getsize(dbnm) > 0:
-					return sqlite3.connect(dbnm, timeout=30.0)
+					return sqlite3.connect(dbnm, timeout=30.0, factory=_Connection)
 				else:
 					raise ValueError('{} exists but is of zero size.'.format(dbnm))
 			except:
@@ -389,7 +399,7 @@ def _get_connection(db='decay'):
 				raise
 		else:
 			_log.warning('database {} does not exist, creating new file.'.format(dbnm))
-			return sqlite3.connect(dbnm, timeout=30.0)
+			return sqlite3.connect(dbnm, timeout=30.0, factory=_Connection)
 
 	global GLOB_CONNECTIONS_DICT
 
@@ -404,7 +414,7 @@ def _get_connection(db='decay'):
 					 and (not os.path.exists(path) or os.path.getsize(path) == 0))
 			# a generous lock timeout lets concurrent processes assembling
 			# shards into the same database wait for each other
-			GLOB_CONNECTIONS_DICT[path] = sqlite3.connect(path, timeout=30.0) if fresh else connector(path)
+			GLOB_CONNECTIONS_DICT[path] = sqlite3.connect(path, timeout=30.0, factory=_Connection) if fresh else connector(path)
 			if not fresh:
 				# a fresh sharded file has no generation yet; it is stamped
 				# at first assembly instead

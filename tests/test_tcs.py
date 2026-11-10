@@ -10,20 +10,23 @@ line energy, each subset fully absorbed and every other photon of the path
 escaping the detector.  The pairwise form is exact for a single cascade and
 differs at second order in the efficiencies on a branched scheme.  Electron-
 capture schemes add K x-rays, at most one per vacancy, from K capture and K
-conversion.
+conversion.  The array form that is evaluated inside a fit is checked against
+`_factors` line by line.
 
 Table-pinned cases (60Co, 22Na, 54Mn, 137Cs, 109Cd, 152Eu) use values typed
 from the shipped decay database, read 2026-11-09:
 decay.db sha256 aba725655dd30532b843f759348118bd9205fc9f6448a3b5fd5fbe1034d8a9dc.
 """
 import itertools
+import sqlite3
 
 import numpy as np
 import pandas as pd
 import pytest
 
 import curie as ci
-from conftest import requires_data
+from conftest import requires_pairs
+from curie import _tcs
 from curie._tcs import _pairs, _factors, _summing_factor
 from curie.calibration import _peak_to_total, _TAU, _SIGMA
 
@@ -459,7 +462,7 @@ def _Fsum(isotope, energy, **kw):
 
 
 @pytest.mark.library_value
-@requires_data('decay')
+@requires_pairs()
 def test_co60_hand_factors():
     F1173 = (1.0 - (99.83377701123567 / 99.85) * EPS_T(1332.492)) * (
         1.0 + (0.006475000590701808 / 99.85) * EPS_P(347.14) * EPS_P(826.1) / EPS_P(1173.228))
@@ -474,28 +477,28 @@ def test_co60_hand_factors():
 
 
 @pytest.mark.library_value
-@requires_data('decay')
+@requires_pairs()
 def test_na22_annihilation_factors():
     assert _Fsum('22NA', 1274.537) == pytest.approx(1.0 - (179.802054 / 99.94) * EPS_T(511.0), abs=1e-12)
     assert _Fsum('22NA', 511.0) == pytest.approx(1.0 - (179.802054 / 179.91) * EPS_T(1274.537), abs=1e-12)
 
 
 @pytest.mark.library_value
-@requires_data('decay')
+@requires_pairs()
 @pytest.mark.parametrize('isotope, energy', [('137CS', 661.657), ('109CD', 88.0336), ('54MN', 834.848)])
 def test_summing_free_lines(isotope, energy):
     assert _Fsum(isotope, energy) == 1.0
 
 
 @pytest.mark.library_value
-@requires_data('decay')
+@requires_pairs()
 def test_mn54_xray_partners_below_floor():
     # the only partners of the 834.848 keV line are Cr K x-rays near 5.4 keV
     assert _Fsum('54MN', 834.848, E_min=0.0) < 1.0
 
 
 @pytest.mark.library_value
-@requires_data('decay')
+@requires_pairs()
 def test_eu152_close_lines_keyed_on_own_energy():
     eu = ci.Isotope('152EU')
     lines, pairs = eu.gammas(xrays=True), _pairs(eu)
@@ -517,7 +520,7 @@ def test_eu152_close_lines_keyed_on_own_energy():
 
 
 @pytest.mark.library_value
-@requires_data('decay')
+@requires_pairs()
 def test_pairs_keying():
     ref = _pairs('152EU')
     assert list(ref.columns) == ['energy', 'coinc_energy', 'coinc_type', 'intensity', 'unc_intensity']
@@ -535,7 +538,7 @@ def test_pairs_keying():
 
 
 @pytest.mark.library_value
-@requires_data('decay')
+@requires_pairs()
 def test_summing_factor_shapes_and_unknown_energy():
     F = _Fsum('60CO', np.array([1173.228, 1332.492]))
     assert isinstance(F, np.ndarray) and F.shape == (2,)
@@ -543,6 +546,145 @@ def test_summing_factor_shapes_and_unknown_energy():
     assert isinstance(_Fsum('60CO', 1173.228), float)
     with pytest.raises(ValueError, match='1173.23.*60CO'):
         _Fsum('60CO', 1173.23)
+
+
+# ---------------------------------------------------------------- array form, guard, limit
+
+def _scaled_at(eps, energies, scale):
+    """`eps` multiplied by `scale` at the given energies."""
+    energies = list(energies)
+
+    def f(E):
+        E = np.asarray(E, dtype=float)
+        return eps(E) * np.where(np.isin(E, energies), scale, 1.0)
+    return f
+
+
+@pytest.mark.library_value
+@requires_pairs()
+@pytest.mark.parametrize('isotope', ['152EU', '133BA', '60CO', '22NA', '56CO'])
+def test_arrays_equal_factors(isotope):
+    # the x-ray scale multiplies the efficiency of the x-ray partners, which
+    # _factors gives from efficiencies multiplied at the x-ray energies
+    iso = ci.Isotope(isotope)
+    lines, pairs = iso.gammas(xrays=True), _pairs(iso)
+    xray_lines = set(lines['energy']) - set(iso.gammas()['energy'])
+    arr = _tcs._arrays(iso)
+    np.testing.assert_array_equal(arr.energy, np.unique(lines['energy']))
+    for scale in (1.0, 0.4, 0.0):
+        ref = _factors(lines, pairs, _scaled_at(EPS_P, xray_lines, scale), _scaled_at(EPS_T, xray_lines, scale),
+                       xray_lines=xray_lines)
+        ref = pd.Series(ref, index=lines['energy']).groupby(level=0).first().to_numpy()
+        F, c = arr.terms(EPS_P(arr.grid), EPS_T(arr.grid), scale)
+        np.testing.assert_allclose(F, ref, rtol=0.0, atol=1e-12, err_msg='{} scale {}'.format(isotope, scale))
+        assert np.array_equal(np.isnan(c), np.isnan(F))
+    # the scale reaches the factor where the state has x-ray partners
+    if isotope in ('152EU', '133BA'):
+        assert not np.allclose(arr.terms(EPS_P(arr.grid), EPS_T(arr.grid), 0.4)[0],
+                               arr.terms(EPS_P(arr.grid), EPS_T(arr.grid), 1.0)[0], equal_nan=True)
+
+
+@pytest.mark.validation
+def test_size_of_correction_two_lines():
+    # 400 keV line in coincidence with a 200 keV line (8 pairs per 100 decays),
+    # and an equal-energy 200 + 200 keV pair summing into it (5 per 100 decays)
+    lines = pd.DataFrame({'energy': [200.0, 400.0], 'intensity': [50.0, 10.0]})
+    rows = [(200.0, 200.0, 'g', 5.0), (200.0, 400.0, 'g', 8.0), (400.0, 200.0, 'g', 8.0)]
+    pairs = pd.DataFrame([r + (np.nan,) for r in rows],
+                         columns=['energy', 'coinc_energy', 'coinc_type', 'intensity', 'unc_intensity'])
+    arr = _tcs._Arrays(lines, pairs, xray_lines=())
+    F, c = arr.terms(EPS_P(arr.grid), EPS_T(arr.grid))
+    loss = {200.0: (1.0 - 2.0 * 5.0 / 50.0 * EPS_T(200.0)) * (1.0 - 8.0 / 50.0 * EPS_T(400.0)),
+            400.0: 1.0 - 8.0 / 10.0 * EPS_T(200.0)}
+    gain = {200.0: 0.0,
+            400.0: 5.0 * EPS_P(200.0)**2 * (1.0 - EPS_T(400.0)) / (10.0 * EPS_P(400.0))}
+    for n, e in enumerate(arr.energy):
+        assert F[n] == pytest.approx(loss[e] + gain[e], abs=1e-15), e
+        assert c[n] == pytest.approx((1.0 - loss[e]) + gain[e], abs=1e-15), e
+    assert gain[400.0] > 0.01 and 1.0 - loss[400.0] > 0.01
+    np.testing.assert_allclose(F, _factors(lines, pairs, EPS_P, EPS_T, xray_lines=()), rtol=0.0, atol=1e-15)
+
+
+@pytest.mark.validation
+def test_partner_total_efficiency_limited_to_one():
+    # a 300 keV line with a 500 keV gamma-ray partner (every decay) and a 40 keV
+    # x-ray partner (half the decays); the partners' total efficiencies 1.5 and,
+    # at scale 2, 2 * 0.8 are each taken as 1
+    lines = pd.DataFrame({'energy': [40.0, 300.0, 500.0], 'intensity': [50.0, 100.0, 100.0]})
+    rows = [(300.0, 500.0, 'g', 100.0), (300.0, 40.0, 'XR', 50.0)]
+    pairs = pd.DataFrame([r + (np.nan,) for r in rows] + [(b, a, t, p, np.nan) for a, b, t, p in rows],
+                         columns=['energy', 'coinc_energy', 'coinc_type', 'intensity', 'unc_intensity'])
+
+    def eps_t(E):
+        E = np.asarray(E, dtype=float)
+        return np.where(E == 500.0, 1.5, np.where(E == 40.0, 0.8, 0.1))
+
+    arr = _tcs._Arrays(lines, pairs, xray_lines=(40.0,))
+    i300 = arr.index(300.0)[0]
+    F, _ = arr.terms(EPS_P(arr.grid), eps_t(arr.grid), scale=2.0)
+    assert F[i300] == 0.0
+    F, _ = arr.terms(EPS_P(arr.grid), np.where(arr.grid == 500.0, 0.0, eps_t(arr.grid)), scale=2.0)
+    assert F[i300] == pytest.approx(0.5, abs=1e-15)
+    Ff = dict(zip(lines['energy'], _factors(lines, pairs, EPS_P, eps_t, xray_lines=(40.0,))))
+    assert Ff[300.0] == 0.0
+
+
+@pytest.mark.library_value
+@requires_pairs()
+@pytest.mark.parametrize('isotope, energy, guarded', [
+    ('231U', 242.7, True),      # pair-to-line ratio 4.1e6
+    ('98TC', 652.41, True),     # 1.017, a gamma-ray partner at 745.35 keV
+    ('56CO', 1238.288, False),  # 1.000
+    ('22NA', 1274.537, False),  # 1.80 before the 511 keV partner is halved
+])
+def test_guard_on_pair_to_line_ratio(isotope, energy, guarded):
+    arr = _tcs._arrays(isotope)
+    i = arr.index(energy)[0]
+    assert i >= 0
+    F, c = arr.terms(EPS_P(arr.grid), EPS_T(arr.grid))
+    Fs = _Fsum(isotope, energy)
+    if guarded:
+        assert np.isnan(F[i]) and np.isnan(c[i]) and np.isnan(Fs)
+    else:
+        assert np.isfinite(F[i]) and np.isfinite(c[i]) and F[i] == pytest.approx(Fs, abs=1e-12)
+
+
+def _decay_subset(path, src, isotope, isomer='g', pair_scale=1.0):
+    """A decay database holding one state of `src`, its pair intensities times `pair_scale`."""
+    con = sqlite3.connect(str(path))
+    con.execute('ATTACH DATABASE ? AS src', (str(src),))
+    for table, where in [('chart', 'name=?'), ('gammas', 'isotope=? AND isomer=?'),
+                         ('coincidences', 'isotope=? AND isomer=?'), ('_version', '1')]:
+        con.execute(con.execute("SELECT sql FROM src.sqlite_master WHERE type='table' AND name=?", (table,)).fetchone()[0])
+        args = {'chart': (isotope + isomer,), '_version': ()}.get(table, (isotope, isomer))
+        con.execute('INSERT INTO main."{0}" SELECT * FROM src."{0}" WHERE {1}'.format(table, where), args)
+    con.execute('UPDATE coincidences SET intensity = intensity * ?', (pair_scale,))
+    con.commit()
+    con.execute('DETACH DATABASE src')
+    con.close()
+
+
+@pytest.mark.library_value
+@requires_pairs()
+def test_arrays_follow_the_database_file(tmp_path, monkeypatch):
+    from curie import data
+    src = data._ensure_file('decay.db')
+    (tmp_path / 'a').mkdir()
+    (tmp_path / 'b').mkdir()
+    _decay_subset(tmp_path / 'a' / 'decay.db', src, '60CO')
+    _decay_subset(tmp_path / 'b' / 'decay.db', src, '60CO', pair_scale=0.5)
+    monkeypatch.setattr(data, 'GLOB_CONNECTIONS_DICT', {})
+
+    def factor(directory):
+        monkeypatch.setenv('CURIE_DATA_DIR', str(tmp_path / directory))
+        arr = _tcs._arrays('60CO')
+        return arr.terms(EPS_P(arr.grid), EPS_T(arr.grid))[0][arr.index(1332.492)[0]], _Fsum('60CO', 1332.492)
+
+    Fa, ref_a = factor('a')
+    Fb, ref_b = factor('b')
+    assert Fa == pytest.approx(ref_a, abs=1e-12) and Fb == pytest.approx(ref_b, abs=1e-12)
+    assert (1.0 - Fb) == pytest.approx(0.5 * (1.0 - Fa), rel=1e-3)
+    assert factor('a')[0] == Fa
 
 
 # ---------------------------------------------------------------- peak-to-total ratio

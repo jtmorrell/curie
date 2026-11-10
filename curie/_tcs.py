@@ -57,12 +57,26 @@ annihilation; the two quanta leave back to back, so at most one reaches a
 detector that does not surround the source, which makes their loss additive, a
 single factor in the product, and the (511, 511) self-pair contributes neither
 loss nor gain.
+
+A total efficiency above 1 is not physical; one used in the factor, for a
+partner or for the line photon, is taken as at most 1.
+
+A pair cannot occur more often than either of its photons, so in a consistent
+table the ratio of a pair intensity to the intensity of its line is at most 1
+(a 511 keV partner of a line other than 511 keV counts both quanta of each
+annihilation, so its ratio is halved).  A line whose largest ratio, over its
+pairs with a partner at or above E_min, exceeds 1.01 has table entries that
+disagree, and its factor is NaN: the consumer leaves that line uncorrected.
 """
 import numpy as np
 import pandas as pd
 
 from .data import _get_connection
 from .isotope import Isotope
+
+# largest pair-to-line ratio of a line whose factor is computed; the excess
+# over 1 leaves room for the rounding of the tabulated intensities
+_GUARD_RATIO = 1.01
 
 
 def _pairs(isotope):
@@ -92,6 +106,23 @@ def _pairs(isotope):
 	df = pd.read_sql('SELECT energy, coinc_energy, coinc_type, intensity, unc_intensity FROM coincidences WHERE isotope=? AND isomer=? ORDER BY energy, coinc_energy, coinc_type',
 					_get_connection('decay'), params=(str(isotope.A)+isotope.element.upper(), isotope.isomer))
 	return df.astype({'energy':float, 'coinc_energy':float, 'intensity':float, 'unc_intensity':float})
+
+
+def _largest_ratio(E, I, pairs, E_min):
+	"""Largest pair-to-line ratio of each line energy E (intensities I), over the
+	pairs keyed on the line with a partner at or above E_min; 0 for a line with
+	none.  The (511, 511) self-pair is left out, and a 511 keV partner of a line
+	other than 511 keV is halved."""
+
+	pos = {e:n for n,e in enumerate(E)}
+	p = pairs[(pairs['coinc_energy']>=E_min)&pairs['energy'].isin(list(pos))]
+	p = p[~((p['coinc_type']=='511')&(p['energy']==p['coinc_energy']))]
+	ratio = np.zeros(len(E))
+	if len(p):
+		idx = np.array([pos[e] for e in p['energy']], dtype=int)
+		half = ((p['coinc_type']=='511')&(p['coinc_energy']==511.0)&(p['energy']!=511.0)).to_numpy()
+		np.maximum.at(ratio, idx, p['intensity'].to_numpy(dtype=float)/np.where(half, 2.0, 1.0)/I[idx])
+	return ratio
 
 
 def _factors(lines, pairs, eps_p, eps_t, E_min=15.0, sum_tol=1.0, *, xray_lines):
@@ -130,7 +161,8 @@ def _factors(lines, pairs, eps_p, eps_t, E_min=15.0, sum_tol=1.0, *, xray_lines)
 	-------
 	np.ndarray
 		One factor per row of `lines`, in order; 1.0 exactly for a line with no
-		coincident partner above the floor and no pair summing to it.
+		coincident partner above the floor and no pair summing to it, and NaN
+		for a line whose largest pair-to-line ratio exceeds 1.01.
 
 	"""
 
@@ -148,7 +180,7 @@ def _factors(lines, pairs, eps_p, eps_t, E_min=15.0, sum_tol=1.0, *, xray_lines)
 	if len(p):
 		ratio = P/I[idx]
 		ratio[((p['coinc_type']=='g')&(p['energy']==p['coinc_energy'])).to_numpy()] *= 2.0
-		x = ratio*np.asarray(eps_t(ce), dtype=float)
+		x = ratio*np.minimum(np.asarray(eps_t(ce), dtype=float), 1.0)
 		xr = (p['coinc_type']=='XR').to_numpy()&~p['energy'].isin(list(xray_lines)).to_numpy()
 		fac, single = 1.0-x, ~xr
 		np.multiply.at(loss, idx[single], fac[single])
@@ -166,7 +198,7 @@ def _factors(lines, pairs, eps_p, eps_t, E_min=15.0, sum_tol=1.0, *, xray_lines)
 		if hit.any():
 			e1, e2, k, Pg = e1[hit], e2[hit], k[hit], g['intensity'].to_numpy(dtype=float)[hit]
 			w = Pg*np.asarray(eps_p(e1), dtype=float)*np.asarray(eps_p(e2), dtype=float)
-			et_line = np.asarray(eps_t(E[k]), dtype=float)
+			et_line = np.minimum(np.asarray(eps_t(E[k]), dtype=float), 1.0)
 			for j in range(len(k)):
 				on = idx==k[j]
 				own = on&match&((ce==e1[j])|(ce==e2[j]))
@@ -177,7 +209,165 @@ def _factors(lines, pairs, eps_p, eps_t, E_min=15.0, sum_tol=1.0, *, xray_lines)
 			gain[rows] /= I[rows]*np.asarray(eps_p(E[rows]), dtype=float)
 
 	F = loss+gain
+	F[_largest_ratio(E, I, pairs, E_min)>_GUARD_RATIO] = np.nan
 	return F[np.array([pos[e] for e in lines['energy']], dtype=int)]
+
+
+class _Arrays(object):
+	"""The factor of every line of a decaying state, from arrays built once.
+
+	The arrays hold what `_factors` reads from the line and pair tables, so
+	that an evaluation does arithmetic only.  `terms` gives the factor of each
+	line as `_factors` does, with the efficiency of the x-ray partners of a
+	gamma-ray or annihilation line multiplied by a scale, and the size of the
+	correction.
+
+	Parameters
+	----------
+	lines, pairs, xray_lines, E_min, sum_tol
+		As in `_factors`.
+
+	Attributes
+	----------
+	energy : np.ndarray
+		The line energies of the state (keV), sorted and unique: the order of
+		the values `terms` returns.
+
+	grid : np.ndarray
+		The energies (keV), sorted and unique, at which `terms` takes the
+		efficiencies: the line energies and every partner energy.
+
+	"""
+
+	def __init__(self, lines, pairs, xray_lines, E_min=15.0, sum_tol=1.0):
+		I_line = lines.groupby('energy')['intensity'].sum()
+		E, I = I_line.index.to_numpy(dtype=float), I_line.to_numpy(dtype=float)
+		pos = {e:n for n,e in enumerate(E)}
+		self.energy, self._I, self._pos = E, I, pos
+
+		# loss rows, as in _factors
+		p = pairs[(pairs['coinc_energy']>=E_min)&pairs['energy'].isin(list(pos))]
+		p = p[~((p['coinc_type']=='511')&(p['energy']==p['coinc_energy']))]
+		idx = np.array([pos[e] for e in p['energy']], dtype=int)
+		ce, P = p['coinc_energy'].to_numpy(dtype=float), p['intensity'].to_numpy(dtype=float)
+		ratio = P/I[idx]
+		ratio[((p['coinc_type']=='g')&(p['energy']==p['coinc_energy'])).to_numpy(dtype=bool)] *= 2.0
+		xr = (p['coinc_type']=='XR').to_numpy(dtype=bool)&~p['energy'].isin(list(xray_lines)).to_numpy(dtype=bool)
+		single = ~xr
+		match = single&(p['coinc_type']!='511').to_numpy(dtype=bool)
+		self._idx, self._ratio, self._xr, self._single = idx, ratio, xr, single
+
+		# gain rows: each summing pair with its line, q, and the loss rows of
+		# the line other than its own summing photons
+		g = pairs[(pairs['coinc_type']=='g')&(pairs['energy']<=pairs['coinc_energy'])&(pairs['energy']>=E_min)]
+		k, e1, e2, Pg = np.zeros(0, dtype=int), np.zeros(0), np.zeros(0), np.zeros(0)
+		if len(g) and len(E):
+			e1, e2 = g['energy'].to_numpy(dtype=float), g['coinc_energy'].to_numpy(dtype=float)
+			k = np.abs(e1+e2-E[:,np.newaxis]).argmin(axis=0)
+			hit = np.abs(e1+e2-E[k])<=sum_tol
+			e1, e2, k, Pg = e1[hit], e2[hit], k[hit], g['intensity'].to_numpy(dtype=float)[hit]
+		q = np.zeros(len(k))
+		row, other = [], []
+		for j in range(len(k)):
+			on = idx==k[j]
+			own = on&match&((ce==e1[j])|(ce==e2[j]))
+			q[j] = min(P[own&(ce==e1[j])].sum(), P[own&(ce==e2[j])].sum(), Pg[j])/Pg[j]
+			m = np.flatnonzero(on&single&~own)
+			row.extend([j]*len(m))
+			other.extend(m)
+		self._k, self._Pg, self._q = k, Pg, q
+		self._row, self._other = np.array(row, dtype=int), np.array(other, dtype=int)
+		self._rows = np.unique(k)
+
+		self.grid = np.unique(np.concatenate([E, ce, e1, e2]))
+		self._i_line = np.searchsorted(self.grid, E)
+		self._i_ce = np.searchsorted(self.grid, ce)
+		self._i_e1, self._i_e2 = np.searchsorted(self.grid, e1), np.searchsorted(self.grid, e2)
+		self._guarded = _largest_ratio(E, I, pairs, E_min)>_GUARD_RATIO
+
+	def index(self, energy):
+		"""Position of each energy in `energy` (keV), -1 where it is not a line
+		energy of the state."""
+
+		return np.array([self._pos.get(e, -1) for e in np.atleast_1d(np.asarray(energy, dtype=float))], dtype=int)
+
+	def terms(self, ep, et, scale=1.0):
+		"""Factor and size of the correction of every line.
+
+		Parameters
+		----------
+		ep, et : np.ndarray
+			Absolute full-energy-peak and total efficiencies at `grid`.
+
+		scale : float, optional
+			Multiplies the total efficiency of each x-ray partner of a
+			gamma-ray or annihilation line; 0 leaves those partners out.
+			Default 1.
+
+		Returns
+		-------
+		F, c : np.ndarray
+			Per line of `energy`: the factor F = loss + gain, and the size of the
+			correction c = (1 - loss) + gain; both NaN for a line whose largest
+			pair-to-line ratio exceeds 1.01.
+
+		"""
+
+		ep, et = np.asarray(ep, dtype=float), np.asarray(et, dtype=float)
+		n = len(self.energy)
+		loss, s = np.ones(n), np.zeros(n)
+		etc = et[self._i_ce]
+		etc = np.minimum(np.where(self._xr, etc*scale, etc), 1.0)
+		x = self._ratio*etc
+		fac = 1.0-x
+		np.multiply.at(loss, self._idx[self._single], fac[self._single])
+		np.add.at(s, self._idx[self._xr], x[self._xr])
+		loss *= 1.0-s
+
+		gain = np.zeros(n)
+		if len(self._k):
+			k = self._k
+			pr = np.ones(len(k))
+			np.multiply.at(pr, self._row, fac[self._other])
+			w = self._Pg*ep[self._i_e1]*ep[self._i_e2]
+			w *= (1.0-s[k])*pr*(1.0-self._q*np.minimum(et[self._i_line[k]], 1.0))
+			np.add.at(gain, k, w)
+			gain[self._rows] /= self._I[self._rows]*ep[self._i_line[self._rows]]
+
+		F, c = loss+gain, (1.0-loss)+gain
+		F[self._guarded], c[self._guarded] = np.nan, np.nan
+		return F, c
+
+
+def _arrays(isotope, E_min=15.0, sum_tol=1.0):
+	"""The `_Arrays` of a decaying state, from the decay database.
+
+	Built at the first request and kept with the database connection, so a
+	replaced data file (a re-download, another CURIE_DATA_DIR) is read anew.
+
+	Parameters
+	----------
+	isotope : Isotope or str
+		The decaying state, as an Isotope or any name Isotope accepts.
+
+	E_min, sum_tol : float, optional
+		Partner energy floor and summing tolerance, in keV, as in `_factors`.
+
+	Returns
+	-------
+	_Arrays
+
+	"""
+
+	if not isinstance(isotope, Isotope):
+		isotope = Isotope(isotope)
+	cache = _get_connection('decay').cache.setdefault('tcs_arrays', {})
+	key = (str(isotope.A)+isotope.element.upper(), isotope.isomer, float(E_min), float(sum_tol))
+	if key not in cache:
+		lines = isotope.gammas(xrays=True)
+		xray_lines = set(lines['energy'])-set(isotope.gammas()['energy'])
+		cache[key] = _Arrays(lines, _pairs(isotope), xray_lines, E_min=E_min, sum_tol=sum_tol)
+	return cache[key]
 
 
 def _summing_factor(isotope, energy, eps_p, eps_t, E_min=15.0, sum_tol=1.0):
