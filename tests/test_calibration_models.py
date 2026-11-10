@@ -448,3 +448,128 @@ def test_effcal_fit_names_evaluation_limit(model, monkeypatch):
     assert len(limits) >= 2
     assert limits == [cal_mod._EFF_MAXFEV]*len(limits)
     assert np.all(np.isfinite(cb.effcal))
+
+
+def _rig_curve_fit(monkeypatch, select, action):
+    # calls for which select(kw) holds get action(kw) instead of a fit; the
+    # efficiency fit is the only caller that passes bounds, its first pass the
+    # only one with 1-D sigma, and p0 has one entry per parameter of the form
+    real = cal_mod.curve_fit
+    def rigged(fn, x, y, **kw):
+        if select(kw):
+            return action(kw)
+        return real(fn, x, y, **kw)
+    monkeypatch.setattr(cal_mod, 'curve_fit', rigged)
+
+
+def _raise(err):
+    def action(kw):
+        raise err
+    return action
+
+
+EFF_PASSES = {1: 'independent', 2: 'correlated'}
+
+
+@requires_data('decay')
+@pytest.mark.parametrize('model,tag', [('vidmar-5', 'vidmar-5'), ('loglog', 'loglog-4')])
+@pytest.mark.parametrize('ndim', [1, 2])
+def test_effcal_nonconvergence_names_model_and_pass(model, tag, ndim, monkeypatch):
+    # a pass of the efficiency fit that does not converge stops the calibration
+    # with a curie RuntimeError raised from the optimizer's error, naming the
+    # model, the pass and the number of fit points
+    forced = RuntimeError('Optimal parameters not found: forced')
+    _rig_curve_fit(monkeypatch, lambda kw: 'bounds' in kw and np.ndim(kw['sigma']) == ndim, _raise(forced))
+    with pytest.raises(RuntimeError) as ei:
+        ci.Calibration().calibrate([eu_sp()], sources=EU_SOURCES, effcal_model=model)
+    msg = str(ei.value)
+    assert msg.startswith('Calibration.calibrate:')
+    assert 'the {0} efficiency fit did not converge in its pass with {1} uncertainties'.format(tag, EFF_PASSES[ndim]) in msg
+    assert re.search(r'\(\d+ fit points; Optimal parameters not found: forced\)', msg)
+    assert 'effcal_model' in msg and 'peak fits' in msg
+    assert ei.value.__cause__ is forced
+
+
+@requires_data('decay')
+def test_effcal_nonfinite_model_values_raise(monkeypatch):
+    # the unbounded loglog search can step to parameters where the model
+    # overflows; the optimizer then stops with a ValueError on the non-finite
+    # residuals, which is a fit that did not converge
+    forced = ValueError('array must not contain infs or NaNs')
+    _rig_curve_fit(monkeypatch, lambda kw: 'bounds' in kw and np.ndim(kw['sigma']) == 2, _raise(forced))
+    with pytest.raises(RuntimeError) as ei:
+        ci.Calibration().calibrate([eu_sp()], sources=EU_SOURCES, effcal_model='loglog')
+    msg = str(ei.value)
+    assert msg.startswith('Calibration.calibrate: the loglog-4 efficiency fit did not converge (non-finite model values) in its pass with correlated uncertainties')
+    assert ei.value.__cause__ is forced
+
+
+@requires_data('decay')
+@pytest.mark.parametrize('ndim', [1, 2])
+def test_effcal_nonfinite_parameters_raise(ndim, monkeypatch):
+    # a pass that returns non-finite parameters is checked before they are used
+    _rig_curve_fit(monkeypatch, lambda kw: 'bounds' in kw and np.ndim(kw['sigma']) == ndim,
+                   lambda kw: (np.full(len(kw['p0']), np.nan), np.eye(len(kw['p0']))))
+    with pytest.raises(RuntimeError) as ei:
+        ci.Calibration().calibrate([eu_sp()], sources=EU_SOURCES, effcal_model='vidmar-5')
+    assert str(ei.value).startswith('Calibration.calibrate: the vidmar-5 efficiency fit returned non-finite parameters in its pass with {0} uncertainties'.format(EFF_PASSES[ndim]))
+
+
+USER_59 = pd.DataFrame({'energy': [59.5], 'efficiency': [0.0385],
+                        'unc_efficiency': [0.0019], 'isotope': ['241AM']})
+
+
+@requires_data('decay')
+def test_effcal_auto_five_parameter_failure_raises(capsys, monkeypatch):
+    # on the low-energy route (setup of test_vidmar7_low_energy_routing) the
+    # 5-parameter form is fit once, outside the 7-parameter fallback: its
+    # failure raises, and is not reported as a 7-parameter failure
+    _rig_curve_fit(monkeypatch, lambda kw: 'bounds' in kw and len(kw['p0']) == 5,
+                   _raise(RuntimeError('Optimal parameters not found: forced')))
+    with pytest.raises(RuntimeError, match=r'^Calibration\.calibrate: the vidmar-5 efficiency fit did not converge'):
+        ci.Calibration().calibrate([eu_sp()], sources=EU_SOURCES, eff_points=USER_59)
+    assert '7-parameter fit failed' not in capsys.readouterr().out
+
+
+@requires_data('decay')
+def test_effcal_auto_seven_parameter_failure_falls_back(capsys, monkeypatch):
+    # a failed 7-parameter fit warns and keeps the 5-parameter result already
+    # in hand, with its chi-square before inflation, without fitting it again
+    ref = ci.Calibration()
+    ref.calibrate([eu_sp()], sources=EU_SOURCES, eff_points=USER_59, effcal_model='vidmar-5')
+    real = cal_mod.curve_fit
+    first5 = []
+    def rigged(fn, x, y, **kw):
+        if 'bounds' in kw and len(kw['p0']) == 7:
+            raise RuntimeError('Optimal parameters not found: forced')
+        if 'bounds' in kw and len(kw['p0']) == 5 and np.ndim(kw['sigma']) == 1:
+            first5.append(1)
+        return real(fn, x, y, **kw)
+    monkeypatch.setattr(cal_mod, 'curve_fit', rigged)
+    capsys.readouterr()
+    cb = ci.Calibration()
+    cb.calibrate([eu_sp()], sources=EU_SOURCES, eff_points=USER_59)
+    out = capsys.readouterr().out
+    assert 'effcal 7-parameter fit failed (Calibration.calibrate: the vidmar-7 efficiency fit did not converge' in out
+    assert 'using the 5-parameter form' in out
+    assert len(first5) == 1
+    assert cb._effcal_model == 'vidmar-5'
+    np.testing.assert_array_equal(cb.effcal, ref.effcal)
+    np.testing.assert_array_equal(cb.unc_effcal, ref.unc_effcal)
+    got, want = cb.diagnostics.set_index('fit').loc['effcal'], ref.diagnostics.set_index('fit').loc['effcal']
+    assert (got['chi2'], got['scale_factor']) == (want['chi2'], want['scale_factor'])
+
+
+@requires_data('decay')
+@pytest.mark.parametrize('fit,n_par', [('energy', 3), ('resolution', 2)])
+def test_engcal_rescal_nonconvergence_raise(fit, n_par, monkeypatch):
+    # the energy (quadratic, 3 parameters) and resolution (linear, 2) fits of
+    # the example spectrum pass no bounds; a forced non-convergence of either
+    # becomes a curie RuntimeError naming the fit and its model
+    forced = RuntimeError('Optimal parameters not found: forced')
+    _rig_curve_fit(monkeypatch, lambda kw: 'bounds' not in kw and len(kw['p0']) == n_par, _raise(forced))
+    with pytest.raises(RuntimeError) as ei:
+        ci.Calibration().calibrate([eu_sp()], sources=EU_SOURCES)
+    model = {'energy': 'engcal_model quadratic', 'resolution': 'rescal_model linear'}[fit]
+    assert str(ei.value).startswith('Calibration.calibrate: the {0} calibration fit ({1}) did not converge'.format(fit, model))
+    assert ei.value.__cause__ is forced

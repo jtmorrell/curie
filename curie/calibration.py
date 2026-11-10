@@ -1038,7 +1038,11 @@ class Calibration(object):
 			p0 = np.concatenate([p0, np.zeros(max(0, L-len(p0)))])[:L]
 		fn = lambda x, *A: self.eng(x, A)
 		with np.errstate(all='ignore'):
-			fit, unc = curve_fit(fn, x, y, sigma=yerr, p0=p0)
+			try:
+				fit, unc = curve_fit(fn, x, y, sigma=yerr, p0=p0)
+			except RuntimeError as err:
+				raise RuntimeError('Calibration.calibrate: the energy calibration fit (engcal_model {0}) did not converge on {1} points ({2}) - check the peak fits and the starting energy calibration of the first spectrum (sp.cb.engcal), or choose another engcal_model.'.format(
+					_ENG_MODELS.get(len(p0), '{0}-parameter'.format(len(p0))), len(x), err)) from err
 		self._calib_data['engcal'] = {'channel':x, 'energy':y, 'unc_channel':yerr, 'fit':fit, 'unc':unc}
 		self.engcal = fit
 		self._engcal_model = _ENG_MODELS[len(fit)]
@@ -1072,7 +1076,11 @@ class Calibration(object):
 			p0 = self._rescal_seed(ccfg['rescal_model'], p0, x, y)
 		fn = lambda x, *A: self.res(x, A)
 		with np.errstate(all='ignore'):
-			fit, unc = curve_fit(fn, x, y, sigma=yerr, p0=p0)
+			try:
+				fit, unc = curve_fit(fn, x, y, sigma=yerr, p0=p0)
+			except RuntimeError as err:
+				raise RuntimeError('Calibration.calibrate: the resolution calibration fit (rescal_model {0}) did not converge on {1} points ({2}) - check the peak fits, or choose another rescal_model.'.format(
+					_RES_MODELS.get(len(p0), '{0}-parameter'.format(len(p0))), len(x), err)) from err
 		kept = (self.res(x, fit)-y)**2/yerr**2 < ccfg['outlier_sigma']**2
 		idx = np.where(kept)
 		self._calib_data['rescal'] = {'channel':x[idx], 'width':y[idx], 'unc_width':yerr[idx], 'fit':fit, 'unc':unc}
@@ -1140,11 +1148,27 @@ class Calibration(object):
 			return V
 
 		def fit_eff(p0_, bounds_):
-			# numeric warnings from the optimizer carry no context; failures
-			# re-emerge as curie messages at the call sites. fn is rebound per
+			# numeric warnings from the optimizer carry no context; a pass that
+			# does not converge, or returns non-finite parameters, raises a
+			# curie error naming the model and the pass. fn is rebound per
 			# model before each call (late-binding closure)
+			tag_ = 'loglog-{0}'.format(len(p0_)-1) if em.startswith('loglog') else 'vidmar-{0}'.format(len(p0_))
+			def solve(sigma_, start, which):
+				fail = 'Calibration.calibrate: the {0} efficiency fit {1} in its pass with {2} uncertainties ({3} fit points{4}) - try another effcal_model, or check the peak fits and look for outlying efficiency points.'
+				try:
+					f, u = curve_fit(fn, x, y, sigma=sigma_, p0=start, bounds=bounds_, absolute_sigma=True, maxfev=_EFF_MAXFEV)
+				except RuntimeError as err:
+					raise RuntimeError(fail.format(tag_, 'did not converge', which, len(x), '; '+str(err))) from err
+				except ValueError as err:
+					# the unbounded search can step to parameters where the model
+					# overflows; with a full covariance the optimizer then stops on
+					# the non-finite residuals instead of reporting non-convergence
+					raise RuntimeError(fail.format(tag_, 'did not converge (non-finite model values)', which, len(x), '; '+str(err))) from err
+				if not np.all(np.isfinite(f)):
+					raise RuntimeError(fail.format(tag_, 'returned non-finite parameters', which, len(x), ''))
+				return f, u
 			with np.errstate(all='ignore'):
-				f0, _ = curve_fit(fn, x, y, sigma=yerr, p0=p0_, bounds=bounds_, absolute_sigma=True, maxfev=_EFF_MAXFEV)
+				f0, _ = solve(yerr, p0_, 'independent')
 				m0 = fn(x, *f0)
 				Vi = np.diag((m0*meta['rel_stat'].to_numpy())**2)
 				V = eff_cov(m0)
@@ -1153,7 +1177,7 @@ class Calibration(object):
 				S2, f1, u1, chi2n, chi2_0 = 1.0, f0, None, np.inf, None
 				for _ in range(4):
 					Vp = V if S2==1.0 else V+(S2-1.0)*Vi
-					f1, u1 = curve_fit(fn, x, y, sigma=Vp, p0=f1, bounds=bounds_, absolute_sigma=True, maxfev=_EFF_MAXFEV)
+					f1, u1 = solve(Vp, f1, 'correlated')
 					r = y-fn(x, *f1)
 					chi2n = float(r @ np.linalg.solve(Vp, r))/max(len(y)-len(f1), 1)
 					if chi2_0 is None:
@@ -1231,9 +1255,16 @@ class Calibration(object):
 					fit, unc, _, eff_chi2, eff_S2 = fit_eff(p0[:5], (bounds[0][:5], bounds[1][:5]))
 					_log.info('Calibration.calibrate: effcal model: vidmar-5 (auto - {0} fit points cannot determine the 7-parameter form)'.format(len(x)))
 				else:
+					# the 5-parameter form is fit once, outside the fallback: its
+					# failure is the calibration's failure and raises.  Only a
+					# failed 7-parameter fit falls back, to the 5-parameter result
+					fit5, unc5, chi5, chi5_0, S2_5 = fit_eff(p0[:5], (bounds[0][:5], bounds[1][:5]))
 					try:
-						fit5, unc5, chi5, chi5_0, S2_5 = fit_eff(p0[:5], (bounds[0][:5], bounds[1][:5]))
 						fit7, unc7, chi7, chi7_0, S2_7 = fit_eff(fit5.tolist()+p0[5:], bounds)
+					except Exception as err:
+						_log.warning('Calibration.calibrate: effcal 7-parameter fit failed ({0}); using the 5-parameter form'.format(err))
+						fit, unc, eff_chi2, eff_S2 = fit5, unc5, chi5_0, S2_5
+					else:
 						## the choice is made on the uncertainty inflation each form needed
 						## to reach a self-consistent fit, the smaller the better.  The
 						## converged whitened statistic cannot decide it: the inflation loop
@@ -1247,9 +1278,6 @@ class Calibration(object):
 							p0_used, bounds_used = fit5.tolist()+p0[5:], bounds
 						_log.info('Calibration.calibrate: effcal model selection: vidmar-{0} kept - smaller uncertainty inflation (S2={1:.3g}, chi2/dof before inflation={2:.2g}) than vidmar-{3} (S2={4:.3g}, chi2/dof before inflation={5:.2g})'.format(
 							*((5, S2_5, chi5_0, 7, S2_7, chi7_0) if keep5 else (7, S2_7, chi7_0, 5, S2_5, chi5_0))))
-					except Exception as err:
-						_log.warning('Calibration.calibrate: effcal 7-parameter fit failed ({0}); using the 5-parameter form'.format(err))
-						fit, unc, _, eff_chi2, eff_S2 = fit_eff(p0[:5], (bounds[0][:5], bounds[1][:5]))
 
 			else:
 				fit, unc, _, eff_chi2, eff_S2 = fit_eff(p0[:5], (bounds[0][:5], bounds[1][:5]))
