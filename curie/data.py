@@ -89,10 +89,11 @@ def _check_generation(fnm, con):
 	between generations); a stampless file otherwise means data fetched by
 	an earlier curie release. A mixed shard-assembled file cannot occur
 	silently: assembly only stamps a database it created empty, so an
-	older file keeps warning until it is replaced.
+	older file keeps warning until it is replaced. Returns False when it
+	warned, True otherwise.
 	"""
 	if fnm == 'ziegler.db':
-		return
+		return True
 	try:
 		row = con.execute('SELECT generation FROM _version').fetchone()
 	except sqlite3.Error:
@@ -102,10 +103,26 @@ def _check_generation(fnm, con):
 		_log.warning('{0} predates the generation stamp: it was fetched by an earlier '
 					 'curie release (this one uses data generation {1}). Run '
 					 'ci.download({2!r}) to update it.'.format(fnm, expected, fnm[:-3]))
+		return False
 	elif row[0] != expected:
 		_log.warning('{0} is from data generation {1}, but this curie release uses '
 					 'generation {2}. Run ci.download({3!r}) to update it.'.format(
 						fnm, row[0], expected, fnm[:-3]))
+		return False
+	return True
+
+
+def _pair_table_usable():
+	"""True when the coincidence-pair table of the decay database may be used:
+	the file passed the generation check at its first connection and holds a
+	`coincidences` table. The answer is kept with the connection, so a
+	replaced file (a re-download, another CURIE_DATA_DIR) is judged anew.
+	"""
+	con = _get_connection('decay')
+	if 'pair_table_usable' not in con.cache:
+		has = con.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='coincidences'").fetchone()
+		con.cache['pair_table_usable'] = con.cache.get('generation_ok', False) and has is not None
+	return con.cache['pair_table_usable']
 
 
 def _data_path(db=''):
@@ -418,7 +435,8 @@ def _get_connection(db='decay'):
 			if not fresh:
 				# a fresh sharded file has no generation yet; it is stamped
 				# at first assembly instead
-				_check_generation(fnm, GLOB_CONNECTIONS_DICT[path])
+				con = GLOB_CONNECTIONS_DICT[path]
+				con.cache['generation_ok'] = _check_generation(fnm, con)
 		return GLOB_CONNECTIONS_DICT[path]
 
 	else:
