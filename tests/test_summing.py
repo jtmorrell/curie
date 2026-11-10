@@ -178,6 +178,11 @@ def _stored(cb):
     return out
 
 
+def _records(sp, app, lines):
+    """Per line label, the record of the lines fit_peaks merged into its peak, or None."""
+    return [sp._merged.get((app[ln][0], app[ln][1])) for ln in lines]
+
+
 # synthetic detector: the binning, resolution and peak shape of the synthetic
 # spectrum of tests/test_calibration_models.py, and the vidmar-5 curve
 SYN_EFF = [0.045, 6.0, 2.0, 1.8, 0.4]
@@ -381,15 +386,20 @@ def test_summing_stored_points_are_measured_over_factor(eu_fitted, pairs_usable)
     groups = {grp.split(' ')[0] for _, _, grp in pts.values()}
     assert groups == {'effcal', 'outlier', 'intensity<1%'}
     lines = sorted(pts)
-    F, _, _ = cb._summing_factors([app[ln][0] for ln in lines], [app[ln][1] for ln in lines],
-                                  cb.effcal, cb._summing['xray_partners'])
+    F, c, _, on = cb._summing_factors([app[ln][0] for ln in lines], [app[ln][1] for ln in lines],
+                                      cb.effcal, cb._summing['xray_partners'], merged=_records(eu_fitted, app, lines))
     off, _ = _calibrate([eu_fitted], EU_SOURCES, outlier_sigma=1.5, summing=False)
     off_pts = {ln: v for ln, v in _stored(off).items()}
-    for ln, f in zip(lines, F):
+    assert np.all(on)
+    for ln, f, cc in zip(lines, F, c):
         assert f != 1.0
         assert pts[ln][0] == pytest.approx(app[ln][2]/f, rel=1E-12)
-        # the relative uncertainty is the measured one
-        assert pts[ln][1]/pts[ln][0] == pytest.approx(off_pts[ln][1]/off_pts[ln][0], rel=1E-12)
+        # the relative variance is the measured one plus the factor's term,
+        # s^2 + (k c)^2, with c at the final curve
+        assert (pts[ln][1]/pts[ln][0])**2 == pytest.approx(
+            (off_pts[ln][1]/off_pts[ln][0])**2+cal_mod._SUMMING_S**2+(cal_mod._SUMMING_K*cc)**2, rel=1E-12)
+    # c is (1 - loss) + gain, not |F - 1|: the two differ by twice the gain
+    assert np.max(np.abs(c-np.abs(F-1.0))) > 1E-4
 
 
 @requires_data('decay')
@@ -512,3 +522,126 @@ def test_summing_entry_follows_the_parameters(eu_fitted, pairs_usable):
     assert cb._summing is not None
     cb.calibrate([copy.deepcopy(eu_fitted)], sources=EU_SOURCES, summing=False)
     assert cb._summing is None and cb.fit_config['summing'] is False
+
+
+# ---------------------------------------------------------------------------
+# the uncertainty term of the correction, and peaks of merged lines
+
+@requires_data('decay')
+@requires_pairs()
+def test_summing_term_needs_pair_data(pairs_usable):
+    # 137Cs has no coincidence pairs: its point keeps factor 1 and the
+    # uncertainty of summing=False; the 60Co points carry the term
+    nuc = ['133BA', '137CS', '60CO']
+    sp = _synthetic(nuc, 0.0)
+    cb, _ = _calibrate([sp], _sources(nuc))
+    off, _ = _calibrate([sp], _sources(nuc), summing=False)
+    on_pts, off_pts = _stored(cb), _stored(off)
+    assert on_pts['137CS:661.66'][:2] == off_pts['137CS:661.66'][:2]
+    F, c, _, on = cb._summing_factors(['137CS', '60CO', '60CO'], [661.657, 1173.228, 1332.492], cb.effcal, 0.0)
+    assert list(on) == [False, True, True] and F[0] == 1.0
+    for ln, cc in zip(('60CO:1173.23', '60CO:1332.49'), c[1:]):
+        assert (on_pts[ln][1]/on_pts[ln][0])**2 == pytest.approx(
+            (off_pts[ln][1]/off_pts[ln][0])**2+cal_mod._SUMMING_S**2+(cal_mod._SUMMING_K*cc)**2, rel=1E-12)
+
+
+@requires_data('decay')
+@requires_pairs()
+def test_summing_term_joins_the_line_group(eu_fitted, pairs_usable, monkeypatch):
+    # two copies of the example spectrum give two points of each line.  In the
+    # pass with independent uncertainties a corrected point carries s alone;
+    # in the correlated pass the term s^2 + (k c)^2, with c at the curve of
+    # the independent pass, is common to the two points of a line and absent
+    # between points of different lines
+    calls = []
+    real = cal_mod.curve_fit
+
+    def spy(f, xdata, ydata, *a, **kw):
+        out = real(f, xdata, ydata, *a, **kw)
+        if kw.get('absolute_sigma'):
+            calls.append((f, np.array(xdata), np.array(ydata), np.array(kw['sigma']), out[0]))
+        return out
+    monkeypatch.setattr(cal_mod, 'curve_fit', spy)
+
+    def passes(**kw):
+        calls.clear()
+        cb, _ = _calibrate([eu_fitted, eu_fitted], EU_SOURCES, **kw)
+        (f, x, y, s1, f0), (_, _, _, V, _) = calls[0], calls[1]
+        assert s1.ndim == 1 and V.ndim == 2
+        m0 = f(x, *f0)
+        return cb, x, y, s1, f0, V/np.outer(m0, m0)
+    cb, x, y, s1, f0, R = passes()
+    _, x_off, _, s1_off, _, R_off = passes(summing=False)
+    np.testing.assert_array_equal(x, x_off)
+    S, K = cal_mod._SUMMING_S, cal_mod._SUMMING_K
+    np.testing.assert_allclose(s1**2-s1_off**2, (S*y)**2, rtol=1E-9)
+
+    app = _apparent(eu_fitted, EU_SOURCES)
+    rec = [eu_fitted._merged.get(('152EU', e)) for e in x]
+    c0 = cb._summing_factors(['152EU']*len(x), x, f0, cb._summing['xray_partners'], merged=rec)[1]
+    n = len(x)//2
+    assert np.all(x[:n] == x[n:]) and len(set(x[:n])) == n and len(app) > n
+    for i in range(n):
+        j, l = i+n, (i+1) % n
+        # within a line, beyond what the line intensity and the source give
+        within = (R[i, j]-R[i, l])-(R_off[i, j]-R_off[i, l])
+        assert within == pytest.approx(S**2+(K*c0[i])**2, rel=1E-6)
+        # between lines, the source alone, as with summing=False
+        assert R[i, l] == pytest.approx(R_off[i, l], rel=1E-9)
+
+
+# the peak table of the example spectrum, 152EU and 40K, as fitted by curie
+# before the merge record (2026-11-10, the commit that put the summing factor
+# into the efficiency fit): counts and their uncertainties, in table order
+PARENT_COUNTS = [498785.155, 80193.1932, 609.972482, 852.788649, 4257.9143, 641.658994, 1054.88421, 213989.691,
+                 7079.93714, 14660.7423, 573.302851, 18491.7567, 2192.28175, 728.681862, 2391.43023, 652.599221,
+                 2043.76723, 778.394122, 629.271838, 1775.75398, 3486.22644, 1283.07404, 721.849755, 46800.2794,
+                 1196.60958, 532.129134, 13242.2312, 1356.8309, 783.181916, 4840.48565, 37803.1204, 2714.87597,
+                 662.120846, 27664.5469, 4587.13596, 900.967652, 34946.2677, 3335.3372, 551.46015, 209.268764,
+                 3666.64726, 43377.839, 1270.52482, 2985.81214, 1228.39969]
+PARENT_UNC_COUNTS = [3246.89023, 398.271604, 110.530017, 92.5325342, 97.8909421, 64.4358652, 78.3026636, 631.548355,
+                     248.883122, 131.788496, 65.4636603, 144.284397, 77.3441611, 60.2517687, 77.7755754, 58.5903803,
+                     154.85147, 81.1213757, 60.5597179, 77.68501, 81.6901272, 87.8282054, 73.9118728, 296.163184,
+                     70.1213505, 66.7081436, 137.53278, 75.2461525, 66.4338898, 3080.61654, 3094.0006, 91.4298982,
+                     99.1481499, 211.219953, 91.0027416, 57.9582325, 211.686238, 75.1024858, 41.167192, 29.5011023,
+                     68.9594214, 573.185972, 112.744644, 128.824277, 70.4921854]
+
+
+@requires_data('decay')
+def test_merge_record_changes_no_fit(eu_fitted):
+    # fit_peaks records the lines it merges, each with its tabulated
+    # intensity: 152Eu 443.96 + 444.01 keV and 719.35 + 719.36 keV are each one
+    # peak with the summed intensity, and the record leaves the peak table as
+    # it was (curve tolerance as for PARENT_EFF)
+    g = ci.Isotope('152EU').gammas()
+    I = {e: float(g.loc[g['energy'] == e, 'intensity'].iloc[0])*1E-2 for e in (443.9606, 444.01, 719.346, 719.36)}
+    assert eu_fitted._merged == {('152EU', 443.9606): ((443.9606, 444.01), (I[443.9606], I[444.01])),
+                                 ('152EU', 719.346): ((719.346, 719.36), (I[719.346], I[719.36]))}
+    pk = eu_fitted.peaks
+    for (iso, e), (es, Is) in eu_fitted._merged.items():
+        row = pk[(pk['isotope'] == iso) & (pk['energy'] == e)]
+        assert len(row) == 1 and row.iloc[0]['intensity'] == sum(Is)
+        assert es[1] not in pk['energy'].to_numpy()
+    np.testing.assert_allclose(pk['counts'], PARENT_COUNTS, rtol=1E-5)
+    np.testing.assert_allclose(pk['unc_counts'], PARENT_UNC_COUNTS, rtol=1E-5)
+
+
+@requires_data('decay')
+@requires_pairs()
+def test_summing_merged_peak_takes_weighted_factor(eu_fitted, pairs_usable):
+    # the point of the merged 443.96 keV peak is its measured value over the
+    # intensity-weighted mean of the factors of 443.96 and 444.01 keV, not over
+    # the factor of 443.96 keV alone
+    cb, _ = _calibrate([eu_fitted], EU_SOURCES)
+    (e1, e2), (i1, i2) = eu_fitted._merged[('152EU', 443.9606)]
+    F, c, _, _ = cb._summing_factors(['152EU', '152EU'], [e1, e2], cb.effcal, cb._summing['xray_partners'])
+    Fw = (i1*F[0]+i2*F[1])/(i1+i2)
+    meas = _apparent(eu_fitted, EU_SOURCES)['152EU:443.96'][2]
+    pt = _stored(cb)['152EU:443.96']
+    assert pt[0] == pytest.approx(meas/Fw, rel=1E-12)
+    assert abs(pt[0]/(meas/F[0])-1.0) > 1E-3
+    # and its c is the weighted mean too
+    Fm, cm, _, on = cb._summing_factors(['152EU'], [e1], cb.effcal, cb._summing['xray_partners'],
+                                        merged=[((e1, e2), (i1, i2))])
+    assert Fm[0] == pytest.approx(Fw, rel=1E-14) and cm[0] == pytest.approx((i1*c[0]+i2*c[1])/(i1+i2), rel=1E-14)
+    assert on[0]

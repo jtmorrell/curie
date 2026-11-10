@@ -183,6 +183,8 @@ class Spectrum(object):
 		self._atten_corr = None
 
 		self._gmls = None
+		# lines fit as one peak: {(isotope, kept energy): (energies, intensities)}
+		self._merged = {}
 		self._fit_stats = None
 
 
@@ -903,7 +905,7 @@ class Spectrum(object):
 
 	def _gammas(self, _force=False):
 		if self._gmls is None or _force:
-			itps, gm = [], []
+			itps, gm, merged = [], [], {}
 			for i in self.isotopes:
 				g = Isotope(i).gammas(E_lim=self.fit_config['E_min'], dE_511=self.fit_config['dE_511'], xrays=self.fit_config['xrays'])
 
@@ -935,6 +937,9 @@ class Spectrum(object):
 				for gp in [gp for gp in groups if len(gp)>1]:
 					_log.info(self._loc('fit_peaks')+': {0} gammas at {1} keV are unresolvable (within {2:.1f} channels) - fit as one peak with combined intensity'.format(i, ', '.join('{:.1f}'.format(e) for e in g.loc[gp,'energy']), self.fit_config['ident_idx']+0.5))
 					keep = g.loc[gp,'intensity'].idxmax()
+					# the lines of the merged peak, for the summing correction,
+					# which weights the factor of each line by its intensity
+					merged[(i, float(g.loc[keep,'energy']))] = (tuple(g.loc[gp,'energy'].tolist()), tuple(g.loc[gp,'intensity'].tolist()))
 					g.loc[keep,'intensity'] = g.loc[gp,'intensity'].sum()
 					g.loc[keep,'unc_intensity'] = np.sqrt((g.loc[gp,'unc_intensity']**2).sum())
 					g.drop([p for p in gp if p!=keep], inplace=True)
@@ -942,7 +947,7 @@ class Spectrum(object):
 				if len(g):
 					itps.append(i)
 					gm.append(g)
-			self._gmls = (itps, gm)
+			self._gmls, self._merged = (itps, gm), merged
 			return itps, gm
 		else:
 			return self._gmls
