@@ -10,22 +10,31 @@ coincident photon pairs and the number of such pairs per 100 decays.
 The factor F of a line is the ratio of its full-energy-peak count rate with
 coincidence summing to the rate without it, so an observed peak area is the
 summing-free area times F.  With line and pair intensities in percent,
-F = loss * (1 + gain), where
+F = loss + gain, where
 
 - loss is the product, over the pairs keyed on the line whose partner energy
   is at or above the floor E_min, of 1 - (pair / line) * eps_t(partner),
   except that the x-ray partners of a gamma-ray or annihilation line enter as
   one factor, 1 - sum((pair / line) * eps_t(partner));
-- gain is the sum, over pairs of coincident gamma rays with both energies at
-  or above E_min that add up to the line energy within sum_tol, of
-  (pair / line) * eps_p(E1) * eps_p(E2) / eps_p(line).  A pair whose summed
-  energy lies within sum_tol of several lines adds only to the nearest one,
-  so its summed-in counts are counted once.
+- gain is the sum, over pairs of coincident gamma rays (E1, E2) with both
+  energies at or above E_min that add up to the line energy within sum_tol,
+  of (pair / line) * eps_p(E1) * eps_p(E2) / eps_p(line) * loss_12 *
+  (1 - q * eps_t(line)).  Here loss_12 is the loss of the line without the
+  factors of its partners at E1 and E2, and q = min(pair(line, E1),
+  pair(line, E2), pair) / pair is the fraction of the pair's decays that
+  also emit the line photon.  A pair whose summed energy lies within sum_tol
+  of several lines adds only to the nearest one, so its summed-in counts are
+  counted once.
 
-The gain is multiplied by the loss because a summed-in count, like a count of
-the line itself, leaves the peak when any other photon of the same decay
-deposits energy; for a crossover inside a cascade the photons in coincidence
-with the summing pair are those in coincidence with the line.
+A summed-in count leaves the peak when any other photon of the same decay
+deposits energy.  Those photons are taken to be the partners of the line
+other than the two summing photons, which cannot remove their own sum, and
+the line photon itself where the decay emits it with the pair.  The pairwise
+table holds no three-photon intensities, so q is their upper bound; it is
+exact for a single cascade and zero for a crossover, whose photon is never
+emitted with the pair.  For a crossover inside a cascade the photons in
+coincidence with the pair are those in coincidence with the line, and the
+factor is loss * (1 + gain).
 
 The x-ray partners share one factor because a vacancy is filled by at most one
 K x-ray, so the x-rays of one vacancy are exclusive and their summing-out
@@ -130,18 +139,23 @@ def _factors(lines, pairs, eps_p, eps_t, E_min=15.0, sum_tol=1.0, *, xray_lines)
 	pos = {e:n for n,e in enumerate(E)}
 
 	loss = np.ones(len(E))
+	s = np.zeros(len(E))
 	p = pairs[(pairs['coinc_energy']>=E_min)&pairs['energy'].isin(list(pos))]
 	p = p[~((p['coinc_type']=='511')&(p['energy']==p['coinc_energy']))]
+	idx = np.array([pos[e] for e in p['energy']], dtype=int)
+	ce, P = p['coinc_energy'].to_numpy(dtype=float), p['intensity'].to_numpy(dtype=float)
+	fac, single = np.ones(len(p)), np.zeros(len(p), dtype=bool)
 	if len(p):
-		idx = np.array([pos[e] for e in p['energy']], dtype=int)
-		ratio = p['intensity'].to_numpy(dtype=float)/I[idx]
+		ratio = P/I[idx]
 		ratio[((p['coinc_type']=='g')&(p['energy']==p['coinc_energy'])).to_numpy()] *= 2.0
-		x = ratio*np.asarray(eps_t(p['coinc_energy'].to_numpy(dtype=float)), dtype=float)
+		x = ratio*np.asarray(eps_t(ce), dtype=float)
 		xr = (p['coinc_type']=='XR').to_numpy()&~p['energy'].isin(list(xray_lines)).to_numpy()
-		np.multiply.at(loss, idx[~xr], 1.0-x[~xr])
-		s = np.zeros(len(E))
+		fac, single = 1.0-x, ~xr
+		np.multiply.at(loss, idx[single], fac[single])
 		np.add.at(s, idx[xr], x[xr])
 		loss *= 1.0-s
+	# single-partner rows that a summing gamma-ray pair can match
+	single &= (p['coinc_type']!='511').to_numpy()
 
 	gain = np.zeros(len(E))
 	g = pairs[(pairs['coinc_type']=='g')&(pairs['energy']<=pairs['coinc_energy'])&(pairs['energy']>=E_min)]
@@ -150,12 +164,19 @@ def _factors(lines, pairs, eps_p, eps_t, E_min=15.0, sum_tol=1.0, *, xray_lines)
 		k = np.abs(e1+e2-E[:,np.newaxis]).argmin(axis=0)
 		hit = np.abs(e1+e2-E[k])<=sum_tol
 		if hit.any():
-			w = g['intensity'].to_numpy(dtype=float)[hit]*np.asarray(eps_p(e1[hit]), dtype=float)*np.asarray(eps_p(e2[hit]), dtype=float)
-			np.add.at(gain, k[hit], w)
-			rows = np.unique(k[hit])
+			e1, e2, k, Pg = e1[hit], e2[hit], k[hit], g['intensity'].to_numpy(dtype=float)[hit]
+			w = Pg*np.asarray(eps_p(e1), dtype=float)*np.asarray(eps_p(e2), dtype=float)
+			et_line = np.asarray(eps_t(E[k]), dtype=float)
+			for j in range(len(k)):
+				on = single&(idx==k[j])
+				own = on&((ce==e1[j])|(ce==e2[j]))
+				q = min(P[on&(ce==e1[j])].sum(), P[on&(ce==e2[j])].sum(), Pg[j])/Pg[j]
+				w[j] *= (1.0-s[k[j]])*np.prod(fac[on&~own])*(1.0-q*et_line[j])
+			np.add.at(gain, k, w)
+			rows = np.unique(k)
 			gain[rows] /= I[rows]*np.asarray(eps_p(E[rows]), dtype=float)
 
-	F = loss*(1.0+gain)
+	F = loss+gain
 	return F[np.array([pos[e] for e in lines['energy']], dtype=int)]
 
 

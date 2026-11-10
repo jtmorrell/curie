@@ -174,9 +174,7 @@ SUM_IN_CASCADE = Scheme({0: 0.0, 1: 100.0, 2: 300.0, 3: 600.0}, {3: 1.0},
 
 @pytest.mark.validation
 @pytest.mark.parametrize('scheme', [
-    CASCADE3, CROSSOVER, EQUAL,
-    pytest.param(SUM_IN_CASCADE, id='sum-in-cascade', marks=pytest.mark.xfail(
-        strict=True, reason='the gain carries the loss factors of its own summing photons')),
+    CASCADE3, CROSSOVER, EQUAL, SUM_IN_CASCADE,
 ], ids=['cascade3-loss', 'crossover-gain', 'equal-energy', 'sum-in-cascade'])
 def test_pairwise_exact_on_single_cascade(scheme):
     exact, _ = scheme.exact(EPS_P, EPS_T)
