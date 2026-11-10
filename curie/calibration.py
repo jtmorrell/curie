@@ -1152,7 +1152,13 @@ class Calibration(object):
 				'line':eff_meta['line'].to_numpy()[~keep],
 				'reason':np.where(low_I[~keep], 'intensity<'+eff_imin, 'unc>'+eff_pct)}
 		x, y, yerr = x[keep], y[keep], yerr[keep]
+		# where the floor dropped a point, the stop messages count what each
+		# cut dropped and name the floor's entry; otherwise they are unchanged
+		floor_drops = 'The line-intensity floor (intensity<{0}) dropped {1} and the uncertainty filter (unc>{2} of value) {3}'.format(
+			eff_imin, n_low_I, eff_pct, n_tot-len(x)-n_low_I)
 		if not len(x):
+			if n_low_I:
+				raise ValueError('Calibration.calibrate: all {0} effcal points dropped - cannot fit the efficiency calibration. {1}. Lower effcal_I_min to keep weaker lines, and check the peak fits and source activities.'.format(n_tot, floor_drops))
 			raise ValueError('Calibration.calibrate: all {0} effcal points dropped (unc>{1} of value) - cannot fit the efficiency calibration. Check the peak fits and source activities.'.format(n_tot, eff_pct))
 		meta = eff_meta[keep].reset_index(drop=True)
 		n_user = 0
@@ -1238,8 +1244,13 @@ class Calibration(object):
 		# misses lines and they never become efficiency points
 		# vidmar-5, which the default model also reaches here, is the floor of
 		# the Vidmar forms, so it has no lower order to suggest
-		too_few_eff = '; the uncertainty filter (unc>{0} of value) dropped {1} of {2} measured points - check the energy calibration and the peak fits, or {3}loosen the filters.'.format(
-			eff_pct, n_tot-(len(x)-n_user), n_tot, '' if em in ('vidmar', 'vidmar-5') else 'lower the order or ')
+		lower_order = '' if em in ('vidmar', 'vidmar-5') else 'lower the order or '
+		if n_low_I:
+			too_few_eff = '. {0} of {1} measured points. Lower effcal_I_min to keep weaker lines, check the energy calibration and the peak fits, or {2}loosen the filters.'.format(
+				floor_drops, n_tot, lower_order)
+		else:
+			too_few_eff = '; the uncertainty filter (unc>{0} of value) dropped {1} of {2} measured points - check the energy calibration and the peak fits, or {3}loosen the filters.'.format(
+				eff_pct, n_tot-(len(x)-n_user), n_tot, lower_order)
 		if em.startswith('loglog'):
 			order = int(em.split('-')[1]) if '-' in em else 4
 			if order+1 > len(x):

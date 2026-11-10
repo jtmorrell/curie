@@ -641,7 +641,7 @@ def test_effcal_too_few_points_message(model, need):
         {'isotope': 'user', 'energy': 90.0, 'efficiency': 0.0075, 'unc_efficiency': 0.0004}])
     with pytest.raises(ValueError) as ei:
         ci.Calibration().calibrate([eu_sp()], sources=EU_SOURCES, effcal_model=model,
-                                   effcal_max_error=0.008, outlier_sigma=1E9, eff_points=ep)
+                                   effcal_max_error=0.008, outlier_sigma=1E9, eff_points=ep, effcal_I_min=0)
     msg = str(ei.value)
     tag = {'vidmar-5': 'vidmar-5', 'loglog': 'loglog-4'}[model]
     head = 'Calibration.calibrate: effcal_model {0} needs at least {1} efficiency points to fit (have 3)'.format(tag, need)
@@ -1018,3 +1018,76 @@ def test_effcal_I_min_recovers_known_curve_beside_interfered_line():
     assert abs(dev0[2]) > 0.01, dev0
     dev0_clean, _, _ = departure(False, effcal_I_min=0)
     assert np.all(np.abs(dev0_clean) < 0.01), dev0_clean
+
+
+def _eu_points_by_intensity():
+    # the 152Eu efficiency points of the example spectrum and the number whose
+    # line intensity is below 20% and 30% (all of them: the strongest line,
+    # 121.8 keV, is 28.5%)
+    inten = list(_line_intensities(eu_sp()).values())
+    return len(inten), {f: sum(100.0*i < f for i in inten) for f in (20, 30)}
+
+
+@requires_data('decay')
+def test_effcal_I_min_all_points_below_floor():
+    # every line below the floor: the all-points-dropped error counts what the
+    # floor dropped and names effcal_I_min as the setting to lower
+    n, below = _eu_points_by_intensity()
+    assert below[30] == n
+    with pytest.raises(ValueError) as ei:
+        ci.Calibration().calibrate([eu_sp()], sources=EU_SOURCES, effcal_I_min=30)
+    msg = str(ei.value)
+    assert msg == ('Calibration.calibrate: all {0} effcal points dropped - cannot fit the efficiency calibration. '
+                   'The line-intensity floor (intensity<30%) dropped {0} and the uncertainty filter (unc>33% of '
+                   'value) 0. Lower effcal_I_min to keep weaker lines, and check the peak fits and source '
+                   'activities.'.format(n))
+
+
+@requires_data('decay')
+@pytest.mark.parametrize('model,tag', [(None, 'vidmar-5'), ('loglog', 'loglog-4')])
+def test_effcal_I_min_too_few_points(model, tag):
+    # a floor of 20% leaves three lines (121.8, 344.3, 1408.0 keV): the
+    # too-few-points error states what the floor dropped and names effcal_I_min
+    n, below = _eu_points_by_intensity()
+    assert n-below[20] == 3
+    with pytest.raises(ValueError) as ei:
+        ci.Calibration().calibrate([eu_sp()], sources=EU_SOURCES, effcal_I_min=20, effcal_model=model)
+    msg = str(ei.value)
+    head = 'Calibration.calibrate: effcal_model {0} needs at least 5 efficiency points to fit (have 3)'.format(tag)
+    assert msg == (head+'. The line-intensity floor (intensity<20%) dropped {0} and the uncertainty filter '
+                   '(unc>33% of value) 0 of {1} measured points. Lower effcal_I_min to keep weaker lines, check '
+                   'the energy calibration and the peak fits, or {2}loosen the filters.'.format(
+                       below[20], n, 'lower the order or ' if model == 'loglog' else ''))
+
+
+# the efficiency-fit stop messages of the example spectrum before the floor
+# existed, recorded 2026-11-10 at commit 617dcd7 from the calibrate() calls of
+# test_effcal_stop_messages_where_floor_drops_none without effcal_I_min
+PRE_FLOOR_STOPS = {
+    'all_dropped': 'Calibration.calibrate: all 44 effcal points dropped (unc>0.0001% of value) - cannot fit the '
+                   'efficiency calibration. Check the peak fits and source activities.',
+    'vidmar-5': 'Calibration.calibrate: effcal_model vidmar-5 needs at least 5 efficiency points to fit (have 3); '
+                'the uncertainty filter (unc>0.8% of value) dropped 43 of 44 measured points - check the energy '
+                'calibration and the peak fits, or loosen the filters.',
+    'loglog': 'Calibration.calibrate: effcal_model loglog-4 needs at least 5 efficiency points to fit (have 3); '
+              'the uncertainty filter (unc>0.8% of value) dropped 43 of 44 measured points - check the energy '
+              'calibration and the peak fits, or lower the order or loosen the filters.',
+}
+
+
+@requires_data('decay')
+@pytest.mark.parametrize('floor', [0, 0.05])
+@pytest.mark.parametrize('case', ['all_dropped', 'vidmar-5', 'loglog'])
+def test_effcal_stop_messages_where_floor_drops_none(case, floor):
+    # where the floor drops no point - it is 0, or 0.05%, below every line the
+    # peak fit keeps (its own I_min is 0.05%) - each stop message is the text
+    # it had before the floor existed
+    ep = pd.DataFrame([
+        {'isotope': 'user', 'energy': 50.0, 'efficiency': 0.0060, 'unc_efficiency': 0.0003},
+        {'isotope': 'user', 'energy': 90.0, 'efficiency': 0.0075, 'unc_efficiency': 0.0004}])
+    kw = {'all_dropped': dict(effcal_max_error=1E-6),
+          'vidmar-5': dict(effcal_model='vidmar-5', effcal_max_error=0.008, outlier_sigma=1E9, eff_points=ep),
+          'loglog': dict(effcal_model='loglog', effcal_max_error=0.008, outlier_sigma=1E9, eff_points=ep)}[case]
+    with pytest.raises(ValueError) as ei:
+        ci.Calibration().calibrate([eu_sp()], sources=EU_SOURCES, effcal_I_min=floor, **kw)
+    assert str(ei.value) == PRE_FLOOR_STOPS[case]
