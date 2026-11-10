@@ -1155,23 +1155,28 @@ class Calibration(object):
 			V[np.diag_indices_from(V)] = d + 1E-12*np.max(d)
 			return V
 
-		def fit_eff(p0_, bounds_):
+		def fit_eff(p0_, bounds_, reason_only=False):
 			# numeric warnings from the optimizer carry no context; a pass that
 			# does not converge, or returns non-finite parameters, raises a
-			# curie error naming the model and the pass. fn is rebound per
-			# model before each call (late-binding closure)
+			# curie error naming the model and the pass. With reason_only the
+			# message is only the reason, for a caller that warns and goes on.
+			# fn is rebound per model before each call (late-binding closure)
 			tag_ = 'loglog-{0}'.format(len(p0_)-1) if em.startswith('loglog') else 'vidmar-{0}'.format(len(p0_))
 			def solve(sigma_, start, which):
-				fail = 'Calibration.calibrate: the {0} efficiency fit {1} in its pass with {2} uncertainties ({3} fit points{4}) - try another effcal_model, or check the peak fits and look for outlying efficiency points.'
+				fail = 'the {0} efficiency fit {1} in its pass with {2} uncertainties ({3} fit points{4})'
+				if not reason_only:
+					fail = 'Calibration.calibrate: '+fail+' - try another effcal_model, or check the peak fits and look for outlying efficiency points.'
 				try:
 					f, u = curve_fit(fn, x, y, sigma=sigma_, p0=start, bounds=bounds_, absolute_sigma=True, maxfev=_EFF_MAXFEV)
 				except RuntimeError as err:
 					raise RuntimeError(fail.format(tag_, 'did not converge', which, len(x), '; '+str(err))) from err
 				except ValueError as err:
 					# the unbounded search can step to parameters where the model
-					# overflows; with a full covariance the optimizer then stops on
-					# the non-finite residuals instead of reporting non-convergence
-					raise RuntimeError(fail.format(tag_, 'did not converge (non-finite model values)', which, len(x), '; '+str(err))) from err
+					# overflows, and with a full covariance the optimizer then stops
+					# on the non-finite residuals; it raises the same type for a
+					# start outside the bounds or a covariance that is not positive
+					# definite, so the optimizer's own text carries the cause
+					raise RuntimeError(fail.format(tag_, 'stopped with an optimizer error', which, len(x), '; '+str(err))) from err
 				if not np.all(np.isfinite(f)):
 					raise RuntimeError(fail.format(tag_, 'returned non-finite parameters', which, len(x), ''))
 				return f, u
@@ -1200,8 +1205,10 @@ class Calibration(object):
 		em = ccfg['effcal_model'] or 'vidmar'
 		# a wrong energy calibration misplaces the line energies, so fit_peaks
 		# misses lines and they never become efficiency points
-		too_few_eff = '; the uncertainty filter (unc>{0} of value) dropped {1} of {2} measured points - check the energy calibration and the peak fits, or lower the order or loosen the filters.'.format(
-			eff_pct, n_tot-(len(x)-n_user), n_tot)
+		# vidmar-5, which the default model also reaches here, is the floor of
+		# the Vidmar forms, so it has no lower order to suggest
+		too_few_eff = '; the uncertainty filter (unc>{0} of value) dropped {1} of {2} measured points - check the energy calibration and the peak fits, or {3}loosen the filters.'.format(
+			eff_pct, n_tot-(len(x)-n_user), n_tot, '' if em in ('vidmar', 'vidmar-5') else 'lower the order or ')
 		if em.startswith('loglog'):
 			order = int(em.split('-')[1]) if '-' in em else 4
 			if order+1 > len(x):
@@ -1272,7 +1279,7 @@ class Calibration(object):
 					# failed 7-parameter fit falls back, to the 5-parameter result
 					fit5, unc5, chi5, chi5_0, S2_5 = fit_eff(p0[:5], (bounds[0][:5], bounds[1][:5]))
 					try:
-						fit7, unc7, chi7, chi7_0, S2_7 = fit_eff(fit5.tolist()+p0[5:], bounds)
+						fit7, unc7, chi7, chi7_0, S2_7 = fit_eff(fit5.tolist()+p0[5:], bounds, reason_only=True)
 					except Exception as err:
 						_log.warning('Calibration.calibrate: effcal 7-parameter fit failed ({0}); using the 5-parameter form'.format(err))
 						fit, unc, eff_chi2, eff_S2 = fit5, unc5, chi5_0, S2_5

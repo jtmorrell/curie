@@ -494,13 +494,31 @@ def test_effcal_nonconvergence_names_model_and_pass(model, tag, ndim, monkeypatc
 def test_effcal_nonfinite_model_values_raise(monkeypatch):
     # the unbounded loglog search can step to parameters where the model
     # overflows; the optimizer then stops with a ValueError on the non-finite
-    # residuals, which is a fit that did not converge
+    # residuals, which becomes the curie RuntimeError with the optimizer's text
     forced = ValueError('array must not contain infs or NaNs')
     _rig_curve_fit(monkeypatch, lambda kw: 'bounds' in kw and np.ndim(kw['sigma']) == 2, _raise(forced))
     with pytest.raises(RuntimeError) as ei:
         ci.Calibration().calibrate([eu_sp()], sources=EU_SOURCES, effcal_model='loglog')
     msg = str(ei.value)
-    assert msg.startswith('Calibration.calibrate: the loglog-4 efficiency fit did not converge (non-finite model values) in its pass with correlated uncertainties')
+    assert msg.startswith('Calibration.calibrate: the loglog-4 efficiency fit stopped with an optimizer error in its pass with correlated uncertainties')
+    assert re.search(r'\(\d+ fit points; array must not contain infs or NaNs\)', msg)
+    assert ei.value.__cause__ is forced
+
+
+@requires_data('decay')
+def test_effcal_optimizer_value_error_not_called_nonfinite(monkeypatch):
+    # the optimizer also raises ValueError where no model value is non-finite:
+    # a start outside the bounds (a user efficiency point with zero uncertainty
+    # gives a NaN solid-angle start) or a covariance that is not positive
+    # definite.  The message does not attribute these to non-finite model values
+    forced = ValueError('Initial guess is outside of provided bounds')
+    _rig_curve_fit(monkeypatch, lambda kw: 'bounds' in kw and np.ndim(kw['sigma']) == 1, _raise(forced))
+    with pytest.raises(RuntimeError) as ei:
+        ci.Calibration().calibrate([eu_sp()], sources=EU_SOURCES, effcal_model='vidmar-5')
+    msg = str(ei.value)
+    assert msg.startswith('Calibration.calibrate: the vidmar-5 efficiency fit')
+    assert 'non-finite model values' not in msg
+    assert 'Initial guess is outside of provided bounds' in msg
     assert ei.value.__cause__ is forced
 
 
@@ -550,7 +568,10 @@ def test_effcal_auto_seven_parameter_failure_falls_back(capsys, monkeypatch):
     cb = ci.Calibration()
     cb.calibrate([eu_sp()], sources=EU_SOURCES, eff_points=USER_59)
     out = capsys.readouterr().out
-    assert 'effcal 7-parameter fit failed (Calibration.calibrate: the vidmar-7 efficiency fit did not converge' in out
+    # the warning carries the reason without a second "Calibration.calibrate:"
+    # prefix or the stop-the-calibration advice, since the calibration goes on
+    assert 'Calibration.calibrate: effcal 7-parameter fit failed (the vidmar-7 efficiency fit did not converge in its pass with' in out
+    assert 'failed (Calibration.calibrate:' not in out and 'try another effcal_model' not in out
     assert 'using the 5-parameter form' in out
     assert len(first5) == 1
     assert cb._effcal_model == 'vidmar-5'
@@ -627,3 +648,5 @@ def test_effcal_too_few_points_message(model, need):
     m = re.match(re.escape(head)+r'; the uncertainty filter \(unc>0\.8% of value\) dropped (\d+) of (\d+) measured points', msg)
     assert m and int(m.group(2))-int(m.group(1)) == 1
     assert 'energy calibration' in msg[len(head):] and 'peak fits' in msg[len(head):]
+    # vidmar-5 is the floor of the Vidmar forms: no lower order to advise
+    assert ('lower the order' in msg) == (model == 'loglog')
