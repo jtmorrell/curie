@@ -9,10 +9,14 @@ from scipy.interpolate import interp1d
 from .isotope import Isotope
 from .data import _get_connection
 from .plotting import _init_plot, _draw_plot, colormap
-from ._log import _get_logger, _validate_config, _choice, NUMBER
+from ._log import _get_logger, _validate_config, _choice, _Check, _is_number, NUMBER
 from ._diagnostics import _diagnostics_frame, _at_bound, _unmoved
 
 _log = _get_logger('calibration')
+
+# a line-intensity floor, in percent: zero keeps every line, a negative value
+# would read as a floor yet keep every line too, so it is refused
+_NONNEG_NUMBER = _Check(lambda v: _is_number(v) and v >= 0, 'a non-negative number')
 
 # storage groups of _calib_data: the classic groups hold the points the fit
 # used (raw readers keep seeing used-points-only); the *_dropped siblings hold
@@ -25,7 +29,8 @@ _FIT_CONFIG_SPEC = {'engcal_model': _choice(['linear', 'quadratic', 'cubic'], al
 					'effcal_model': _choice(['vidmar', 'vidmar-5', 'vidmar-7', 'loglog']
 											+['loglog-{0}'.format(n) for n in range(2, 9)], allow_none=True),
 					'engcal_max_error': NUMBER, 'rescal_max_error': NUMBER,
-					'effcal_max_error': NUMBER, 'outlier_sigma': NUMBER}
+					'effcal_max_error': NUMBER, 'effcal_I_min': _NONNEG_NUMBER,
+					'outlier_sigma': NUMBER}
 
 # parameter-count maps for the explicit model tags; effcal loglog is absent
 # deliberately (its length overlaps vidmar's, so the tag is load-bearing)
@@ -203,7 +208,9 @@ class Calibration(object):
 		Calibration-fit configuration: model selectors (engcal_model,
 		rescal_model, effcal_model), the pre-fit uncertainty cuts
 		(engcal/rescal/effcal_max_error) and the post-fit outlier clip
-		(outlier_sigma).  Assignment merges keys; `calibrate()` keyword arguments
+		(outlier_sigma).  The entry effcal_I_min sets the line-intensity floor
+		on the measured efficiency points, in percent (default 1).
+		Assignment merges keys; `calibrate()` keyword arguments
 		merge here and persist.  See `calibrate` for the key documentation.
 
 
@@ -254,7 +261,8 @@ class Calibration(object):
 		self._extrap_low_warned = False
 		self._fit_config = {'engcal_model':None, 'rescal_model':None, 'effcal_model':None,
 							'engcal_max_error':0.25, 'rescal_max_error':0.33,
-							'effcal_max_error':0.33, 'outlier_sigma':10**0.5}
+							'effcal_max_error':0.33, 'effcal_I_min':1.0,
+							'outlier_sigma':10**0.5}
 
 		if filename is not None:
 			if filename.endswith('.json'):
@@ -831,8 +839,9 @@ class Calibration(object):
 		derived from the stored line label; '' for calibrations saved before
 		it was recorded), used (False for rejected points - outlier rows
 		entered the fit but are clipped from the stored calibration points),
-		reason ('' when used, else 'unc>33%' or 'outlier >3.16 sigma') and
-		residual (measured minus fitted efficiency).  Empty (with the full
+		reason ('' when used, else 'unc>33%', 'intensity<1%' or
+		'outlier >3.16 sigma') and residual (measured minus fitted
+		efficiency).  Empty (with the full
 		schema) if no calibration data is present.
 		"""
 		# the model must ride along: a loglog parameter array can be the same
@@ -904,6 +913,20 @@ class Calibration(object):
 
 		effcal_max_error : float, optional
 			As above, for efficiency points.  Default 0.33.
+
+		effcal_I_min : float, optional
+			Pre-fit cut: drop efficiency points measured from a peak whose
+			line intensity is below this value, in percent per decay, the
+			units of `I_min` in `Spectrum.fit_config`.  For a peak fitted as
+			one line from several unresolvable lines, the intensity is their
+			sum.  A weak line reads high when the peak fit does not separate
+			it from a stronger line beside it, such as a room-background
+			line.  The cut keeps such lines out of the efficiency fit.
+			Dropped points carry the reason 'intensity<1%' and stay visible
+			in `effcal_data` and the plots.  It applies to measured points
+			only: `eff_points` are never dropped by it, and the energy and
+			resolution points are not affected.  Default 1; 0 keeps every
+			line.
 
 		outlier_sigma : float, optional
 			Post-fit residual threshold, in sigma, above which a point is
@@ -1010,7 +1033,8 @@ class Calibration(object):
 									'rel_line':pk['unc_intensity']/pk['intensity'],
 									'rel_src':np.sqrt((unc_lm[pk['isotope']]/dc)**2+(unc_A0/A0)**2),
 									'line':pk['isotope']+':'+'{:.2f}'.format(eng),
-									'src':pk['isotope']})
+									'src':pk['isotope'],
+									'intensity':pk['intensity']})
 
 		if not len(cb_dat):
 			raise ValueError('Calibration.calibrate: no calibration points - no fitted peaks matched the source isotopes [{0}]. Check sp.isotopes, the source isotope names, and that fit_peaks found peaks.'.format(', '.join(map(str, src_itps))))
@@ -1116,10 +1140,17 @@ class Calibration(object):
 
 		eff_pct = '{0:g}%'.format(100.0*ccfg['effcal_max_error'])
 		x, y, yerr = self._calib_data['effcal']['energy'], self._calib_data['effcal']['efficiency'], self._calib_data['effcal']['unc_efficiency']
+		eff_imin = '{0:g}%'.format(ccfg['effcal_I_min'])
 		n_tot = len(x)
 		keep = (ccfg['effcal_max_error']*y>yerr)&(yerr>0.0)&(np.isfinite(yerr))
+		# the line-intensity floor (intensity is per decay, the floor in
+		# percent); a point that fails both cuts carries the intensity reason
+		low_I = 100.0*eff_meta['intensity'].to_numpy(dtype=np.float64) < ccfg['effcal_I_min']
+		n_low_I = int(np.sum(low_I))
+		keep &= ~low_I
 		drop = {'energy':x[~keep], 'efficiency':y[~keep], 'unc_efficiency':yerr[~keep],
-				'line':eff_meta['line'].to_numpy()[~keep]}
+				'line':eff_meta['line'].to_numpy()[~keep],
+				'reason':np.where(low_I[~keep], 'intensity<'+eff_imin, 'unc>'+eff_pct)}
 		x, y, yerr = x[keep], y[keep], yerr[keep]
 		if not len(x):
 			raise ValueError('Calibration.calibrate: all {0} effcal points dropped (unc>{1} of value) - cannot fit the efficiency calibration. Check the peak fits and source activities.'.format(n_tot, eff_pct))
@@ -1318,7 +1349,7 @@ class Calibration(object):
 											  'efficiency':np.concatenate([drop['efficiency'], y[~kept]]),
 											  'unc_efficiency':np.concatenate([drop['unc_efficiency'], yerr[~kept]]),
 											  'line':np.concatenate([drop['line'], meta['line'].to_numpy()[~kept]]),
-											  'reason':np.array(['unc>'+eff_pct]*len(drop['energy'])+['outlier >'+out_sig+' sigma']*int(np.sum(~kept)))}
+											  'reason':np.array(drop['reason'].tolist()+['outlier >'+out_sig+' sigma']*int(np.sum(~kept)))}
 		self.effcal = fit
 		self.unc_effcal = unc
 		# the setters reset the tag/range (a manual assignment must not carry a
@@ -1335,8 +1366,11 @@ class Calibration(object):
 		outliers = ['{0} {1:.1f}'.format(ln.split(':')[0], float(ln.split(':')[1])) for ln in meta[~kept]['line']]
 		model = tag
 		body = 'effcal [{0}] fit to {1}/{2} points'.format(model, len(x)-n_user, n_tot)
-		if n_tot-(len(x)-n_user):
-			body += ' ({0} dropped: unc>{1} of value)'.format(n_tot-(len(x)-n_user), eff_pct)
+		n_unc = n_tot-(len(x)-n_user)-n_low_I
+		if n_unc:
+			body += ' ({0} dropped: unc>{1} of value)'.format(n_unc, eff_pct)
+		if n_low_I:
+			body += '; {0} dropped: line intensity <{1} (effcal_I_min)'.format(n_low_I, eff_imin)
 		if n_user:
 			body += '; +{0} user-supplied points'.format(n_user)
 		if len(outliers):
