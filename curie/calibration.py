@@ -303,6 +303,11 @@ class Calibration(object):
 					self._effcal_model = js.get('effcal_model', None)
 					if js.get('effcal_erange', None) is not None:
 						self._effcal_erange = (float(js['effcal_erange'][0]), float(js['effcal_erange'][1]))
+					# the summing correction the curve was fitted with; a file
+					# without it holds an apparent curve.  Other items of the
+					# entry are ignored
+					if js.get('summing', None) is not None:
+						self._summing = {'L':float(js['summing']['L']), 'xray_partners':float(js['summing']['xray_partners'])}
 					if '_calib_data' in js:
 						for c in _CALIB_GROUPS:
 							if c in js['_calib_data']:
@@ -1713,6 +1718,8 @@ class Calibration(object):
 			sp.cb._rescal_model = self._rescal_model
 			sp.cb._effcal_model = self._effcal_model
 			sp.cb._effcal_erange = self._effcal_erange
+			# and the summing correction of the curve, None for an apparent one
+			sp.cb._summing = None if self._summing is None else dict(self._summing)
 			sp._peaks, sp._fits = None, None
 
 
@@ -1723,7 +1730,10 @@ class Calibration(object):
 
 		Saves the energy, resolution and efficiency calibration to a .json
 		file, which can be recalled by a new calibration object by passing
-		the 'filename' keyword to Calibration() upon construction.
+		the 'filename' keyword to Calibration() upon construction.  A curve
+		fitted with the coincidence-summing correction also stores the
+		settings of that correction under the key 'summing'.  A file without
+		that key holds a curve fitted without the correction.
 
 		Parameters
 		----------
@@ -1766,6 +1776,9 @@ class Calibration(object):
 				js['effcal_model'] = self._effcal_model
 			if self._effcal_erange is not None:
 				js['effcal_erange'] = [self._effcal_erange[0], self._effcal_erange[1]]
+			# written only for a curve fitted with the summing correction
+			if self._summing is not None:
+				js['summing'] = {'L':self._summing['L'], 'xray_partners':self._summing['xray_partners']}
 			if self._calib_data:
 				js['_calib_data'] = {}
 				for cl in _CALIB_GROUPS:

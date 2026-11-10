@@ -11,6 +11,7 @@ import copy
 import datetime as dtm
 import hashlib
 import io
+import json
 import sqlite3
 
 import numpy as np
@@ -645,3 +646,93 @@ def test_summing_merged_peak_takes_weighted_factor(eu_fitted, pairs_usable):
                                         merged=[((e1, e2), (i1, i2))])
     assert Fm[0] == pytest.approx(Fw, rel=1E-14) and cm[0] == pytest.approx((i1*c[0]+i2*c[1])/(i1+i2), rel=1E-14)
     assert on[0]
+
+
+# ---------------------------------------------------------------------------
+# the calibration file: the summing entry
+
+# a calibration file as curie writes it without the summing correction, and
+# its curve and fitted uncertainty at E_CURVE as the parent of the stored
+# entry evaluates them (recorded 2026-11-10 at commit 6dbe2a0)
+PARENT_FILE = '''{
+    "engcal": [0.0, 0.25, 0.0],
+    "effcal": [0.045, 6.0, 2.0, 1.8, 0.4],
+    "unc_effcal": [[1e-06, 0.0, 0.0, 0.0, 0.0], [0.0, 0.01, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0025, 0.0, 0.0],
+                   [0.0, 0.0, 0.0, 0.0016, 0.0], [0.0, 0.0, 0.0, 0.0, 0.0004]],
+    "rescal": [1.87, 0.00027],
+    "effcal_model": "vidmar-5",
+    "effcal_erange": [121.7817, 1408.013]
+}'''
+PARENT_FILE_EFF = [0.03189717972421109, 0.01329977564289112, 0.005644427194924109, 0.0029125143038606113]
+PARENT_FILE_UNC_EFF = [0.0007657763551727291, 0.0005982847235365494, 0.00034299514183142385, 0.00020393653651147277]
+
+
+def _file(tmp_path, entry=None, name='cal.json'):
+    js = json.loads(PARENT_FILE)
+    if entry is not None:
+        js['summing'] = entry
+    fn = str(tmp_path / name)
+    with open(fn, 'w') as f:
+        json.dump(js, f)
+    return fn
+
+
+def test_summing_file_of_the_parent(tmp_path):
+    # a file without the entry loads as an apparent curve and evaluates as the
+    # parent evaluates it; saved again it writes no entry
+    fn = str(tmp_path / 'parent.json')
+    with open(fn, 'w') as f:
+        f.write(PARENT_FILE)
+    cb = ci.Calibration(fn)
+    assert cb._summing is None and cb._effcal_model == 'vidmar-5'
+    np.testing.assert_array_equal(cb.eff(E_CURVE), PARENT_FILE_EFF)
+    np.testing.assert_array_equal(cb.unc_eff(E_CURVE), PARENT_FILE_UNC_EFF)
+    cb.saveas(str(tmp_path / 'again.json'))
+    with open(str(tmp_path / 'again.json')) as f:
+        assert json.load(f) == json.loads(PARENT_FILE)
+
+
+def test_summing_file_entry_leaves_the_curve(tmp_path):
+    # the entry is read back, changes no evaluation of the curve, and an item
+    # of it that curie does not know is ignored (and not written again)
+    cb = ci.Calibration(_file(tmp_path, {'L': 0.69, 'xray_partners': 0.58, 'note': 'other'}))
+    assert cb._summing == {'L': 0.69, 'xray_partners': 0.58}
+    np.testing.assert_array_equal(cb.eff(E_CURVE), PARENT_FILE_EFF)
+    np.testing.assert_array_equal(cb.unc_eff(E_CURVE), PARENT_FILE_UNC_EFF)
+    cb.saveas(str(tmp_path / 'again.json'))
+    with open(str(tmp_path / 'again.json')) as f:
+        assert json.load(f)['summing'] == {'L': 0.69, 'xray_partners': 0.58}
+
+
+@requires_data('decay')
+@requires_pairs()
+def test_summing_file_round_trip(eu_fitted, pairs_usable, tmp_path):
+    # a corrected curve writes the entry, with L and the scale, and a file read
+    # back holds them; a curve fitted with summing=False writes none
+    cb, _ = _calibrate([eu_fitted], EU_SOURCES)
+    fn = str(tmp_path / 'on.json')
+    cb.saveas(fn)
+    with open(fn) as f:
+        assert json.load(f)['summing'] == {'L': cal_mod._SUMMING_L, 'xray_partners': cb._summing['xray_partners']}
+    back = ci.Calibration(fn)
+    assert back._summing == cb._summing and back._summing['xray_partners'] > 0
+    np.testing.assert_array_equal(back.eff(E_CURVE), cb.eff(E_CURVE))
+    off, _ = _calibrate([eu_fitted], EU_SOURCES, summing=False)
+    off.saveas(str(tmp_path / 'off.json'))
+    with open(str(tmp_path / 'off.json')) as f:
+        assert 'summing' not in json.load(f)
+    assert ci.Calibration(str(tmp_path / 'off.json'))._summing is None
+
+
+@requires_data('decay')
+@requires_pairs()
+def test_summing_entry_carried_to_the_spectra(eu_fitted, pairs_usable):
+    # the spectra a corrected calibration is carried to hold its entry; after
+    # a second calibrate() with summing=False they hold none
+    sp = copy.deepcopy(eu_fitted)
+    cb = ci.Calibration()
+    cb.calibrate([sp], sources=EU_SOURCES)
+    assert cb._summing is not None and sp.cb._summing == cb._summing
+    assert sp.cb._summing is not cb._summing
+    cb.calibrate([sp], sources=EU_SOURCES, summing=False)
+    assert cb._summing is None and sp.cb._summing is None
