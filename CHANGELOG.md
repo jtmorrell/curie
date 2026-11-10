@@ -79,6 +79,21 @@ Notable changes to curie are documented here. The format follows
   numpy versions that still provide `np.trapz`. The fix also ships in the
   0.3.2 patch release. The test suite now runs both features, and CI
   includes a job pinned to numpy 1.26.
+- **`Calibration.calibrate` no longer stops with a raw optimizer error**:
+  each call of the efficiency fit now allows up to 20,000 function
+  evaluations, so correlated-uncertainty fits that need about 1,600 (the
+  previous limit was 500 or 700) now complete. A fit that converged before
+  gives the same parameters. An efficiency fit that still does not converge
+  raises a `RuntimeError` that names the model, the fit pass (independent or
+  correlated uncertainties) and the number of fit points, instead of scipy's
+  "Optimal parameters not found"; a failed energy or resolution fit names its
+  model the same way. On the automatic route a failed 5-parameter fit is no
+  longer reported as a failed 7-parameter fit and run a second time. An
+  energy or resolution calibration with fewer points than parameters raises
+  a `ValueError` that gives the points needed and the points left, instead of
+  a scipy `TypeError`. The too-few-efficiency-points error now also states
+  how many points the uncertainty filter dropped and names the energy
+  calibration and the peak fits as things to check.
 
 ## [0.3.0] - 2026-07-18
 
