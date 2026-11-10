@@ -10,7 +10,7 @@ coincident photon pairs and the number of such pairs per 100 decays.
 The factor F of a line is the ratio of its full-energy-peak count rate with
 coincidence summing to the rate without it, so an observed peak area is the
 summing-free area times F.  With line and pair intensities in percent,
-F = loss + gain, where
+F = loss * (1 + gain), where
 
 - loss is the product, over the pairs keyed on the line whose partner energy
   is at or above the floor E_min, of 1 - (pair / line) * eps_t(partner);
@@ -19,6 +19,11 @@ F = loss + gain, where
   (pair / line) * eps_p(E1) * eps_p(E2) / eps_p(line).  A pair whose summed
   energy lies within sum_tol of several lines adds only to the nearest one,
   so its summed-in counts are counted once.
+
+The gain is multiplied by the loss because a summed-in count, like a count of
+the line itself, leaves the peak when any other photon of the same decay
+deposits energy; for a crossover inside a cascade the photons in coincidence
+with the summing pair are those in coincidence with the line.
 
 The product form is exact for a single cascade; on a branched scheme the
 pairwise table carries no correlation between three or more photons, which
@@ -128,7 +133,7 @@ def _factors(lines, pairs, eps_p, eps_t, E_min=15.0, sum_tol=1.0):
 			rows = np.unique(k[hit])
 			gain[rows] /= I[rows]*np.asarray(eps_p(E[rows]), dtype=float)
 
-	F = loss+gain
+	F = loss*(1.0+gain)
 	return F[np.array([pos[e] for e in lines['energy']], dtype=int)]
 
 

@@ -117,7 +117,10 @@ class Scheme(object):
         return F, T
 
     def bound_terms(self, eps_p, eps_t, sum_tol=1.0):
-        """S, G and M of each line energy, as the second-order bound defines them."""
+        """S, G and M of each line energy, as the second-order bound defines them.
+
+        A pair's summed-in term G goes only to the line nearest its summed energy.
+        """
         S, G, M = {}, {}, {}
         for e in self.energies:
             s_sum, g_sum = 0.0, 0.0
@@ -126,7 +129,8 @@ class Scheme(object):
                     partner = b if a == e else a
                     mult = 2.0 if a == b else 1.0
                     s_sum += mult * p / self.line[e] * eps_t(partner)
-                if abs(a + b - e) <= sum_tol:
+                nearest = min(self.energies, key=lambda x: abs(a + b - x))
+                if nearest == e and abs(a + b - e) <= sum_tol:
                     g_sum += p / self.line[e] * eps_p(a) * eps_p(b) / eps_p(e)
             S[e], G[e] = s_sum, g_sum
             m = 0.0
@@ -192,6 +196,42 @@ def test_gain_counted_once_on_the_nearest_line():
 
 
 @pytest.mark.validation
+def test_bound_gain_credited_to_the_nearest_line():
+    # the 300 + 500 keV pair sums within sum_tol of both 800.0 and 800.4 keV; it
+    # occurs in 0.7 * 0.9 decays and the 800.0 keV crossover in 0.7 * 0.1
+    S, G, M = CLOSE_LINE.bound_terms(EPS_P, EPS_T)
+    assert G[800.0] == pytest.approx(9.0 * EPS_P(300.0) * EPS_P(500.0) / EPS_P(800.0), rel=1e-12)
+    assert G[800.4] == 0.0
+    assert G[300.0] == 0.0 and G[500.0] == 0.0
+
+
+# a crossover fed from above and followed by a transition below: level 4 to 3, then
+# 3 to 2 (0.7) or 3 to 1 (0.3), 2 to 1, 1 to 0
+CASCADE_CROSSOVER = Scheme(LEVELS, {4: 1.0}, {4: {3: 1.0}, 3: {2: 0.7, 1: 0.3}, 2: {1: 1.0}, 1: {0: 1.0}})
+
+
+@pytest.mark.validation
+def test_gain_carries_the_loss_inside_a_cascade():
+    # the summed-in counts of the 964.0 keV crossover need the 444.0 and 121.8 keV
+    # photons to escape, as its own counts do, so loss * (1 + gain) is exact on it
+    sc = CASCADE_CROSSOVER
+    exact, T = sc.exact(EPS_P, EPS_T)
+    F = sc.pairwise(EPS_P, EPS_T)
+    S, G, M = sc.bound_terms(EPS_P, EPS_T)
+    assert len(sc.energies) == 5
+    crossover = sc.E[(3, 1)]
+    assert G[crossover] > 0.05
+    # lines of one branch, the crossover among them, are exact
+    for t in [(3, 1), (3, 2), (2, 1)]:
+        e = sc.E[t]
+        assert F[e] == pytest.approx(exact[e], abs=1e-12), e
+    # lines on both branches differ at second order
+    for t in [(4, 3), (1, 0)]:
+        e = sc.E[t]
+        assert abs(F[e] - exact[e]) <= S[e] * M[e] / 2 + G[e] * M[e] + T[e], e
+
+
+@pytest.mark.validation
 def test_pairwise_second_order_on_branched_scheme():
     exact, T = BRANCHED.exact(EPS_P, EPS_T)
     F = BRANCHED.pairwise(EPS_P, EPS_T)
@@ -233,8 +273,8 @@ def _Fsum(isotope, energy, **kw):
 @pytest.mark.library_value
 @requires_data('decay')
 def test_co60_hand_factors():
-    F1173 = (1.0 - (99.83377701123567 / 99.85) * EPS_T(1332.492)
-             + (0.006475000590701808 / 99.85) * EPS_P(347.14) * EPS_P(826.1) / EPS_P(1173.228))
+    F1173 = (1.0 - (99.83377701123567 / 99.85) * EPS_T(1332.492)) * (
+        1.0 + (0.006475000590701808 / 99.85) * EPS_P(347.14) * EPS_P(826.1) / EPS_P(1173.228))
     assert _Fsum('60CO', 1173.228) == pytest.approx(F1173, abs=1e-12)
 
     F1332 = 1.0 - (99.83377701123567 / 99.9826) * EPS_T(1173.228)
