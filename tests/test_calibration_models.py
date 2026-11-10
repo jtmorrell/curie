@@ -573,3 +573,57 @@ def test_engcal_rescal_nonconvergence_raise(fit, n_par, monkeypatch):
     model = {'energy': 'engcal_model quadratic', 'resolution': 'rescal_model linear'}[fit]
     assert str(ei.value).startswith('Calibration.calibrate: the {0} calibration fit ({1}) did not converge'.format(fit, model))
     assert ei.value.__cause__ is forced
+
+
+def _cut_between(rel, n_keep):
+    # a relative-uncertainty cut that keeps exactly the n_keep best points
+    r = np.sort(np.asarray(rel, dtype=np.float64))
+    assert r[n_keep-1] < r[n_keep]
+    return 0.5*(r[n_keep-1]+r[n_keep])
+
+
+@requires_data('decay')
+@pytest.mark.parametrize('fit', ['engcal', 'rescal'])
+def test_engcal_rescal_too_few_points(fit):
+    # an energy or resolution fit with fewer surviving points than parameters
+    # stops with a ValueError naming the model, the points it needs and the
+    # points that survived the uncertainty filter (the cut is set from the
+    # relative uncertainties of an unfiltered calibration of the same spectrum)
+    ref = ci.Calibration()
+    ref.calibrate([eu_sp()], sources=EU_SOURCES)
+    if fit == 'engcal':
+        d, keep = ref.engcal_data, 2
+        cut = _cut_between(d['unc_channel']/d['energy'], keep)
+        head = 'engcal_model quadratic needs at least 3 energy calibration points to fit (have 2)'
+    else:
+        d, keep = ref.rescal_data, 1
+        cut = _cut_between(d['unc_width']/d['width'], keep)
+        head = 'rescal_model linear needs at least 2 resolution calibration points to fit (have 1)'
+    with pytest.raises(ValueError) as ei:
+        ci.Calibration().calibrate([eu_sp()], sources=EU_SOURCES, **{fit+'_max_error': cut})
+    msg = str(ei.value)
+    assert msg.startswith('Calibration.calibrate: '+head)
+    assert 'dropped {0} of {1} points'.format(len(d)-keep, len(d)) in msg
+
+
+@requires_data('decay')
+@pytest.mark.parametrize('model,need', [('vidmar-5', 5), ('loglog', 5)])
+def test_effcal_too_few_points_message(model, need):
+    # the too-few-efficiency-points messages keep their wording through
+    # "(have N)", then state how many measured points the uncertainty filter
+    # dropped and name the energy calibration as a cause to check.  Setup of
+    # test_effcal_underdetermined_vidmar_guard: one measured point survives the
+    # cut, two user points join it
+    ep = pd.DataFrame([
+        {'isotope': 'user', 'energy': 50.0, 'efficiency': 0.0060, 'unc_efficiency': 0.0003},
+        {'isotope': 'user', 'energy': 90.0, 'efficiency': 0.0075, 'unc_efficiency': 0.0004}])
+    with pytest.raises(ValueError) as ei:
+        ci.Calibration().calibrate([eu_sp()], sources=EU_SOURCES, effcal_model=model,
+                                   effcal_max_error=0.008, outlier_sigma=1E9, eff_points=ep)
+    msg = str(ei.value)
+    tag = {'vidmar-5': 'vidmar-5', 'loglog': 'loglog-4'}[model]
+    head = 'Calibration.calibrate: effcal_model {0} needs at least {1} efficiency points to fit (have 3)'.format(tag, need)
+    assert msg.startswith(head)
+    m = re.match(re.escape(head)+r'; the uncertainty filter \(unc>0\.8% of value\) dropped (\d+) of (\d+) measured points', msg)
+    assert m and int(m.group(2))-int(m.group(1)) == 1
+    assert 'energy calibration' in msg[len(head):] and 'peak fits' in msg[len(head):]

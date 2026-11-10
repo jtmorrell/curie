@@ -1036,13 +1036,17 @@ class Calibration(object):
 		if ccfg['engcal_model'] is not None:
 			L = {v: k for k, v in _ENG_MODELS.items()}[ccfg['engcal_model']]
 			p0 = np.concatenate([p0, np.zeros(max(0, L-len(p0)))])[:L]
+		eng_name = _ENG_MODELS.get(len(p0), '{0}-parameter'.format(len(p0)))
+		if len(x) < len(p0):
+			raise ValueError('Calibration.calibrate: engcal_model {0} needs at least {1} energy calibration points to fit (have {2}); the uncertainty filter (unc>{3} of value) dropped {4} of {5} points - lower the order or loosen the filters, and check the peak fits.'.format(
+				eng_name, len(p0), len(x), eng_pct, n_tot-len(x), n_tot))
 		fn = lambda x, *A: self.eng(x, A)
 		with np.errstate(all='ignore'):
 			try:
 				fit, unc = curve_fit(fn, x, y, sigma=yerr, p0=p0)
 			except RuntimeError as err:
 				raise RuntimeError('Calibration.calibrate: the energy calibration fit (engcal_model {0}) did not converge on {1} points ({2}) - check the peak fits and the starting energy calibration of the first spectrum (sp.cb.engcal), or choose another engcal_model.'.format(
-					_ENG_MODELS.get(len(p0), '{0}-parameter'.format(len(p0))), len(x), err)) from err
+					eng_name, len(x), err)) from err
 		self._calib_data['engcal'] = {'channel':x, 'energy':y, 'unc_channel':yerr, 'fit':fit, 'unc':unc}
 		self.engcal = fit
 		self._engcal_model = _ENG_MODELS[len(fit)]
@@ -1074,13 +1078,17 @@ class Calibration(object):
 		p0 = np.asarray(spectra[0].cb.rescal, dtype=np.float64)
 		if ccfg['rescal_model'] is not None:
 			p0 = self._rescal_seed(ccfg['rescal_model'], p0, x, y)
+		res_name = _RES_MODELS.get(len(p0), '{0}-parameter'.format(len(p0)))
+		if len(x) < len(p0):
+			raise ValueError('Calibration.calibrate: rescal_model {0} needs at least {1} resolution calibration points to fit (have {2}); the uncertainty filter (unc>{3} of value) dropped {4} of {5} points - lower the order or loosen the filters, and check the peak fits.'.format(
+				res_name, len(p0), len(x), res_pct, n_tot-len(x), n_tot))
 		fn = lambda x, *A: self.res(x, A)
 		with np.errstate(all='ignore'):
 			try:
 				fit, unc = curve_fit(fn, x, y, sigma=yerr, p0=p0)
 			except RuntimeError as err:
 				raise RuntimeError('Calibration.calibrate: the resolution calibration fit (rescal_model {0}) did not converge on {1} points ({2}) - check the peak fits, or choose another rescal_model.'.format(
-					_RES_MODELS.get(len(p0), '{0}-parameter'.format(len(p0))), len(x), err)) from err
+					res_name, len(x), err)) from err
 		kept = (self.res(x, fit)-y)**2/yerr**2 < ccfg['outlier_sigma']**2
 		idx = np.where(kept)
 		self._calib_data['rescal'] = {'channel':x[idx], 'width':y[idx], 'unc_width':yerr[idx], 'fit':fit, 'unc':unc}
@@ -1190,10 +1198,14 @@ class Calibration(object):
 			return f1, u1, chi2n, chi2_0, S2
 
 		em = ccfg['effcal_model'] or 'vidmar'
+		# a wrong energy calibration misplaces the line energies, so fit_peaks
+		# misses lines and they never become efficiency points
+		too_few_eff = '; the uncertainty filter (unc>{0} of value) dropped {1} of {2} measured points - check the energy calibration and the peak fits, or lower the order or loosen the filters.'.format(
+			eff_pct, n_tot-(len(x)-n_user), n_tot)
 		if em.startswith('loglog'):
 			order = int(em.split('-')[1]) if '-' in em else 4
 			if order+1 > len(x):
-				raise ValueError('Calibration.calibrate: effcal_model {0} needs at least {1} efficiency points to fit (have {2}) - lower the order or loosen the filters.'.format('loglog-{0}'.format(order), order+1, len(x)))
+				raise ValueError('Calibration.calibrate: effcal_model {0} needs at least {1} efficiency points to fit (have {2}){3}'.format('loglog-{0}'.format(order), order+1, len(x), too_few_eff))
 			fn = lambda x, *A: self.eff(x, A, model='loglog')
 			with np.errstate(all='ignore'):
 				p0_ll = np.polyfit(np.log(x), np.log(y), order, w=(y/yerr))[::-1]
@@ -1239,7 +1251,7 @@ class Calibration(object):
 			# form is taken directly
 			n_min = 7 if em == 'vidmar-7' else 5
 			if len(x) < n_min:
-				raise ValueError('Calibration.calibrate: effcal_model {0} needs at least {1} efficiency points to fit (have {2}) - lower the order or loosen the filters.'.format('vidmar-{0}'.format(n_min), n_min, len(x)))
+				raise ValueError('Calibration.calibrate: effcal_model {0} needs at least {1} efficiency points to fit (have {2}){3}'.format('vidmar-{0}'.format(n_min), n_min, len(x), too_few_eff))
 			if em == 'vidmar-7':
 				fit, unc, _, eff_chi2, eff_S2 = fit_eff(p0, bounds)
 				p0_used, bounds_used = p0, bounds
