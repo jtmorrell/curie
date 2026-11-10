@@ -799,6 +799,34 @@ def test_effcal_data_floor_dropped_point():
     assert d.loc[np.isclose(d['energy'], 688.67), 'reason'].tolist() == ['']
 
 
+@requires_data('decay')
+def test_effcal_I_min_keeps_line_at_floor(monkeypatch):
+    # a line whose tabulated intensity equals the floor stays in the fit, as
+    # the peak fit's I_min keeps it.  The 488.68 keV line (0.414% in the
+    # library) is set to 0.41%, a value whose per-decay fraction 0.41*1E-2,
+    # multiplied back by 100, falls below 0.41 in floating point
+    import curie.isotope as iso_mod
+    assert 100.0*(0.41*1E-2) < 0.41
+    gammas = iso_mod.Isotope.gammas
+
+    def gammas_488_at_041(self, *args, **kwargs):
+        g = gammas(self, *args, **kwargs)
+        if self.name == '152EUg':
+            g.loc[np.isclose(g['energy'], 488.6792), 'intensity'] = 0.41
+        return g
+    monkeypatch.setattr(iso_mod.Isotope, 'gammas', gammas_488_at_041)
+
+    def reason(floor):
+        cb = ci.Calibration()
+        cb.calibrate([eu_sp()], sources=EU_SOURCES, effcal_I_min=floor, outlier_sigma=1E9)
+        d = cb.effcal_data
+        r = d.loc[np.isclose(d['energy'], 488.6792), 'reason'].tolist()
+        assert len(r) == 1
+        return r[0]
+    assert reason(0.41) == ''
+    assert reason(0.4100001) == 'intensity<0.41%'
+
+
 # A calibration file written by curie at commit 617dcd7, before the floor
 # existed: the example spectrum calibrated with default settings and saved with
 # cb.saveas on 2026-11-10, kept here with its efficiency groups only.  The
@@ -1038,8 +1066,8 @@ def test_effcal_I_min_all_points_below_floor():
         ci.Calibration().calibrate([eu_sp()], sources=EU_SOURCES, effcal_I_min=30)
     msg = str(ei.value)
     assert msg == ('Calibration.calibrate: all {0} effcal points dropped - cannot fit the efficiency calibration. '
-                   'The line-intensity floor (intensity<30%) dropped {0} and the uncertainty filter (unc>33% of '
-                   'value) 0. Lower effcal_I_min to keep weaker lines, and check the peak fits and source '
+                   'Of {0} measured points, the line-intensity floor (intensity<30%) dropped {0} and the '
+                   'uncertainty filter (unc>33% of value) 0. Lower effcal_I_min to keep weaker lines, and check the peak fits and source '
                    'activities.'.format(n))
 
 
@@ -1054,8 +1082,8 @@ def test_effcal_I_min_too_few_points(model, tag):
         ci.Calibration().calibrate([eu_sp()], sources=EU_SOURCES, effcal_I_min=20, effcal_model=model)
     msg = str(ei.value)
     head = 'Calibration.calibrate: effcal_model {0} needs at least 5 efficiency points to fit (have 3)'.format(tag)
-    assert msg == (head+'. The line-intensity floor (intensity<20%) dropped {0} and the uncertainty filter '
-                   '(unc>33% of value) 0 of {1} measured points. Lower effcal_I_min to keep weaker lines, check '
+    assert msg == (head+'. Of {1} measured points, the line-intensity floor (intensity<20%) dropped {0} and the '
+                   'uncertainty filter (unc>33% of value) 0. Lower effcal_I_min to keep weaker lines, check '
                    'the energy calibration and the peak fits, or {2}loosen the filters.'.format(
                        below[20], n, 'lower the order or ' if model == 'loglog' else ''))
 

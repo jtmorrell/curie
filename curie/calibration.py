@@ -921,7 +921,9 @@ class Calibration(object):
 			one line from several unresolvable lines, the intensity is their
 			sum.  A weak line reads high when the peak fit does not separate
 			it from a stronger line beside it, such as a room-background
-			line.  The cut keeps such lines out of the efficiency fit.
+			line.  The cut keeps such a line out of the efficiency fit only
+			when it is below the floor.  An interfered line at the floor or
+			stronger stays in.
 			Dropped points carry the reason 'intensity<1%' and stay visible
 			in `effcal_data` and the plots.  It applies to measured points
 			only: `eff_points` are never dropped by it, and the energy and
@@ -1144,8 +1146,11 @@ class Calibration(object):
 		n_tot = len(x)
 		keep = (ccfg['effcal_max_error']*y>yerr)&(yerr>0.0)&(np.isfinite(yerr))
 		# the line-intensity floor (intensity is per decay, the floor in
-		# percent); a point that fails both cuts carries the intensity reason
-		low_I = 100.0*eff_meta['intensity'].to_numpy(dtype=np.float64) < ccfg['effcal_I_min']
+		# percent); a point that fails both cuts carries the intensity reason.
+		# The floor is scaled as the peak table scales the tabulated percent,
+		# so a line tabulated at the floor compares equal and is kept, as
+		# I_min of the peak fit keeps it
+		low_I = eff_meta['intensity'].to_numpy(dtype=np.float64) < ccfg['effcal_I_min']*1E-2
 		n_low_I = int(np.sum(low_I))
 		keep &= ~low_I
 		drop = {'energy':x[~keep], 'efficiency':y[~keep], 'unc_efficiency':yerr[~keep],
@@ -1154,8 +1159,8 @@ class Calibration(object):
 		x, y, yerr = x[keep], y[keep], yerr[keep]
 		# where the floor dropped a point, the stop messages count what each
 		# cut dropped and name the floor's entry; otherwise they are unchanged
-		floor_drops = 'The line-intensity floor (intensity<{0}) dropped {1} and the uncertainty filter (unc>{2} of value) {3}'.format(
-			eff_imin, n_low_I, eff_pct, n_tot-len(x)-n_low_I)
+		floor_drops = 'Of {0} measured points, the line-intensity floor (intensity<{1}) dropped {2} and the uncertainty filter (unc>{3} of value) {4}'.format(
+			n_tot, eff_imin, n_low_I, eff_pct, n_tot-len(x)-n_low_I)
 		if not len(x):
 			if n_low_I:
 				raise ValueError('Calibration.calibrate: all {0} effcal points dropped - cannot fit the efficiency calibration. {1}. Lower effcal_I_min to keep weaker lines, and check the peak fits and source activities.'.format(n_tot, floor_drops))
@@ -1246,8 +1251,8 @@ class Calibration(object):
 		# the Vidmar forms, so it has no lower order to suggest
 		lower_order = '' if em in ('vidmar', 'vidmar-5') else 'lower the order or '
 		if n_low_I:
-			too_few_eff = '. {0} of {1} measured points. Lower effcal_I_min to keep weaker lines, check the energy calibration and the peak fits, or {2}loosen the filters.'.format(
-				floor_drops, n_tot, lower_order)
+			too_few_eff = '. {0}. Lower effcal_I_min to keep weaker lines, check the energy calibration and the peak fits, or {1}loosen the filters.'.format(
+				floor_drops, lower_order)
 		else:
 			too_few_eff = '; the uncertainty filter (unc>{0} of value) dropped {1} of {2} measured points - check the energy calibration and the peak fits, or {3}loosen the filters.'.format(
 				eff_pct, n_tot-(len(x)-n_user), n_tot, lower_order)

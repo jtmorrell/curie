@@ -124,8 +124,8 @@ add it manually with the ``gammas`` argument (see
 **Symptom:** ``calibrate()`` raises a ``ValueError`` such as ``effcal_model
 vidmar-5 needs at least 5 efficiency points to fit (have 3)``, or ``all 44
 effcal points dropped``.  The message gives the points that each filter
-dropped, for example ``The line-intensity floor (intensity<1%) dropped 9 and
-the uncertainty filter (unc>33% of value) 14 of 26 measured points``.
+dropped, for example ``Of 26 measured points, the line-intensity floor
+(intensity<1%) dropped 9 and the uncertainty filter (unc>33% of value) 14``.
 
 **Cause:** the efficiency fit uses only measured points from lines of at
 least ``effcal_I_min`` percent, default 1, and a relative uncertainty below
@@ -141,7 +141,10 @@ Every dropped point stays in ``cb.effcal_data`` with its reason.
   effcal_I_min=0.3)``.
 * Loosen the uncertainty cut with ``effcal_max_error``.
 * Add known efficiency points with ``eff_points`` (see
-  :ref:`spectroscopy_howto`), which the floor keeps.
+  :ref:`spectroscopy_howto`), which the floor keeps.  They count toward the
+  points the model needs but cannot replace the measured points: when the
+  filters drop every measured point, the fit stops whatever ``eff_points``
+  holds.
 * Check the energy calibration and the peak fits, because the uncertainty
   filter drops a mis-centred peak.
 

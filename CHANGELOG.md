@@ -25,10 +25,17 @@ Notable changes to curie are documented here. The format follows
   point in the fit. On five measured 152Eu calibration sets
   the previous default curve lay 0.8 to 9.0% higher than the curve fitted to lines
   of at least 1% intensity at 661.657 keV, at the farthest source distance
-  of each set. The default curve now lies within 0.1% of it, and at the 31
-  source distances of 10 cm and beyond the ratio of its 137Cs closure to
-  that of the 1% curve is within 0.15% of 1, where it was up to 9.0% off. The
-  floor acts on measured points only and leaves user `eff_points` and the
+  of each set. The default curve now lies within 0.1% of it; that curve
+  applies the same floor, so the agreement gives the size of the bias
+  removed and is not an independent check. Against the 137Cs efficiency
+  measured at the 31 source distances of 10 cm and beyond, the default curve
+  at 661.657 keV is within 2% at 16 of them, against 14 before, and at most
+  17.1% off, against 25.3%. `calibrate()` applies no coincidence-summing
+  correction, and the floor does not remove summing: at 1 cm, on 4 spectra of
+  3 sets, the default curve lies 22 to 26% below the 137Cs efficiency, with a
+  fitted uncertainty of 7 to 13% that does not cover the difference, where
+  the previous curve differed from it by +4% to -21%, with a fitted
+  uncertainty 25 to 56 times its value. The floor acts on measured points only and leaves user `eff_points` and the
   energy and resolution points as they were. A calibration file saved
   before the change loads and evaluates identically. Points left out carry the reason
   `intensity<1%` in `effcal_data` and on the calibration plots, and the
@@ -39,8 +46,9 @@ Notable changes to curie are documented here. The format follows
   Across 132 calibrations of measured spectra, 129 still fit, with a median
   of 19 points, and at most 35, left out of each; the curve moves by a median of
   1.6% at 661.657 keV and 2.6% at 1408 keV, and 39 curves move by more than
-  5% at 1408 keV, all toward the curve fitted to lines of at least 1%
-  intensity. The automatic choice between the 5- and 7-parameter forms
+  5% at 1408 keV: the 36 of them for which the fit to lines of at least 1%
+  intensity succeeds all move toward that curve, and for the other 3 that
+  fit stops. The automatic choice between the 5- and 7-parameter forms
   changes for 22. Three calibrations that fitted before, from one detector at
   15, 20 and 30 cm, now stop for lack of points, and need a lower
   `effcal_I_min`.
