@@ -417,3 +417,34 @@ def test_effcal_underdetermined_vidmar_guard():
     with pytest.raises(ValueError, match=r'effcal_model vidmar-5 needs at least 5 efficiency points to fit \(have 3\)'):
         cb.calibrate([eu_sp()], sources=EU_SOURCES,
                      effcal_max_error=0.008, outlier_sigma=1E9, eff_points=ep)
+
+
+def _starve_unlimited_eff_fits(monkeypatch):
+    # an efficiency-fit call (the only calls that pass bounds) that names no
+    # evaluation limit gets a limit of a few evaluations, far below what any
+    # fit needs; every efficiency call is recorded with the limit it named
+    real = cal_mod.curve_fit
+    limits = []
+    def starved(fn, x, y, **kw):
+        if 'bounds' in kw:
+            limits.append(kw.get('maxfev'))
+            if kw.get('maxfev') is None:
+                kw = dict(kw, maxfev=3)
+        return real(fn, x, y, **kw)
+    monkeypatch.setattr(cal_mod, 'curve_fit', starved)
+    return limits
+
+
+@requires_data('decay')
+@pytest.mark.parametrize('model', ['vidmar-5', 'loglog'])
+def test_effcal_fit_names_evaluation_limit(model, monkeypatch):
+    # the efficiency fit passes its own evaluation limit on every call - the
+    # first, independent-uncertainty call and the correlated-uncertainty calls
+    # after it - on the bounded (vidmar) path and on the unbounded loglog path,
+    # so it converges even where the optimizer default would stop it
+    limits = _starve_unlimited_eff_fits(monkeypatch)
+    cb = ci.Calibration()
+    cb.calibrate([eu_sp()], sources=EU_SOURCES, effcal_model=model)
+    assert len(limits) >= 2
+    assert limits == [cal_mod._EFF_MAXFEV]*len(limits)
+    assert np.all(np.isfinite(cb.effcal))

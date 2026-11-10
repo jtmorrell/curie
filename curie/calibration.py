@@ -42,6 +42,12 @@ _VIDMAR_L0 = 1.0
 # points land there, since two free low-energy parameters cannot be resolved
 # by a single point in the region where they act
 _VIDMAR_LOW_E = 150.0
+# evaluation limit of each efficiency-fit call.  The optimizer's own default
+# (100 per parameter for the bounded fits, 200 per parameter plus 200 for the
+# unbounded loglog fit) stops correlated-uncertainty fits that converge in up
+# to about 1600 evaluations; a fit that converges within the default never
+# reaches this limit, so its result is unchanged
+_EFF_MAXFEV = 20000
 
 
 
@@ -1138,7 +1144,7 @@ class Calibration(object):
 			# re-emerge as curie messages at the call sites. fn is rebound per
 			# model before each call (late-binding closure)
 			with np.errstate(all='ignore'):
-				f0, _ = curve_fit(fn, x, y, sigma=yerr, p0=p0_, bounds=bounds_, absolute_sigma=True)
+				f0, _ = curve_fit(fn, x, y, sigma=yerr, p0=p0_, bounds=bounds_, absolute_sigma=True, maxfev=_EFF_MAXFEV)
 				m0 = fn(x, *f0)
 				Vi = np.diag((m0*meta['rel_stat'].to_numpy())**2)
 				V = eff_cov(m0)
@@ -1147,7 +1153,7 @@ class Calibration(object):
 				S2, f1, u1, chi2n, chi2_0 = 1.0, f0, None, np.inf, None
 				for _ in range(4):
 					Vp = V if S2==1.0 else V+(S2-1.0)*Vi
-					f1, u1 = curve_fit(fn, x, y, sigma=Vp, p0=f1, bounds=bounds_, absolute_sigma=True)
+					f1, u1 = curve_fit(fn, x, y, sigma=Vp, p0=f1, bounds=bounds_, absolute_sigma=True, maxfev=_EFF_MAXFEV)
 					r = y-fn(x, *f1)
 					chi2n = float(r @ np.linalg.solve(Vp, r))/max(len(y)-len(f1), 1)
 					if chi2_0 is None:
