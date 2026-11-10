@@ -154,8 +154,8 @@ def _factors(lines, pairs, eps_p, eps_t, E_min=15.0, sum_tol=1.0, *, xray_lines)
 		np.multiply.at(loss, idx[single], fac[single])
 		np.add.at(s, idx[xr], x[xr])
 		loss *= 1.0-s
-	# single-partner rows that a summing gamma-ray pair can match
-	single &= (p['coinc_type']!='511').to_numpy()
+	# single-partner rows that can hold a photon of a summing gamma-ray pair
+	match = single&(p['coinc_type']!='511').to_numpy()
 
 	gain = np.zeros(len(E))
 	g = pairs[(pairs['coinc_type']=='g')&(pairs['energy']<=pairs['coinc_energy'])&(pairs['energy']>=E_min)]
@@ -168,10 +168,10 @@ def _factors(lines, pairs, eps_p, eps_t, E_min=15.0, sum_tol=1.0, *, xray_lines)
 			w = Pg*np.asarray(eps_p(e1), dtype=float)*np.asarray(eps_p(e2), dtype=float)
 			et_line = np.asarray(eps_t(E[k]), dtype=float)
 			for j in range(len(k)):
-				on = single&(idx==k[j])
-				own = on&((ce==e1[j])|(ce==e2[j]))
-				q = min(P[on&(ce==e1[j])].sum(), P[on&(ce==e2[j])].sum(), Pg[j])/Pg[j]
-				w[j] *= (1.0-s[k[j]])*np.prod(fac[on&~own])*(1.0-q*et_line[j])
+				on = idx==k[j]
+				own = on&match&((ce==e1[j])|(ce==e2[j]))
+				q = min(P[own&(ce==e1[j])].sum(), P[own&(ce==e2[j])].sum(), Pg[j])/Pg[j]
+				w[j] *= (1.0-s[k[j]])*np.prod(fac[on&single&~own])*(1.0-q*et_line[j])
 			np.add.at(gain, k, w)
 			rows = np.unique(k)
 			gain[rows] /= I[rows]*np.asarray(eps_p(E[rows]), dtype=float)

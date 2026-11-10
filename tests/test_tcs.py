@@ -240,6 +240,23 @@ def test_gain_carries_the_loss_inside_a_cascade():
 
 
 @pytest.mark.validation
+def test_annihilation_partner_carried_by_the_gain():
+    # a positron branch (0.6) feeds a 1500 keV level, which decays by a 600 + 900 keV
+    # cascade (0.9) or the crossover; the annihilation quanta accompany both routes, so
+    # they remove summed-in counts of the crossover as they remove its own counts
+    lines = pd.DataFrame({'energy': [511.0, 600.0, 900.0, 1500.0], 'intensity': [120.0, 90.0, 90.0, 10.0]})
+    rows = [(600.0, 900.0, 'g', 90.0), (511.0, 600.0, '511', 108.0), (511.0, 900.0, '511', 108.0),
+            (511.0, 1500.0, '511', 12.0), (511.0, 511.0, '511', 60.0)]
+    pairs = pd.DataFrame([(a, b, t, p, np.nan) for a, b, t, p in rows] +
+                         [(b, a, t, p, np.nan) for a, b, t, p in rows if a != b],
+                         columns=['energy', 'coinc_energy', 'coinc_type', 'intensity', 'unc_intensity'])
+    F = dict(zip(lines['energy'], _factors(lines, pairs, EPS_P, EPS_T, xray_lines=())))
+    loss = 1.0 - (12.0 / 10.0) * EPS_T(511.0)
+    gain = 9.0 * EPS_P(600.0) * EPS_P(900.0) / EPS_P(1500.0)
+    assert F[1500.0] == pytest.approx(loss * (1.0 + gain), abs=1e-12)
+
+
+@pytest.mark.validation
 def test_pairwise_second_order_on_branched_scheme():
     exact, T = BRANCHED.exact(EPS_P, EPS_T)
     F = BRANCHED.pairwise(EPS_P, EPS_T)
