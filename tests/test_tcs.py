@@ -8,7 +8,9 @@ transitions only) every decay path is enumerated, and the peak rate of a line
 is summed over paths and over the photon subsets whose energies add up to the
 line energy, each subset fully absorbed and every other photon of the path
 escaping the detector.  The pairwise form is exact for a single cascade and
-differs at second order in the efficiencies on a branched scheme.
+differs at second order in the efficiencies on a branched scheme.  Electron-
+capture schemes add K x-rays, at most one per vacancy, from K capture and K
+conversion.
 
 Table-pinned cases (60Co, 22Na, 54Mn, 137Cs, 109Cd, 152Eu) use values typed
 from the shipped decay database, read 2026-11-09:
@@ -253,6 +255,169 @@ def test_pairwise_second_order_on_branched_scheme():
         d[scale] = {e: Fs[e] - ex[e] for e in BRANCHED.energies}
     for e in nonzero:
         assert 3.5 <= d[0.5][e] / d[0.25][e] <= 4.5, e
+
+
+# ---------------------------------------------------------------- K x-rays
+
+def capture_histories(levels, feed, branch, pK, kx, conv=None):
+    """Photon histories of an electron-capture scheme as (probability, ((kind, keV), ...)).
+
+    A decay feeds a level with probability `feed[level]` by capture of a K electron
+    with probability `pK`; transition (high, low) converts in the K shell with
+    probability `conv[(high, low)]`, emitting no gamma ray.  A K vacancy is filled
+    with emission of the K x-ray at x keV with probability `kx[x]`, at most one per
+    vacancy, and of no photon otherwise.
+    """
+    conv = conv or {}
+    out = []
+
+    def vacancy(prob, photons):
+        alt = [(prob * q, photons + (('x', x),)) for x, q in kx.items()]
+        return alt + [(prob * (1.0 - sum(kx.values())), photons)]
+
+    def walk(level, prob, photons):
+        if level not in branch:
+            out.append((prob, photons))
+            return
+        for low, b in branch[level].items():
+            a = conv.get((level, low), 0.0)
+            walk(low, prob * b * (1.0 - a), photons + (('g', levels[level] - levels[low]),))
+            if a > 0.0:
+                for pr, ph in vacancy(prob * b * a, photons):
+                    walk(low, pr, ph)
+
+    for level, f in feed.items():
+        for pr, ph in [(f * (1.0 - pK), ())] + vacancy(f * pK, ()):
+            walk(level, pr, ph)
+    return out
+
+
+class PhotonScheme(object):
+    """Gamma rays and K x-rays of a set of decay histories, with exact summing factors.
+
+    The pair table follows the decay database: gamma-gamma pairs 'g' (an
+    equal-energy pair stored once), gamma plus x-ray pairs 'XR', no x-ray plus
+    x-ray pairs.
+    """
+
+    def __init__(self, histories):
+        self.histories = histories
+        self.line, self.kind, self.pair = {}, {}, {}
+        for p, ph in histories:
+            for k, e in ph:
+                self.line[e] = self.line.get(e, 0.0) + p
+                self.kind[e] = k
+            for (ka, a), (kb, b) in itertools.combinations(ph, 2):
+                if ka == 'x' and kb == 'x':
+                    continue
+                key = ('XR' if 'x' in (ka, kb) else 'g',) + tuple(sorted((a, b)))
+                self.pair[key] = self.pair.get(key, 0.0) + p
+        self.energies = sorted(self.line)
+        self.xray_lines = [e for e in self.energies if self.kind[e] == 'x']
+
+    def pairs_frame(self):
+        rows = []
+        for (t, a, b), p in sorted(self.pair.items()):
+            rows.append((a, b, t, 100.0 * p, np.nan))
+            if a != b:
+                rows.append((b, a, t, 100.0 * p, np.nan))
+        return pd.DataFrame(rows, columns=['energy', 'coinc_energy', 'coinc_type',
+                                           'intensity', 'unc_intensity'])
+
+    def pairwise(self, eps_p, eps_t):
+        lines = pd.DataFrame({'energy': self.energies,
+                              'intensity': [100.0 * self.line[e] for e in self.energies]})
+        F = _factors(lines, self.pairs_frame(), eps_p, eps_t, xray_lines=self.xray_lines)
+        return dict(zip(self.energies, F))
+
+    def exact(self, eps_p, eps_t, tol=1e-6):
+        """Exact factor and three-or-more-photon gain T of each line energy."""
+        F, T = {}, {}
+        for e in self.energies:
+            N, N3 = 0.0, 0.0
+            for p, ph in self.histories:
+                En = [x for _, x in ph]
+                for r in range(1, len(En) + 1):
+                    for sub in itertools.combinations(range(len(En)), r):
+                        if abs(sum(En[k] for k in sub) - e) < tol:
+                            w = np.prod([eps_p(En[k]) for k in sub])
+                            w *= np.prod([1.0 - eps_t(En[k]) for k in range(len(En)) if k not in sub])
+                            N += p * w
+                            if r >= 3:
+                                N3 += p * w
+            F[e] = N / (self.line[e] * eps_p(e))
+            T[e] = N3 / (self.line[e] * eps_p(e))
+        return F, T
+
+    def bound_terms(self, eps_p, eps_t, sum_tol=1.0):
+        """S, G and M of each line energy, as `Scheme.bound_terms` defines them."""
+        S, G, M = {}, {}, {}
+        for e in self.energies:
+            s_sum, g_sum = 0.0, 0.0
+            for (t, a, b), p in self.pair.items():
+                if a == e or b == e:
+                    partner = b if a == e else a
+                    mult = 2.0 if a == b else 1.0
+                    s_sum += mult * p / self.line[e] * eps_t(partner)
+                nearest = min(self.energies, key=lambda x: abs(a + b - x))
+                if t == 'g' and nearest == e and abs(a + b - e) <= sum_tol:
+                    g_sum += p / self.line[e] * eps_p(a) * eps_p(b) / eps_p(e)
+            S[e], G[e] = s_sum, g_sum
+            m = 0.0
+            for p, ph in self.histories:
+                En = [x for _, x in ph]
+                if e in En:
+                    En.remove(e)
+                    m = max(m, sum(eps_t(x) for x in En))
+            M[e] = m
+        return S, G, M
+
+
+# K x-rays of one vacancy (Sm-like energies; emission probabilities sum to the
+# fluorescence yield 0.93), above 35.1 keV, where EPS_P stays below EPS_T
+KX = {39.522: 0.25, 40.117: 0.45, 45.523: 0.18, 46.575: 0.05}
+
+# one K vacancy per decay: K capture (0.85) feeds 700 keV, which decays by a
+# 400 + 300 keV cascade (0.8) or the crossover (0.2); no x-ray sum lies near a line
+ONE_VACANCY = PhotonScheme(capture_histories({0: 0.0, 1: 300.0, 2: 700.0}, {2: 1.0},
+                                             {2: {1: 0.8, 0: 0.2}, 1: {0: 1.0}}, 0.85, KX))
+# two K vacancies: K capture, then K conversion of the 250 or 150 keV transition
+TWO_VACANCY = PhotonScheme(capture_histories({0: 0.0, 1: 150.0, 2: 400.0}, {2: 1.0},
+                                             {2: {1: 0.9, 0: 0.1}, 1: {0: 1.0}}, 0.85, KX,
+                                             conv={(2, 1): 0.3, (1, 0): 0.15}))
+
+
+@pytest.mark.validation
+def test_xray_partners_of_one_vacancy_exact():
+    sc = ONE_VACANCY
+    exact, T = sc.exact(EPS_P, EPS_T)
+    F = sc.pairwise(EPS_P, EPS_T)
+    S, G, M = sc.bound_terms(EPS_P, EPS_T)
+    assert sc.energies == sorted(KX) + [300.0, 400.0, 700.0]
+    assert G[700.0] > 0.05
+    for e in [300.0, 400.0, 700.0]:
+        assert any(t == 'XR' and e in (a, b) for t, a, b in sc.pair), e
+        assert F[e] == pytest.approx(exact[e], abs=1e-12), e
+    # an x-ray line sits on both gamma branches: second order
+    for e in KX:
+        assert abs(F[e] - exact[e]) <= S[e] * M[e] / 2 + G[e] * M[e] + T[e], e
+
+
+@pytest.mark.validation
+def test_xray_partners_of_two_vacancies_second_order():
+    sc = TWO_VACANCY
+    exact, T = sc.exact(EPS_P, EPS_T)
+    F = sc.pairwise(EPS_P, EPS_T)
+    S, G, M = sc.bound_terms(EPS_P, EPS_T)
+    # two x-rays in one decay
+    assert any(sum(k == 'x' for k, _ in ph) == 2 for _, ph in sc.histories)
+    # the gamma lines, whose x-ray partners share one factor; an x-ray line misses
+    # the x-ray of the other vacancy at first order, as the table pairs no two x-rays
+    gammas = [150.0, 250.0, 400.0]
+    diff = {e: F[e] - exact[e] for e in gammas}
+    for e in gammas:
+        assert abs(diff[e]) <= S[e] * M[e] / 2 + G[e] * M[e] + T[e], e
+    assert max(abs(diff[e]) for e in gammas) > 1e-4
 
 
 @pytest.mark.validation

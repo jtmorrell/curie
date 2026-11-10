@@ -13,7 +13,9 @@ summing-free area times F.  With line and pair intensities in percent,
 F = loss * (1 + gain), where
 
 - loss is the product, over the pairs keyed on the line whose partner energy
-  is at or above the floor E_min, of 1 - (pair / line) * eps_t(partner);
+  is at or above the floor E_min, of 1 - (pair / line) * eps_t(partner),
+  except that the x-ray partners of a gamma-ray or annihilation line enter as
+  one factor, 1 - sum((pair / line) * eps_t(partner));
 - gain is the sum, over pairs of coincident gamma rays with both energies at
   or above E_min that add up to the line energy within sum_tol, of
   (pair / line) * eps_p(E1) * eps_p(E2) / eps_p(line).  A pair whose summed
@@ -24,6 +26,13 @@ The gain is multiplied by the loss because a summed-in count, like a count of
 the line itself, leaves the peak when any other photon of the same decay
 deposits energy; for a crossover inside a cascade the photons in coincidence
 with the summing pair are those in coincidence with the line.
+
+The x-ray partners share one factor because a vacancy is filled by at most one
+K x-ray, so the x-rays of one vacancy are exclusive and their summing-out
+probabilities add; this is exact for one vacancy per decay and leaves an
+error of second order where electron capture and internal conversion both
+leave one.  On an x-ray line the partners of type 'XR' are gamma rays, which
+stay one factor each.
 
 The product form is exact for a single cascade; on a branched scheme the
 pairwise table carries no correlation between three or more photons, which
@@ -74,7 +83,7 @@ def _pairs(isotope):
 	return df.astype({'energy':float, 'coinc_energy':float, 'intensity':float, 'unc_intensity':float})
 
 
-def _factors(lines, pairs, eps_p, eps_t, E_min=15.0, sum_tol=1.0):
+def _factors(lines, pairs, eps_p, eps_t, E_min=15.0, sum_tol=1.0, xray_lines=()):
 	"""Coincidence-summing factor of every line of a decaying state.
 
 	Parameters
@@ -100,6 +109,10 @@ def _factors(lines, pairs, eps_p, eps_t, E_min=15.0, sum_tol=1.0):
 		and a line energy for the pair to add to that line; a pair adds only to
 		the line nearest its summed energy.  Default 1.0.
 
+	xray_lines : array_like, optional
+		Energies of the x-ray lines among `lines`, whose 'XR' partners are gamma
+		rays and enter the loss one factor each.  Default none.
+
 	Returns
 	-------
 	np.ndarray
@@ -119,7 +132,12 @@ def _factors(lines, pairs, eps_p, eps_t, E_min=15.0, sum_tol=1.0):
 		idx = np.array([pos[e] for e in p['energy']], dtype=int)
 		ratio = p['intensity'].to_numpy(dtype=float)/I[idx]
 		ratio[((p['coinc_type']=='g')&(p['energy']==p['coinc_energy'])).to_numpy()] *= 2.0
-		np.multiply.at(loss, idx, 1.0-ratio*np.asarray(eps_t(p['coinc_energy'].to_numpy(dtype=float)), dtype=float))
+		x = ratio*np.asarray(eps_t(p['coinc_energy'].to_numpy(dtype=float)), dtype=float)
+		xr = (p['coinc_type']=='XR').to_numpy()&~p['energy'].isin(list(xray_lines)).to_numpy()
+		np.multiply.at(loss, idx[~xr], 1.0-x[~xr])
+		s = np.zeros(len(E))
+		np.add.at(s, idx[xr], x[xr])
+		loss *= 1.0-s
 
 	gain = np.zeros(len(E))
 	g = pairs[(pairs['coinc_type']=='g')&(pairs['energy']<=pairs['coinc_energy'])&(pairs['energy']>=E_min)]
@@ -172,7 +190,8 @@ def _summing_factor(isotope, energy, eps_p, eps_t, E_min=15.0, sum_tol=1.0):
 	if not isinstance(isotope, Isotope):
 		isotope = Isotope(isotope)
 	lines = isotope.gammas(xrays=True)
-	F = dict(zip(lines['energy'], _factors(lines, _pairs(isotope), eps_p, eps_t, E_min=E_min, sum_tol=sum_tol)))
+	xray_lines = set(lines['energy'])-set(isotope.gammas()['energy'])
+	F = dict(zip(lines['energy'], _factors(lines, _pairs(isotope), eps_p, eps_t, E_min=E_min, sum_tol=sum_tol, xray_lines=xray_lines)))
 
 	energy = np.asarray(energy, dtype=float)
 	for e in energy.ravel():
