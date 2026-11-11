@@ -15,6 +15,75 @@ Notable changes to curie are documented here. The format follows
   covering the full manual recipe.
 
 ### Changed
+- **Coincidence-summing correction in `calibrate()` and `Spectrum`**:
+  `calibrate()` now corrects the efficiency fit for true-coincidence summing
+  by default. The new `Calibration.fit_config` entry `summing`, default
+  `True`, turns it off, and `summing=False` reproduces the previous
+  parameters and covariance exactly on 147 calibrations of measured spectra
+  and 41 further cases. A line emitted in cascade with other photons loses
+  peak counts to summing with them near the detector, and gains counts when
+  two photons of one decay add up to its energy. The fit now finds the
+  curve whose values times the summing factor of each line match the
+  measured points; the factors come from the coincidence pairs of the decay
+  data and the fitted curve. The stored points (`effcal_data`) are the
+  measured values divided by their factors, and the relative uncertainty of
+  a corrected point gains a term of 0.3 times the size of the correction,
+  common to the points of one line. A curve fitted with the correction
+  stores `{"L": ..., "xray_partners": ...}` under the new top-level key
+  `summing` of the calibration file; a file without the key loads as
+  before. Assigning `effcal` by hand clears the entry.
+  A `Spectrum` whose calibration carries the entry gives each peak the factor
+  of its line: `efficiency` in the peak table is then the curve value times
+  the factor, `unc_efficiency` includes the uncertainty of the factor, and
+  `decays` follow from these columns. A peak that `fit_peaks` merged from
+  close lines takes the intensity-weighted mean of their factors. Without the
+  entry the peak table stays as before.
+  Measured on the 152Eu spectra of five calibration sets at 36 source
+  distances, the closure at 661.657 keV (the curve over the 137Cs efficiency,
+  relative to the same ratio at the farthest distance of the set) at 1 cm
+  moves from 0.784, 0.762 and 0.737 without the correction to 0.971, 1.008
+  and 1.010 with it, on three sets. At 5 cm and beyond, 25 of 33 closures lie
+  within 2% of 1 without the correction (at most 4.9% off) and 31 of 33 with
+  it (at most 3.5% off). The two outside 2% are 2018_Aug_Np at 40 and 50 cm,
+  1.022 and 1.035, where the study that fixed the correction rules found
+  1.029 and 1.040. Over 188 calibrations of measured spectra, 170 fit
+  with and without the correction, and none that fits without it stops with
+  it. At 661.657 keV the curve moves by a median of 24% at 1 cm, 2.9% at
+  5 cm, 0.55% at 10 to 20 cm and 0.04% beyond 20 cm, and the automatic choice
+  of the 5- or 7-parameter form changes for 1 of the 170. `calibrate()` takes
+  a median of 2.2 times as long (1.3 s against 0.55 s).
+  **Near-geometry results depend on the source activities through the
+  correction.** The factor depends on the absolute efficiency, so a
+  relative error delta in a source activity changes a corrected point by about
+  delta (1 - F) / F beyond the common scale, where F is the factor. For
+  2018_Aug_Np at 1 cm, a 152Eu activity record off by a factor 0.366 moves the
+  closure from 1.002 to 0.808.
+  Limits of the correction:
+  - At 1 cm it is an approximation: the closure of LaCe_Sep2017 at 1 cm is 0.971,
+    where a fit without the uncertainty term gives 0.988. Some weak lines
+    read high by more than the correction describes, and the correction
+    counts the gain from a gamma-ray pair only, not from an x-ray plus a
+    gamma ray.
+  - It does not apply under a `loglog` efficiency model, or when the decay
+    database fails its data-generation check or has no coincidences table. A
+    warning says so, and the result is that of `summing=False`.
+  - The partner efficiency of a line's K x-rays is the curve value times a
+    scale measured from the 152Eu spectra of the set. On detectors that record
+    K x-rays only partly the scale is an interpolation, not a measured result.
+    A set without a 152Eu spectrum takes the scale 0, which under-corrects
+    lines with x-ray partners near a detector that records them: for the
+    133Ba 276.40 keV line of the 133Ba-only calibration at LaCe 1 cm the
+    factor would change by 0.23 with a scale of 1.
+  - No measurement confirms the correction for positron emitters. For 22Na the
+    predicted loss of a line to its 511 keV partner is larger than measured:
+    at 5 cm the 511 keV over 1274.5 keV peak ratio is 1.849 measured against
+    2.275 predicted.
+  - An earlier curie that reads a calibration file with the `summing` key
+    loads it without error and ignores the key. The curve is the efficiency
+    without summing, so the earlier curie applies it to peaks that summing has
+    changed, and the decays of nuclides with cascades come out biased near the
+    detector. A file that the earlier curie saves again loses the key.
+
 - **Default efficiency-point selection leaves out weak lines**: `calibrate()`
   now fits the efficiency curve only to points measured from lines of at
   least 1% intensity per decay. The new `Calibration.fit_config` entry
@@ -30,12 +99,13 @@ Notable changes to curie are documented here. The format follows
   removed and is not an independent check. Against the 137Cs efficiency
   measured at the 31 source distances of 10 cm and beyond, the default curve
   at 661.657 keV is within 2% at 16 of them, against 14 before, and at most
-  17.1% off, against 25.3%. `calibrate()` applies no coincidence-summing
-  correction, and the floor does not remove summing: at 1 cm, on 4 spectra of
-  3 sets, the default curve lies 22 to 26% below the 137Cs efficiency, with a
-  fitted uncertainty of 7 to 13% that does not cover the difference, where
-  the previous curve differed from it by +4% to -21%, with a fitted
-  uncertainty 25 to 56 times its value. The floor acts on measured points only and leaves user `eff_points` and the
+  17.1% off, against 25.3%. The floor does not remove summing: with
+  `summing=False`, at 1 cm, on 4
+  spectra of 3 sets, the default curve lies 22 to 26% below the 137Cs
+  efficiency, with a fitted uncertainty of 7 to 13% that does not cover the
+  difference, where the previous curve differed from it by +4% to -21%, with a
+  fitted uncertainty 25 to 56 times its value. The floor acts on measured
+  points only and leaves user `eff_points` and the
   energy and resolution points as they were. A calibration file saved
   before the change loads and evaluates identically. Points left out carry the reason
   `intensity<1%` in `effcal_data` and on the calibration plots, and the

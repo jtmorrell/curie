@@ -246,10 +246,9 @@ fails to separate the two.  The post-fit outlier clip leaves such a point in
 the fit, so the floor removes these lines before it.  An interfered line at
 the floor or stronger stays in.  The floor
 leaves user-supplied ``eff_points`` and the energy and resolution points
-alone, and ``effcal_I_min=0`` keeps every line.  ``calibrate()`` applies no
-coincidence-summing correction, and the floor does not remove summing.
-Close to the detector the curve lies below the true efficiency by more than
-its fitted uncertainty.
+alone, and ``effcal_I_min=0`` keeps every line.  ``calibrate()`` also
+corrects the points for true-coincidence summing by default under the Vidmar
+models; ``summing=False`` turns the correction off.
 
 Efficiency model
 ~~~~~~~~~~~~~~~~
