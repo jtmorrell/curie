@@ -649,6 +649,24 @@ def test_guard_on_pair_to_line_ratio(isotope, energy, guarded):
         assert np.isfinite(F[i]) and np.isfinite(c[i]) and F[i] == pytest.approx(Fs, abs=1e-12)
 
 
+@pytest.mark.validation
+@pytest.mark.parametrize('P, guarded', [(0.9, True), (0.5, False)])
+def test_guard_doubles_an_equal_energy_pair(P, guarded):
+    # a 500 + 500 keV cascade is stored once and gives two 500 keV photons, so
+    # a consistent table has P <= I / 2 and the factor takes twice P / I: with
+    # P = 0.9 of I = 1 the ratio is 1.8, which the guard catches (else the loss
+    # factor is negative at a total efficiency of 0.6), and P = 0.5 is 1.0
+    lines = pd.DataFrame({'energy': [500.0], 'intensity': [1.0]})
+    pairs = pd.DataFrame([(500.0, 500.0, 'g', P, np.nan)],
+                         columns=['energy', 'coinc_energy', 'coinc_type', 'intensity', 'unc_intensity'])
+    arr = _tcs._Arrays(lines, pairs, xray_lines=())
+    F, c = arr.terms(EPS_P(arr.grid), np.full(len(arr.grid), 0.6))
+    Ff = _factors(lines, pairs, EPS_P, lambda E: np.full(np.shape(E), 0.6), xray_lines=())
+    assert bool(np.isnan(F[0])) == bool(np.isnan(c[0])) == bool(np.isnan(Ff[0])) == guarded
+    if not guarded:
+        assert F[0] == pytest.approx(1.0-2.0*P*0.6, abs=1e-15)
+
+
 def _decay_subset(path, src, isotope, isomer='g', pair_scale=1.0):
     """A decay database holding one state of `src`, its pair intensities times `pair_scale`."""
     con = sqlite3.connect(str(path))

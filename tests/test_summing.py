@@ -405,6 +405,22 @@ def test_summing_stored_points_are_measured_over_factor(eu_fitted, pairs_usable)
 
 @requires_data('decay')
 @requires_pairs()
+def test_summing_outlier_screen_uses_the_stored_uncertainty(eu_fitted, pairs_usable):
+    # the outlier screen judges a point by its own quoted uncertainty, which
+    # for a corrected point holds the factor's term: a point is flagged exactly
+    # when its stored residual from the curve exceeds outlier_sigma
+    clip = 1.0
+    cb, _ = _calibrate([eu_fitted], EU_SOURCES, outlier_sigma=clip)
+    kept, drop = cb._calib_data['effcal'], cb._calib_data['effcal_dropped']
+    out = np.array([str(r).startswith('outlier') for r in drop['reason']])
+    z_out = (drop['efficiency'][out]-cb.eff(drop['energy'][out], cb.effcal))/drop['unc_efficiency'][out]
+    z_kept = (kept['efficiency']-cb.eff(kept['energy'], cb.effcal))/kept['unc_efficiency']
+    assert out.sum() > 0
+    assert np.all(np.abs(z_out) >= clip) and np.all(np.abs(z_kept) < clip)
+
+
+@requires_data('decay')
+@requires_pairs()
 def test_summing_user_point_keeps_value(eu_fitted, pairs_usable):
     # a user point keeps its value and uncertainty, even with the label and
     # energy of a 152Eu line (user points take no factor, by position)
@@ -729,6 +745,32 @@ def test_summing_file_round_trip(eu_fitted, pairs_usable, tmp_path):
     with open(str(tmp_path / 'off.json')) as f:
         assert 'summing' not in json.load(f)
     assert ci.Calibration(str(tmp_path / 'off.json'))._summing is None
+
+
+@requires_data('decay')
+@requires_pairs()
+def test_summing_file_entry_ignored_under_loglog(eu_fitted, pairs_usable, tmp_path, capsys):
+    # the correction needs a Vidmar curve: an entry in a file whose curve is
+    # loglog is not read back, one warning says so, and the peaks of a
+    # spectrum on that calibration take the curve value
+    cb, _ = _calibrate([eu_fitted], EU_SOURCES, summing=False, effcal_model='loglog')
+    fn = _file(tmp_path, name='loglog.json')
+    cb.saveas(fn)
+    with open(fn) as f:
+        js = json.load(f)
+    assert js['effcal_model'] == 'loglog-4'
+    js['summing'] = {'L': 0.69, 'xray_partners': 0.58}
+    with open(fn, 'w') as f:
+        json.dump(js, f)
+    capsys.readouterr()
+    back = ci.Calibration(fn)
+    log = [l for l in capsys.readouterr().out.splitlines() if 'summing' in l]
+    assert back._summing is None
+    assert log == ['[WARNING] Calibration: curie ignores the coincidence-summing entry of {0}. The correction needs '
+                   'a Vidmar efficiency model, and the file holds a loglog-4 curve.'.format(fn)]
+    sp, _ = _refit(back, sp0=eu_fitted)
+    np.testing.assert_array_equal(sp.peaks['efficiency'], back.eff(sp.peaks['energy']))
+    np.testing.assert_array_equal(sp.peaks['unc_efficiency'], back.unc_eff(sp.peaks['energy']))
 
 
 @requires_data('decay')

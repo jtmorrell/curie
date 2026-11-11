@@ -60,8 +60,10 @@ _EFF_MAXFEV = 20000
 _SUMMING_L = 0.69
 # relative uncertainty of a corrected efficiency point, added in quadrature:
 # _SUMMING_K times the size of the correction c, (1 - loss) + gain, so a line
-# without a correction keeps its uncertainty (on the per-line pulls of five
-# 152Eu calibration sets, pull standard deviation 1.16 at 5 cm and nearer)
+# without a correction keeps its uncertainty (on the per-line pulls of two
+# 152Eu calibration sets, pull standard deviation 1.16 at 5 cm and nearer;
+# beyond 5 cm 1.26 to 1.33 for any k, scatter the correction does not touch,
+# which the fit's inflation of the independent terms covers)
 _SUMMING_K = 0.3
 # the x-ray partner scale is measured on the Sm K-alpha lines (keV) of 152Eu,
 # as their window sum over the fitted counts of its 121.78 keV line, divided by
@@ -304,9 +306,13 @@ class Calibration(object):
 						self._effcal_erange = (float(js['effcal_erange'][0]), float(js['effcal_erange'][1]))
 					# the summing correction the curve was fitted with; a file
 					# without it holds an apparent curve.  Other items of the
-					# entry are ignored
+					# entry are ignored, and so is the entry of a loglog curve,
+					# which takes no correction
 					if js.get('summing', None) is not None:
-						self._summing = {'L':float(js['summing']['L']), 'xray_partners':float(js['summing']['xray_partners'])}
+						if str(self._effcal_model).startswith('loglog'):
+							_log.warning('Calibration: curie ignores the coincidence-summing entry of {0}. The correction needs a Vidmar efficiency model, and the file holds a {1} curve.'.format(filename, self._effcal_model))
+						else:
+							self._summing = {'L':float(js['summing']['L']), 'xray_partners':float(js['summing']['xray_partners'])}
 					if '_calib_data' in js:
 						for c in _CALIB_GROUPS:
 							if c in js['_calib_data']:
@@ -945,10 +951,7 @@ class Calibration(object):
 				arr = _tcs._arrays(nm)
 				sel = np.array([n for n, i in enumerate(iso_x) if i == nm], dtype=int)
 				j = arr.index(E[sel])
-				# at any finite efficiencies NaN marks a guarded line
-				f1, _ = arr.terms(np.full(len(arr.grid), 1E-3), np.full(len(arr.grid), 1E-3))
-				g = np.isnan(f1)
-				groups.append([arr, sel[j>=0], j[j>=0], g[j[j>=0]]])
+				groups.append([arr, sel[j>=0], j[j>=0], arr._guarded[j[j>=0]]])
 				grids.append(arr.grid)
 			grid = np.unique(np.concatenate(grids)) if grids else np.zeros(0)
 			for gp in groups:
@@ -1121,7 +1124,9 @@ class Calibration(object):
 			ratio on a detector that records them fully.  The scale is 0 on
 			a detector that records no K x-rays and about 1 on one that
 			records them fully.  Between the two, it is an interpolation, not
-			a measured result.  A set without a 152Eu spectrum takes 0, which
+			a measured result.  The 152Eu spectra give the scale at the Sm K
+			x-rays near 40 keV.  The same scale applies to the K x-rays of
+			every element, where no measurement checks it.  A set without a 152Eu spectrum takes 0, which
 			under-corrects lines with x-ray partners close to a detector that
 			records them.  Three kinds of points keep their measured values.
 			They are user `eff_points`, lines of a nuclide without coincidence
@@ -1596,12 +1601,6 @@ class Calibration(object):
 				_log.info('Calibration.calibrate: effcal model: vidmar-5 (auto - no x-ray peaks fit, fewer than two points below {0:.0f} keV)'.format(_VIDMAR_LOW_E))
 			tag = 'vidmar-{0}'.format(len(fit))
 
-		with np.errstate(all='ignore'):
-			# the signed residual is kept so a low-energy outlier can report
-			# which side of the curve it fell on, not only its magnitude
-			res_sig = (y-fn(x, *fit))/yerr
-			kept = res_sig**2 < ccfg['outlier_sigma']**2
-		idx = np.where(kept)
 		ys, us, dys, dus = y, yerr, drop['efficiency'], drop['unc_efficiency']
 		if xr_scale is not None:
 			# every point with a factor, used or dropped, is stored as the
@@ -1614,6 +1613,14 @@ class Calibration(object):
 			with np.errstate(all='ignore'):
 				us = np.where(c_fit!=0, ys*np.sqrt((yerr/y)**2+(_SUMMING_K*c_fit)**2), yerr/F_fit)
 				dus = np.where(c_drop!=0, dys*np.sqrt((dus/drop['efficiency'])**2+(_SUMMING_K*c_drop)**2), dus/F_drop)
+		with np.errstate(all='ignore'):
+			# the signed residual is kept so a low-energy outlier can report
+			# which side of the curve it fell on, not only its magnitude; a
+			# corrected point is judged as it is stored, by its uncertainty
+			# with the factor's term
+			res_sig = (y-fn(x, *fit))/yerr if xr_scale is None else (ys-self.eff(x, fit))/us
+			kept = res_sig**2 < ccfg['outlier_sigma']**2
+		idx = np.where(kept)
 		# provenance is stored as the line label alone ('isotope:energy');
 		# the isotope is derived from it on read
 		self._calib_data['effcal'] = {'energy':x[idx], 'efficiency':ys[idx], 'unc_efficiency':us[idx],

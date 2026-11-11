@@ -19,12 +19,12 @@ Notable changes to curie are documented here. The format follows
   `calibrate()` now corrects the efficiency fit for true-coincidence summing
   by default. The new `Calibration.fit_config` entry `summing`, default
   `True`, turns it off, and `summing=False` reproduces the previous
-  parameters and covariance exactly on 147 calibrations of measured spectra
-  and 41 further cases. A line emitted in cascade with other photons loses
-  peak counts to summing with them near the detector, and gains counts when
-  two photons of one decay add up to its energy. The fit now finds the
-  curve whose values times the summing factor of each line match the
-  measured points; the factors come from the coincidence pairs of the decay
+  parameters and covariance exactly on the 170 of 188 calibrations of
+  measured spectra that fit, and the previous outcome on the other 18. A
+  line emitted in cascade with other photons loses peak counts to summing
+  with them near the detector, and gains counts when two photons of one
+  decay add up to its energy. The fit now finds the curve whose values times
+  the summing factor of each line match the measured points; the factors come from the coincidence pairs of the decay
   data and the fitted curve. The stored points (`effcal_data`) are the
   measured values divided by their factors, and the relative uncertainty of
   a corrected point gains a term of 0.3 times the size of the correction,
@@ -42,11 +42,12 @@ Notable changes to curie are documented here. The format follows
   distances, the closure at 661.657 keV (the curve over the 137Cs efficiency,
   relative to the same ratio at the farthest distance of the set) at 1 cm
   moves from 0.784, 0.762 and 0.737 without the correction to 0.971, 1.008
-  and 1.010 with it, on three sets. At 5 cm and beyond, 25 of 33 closures lie
-  within 2% of 1 without the correction (at most 4.9% off) and 31 of 33 with
-  it (at most 3.5% off). The two outside 2% are 2018_Aug_Np at 40 and 50 cm,
-  1.022 and 1.035, where the study that fixed the correction rules found
-  1.029 and 1.040. Over 188 calibrations of measured spectra, 170 fit
+  and 1.010 with it, on three sets. At 5 cm and beyond, leaving out the
+  farthest distance of each set, where the closure is 1 by construction, 20
+  of 28 closures lie within 2% of 1 without the correction (at most 4.9% off)
+  and 26 of 28 with it (at most 3.5% off). The two outside 2% are
+  2018_Aug_Np at 40 and 50 cm, 1.022 and 1.035, where the study that fixed
+  the correction rules found 1.029 and 1.040. Over 188 calibrations of measured spectra, 170 fit
   with and without the correction, and none that fits without it stops with
   it. At 661.657 keV the curve moves by a median of 24% at 1 cm, 2.9% at
   5 cm, 0.55% at 10 to 20 cm and 0.04% beyond 20 cm, and the automatic choice
@@ -54,10 +55,12 @@ Notable changes to curie are documented here. The format follows
   a median of 2.2 times as long (1.3 s against 0.55 s).
   **Near-geometry results depend on the source activities through the
   correction.** The factor depends on the absolute efficiency, so a
-  relative error delta in a source activity changes a corrected point by about
-  delta (1 - F) / F beyond the common scale, where F is the factor. For
-  2018_Aug_Np at 1 cm, a 152Eu activity record off by a factor 0.366 moves the
-  closure from 1.002 to 0.808.
+  relative error delta in a source activity changes a corrected point beyond
+  the common scale by more than delta (1 - F) / F, where F is the factor: on
+  the 152Eu 344.28 keV line by 0.05 delta at F = 0.95 and by 0.39 delta at
+  F = 0.77. In the study that fixed the correction rules, a 152Eu activity
+  record off by a factor 0.366 moved the closure of 2018_Aug_Np at 1 cm from
+  1.002 to 0.808.
   Limits of the correction:
   - At 1 cm it is an approximation: the closure of LaCe_Sep2017 at 1 cm is 0.971,
     where a fit without the uncertainty term gives 0.988. Some weak lines
@@ -70,10 +73,16 @@ Notable changes to curie are documented here. The format follows
   - The partner efficiency of a line's K x-rays is the curve value times a
     scale measured from the 152Eu spectra of the set. On detectors that record
     K x-rays only partly the scale is an interpolation, not a measured result.
-    A set without a 152Eu spectrum takes the scale 0, which under-corrects
-    lines with x-ray partners near a detector that records them: for the
-    133Ba 276.40 keV line of the 133Ba-only calibration at LaCe 1 cm the
-    factor would change by 0.23 with a scale of 1.
+    The 152Eu spectra give the scale at the Sm K x-rays near 40 keV; it
+    applies to the K x-rays of every element, where no measurement checks
+    it. The measured ratio varies with distance: on one detector it reads
+    1.11 at 1 cm, 1.00 at 15 cm and 1.09 at 40 cm. A set without a 152Eu
+    spectrum takes the scale 0, which under-corrects lines with x-ray
+    partners near a detector that records them: for the 133Ba 276.40 keV line
+    of the 133Ba-only calibration at LaCe 1 cm the factor would change by 0.23
+    with a scale of 1.
+  - The factor is that of a point source on the calibration's curve: a
+    geometry or attenuation correction of a `Spectrum` does not enter it.
   - No measurement confirms the correction for positron emitters. For 22Na the
     predicted loss of a line to its 511 keV partner is larger than measured:
     at 5 cm the 511 keV over 1274.5 keV peak ratio is 1.849 measured against

@@ -64,7 +64,8 @@ partner or for the line photon, is taken as at most 1.
 A pair cannot occur more often than either of its photons, so in a consistent
 table the ratio of a pair intensity to the intensity of its line is at most 1
 (a 511 keV partner of a line other than 511 keV counts both quanta of each
-annihilation, so its ratio is halved).  A line whose largest ratio, over its
+annihilation, so its ratio is halved; a pair of two photons of the line energy
+gives two photons of the line, so its ratio is doubled).  A line whose largest ratio, over its
 pairs with a partner at or above E_min, exceeds 1.01 has table entries that
 disagree, and its factor is NaN: the consumer leaves that line uncorrected.
 """
@@ -111,8 +112,9 @@ def _pairs(isotope):
 def _largest_ratio(E, I, pairs, E_min):
 	"""Largest pair-to-line ratio of each line energy E (intensities I), over the
 	pairs keyed on the line with a partner at or above E_min; 0 for a line with
-	none.  The (511, 511) self-pair is left out, and a 511 keV partner of a line
-	other than 511 keV is halved."""
+	none.  The (511, 511) self-pair is left out, a 511 keV partner of a line
+	other than 511 keV is halved, and a gamma-ray pair of two photons of the
+	line energy is doubled, as the factor counts it twice."""
 
 	pos = {e:n for n,e in enumerate(E)}
 	p = pairs[(pairs['coinc_energy']>=E_min)&pairs['energy'].isin(list(pos))]
@@ -121,7 +123,8 @@ def _largest_ratio(E, I, pairs, E_min):
 	if len(p):
 		idx = np.array([pos[e] for e in p['energy']], dtype=int)
 		half = ((p['coinc_type']=='511')&(p['coinc_energy']==511.0)&(p['energy']!=511.0)).to_numpy()
-		np.maximum.at(ratio, idx, p['intensity'].to_numpy(dtype=float)/np.where(half, 2.0, 1.0)/I[idx])
+		twice = ((p['coinc_type']=='g')&(p['energy']==p['coinc_energy'])).to_numpy()
+		np.maximum.at(ratio, idx, p['intensity'].to_numpy(dtype=float)*np.where(twice, 2.0, 1.0)/np.where(half, 2.0, 1.0)/I[idx])
 	return ratio
 
 

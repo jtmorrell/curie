@@ -124,7 +124,9 @@ class Spectrum(object):
 		the coincidence-summing correction, it is the curve value times the
 		summing factor of that line of that nuclide.  Its 'unc_efficiency'
 		then includes the uncertainty of the factor.  Otherwise it is the
-		curve value.  `DecayChain.get_counts` treats all of 'unc_efficiency' as
+		curve value.  The factor is that of a point source on the
+		calibration's curve: a geometry or attenuation correction of the
+		spectrum does not enter it.  `DecayChain.get_counts` treats all of 'unc_efficiency' as
 		common to the lines of one calibration, as it treats the uncertainty
 		of the curve.
 
@@ -1029,7 +1031,8 @@ class Spectrum(object):
 		sm = self.cb._summing
 		if sm is None or not len(df):
 			return eff, unc
-		stats = self._fit_stats if self._fit_stats is not None else {}
+		# fit_peaks, the only caller, sets _fit_stats and logs what is recorded
+		stats = self._fit_stats
 		if not _pair_table_usable():
 			stats['summing_stale'] = True
 			return eff, unc
