@@ -737,9 +737,12 @@ def test_summing_default_curve():
     # 2026-11-10 from this calibrate() call, re-recorded the same day when the
     # factor's uncertainty term and the weighted factor of merged lines were
     # added (the term moved it by -0.21% at 344.3 keV and +1.0% at 1408 keV,
-    # the weighted factor by 0.05% at most).  It lies above the summing=False
-    # curve of test_effcal_I_min_default_floor by 5.9% at 121.8 keV, 3.8% at
-    # 344.3 keV, 3.2% at 778.9 keV and 6.1% at 1408 keV: at 7 cm the
+    # the weighted factor by 0.05% at most), and again the same day when the
+    # constant part of the term was removed, leaving 0.3 times the size of the
+    # correction (moved by +0.35% at 344.3 keV, +0.08% at 778.9 keV and -0.22%
+    # at 1408 keV, under 0.01% at 121.8 keV).  It lies above the summing=False
+    # curve of test_effcal_I_min_default_floor by 5.9% at 121.8 keV, 4.2% at
+    # 344.3 keV, 3.3% at 778.9 keV and 5.9% at 1408 keV: at 7 cm the
     # summing-out loss of each line exceeds its gain, so the measured points
     # lie below the curve that is free of summing.  Tolerance as in
     # test_zero_config_identity
@@ -750,7 +753,7 @@ def test_summing_default_curve():
     off = ci.Calibration()
     off.calibrate([eu_sp()], sources=EU_SOURCES, summing=False)
     e = np.array([121.7817, 344.2785, 778.9045, 1408.013])
-    np.testing.assert_allclose(cb.eff(e), [0.03588625, 0.01587094, 0.00735876, 0.00414853], rtol=1E-4)
+    np.testing.assert_allclose(cb.eff(e), [0.03588474, 0.01592604, 0.00736485, 0.00413931], rtol=1E-4)
     assert cb.eff(121.7817)/off.eff(121.7817) > 1.05
     assert cb._effcal_model == 'vidmar-5'
     assert cb._summing['L'] == 0.69 and cb._summing['xray_partners'] == pytest.approx(0.581, abs=5E-4)

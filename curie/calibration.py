@@ -59,10 +59,9 @@ _EFF_MAXFEV = 20000
 # the total efficiency of a summing partner
 _SUMMING_L = 0.69
 # relative uncertainty of a corrected efficiency point, added in quadrature:
-# a constant _SUMMING_S and _SUMMING_K times the size of the correction c,
-# (1 - loss) + gain, selected on the per-line pulls of five 152Eu calibration
-# sets (pull standard deviation 1.01 at 5 cm and nearer, 1.02 beyond)
-_SUMMING_S = 0.0225
+# _SUMMING_K times the size of the correction c, (1 - loss) + gain, so a line
+# without a correction keeps its uncertainty (on the per-line pulls of five
+# 152Eu calibration sets, pull standard deviation 1.16 at 5 cm and nearer)
 _SUMMING_K = 0.3
 # the x-ray partner scale is measured on the Sm K-alpha lines (keV) of 152Eu,
 # as their window sum over the fitted counts of its 121.78 keV line, divided by
@@ -913,18 +912,12 @@ class Calibration(object):
 		F, c : np.ndarray
 			Per line, the factor and the size of the correction; 1 and 0 for a
 			line without a factor: None for its state, not a line energy of
-			the state, or guarded.
+			the state, without coincidence pairs, or guarded.
 
 		guarded : np.ndarray
 			Per line, True where the coincidence data of the line (of any line
 			of a merged peak) disagree with its intensity (`curie._tcs` gives
 			it no factor).
-
-		paired : np.ndarray
-			Per line, True where the line carries a correction: it is not
-			guarded, and coincidence pairs enter its factor (of at least one
-			line of a merged peak).  A line with pair data keeps its
-			uncertainty term even where its factor is 1 at a scale of 0.
 
 		"""
 
@@ -952,11 +945,10 @@ class Calibration(object):
 				arr = _tcs._arrays(nm)
 				sel = np.array([n for n, i in enumerate(iso_x) if i == nm], dtype=int)
 				j = arr.index(E[sel])
-				# at any finite efficiencies NaN marks a guarded line and a
-				# nonzero c a line that pairs enter
-				f1, c1 = arr.terms(np.full(len(arr.grid), 1E-3), np.full(len(arr.grid), 1E-3))
+				# at any finite efficiencies NaN marks a guarded line
+				f1, _ = arr.terms(np.full(len(arr.grid), 1E-3), np.full(len(arr.grid), 1E-3))
 				g = np.isnan(f1)
-				groups.append([arr, sel[j>=0], j[j>=0], g[j[j>=0]], (~g&(c1>0))[j[j>=0]]])
+				groups.append([arr, sel[j>=0], j[j>=0], g[j[j>=0]]])
 				grids.append(arr.grid)
 			grid = np.unique(np.concatenate(grids)) if grids else np.zeros(0)
 			for gp in groups:
@@ -965,26 +957,25 @@ class Calibration(object):
 		groups, grid, pt, (row, w) = plans[key]
 
 		n, nx = len(E_in), len(row)
-		F, c, guarded, paired = np.ones(n), np.zeros(n), np.zeros(n, dtype=bool), np.zeros(n, dtype=bool)
+		F, c, guarded = np.ones(n), np.zeros(n), np.zeros(n, dtype=bool)
 		if not len(grid):
-			return F, c, guarded, paired
+			return F, c, guarded
 		if L not in pt:
 			pt[L] = np.asarray(_peak_to_total(grid, L), dtype=np.float64)
 		# explicit parameters: the curve at partner energies is taken without
 		# the extrapolation warning
 		ep = np.asarray(self.eff(grid, effcal), dtype=np.float64)
 		et = ep/pt[L]
-		Fx, cx, gx, px = np.ones(nx), np.zeros(nx), np.zeros(nx, dtype=bool), np.zeros(nx, dtype=bool)
-		for arr, sel, j, g, pr, gi in groups:
+		Fx, cx, gx = np.ones(nx), np.zeros(nx), np.zeros(nx, dtype=bool)
+		for arr, sel, j, g, gi in groups:
 			f, cc = arr.terms(ep[gi], et[gi], scale)
 			Fx[sel] = np.where(g, 1.0, f[j])
 			cx[sel] = np.where(g, 0.0, cc[j])
-			gx[sel], px[sel] = g, pr
+			gx[sel] = g
 		guarded = np.bincount(row, gx, minlength=n)>0
-		paired = (np.bincount(row, px, minlength=n)>0)&~guarded
 		F = np.where(guarded, 1.0, np.bincount(row, w*Fx, minlength=n))
 		c = np.where(guarded, 0.0, np.bincount(row, w*cx, minlength=n))
-		return F, c, guarded, paired
+		return F, c, guarded
 
 	def _xray_scale(self, spectra):
 		"""The x-ray partner scale of the summing correction, from the 152Eu
@@ -1116,10 +1107,11 @@ class Calibration(object):
 			correction, the fit finds the curve whose values times the summing
 			factor of each line match the measured points.  The stored points
 			(`effcal_data`) are the measured values divided by their factors.
-			The relative uncertainty of a corrected point gains two terms in
-			quadrature: 2.25% and 0.3 times the size of the correction.  Both
-			are common to the points of one line, as the line intensity is.  Where fit_peaks merged close lines into one peak, the factor
-			of the peak is the intensity-weighted mean of their factors.
+			The relative uncertainty of a corrected point gains a term in
+			quadrature, 0.3 times the size of the correction.  The term is
+			common to the points of one line, as the line intensity is.  Where
+			fit_peaks merged close lines into one peak, the factor of the peak
+			is the intensity-weighted mean of their factors.
 			The factors come from the coincidence pairs of the decay data and
 			the fitted curve.  The total efficiency of a partner photon is the
 			curve over a computed peak-to-total ratio.  For the K x-rays that
@@ -1153,7 +1145,7 @@ class Calibration(object):
 		>>> cb = ci.Calibration()
 		>>> cb.calibrate([sp], sources=[{'isotope':'152EU', 'A0':3.7E4, 'ref_date':'01/01/2009 12:00:00'}])
 		>>> print(cb.effcal)
-		[ 0.04731619 10.          1.84755288  1.52398067  0.55438254]
+		[ 0.04723213 10.          1.85875012  1.52565917  0.55844404]
 		>>> cb.plot()
 
 		"""
@@ -1399,9 +1391,9 @@ class Calibration(object):
 				'src': iso})], ignore_index=True)
 			_log.info('Calibration.calibrate: effcal includes {0} user-supplied points (eff_points)'.format(n_user))
 		fn = lambda x, *A: self.eff(x, A)
-		# the summing correction's uncertainty term, set where the fit takes
-		# the correction: (points that carry it, c at a curve)
-		sum_unc = None
+		# the size of the summing correction of each point at a curve, set
+		# where the fit takes the correction
+		sum_c = None
 
 		def eff_cov(m, rel_sum=None):
 			# covariance of the efficiency points, with magnitudes from the fitted
@@ -1445,15 +1437,10 @@ class Calibration(object):
 					raise RuntimeError(fail.format(tag_, 'returned non-finite parameters', which, len(x), ''))
 				return f, u
 			with np.errstate(all='ignore'):
-				if sum_unc is None:
-					f0, _ = solve(yerr, p0_, 'independent')
-					rel_sum = None
-				else:
-					# the pass with independent uncertainties carries s alone;
-					# c is taken at its curve and held for the correlated passes
-					on, c_at = sum_unc
-					f0, _ = solve(np.sqrt(yerr**2+np.where(on, _SUMMING_S*y, 0.0)**2), p0_, 'independent')
-					rel_sum = np.where(on, np.sqrt(_SUMMING_S**2+(_SUMMING_K*c_at(f0))**2), 0.0)
+				f0, _ = solve(yerr, p0_, 'independent')
+				# the summing term k c, with c at the curve of the pass with
+				# independent uncertainties, held for the correlated passes
+				rel_sum = None if sum_c is None else _SUMMING_K*sum_c(f0)
 				m0 = fn(x, *f0)
 				Vi = np.diag((m0*meta['rel_stat'].to_numpy())**2)
 				V = eff_cov(m0, rel_sum)
@@ -1555,10 +1542,9 @@ class Calibration(object):
 				pt_iso = meta['src'].tolist()[:len(x)-n_user]+[None]*n_user
 				pt_mrg = pt_mrg+[None]*n_user
 				fn = lambda x_, *A: self.eff(x_, A)*self._summing_factors(pt_iso, x_, A, xr_scale, merged=pt_mrg)[0]
-				# a point that carries a correction adds the factor's term to its
-				# relative variance, s^2 + (k c)^2; one without pair data does not
-				pt_on = self._summing_factors(pt_iso, x, p0, xr_scale, merged=pt_mrg)[3]
-				sum_unc = (pt_on, lambda A: self._summing_factors(pt_iso, x, A, xr_scale, merged=pt_mrg)[1])
+				# a corrected point adds the factor's term (k c)^2 to its
+				# relative variance; c is 0 for a point without a correction
+				sum_c = lambda A: self._summing_factors(pt_iso, x, A, xr_scale, merged=pt_mrg)[1]
 				# the guard depends on the coincidence data alone: one warning
 				# per nuclide names its guarded lines among the measured points
 				gd = self._summing_factors(eff_meta['src'].tolist(), cb_dat[:,1], p0, xr_scale, merged=eff_merged)[2]
@@ -1622,14 +1608,12 @@ class Calibration(object):
 			# measured value over its factor at the final curve, comparable
 			# with the summing-free curve
 			# with the factor's uncertainty term at c of the final curve
-			F_fit, c_fit, _, on_fit = self._summing_factors(pt_iso, x, fit, xr_scale, merged=pt_mrg)
-			F_drop, c_drop, _, on_drop = self._summing_factors(drop_src.tolist(), drop['energy'], fit, xr_scale, merged=drop_mrg)
-			t_fit = np.where(on_fit, _SUMMING_S**2+(_SUMMING_K*c_fit)**2, 0.0)
-			t_drop = np.where(on_drop, _SUMMING_S**2+(_SUMMING_K*c_drop)**2, 0.0)
+			F_fit, c_fit, _ = self._summing_factors(pt_iso, x, fit, xr_scale, merged=pt_mrg)
+			F_drop, c_drop, _ = self._summing_factors(drop_src.tolist(), drop['energy'], fit, xr_scale, merged=drop_mrg)
 			ys, dys = y/F_fit, dys/F_drop
 			with np.errstate(all='ignore'):
-				us = np.where(on_fit, ys*np.sqrt((yerr/y)**2+t_fit), yerr/F_fit)
-				dus = np.where(on_drop, dys*np.sqrt((dus/drop['efficiency'])**2+t_drop), dus/F_drop)
+				us = np.where(c_fit!=0, ys*np.sqrt((yerr/y)**2+(_SUMMING_K*c_fit)**2), yerr/F_fit)
+				dus = np.where(c_drop!=0, dys*np.sqrt((dus/drop['efficiency'])**2+(_SUMMING_K*c_drop)**2), dus/F_drop)
 		# provenance is stored as the line label alone ('isotope:energy');
 		# the isotope is derived from it on read
 		self._calib_data['effcal'] = {'energy':x[idx], 'efficiency':ys[idx], 'unc_efficiency':us[idx],
@@ -1748,12 +1732,12 @@ class Calibration(object):
 		>>> cb = ci.Calibration()
 		>>> cb.calibrate([sp], sources=[{'isotope':'152EU', 'A0':3.7E4, 'ref_date':'01/01/2009 12:00:00'}])
 		>>> print(cb.effcal)
-		[ 0.04731619 10.          1.84755288  1.52398067  0.55438254]
+		[ 0.04723213 10.          1.85875012  1.52565917  0.55844404]
 		>>> cb.saveas('example_calib.json')
 
 		>>> cb = ci.Calibration('example_calib.json')
 		>>> print(cb.effcal)
-		[ 0.04731619 10.          1.84755288  1.52398067  0.55438254]
+		[ 0.04723213 10.          1.85875012  1.52565917  0.55844404]
 
 		"""
 

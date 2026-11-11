@@ -17,7 +17,7 @@ from scipy.integrate import trapezoid
 
 from .data import _get_connection, _pair_table_usable
 from .plotting import _init_plot, _draw_plot, colormap
-from .calibration import Calibration, _SUMMING_S, _SUMMING_K
+from .calibration import Calibration, _SUMMING_K
 from .isotope import Isotope
 from .compound import Compound
 from ._log import _get_logger, _validate_config, _choice, NUMBER, NUMBER_OR_PAIR, INTEGER, BOOLEAN
@@ -1038,12 +1038,12 @@ class Spectrum(object):
 		# peak that holds merged lines the weighted factor of its lines
 		iso = [i if i in self.isotopes else None for i in df['isotope']]
 		merged = [None if i is None else self._merged.get((i, float(e))) for i, e in zip(iso, E)]
-		F, c, guarded, on = self.cb._summing_factors(iso, E, self.cb.effcal, sm['xray_partners'], L=sm['L'], merged=merged)
+		F, c, guarded = self.cb._summing_factors(iso, E, self.cb.effcal, sm['xray_partners'], L=sm['L'], merged=merged)
 		for i, e in zip([i for i, g in zip(iso, guarded) if g], E[guarded]):
 			stats.setdefault('summing_guarded', {}).setdefault(i, set()).add(float(e))
 		eff_l = eff*F
 		with np.errstate(all='ignore'):
-			unc_l = np.where(on, eff_l*np.sqrt((unc/eff)**2+_SUMMING_S**2+(_SUMMING_K*c)**2), unc)
+			unc_l = np.where(c!=0, eff_l*np.sqrt((unc/eff)**2+(_SUMMING_K*c)**2), unc)
 		return eff_l, unc_l
 
 	def _decays(self, N, unc_N, df, eff, unc_eff):
