@@ -98,8 +98,11 @@ metadata, so pip cannot see, upgrade, or uninstall it.
 The download will fail, but this creates the data directory, and the error
 message reports its location along with the data release page to fetch from.
 Download the ``.db`` files from the `curie data release`_ page in a browser
-and place them in that directory.  The downloads can be verified against the
-``SHA256SUMS`` file published on the same release page.
+and place them in that directory. Take ``decay.db`` from the ``v2.1`` release
+and the other databases from the ``v2`` release. A ``decay.db`` from the ``v2``
+release gets the data-generation warning, and ``calibrate()`` then applies no
+coincidence-summing correction. Each release page publishes a ``SHA256SUMS``
+file for its own databases, against which the downloads can be verified.
 
 On Windows the data directory is ``%LOCALAPPDATA%\curie`` — almost always
 ``C:\Users\<username>\AppData\Local\curie``.  The ``AppData`` folder is
