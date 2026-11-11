@@ -1,6 +1,7 @@
 # CI: install from source, import smoke test, and run the public test suite
 # against a data fixture (ziegler + decay + iaea_monitors + IRDFF, ~165 MB)
-# fetched from the curie-data v2 release into a pre-populated data directory.
+# fetched from the curie-data releases (decay.db from v2.1, the others from v2)
+# into a pre-populated data directory and verified against the registry.
 # Tests needing endf/tendl skip with reported reasons. The cold-cache job installs the built wheel on a clean
 # machine and lets curie fetch its own data (whole-file and endf shards) from
 # the data release, end to end.
@@ -48,17 +49,21 @@ jobs:
           path: ~/curie-ci-data
           key: curie-data-v2-${{ hashFiles('curie/data_registry.json') }}
 
-      - name: Fetch data fixture from the curie-data v2 release
+      - name: Fetch data fixture from the curie-data releases
         if: steps.data-cache.outputs.cache-hit != 'true'
         run: |
           mkdir -p ~/curie-ci-data && cd ~/curie-ci-data
-          base="https://github.com/jtmorrell/curie-data/releases/download/v2"
-          for f in SHA256SUMS ziegler.db decay.db iaea_monitors.db IRDFF.db; do
-            curl -sSL --retry 3 -O "$base/$f"
+          base="https://github.com/jtmorrell/curie-data/releases/download"
+          # decay.db is re-published on a release of its own (the registry's revisions)
+          curl -sSL --retry 3 -O "$base/v2.1/decay.db"
+          for f in ziegler.db iaea_monitors.db IRDFF.db; do
+            curl -sSL --retry 3 -O "$base/v2/$f"
           done
 
-      - name: Verify data checksums
-        run: cd ~/curie-ci-data && sha256sum -c SHA256SUMS --ignore-missing
+      - name: Verify data checksums against the registry
+        run: |
+          python -c "import json, sys; files = json.load(open('curie/data_registry.json'))['files']; sys.stdout.write(''.join('{}  {}\n'.format(files[f], f) for f in sys.argv[1:]))" \
+            ziegler.db decay.db iaea_monitors.db IRDFF.db | (cd ~/curie-ci-data && sha256sum -c -)
 
       - name: Import smoke test
         env:

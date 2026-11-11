@@ -9,7 +9,12 @@ from versioned data releases and verified against published SHA256
 checksums.  Each database carries a generation stamp; this page records
 what the current generation (v2, built July 2026) contains and where
 every number comes from.  Connecting to data from an earlier generation
-logs a warning naming the ``ci.download(...)`` update command.
+logs a warning naming the ``ci.download(...)`` update command. The decay
+database, after the repair of its coincidence table, is published on a
+data release of its own with the stamp ``v2.1``; its content is that of
+the repaired ``v2`` file. A decay database stamped ``v2`` gets the same
+warning, and ``calibrate()`` then applies no coincidence-summing
+correction until ``ci.download('decay')`` replaces it.
 
 .. list-table::
    :header-rows: 1

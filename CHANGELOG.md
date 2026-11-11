@@ -93,6 +93,22 @@ Notable changes to curie are documented here. The format follows
     changed, and the decays of nuclides with cascades come out biased near the
     detector. A file that the earlier curie saves again loses the key.
 
+- **decay.db is re-published with the generation stamp `v2.1`**: the
+  repaired decay database (see Fixed) kept the stamp `v2` of the file it
+  replaced, so the data-generation check could not tell an earlier decay.db
+  from the repaired one. The repaired file is now published on a data
+  release of its own, `v2.1`, with the stamp `v2.1` and no other change; the
+  registry names that release for decay.db only, and the other databases
+  stay on `v2`. An installation that holds an earlier decay.db, the
+  repaired file stamped `v2` included, gets the data-generation warning at
+  first connection, and `calibrate()` applies no coincidence-summing
+  correction until `ci.download('decay')` replaces the file. Nothing in the
+  `v2` release changes, its decay.db included. curie 0.3.x keeps fetching that
+  file and expects the stamp `v2`, so a data directory used by both
+  releases warns under each of them, and `ci.download('decay')` under one
+  replaces the file the other expects. Give each release its own data
+  directory with `CURIE_DATA_DIR`.
+
 - **Default efficiency-point selection leaves out weak lines**: `calibrate()`
   now fits the efficiency curve only to points measured from lines of at
   least 1% intensity per decay. The new `Calibration.fit_config` entry
@@ -182,14 +198,12 @@ Notable changes to curie are documented here. The format follows
   only when every cascade path between its two gammas transits such a level;
   a pair with any prompt path is kept, since it is at least partially
   coincident (the tabulated intensity is not resolved by path). The repaired
-  database removes 16,953 such pairs (1.3% of the table) and replaces the decay.db
-  asset on the existing data release, with the registry checksum bumped to
-  match. An existing installation keeps its cached copy until
-  `ci.download()` is run, which replaces any file whose checksum no longer
-  matches the registry (the refresh introduced in 0.3.0); a fresh
-  installation fetches the corrected file directly. The coincidence table
-  is not yet consumed by any curie code path, so no analysis results
-  change.
+  database removes 16,953 such pairs (1.3% of the table) and carries the
+  stamp `v2.1`. An existing installation keeps its cached copy, with the
+  data-generation warning, until `ci.download('decay')` is run, which
+  replaces a file whose checksum no longer matches the registry (the
+  refresh introduced in 0.3.0); a fresh installation fetches the corrected
+  file directly.
 - **`Isotope.dose_rate` and `Spectrum.__add__` work on numpy 2.4 and
   newer**: numpy 2.4 removed `np.trapz`, so both raised `AttributeError`
   on a fresh install. They now integrate with `scipy.integrate.trapezoid`
