@@ -77,9 +77,18 @@ class _Connection(sqlite3.Connection):
 		self.cache = {}
 
 
-def _generation():
-	"""The data generation this registry fetches: its release-tag name."""
-	return _registry()['base_url'].rstrip('/').rsplit('/', 1)[-1]
+def _base_url(fnm=None):
+	"""The release base_url a whole file is fetched from: that of its entry
+	under the registry's revisions, where the one file was re-published on a
+	release tag of its own, and the top-level base_url otherwise."""
+	reg = _registry()
+	return reg.get('revisions', {}).get(fnm, {}).get('base_url', reg['base_url'])
+
+
+def _generation(fnm=None):
+	"""The data-generation stamp expected of a file: the release-tag name it
+	is fetched from (the top-level tag when `fnm` is None or not revised)."""
+	return _base_url(fnm).rstrip('/').rsplit('/', 1)[-1]
 
 
 def _check_generation(fnm, con):
@@ -98,7 +107,7 @@ def _check_generation(fnm, con):
 		row = con.execute('SELECT generation FROM _version').fetchone()
 	except sqlite3.Error:
 		row = None
-	expected = _generation()
+	expected = _generation(fnm)
 	if row is None:
 		_log.warning('{0} predates the generation stamp: it was fetched by an earlier '
 					 'curie release (this one uses data generation {1}). Run '
@@ -186,8 +195,9 @@ def _release_page(base_url):
 def _retrieve(fnm):
 	"""Download one data-release asset into the data directory, verifying its SHA256.
 
-	Whole files live on the main data release (top-level base_url); each
-	sharded library's shards live on their own release tag (the group's
+	Whole files live on the main data release (top-level base_url), except a
+	file re-published on a release tag of its own (its revisions base_url);
+	each sharded library's shards live on their own release tag (the group's
 	base_url), keeping every release well under GitHub's assets-per-release
 	limit. A failed download raises with manual instructions — the release
 	page to download the whole database from in a browser, and the data
@@ -196,7 +206,7 @@ def _retrieve(fnm):
 	"""
 	import pooch
 	reg = _registry()
-	url, known, whole = reg['base_url'] + fnm, reg['files'].get(fnm), fnm
+	url, known, whole = _base_url(fnm) + fnm, reg['files'].get(fnm), fnm
 	if known is None:
 		for lib, group in reg.get('shards', {}).items():
 			if fnm in group['files']:
@@ -211,7 +221,7 @@ def _retrieve(fnm):
 			   'cannot reach GitHub directly (e.g. behind a restrictive proxy), '
 			   'download {1} in a browser from {2} and place it in {3} (see '
 			   'https://jtmorrell.github.io/curie/quickinstall.html for full '
-			   'instructions).'.format(fnm, whole, _release_page(reg['base_url']), _data_path()))
+			   'instructions).'.format(fnm, whole, _release_page(_base_url(whole)), _data_path()))
 		_log.error(msg)
 		raise ConnectionError(msg) from err
 

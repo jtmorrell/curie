@@ -2,7 +2,7 @@
  "base_url": "https://github.com/jtmorrell/curie-data/releases/download/v2/",
  "files": {
   "IRDFF.db": "1ac958c5a80785aa8a0892fd662448674d537545a84a521e0e84cf73686e7e6b",
-  "decay.db": "aba725655dd30532b843f759348118bd9205fc9f6448a3b5fd5fbe1034d8a9dc",
+  "decay.db": "50ac2270f4a4ad58275a3cde13cd4a9ccf47e5132a2cd1d07218c26ed926d775",
   "endf.db": "ad3163becb085c36a6eca02e1a14979bb70cf3ce5c19f8ec143e34b670582cff",
   "iaea_monitors.db": "b96c76a47c2433fba66d71f49146943e22de5588c6b5d3f0e6c5f32dcc24e29d",
   "tendl.db": "c50637ce861a2d136b54a857d8ef39904d6b8b6f375462e56e697dc536b2f374",
@@ -11,6 +11,11 @@
   "tendl_n_rp.db": "21d31668c9735aa4ea5bd1cd4c3af7e5fa88fde26706f74761f09d4ced7ef888",
   "tendl_p_rp.db": "50cb848c6a9150e7e2b9958152c47ea1227ee4f5571986fc369aec4cc8b560a5",
   "ziegler.db": "44be2f483ea7c86bd3a71c3098dd2c57b343e7165c8a31750df1230dba93d60e"
+ },
+ "revisions": {
+  "decay.db": {
+   "base_url": "https://github.com/jtmorrell/curie-data/releases/download/v2.1/"
+  }
  },
  "shards": {
   "endf": {

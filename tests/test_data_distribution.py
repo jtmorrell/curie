@@ -74,6 +74,11 @@ def test_shipped_registry_is_self_consistent():
 	# the base_urls are hand-edited when releases move: pin them exactly, so a
 	# typo fails here instead of at a user's first fetch
 	assert reg['base_url'] == 'https://github.com/jtmorrell/curie-data/releases/download/v2/'
+	assert set(reg) == {'base_url', 'files', 'revisions', 'shards'}
+	# one whole file re-published on a release tag of its own: its tag is the
+	# stamp the generation check expects of it
+	assert reg['revisions'] == {'decay.db': {
+		'base_url': 'https://github.com/jtmorrell/curie-data/releases/download/v2.1/'}}
 	hexre = re.compile(r'^[0-9a-f]{64}$')
 	assert set(reg['files']) == {'decay.db', 'ziegler.db', 'endf.db', 'tendl.db',
 								 'tendl_n_rp.db', 'tendl_p_rp.db', 'tendl_d_rp.db',
@@ -107,6 +112,12 @@ def test_shipped_registry_is_self_consistent():
 		assert len(shards) > 350, lib
 	# GitHub caps a release at 1000 assets: each group is one release
 	assert all(len(g['files']) <= 900 for g in reg['shards'].values()), 'shard group too close to the per-release asset cap: split it'
+	# the expected stamp of each whole file, read through the runtime resolver
+	# from the shipped registry; a shard-assembled library expects the stamp
+	# of its whole file, not its shard tag
+	assert data._generation() == 'v2'
+	assert {f: data._generation(f) for f in reg['files']} == dict(
+		{f: 'v2' for f in reg['files']}, **{'decay.db': 'v2.1'})
 
 
 def test_every_endf_table_has_a_registry_shard():
@@ -126,9 +137,9 @@ def test_every_endf_table_has_a_registry_shard():
 		local_gen = row[0] if row else None
 	except sqlite3.Error:
 		local_gen = None
-	if local_gen != data._generation():
+	if local_gen != data._generation('endf.db'):
 		pytest.skip('local endf.db is generation {!r}; registry fetches {!r}'.format(
-			local_gen, data._generation()))
+			local_gen, data._generation('endf.db')))
 	tables = [r[0] for r in con.execute("SELECT name FROM sqlite_master WHERE type='table'")]
 	# _build_meta is the one build-internal table that ships in the whole
 	# file only; every other table — including the _version generation
@@ -327,6 +338,41 @@ def test_failed_download_gives_manual_instructions(monkeypatch, tmp_path):
 	assert str(tmp_path) in msg
 
 
+def test_retrieve_revised_file_from_its_own_release(monkeypatch, tmp_path):
+	"""With the shipped registry, decay.db is fetched from its revision's
+	release with the registry's hash, any other whole file from the
+	generation release; a failed fetch of decay.db names its own release page."""
+	import sys
+	import types
+	calls = []
+
+	def fake_pooch_retrieve(url, known_hash, fname, path):
+		calls.append((url, known_hash))
+		p = os.path.join(path, fname)
+		open(p, 'wb').write(b'x')
+		return p
+
+	monkeypatch.setitem(sys.modules, 'pooch', types.SimpleNamespace(retrieve=fake_pooch_retrieve))
+	monkeypatch.setenv('CURIE_DATA_DIR', str(tmp_path))
+	files = data._registry()['files']
+	data._retrieve('decay.db')
+	data._retrieve('IRDFF.db')
+	assert calls == [
+		('https://github.com/jtmorrell/curie-data/releases/download/v2.1/decay.db', files['decay.db']),
+		('https://github.com/jtmorrell/curie-data/releases/download/v2/IRDFF.db', files['IRDFF.db'])]
+
+	def failing_pooch_retrieve(url, known_hash, fname, path):
+		raise IOError('connection refused')
+
+	monkeypatch.setitem(sys.modules, 'pooch', types.SimpleNamespace(retrieve=failing_pooch_retrieve))
+	with pytest.raises(ConnectionError) as exc:
+		data._retrieve('decay.db')
+	assert 'https://github.com/jtmorrell/curie-data/releases/tag/v2.1 ' in str(exc.value)
+	with pytest.raises(ConnectionError) as exc:
+		data._retrieve('IRDFF.db')
+	assert 'https://github.com/jtmorrell/curie-data/releases/tag/v2 ' in str(exc.value)
+
+
 def test_sharded_site_copy_never_assembled_into(sandbox):
 	"""A site-provided endf.db is used as-is: a missing table must not
 	trigger a shard fetch or any write to the site file."""
@@ -470,6 +516,56 @@ def test_matching_generation_is_quiet(sandbox, capsys):
 	data._get_connection('endf')
 	out = capsys.readouterr().out
 	assert 'generation' not in out
+
+
+def _stamped_db(path, library, generation):
+	_make_db(path, 'XX_1')
+	con = sqlite3.connect(str(path))
+	con.execute('CREATE TABLE _version (library TEXT, generation TEXT)')
+	con.execute('INSERT INTO _version VALUES (?,?)', (library, generation))
+	con.commit()
+	con.close()
+	with open(str(path), 'rb') as f:
+		return hashlib.sha256(f.read()).hexdigest()
+
+
+@pytest.mark.parametrize('fnm, stamp, warning', [
+	('decay.db', 'v2', 'decay.db is from data generation v2, but this curie release uses generation v2.1.'),
+	('decay.db', 'v2.1', None),
+	('IRDFF.db', 'v2', None),
+	('IRDFF.db', 'v2.1', 'IRDFF.db is from data generation v2.1, but this curie release uses generation v2.'),
+], ids=['revised-file-generation-stamp', 'revised-file-revision-stamp',
+		'other-file-generation-stamp', 'other-file-revision-stamp'])
+def test_revised_file_expects_its_own_stamp(sandbox, capsys, fnm, stamp, warning):
+	"""A file the registry revises is expected to carry its revision's tag;
+	every other file the generation's."""
+	sandbox['registry']['base_url'] = 'https://example.invalid/releases/download/v2/'
+	sandbox['registry']['revisions'] = {'decay.db': {
+		'base_url': 'https://example.invalid/releases/download/v2.1/'}}
+	_stamped_db(sandbox['cache'] / fnm, fnm[:-3], stamp)
+	data._get_connection(fnm[:-3])
+	out = capsys.readouterr().out
+	if warning is None:
+		assert 'generation' not in out
+	else:
+		assert warning in out and "ci.download({!r})".format(fnm[:-3]) in out
+
+
+def test_download_replaces_decay_db_of_another_checksum(sandbox, capsys):
+	"""A present decay.db whose checksum is not the registry's — the file of
+	the generation release, once decay.db is revised — is replaced by
+	download('decay') without overwrite=True."""
+	sandbox['registry']['revisions'] = {'decay.db': {'base_url': 'rev://v9.1/'}}
+	_stamped_db(sandbox['cache'] / 'decay.db', 'decay', 'test:')
+	sandbox['registry']['files']['decay.db'] = _stamped_db(sandbox['remote'] / 'decay.db', 'decay', 'v9.1')
+	data._get_connection('decay')
+	assert 'generation test:' in capsys.readouterr().out
+	data.download('decay')
+	assert sandbox['fetched'] == ['decay.db']
+	assert 'does not match the current data release' in capsys.readouterr().out
+	assert (sandbox['cache'] / 'decay.db').read_bytes() == (sandbox['remote'] / 'decay.db').read_bytes()
+	assert data._get_connection('decay').execute('SELECT generation FROM _version').fetchone() == ('v9.1',)
+	assert 'generation' not in capsys.readouterr().out
 
 
 def test_ziegler_exempt_from_generation_check(sandbox, capsys):

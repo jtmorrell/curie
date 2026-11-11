@@ -12,6 +12,7 @@ import datetime as dtm
 import hashlib
 import io
 import json
+import os
 import sqlite3
 
 import numpy as np
@@ -101,6 +102,33 @@ def test_pair_table_usable_follows_the_file(datadir, monkeypatch):
     datadir['registry']['files']['decay.db'] = _decay_db(datadir['remote'] / 'decay.db', GENERATION)
     data.download('decay')
     assert data._pair_table_usable() is True
+
+
+@pytest.fixture
+def shipped_stamps(datadir):
+    """The isolated data directory with the release URLs of the shipped
+    registry, so the expected stamps are those of the shipped files."""
+    with open(os.path.join(os.path.dirname(data.__file__), 'data_registry.json')) as f:
+        shipped = json.load(f)
+    datadir['registry']['base_url'] = shipped['base_url']
+    datadir['registry']['revisions'] = shipped.get('revisions', {})
+    return datadir
+
+
+STALE_DECAY = 'decay.db is from data generation v2, but this curie release uses generation v2.1.'
+
+
+@pytest.mark.parametrize('stamp, usable', [('v2', False), ('v2.1', True)])
+def test_pair_table_usable_by_the_shipped_stamps(shipped_stamps, capsys, stamp, usable):
+    # the decay.db of the generation release is stamped v2: under the shipped
+    # registry its pair table may not be used, and the revised file's may
+    _decay_db(shipped_stamps['cache'] / 'decay.db', stamp)
+    assert data._pair_table_usable() is usable
+    out = capsys.readouterr().out
+    if usable:
+        assert 'generation' not in out
+    else:
+        assert STALE_DECAY in out and "ci.download('decay')" in out
 
 
 # ---------------------------------------------------------------------------
@@ -494,6 +522,69 @@ def test_summing_stale_table_and_loglog(eu_fitted, capsys, monkeypatch):
     assert log == log_off[:2]+['[WARNING] Calibration.calibrate: the coincidence-summing correction needs a Vidmar '
                                'efficiency model, so calibrate() fits the loglog-4 curve without it. Set summing=False '
                                'to fit it without this warning.']+log_off[2:]
+
+
+# the nuclides of the example spectrum and their daughters
+EU_DECAY_NUCLIDES = ('152EU', '152SM', '152GD', '40K', '40CA', '40AR')
+
+
+@pytest.fixture(scope='module')
+def eu_decay_rows():
+    """The schema of the installed decay database and its rows of
+    EU_DECAY_NUCLIDES (all of the elements table), read once before any
+    test redirects the data directory."""
+    con = data._get_connection('decay')
+    out = {}
+    for name, sql in con.execute("SELECT name, sql FROM sqlite_master WHERE type='table'").fetchall():
+        cols = [r[1] for r in con.execute('PRAGMA table_info("{}")'.format(name))]
+        if name == 'elements':
+            rows = con.execute('SELECT * FROM elements').fetchall()
+        elif 'isotope' in cols and name != '_version':
+            rows = con.execute('SELECT * FROM "{0}" WHERE isotope IN ({1})'.format(
+                name, ','.join('?'*len(EU_DECAY_NUCLIDES))), EU_DECAY_NUCLIDES).fetchall()
+        else:
+            rows = []
+        out[name] = (sql, len(cols), rows)
+    return out
+
+
+def _small_decay_db(path, tables, generation):
+    """A decay database of the given rows, stamped `generation`."""
+    con = sqlite3.connect(str(path))
+    for name, (sql, ncol, rows) in tables.items():
+        con.execute(sql)
+        if name == '_version':
+            rows = [('decay', generation)+(None,)*(ncol-2)]
+        con.executemany('INSERT INTO "{0}" VALUES ({1})'.format(name, ','.join('?'*ncol)), rows)
+    con.commit()
+    con.close()
+
+
+@requires_data('decay')
+@requires_pairs()
+@pytest.mark.parametrize('stamp', ['v2', 'v2.1'])
+def test_summing_follows_the_shipped_stamps(eu_fitted, eu_decay_rows, shipped_stamps, capsys, stamp):
+    # a decay database stamped as the generation release's decay.db gives the
+    # generation warning and the result of summing=False with its message; one
+    # stamped as the revised file gives the correction without either
+    _small_decay_db(shipped_stamps['cache'] / 'decay.db', eu_decay_rows, stamp)
+    capsys.readouterr()
+    off, _ = _calibrate([eu_fitted], EU_SOURCES, summing=False)
+    first = capsys.readouterr().out
+    cb, log = _calibrate([eu_fitted], EU_SOURCES, capsys)
+    no_correction = [l for l in log if 'applies no coincidence-summing correction' in l]
+    if stamp == 'v2':
+        assert STALE_DECAY in first
+        _same_result(cb, off)
+        assert cb._summing is None
+        assert no_correction == ["[WARNING] Calibration.calibrate: calibrate() applies no coincidence-summing correction, "
+                                 "because the decay database failed the data-generation check or has no coincidences "
+                                 "table. Run ci.download('decay') to update it."]
+    else:
+        assert 'generation' not in first
+        assert no_correction == []
+        assert cb._summing is not None
+        assert not np.allclose(cb.effcal, off.effcal, rtol=1E-3)
 
 
 def test_summing_config_is_a_bool():
