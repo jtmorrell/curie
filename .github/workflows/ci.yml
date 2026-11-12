@@ -14,7 +14,9 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    # setup-python has no Python 3.9 build for the Ubuntu 26.04 image, so the
+    # 3.9 job stays on 24.04; the other jobs follow ubuntu-latest.
+    runs-on: ${{ matrix.python-version == '3.9' && 'ubuntu-24.04' || 'ubuntu-latest' }}
     strategy:
       fail-fast: false
       matrix:
