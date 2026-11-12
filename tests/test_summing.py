@@ -140,8 +140,11 @@ E_CURVE = np.array([121.7817, 344.2785, 778.9045, 1408.013])
 # The example spectrum calibrated by the parent of the summing correction with
 # default settings, recorded 2026-11-10 at commit 1040f36: the curve and its
 # fitted uncertainty at E_CURVE, the model tag and the calibrate() log lines.
-# The curve tolerance holds across scipy/BLAS stacks (observed spread 2E-6);
-# the correction moves it by 4 to 6% here
+# The comparisons against these values carry rtol 1E-3 for the curve and 1E-2
+# for its uncertainty. Across OpenBLAS kernel types (SkylakeX, Haswell, Nehalem,
+# Prescott, Zen, ...) and numpy 1.26 and 2.2 the largest relative difference
+# measured on 2026-11-11 is 2.8E-5 in the curve and 7.6E-4 in its uncertainty,
+# both from the fit's stopping point; the correction moves the curve by 4 to 6%
 PARENT_EFF = [0.03389452960116718, 0.015288308693332031, 0.007129342928757225, 0.003908902030484131]
 PARENT_UNC_EFF = [0.0009457745016816501, 0.00017719110217568457, 0.00017782177587114128, 0.00012232305549005895]
 PARENT_LOG = [
@@ -391,8 +394,8 @@ def test_summing_off_is_the_parent(eu_fitted, capsys, monkeypatch):
     monkeypatch.setattr(cal_mod.Calibration, '_xray_scale', unreachable)
     monkeypatch.setattr(cal_mod, '_pair_table_usable', unreachable)
     cb, log = _calibrate([eu_fitted], EU_SOURCES, capsys, summing=False)
-    np.testing.assert_allclose(cb.eff(E_CURVE), PARENT_EFF, rtol=1E-5)
-    np.testing.assert_allclose(cb.unc_eff(E_CURVE), PARENT_UNC_EFF, rtol=1E-4)
+    np.testing.assert_allclose(cb.eff(E_CURVE), PARENT_EFF, rtol=1E-3)
+    np.testing.assert_allclose(cb.unc_eff(E_CURVE), PARENT_UNC_EFF, rtol=1E-2)
     assert cb._effcal_model == 'vidmar-5' and cb._summing is None
     assert log == PARENT_LOG
     # every stored point is the measured value, as the parent stores it
@@ -727,7 +730,11 @@ def test_merge_record_changes_no_fit(eu_fitted):
     # fit_peaks records the lines it merges, each with its tabulated
     # intensity: 152Eu 443.96 + 444.01 keV and 719.35 + 719.36 keV are each one
     # peak with the summed intensity, and the record leaves the peak table as
-    # it was (curve tolerance as for PARENT_EFF)
+    # it was. The counts agree to 4E-8 across OpenBLAS kernel types and numpy
+    # versions (2026-11-11) and are compared at 1E-5. Their uncertainties come
+    # from the fit's covariance at its stopping point and differ by up to 1.13E-3
+    # (344.28 keV), so they are compared at 1E-2: a margin of 8.8 over the
+    # measured difference; a change of the fit that moves them by 1.1% is rejected
     g = ci.Isotope('152EU').gammas()
     I = {e: float(g.loc[g['energy'] == e, 'intensity'].iloc[0])*1E-2 for e in (443.9606, 444.01, 719.346, 719.36)}
     assert eu_fitted._merged == {('152EU', 443.9606): ((443.9606, 444.01), (I[443.9606], I[444.01])),
@@ -738,7 +745,7 @@ def test_merge_record_changes_no_fit(eu_fitted):
         assert len(row) == 1 and row.iloc[0]['intensity'] == sum(Is)
         assert es[1] not in pk['energy'].to_numpy()
     np.testing.assert_allclose(pk['counts'], PARENT_COUNTS, rtol=1E-5)
-    np.testing.assert_allclose(pk['unc_counts'], PARENT_UNC_COUNTS, rtol=1E-5)
+    np.testing.assert_allclose(pk['unc_counts'], PARENT_UNC_COUNTS, rtol=1E-2)
 
 
 @requires_data('decay')
@@ -767,7 +774,12 @@ def test_summing_merged_peak_takes_weighted_factor(eu_fitted, pairs_usable):
 
 # a calibration file as curie writes it without the summing correction, and
 # its curve and fitted uncertainty at E_CURVE as the parent of the stored
-# entry evaluates them (recorded 2026-11-10 at commit 6dbe2a0)
+# entry evaluates them (recorded 2026-11-10 at commit 6dbe2a0). The file is
+# evaluated, not fitted. Across OpenBLAS kernel types and numpy 1.26 and 2.2 the
+# largest relative difference measured on 2026-11-11 is 1.0E-15 in the curve and
+# 1.7E-14 in its uncertainty (the evaluation's last digit; 2.9E-12 for the
+# uncertainty of another stored curve); the curve is compared at rtol 1E-12 and
+# the uncertainty at 1E-10
 PARENT_FILE = '''{
     "engcal": [0.0, 0.25, 0.0],
     "effcal": [0.045, 6.0, 2.0, 1.8, 0.4],
@@ -799,8 +811,8 @@ def test_summing_file_of_the_parent(tmp_path):
         f.write(PARENT_FILE)
     cb = ci.Calibration(fn)
     assert cb._summing is None and cb._effcal_model == 'vidmar-5'
-    np.testing.assert_array_equal(cb.eff(E_CURVE), PARENT_FILE_EFF)
-    np.testing.assert_array_equal(cb.unc_eff(E_CURVE), PARENT_FILE_UNC_EFF)
+    np.testing.assert_allclose(cb.eff(E_CURVE), PARENT_FILE_EFF, rtol=1E-12)
+    np.testing.assert_allclose(cb.unc_eff(E_CURVE), PARENT_FILE_UNC_EFF, rtol=1E-10)
     cb.saveas(str(tmp_path / 'again.json'))
     with open(str(tmp_path / 'again.json')) as f:
         assert json.load(f) == json.loads(PARENT_FILE)
@@ -811,8 +823,8 @@ def test_summing_file_entry_leaves_the_curve(tmp_path):
     # of it that curie does not know is ignored (and not written again)
     cb = ci.Calibration(_file(tmp_path, {'L': 0.69, 'xray_partners': 0.58, 'note': 'other'}))
     assert cb._summing == {'L': 0.69, 'xray_partners': 0.58}
-    np.testing.assert_array_equal(cb.eff(E_CURVE), PARENT_FILE_EFF)
-    np.testing.assert_array_equal(cb.unc_eff(E_CURVE), PARENT_FILE_UNC_EFF)
+    np.testing.assert_allclose(cb.eff(E_CURVE), PARENT_FILE_EFF, rtol=1E-12)
+    np.testing.assert_allclose(cb.unc_eff(E_CURVE), PARENT_FILE_UNC_EFF, rtol=1E-10)
     cb.saveas(str(tmp_path / 'again.json'))
     with open(str(tmp_path / 'again.json')) as f:
         assert json.load(f)['summing'] == {'L': 0.69, 'xray_partners': 0.58}
