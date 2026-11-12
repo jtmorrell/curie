@@ -22,9 +22,19 @@ jobs:
         # One empty value keeps the base jobs on unpinned numpy; the include
         # adds a single job that pins the numpy 1.x line.
         numpy-pin: ['']
+        # The same for the OpenBLAS kernel type: empty on every job but one,
+        # which forces Haswell. The pinned reference values were recorded on a
+        # CPU with AVX512 kernels (SkylakeX); a runner's CPU otherwise decides
+        # which kernels a job exercises, so one job runs the non-AVX512 kernels
+        # whatever CPU the runner has.
+        openblas-coretype: ['']
         include:
           - python-version: '3.12'
             numpy-pin: '1.26.4'
+            openblas-coretype: ''
+          - python-version: '3.12'
+            numpy-pin: ''
+            openblas-coretype: 'Haswell'
     steps:
       - uses: actions/checkout@v4
 
@@ -41,6 +51,24 @@ jobs:
       - name: Assert pinned numpy version
         if: matrix.numpy-pin != ''
         run: python -c "import sys, numpy; print('numpy', numpy.__version__); sys.exit(0 if numpy.__version__.startswith('1.26') else 1)"
+
+      - name: Force the OpenBLAS kernel type
+        if: matrix.openblas-coretype != ''
+        run: echo "OPENBLAS_CORETYPE=${{ matrix.openblas-coretype }}" >> "$GITHUB_ENV"
+
+      - name: Assert the OpenBLAS kernel type
+        if: matrix.openblas-coretype != ''
+        run: |
+          python -m pip install threadpoolctl
+          python -c "
+          import sys
+          import numpy, scipy.linalg
+          from threadpoolctl import threadpool_info
+          libs = [m for m in threadpool_info() if m['internal_api'] == 'openblas']
+          for m in libs:
+              print(m['filepath'], m['architecture'])
+          sys.exit(0 if libs and all(m['architecture'] == '${{ matrix.openblas-coretype }}' for m in libs) else 1)
+          "
 
       - name: Restore nuclear data fixture
         id: data-cache
