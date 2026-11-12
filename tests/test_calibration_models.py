@@ -55,8 +55,11 @@ def test_zero_config_identity():
     # change means a default moved.  The efficiency CURVE is pinned rather than
     # the raw parameters: the effective-length parameter is nearly degenerate
     # once saturated, so different scipy/BLAS stacks converge to different
-    # parameterizations of the same curve (observed cross-platform curve
-    # reproducibility ~2E-6; tolerance gives 50x margin)
+    # parameterizations of the same curve.  Across OpenBLAS kernel types
+    # (SkylakeX, Haswell, Nehalem, Prescott, Zen, ...) and numpy 1.26 and 2.2
+    # the largest relative difference of the curve measured on 2026-11-11 is
+    # 2.8E-5, so it is compared at rtol 1E-3; the default floor moves it by up
+    # to 2.3% and the last re-record by 1.0%
     cb = ci.Calibration()
     cb.calibrate([eu_sp()], sources=EU_SOURCES, effcal_I_min=0, summing=False)
     e = np.array([121.7817, 344.2785, 778.9045, 1408.013])
@@ -70,7 +73,7 @@ def test_zero_config_identity():
     # full SNR-screen survival), inherent to weak-line fitting rather than
     # introduced by the constraint.
     np.testing.assert_allclose(cb.eff(e),
-                               [0.03390682, 0.01527646, 0.00716950, 0.00400189], rtol=1E-4)
+                               [0.03390682, 0.01527646, 0.00716950, 0.00400189], rtol=1E-3)
     assert (cb._engcal_model, cb._rescal_model, cb._effcal_model) == ('quadratic', 'linear', 'vidmar-5')
     assert cb.diagnostics.set_index('fit')['model'].to_dict() == {
         'engcal': 'quadratic', 'rescal': 'linear', 'effcal': 'vidmar-5'}
@@ -707,9 +710,11 @@ def test_effcal_I_min_default_floor(capsys):
     # with the floor applied to commit 617dcd7; the floor
     # leaves 14 of the 44 152Eu points in the fit and moves the curve of
     # test_zero_config_identity by -0.04% at 121.8 keV to -2.3% at 1408 keV.
-    # Tolerance as in test_zero_config_identity
+    # The largest relative difference of the curve across OpenBLAS kernel types
+    # and numpy 1.26 and 2.2 measured on 2026-11-11 is 2.5E-5, so it is
+    # compared at rtol 1E-3, as in test_zero_config_identity
     e = np.array([121.7817, 344.2785, 778.9045, 1408.013])
-    np.testing.assert_allclose(cb.eff(e), [0.03389453, 0.01528831, 0.00712934, 0.00390890], rtol=1E-4)
+    np.testing.assert_allclose(cb.eff(e), [0.03389453, 0.01528831, 0.00712934, 0.00390890], rtol=1E-3)
     assert int(row['n_points']) == 14 and row['model'] == 'vidmar-5'
 
 
@@ -744,8 +749,9 @@ def test_summing_default_curve():
     # curve of test_effcal_I_min_default_floor by 5.9% at 121.8 keV, 4.2% at
     # 344.3 keV, 3.3% at 778.9 keV and 5.9% at 1408 keV: at 7 cm the
     # summing-out loss of each line exceeds its gain, so the measured points
-    # lie below the curve that is free of summing.  Tolerance as in
-    # test_zero_config_identity
+    # lie below the curve that is free of summing.  The largest relative
+    # difference of the curve across OpenBLAS kernel types and numpy 1.26 and
+    # 2.2 measured on 2026-11-11 is 1.2E-6, compared at rtol 1E-4
     if not cal_mod._pair_table_usable():
         pytest.skip('the installed decay database fails the data-generation check')
     cb = ci.Calibration()
@@ -977,8 +983,12 @@ def test_pre_floor_calibration_file_unchanged(tmp_path):
     ev = PRE_FLOOR_EVAL
     assert (cb._engcal_model, cb._rescal_model, cb._effcal_model) == ('quadratic', 'linear', 'vidmar-5')
     assert cb._effcal_erange == (121.7817, 1457.643)
+    # the curve is evaluated from the stored parameters, not fitted: across
+    # OpenBLAS kernel types and numpy 1.26 and 2.2 the largest relative
+    # difference measured on 2026-11-11 is 4.3E-16 in the curve and 2.9E-12 in
+    # its uncertainty (a forward difference), compared at rtol 1E-12 and 1E-10
     np.testing.assert_allclose(cb.eff(np.array(ev['E'])), ev['eff'], rtol=1E-12)
-    np.testing.assert_allclose(cb.unc_eff(np.array(ev['E'])), ev['unc_eff'], rtol=1E-12)
+    np.testing.assert_allclose(cb.unc_eff(np.array(ev['E'])), ev['unc_eff'], rtol=1E-10)
     np.testing.assert_allclose(cb.eng(np.array([1000, 5000])), ev['eng'], rtol=1E-12)
     np.testing.assert_allclose(cb.res(np.array([1000, 5000])), ev['res'], rtol=1E-12)
     d = cb.effcal_data
