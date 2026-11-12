@@ -983,7 +983,13 @@ def test_peaks_with_entry_in_decay_chain(eu_fitted, eu_corrected, pairs_usable, 
     # get_counts decomposes unc_counts into its three classes (counting, line
     # intensity, efficiency), which add in quadrature to it; a saved peak file
     # read back gives the same table and the same counts, to the precision of
-    # the file (the json writer keeps 10 decimal places)
+    # the file.  csv: the writer is exact and pandas' default float parser reads
+    # a value written in decimal form (1E-4 to 1E-3) with a relative error of up
+    # to 9.9E-13, so rtol 1E-11.  json: the writer keeps 10 decimal places, an
+    # absolute error of 5E-11, which is 1.1E-6 of the smallest uncertainty of the
+    # efficiency (4.5E-5), so rtol 1E-4.  Across OpenBLAS kernel types and numpy
+    # 1.26 and 2.2 the largest differences measured on 2026-11-11 are 9.7E-13 and
+    # 9.8E-7
     sp, _ = _refit(eu_corrected, sp0=eu_fitted)
     eob = '01/01/2009 12:00:00'
     dc = ci.DecayChain('152EU', A0=3.7E4, units='h')
@@ -994,7 +1000,7 @@ def test_peaks_with_entry_in_decay_chain(eu_fitted, eu_corrected, pairs_usable, 
     pk = sp.peaks[sp.peaks['isotope'] == '152EU']
     np.testing.assert_allclose(np.sort(ct['unc_corr']/ct['counts']), np.sort(pk['unc_efficiency']/pk['efficiency']), rtol=1E-12)
     cols = ['energy', 'counts', 'efficiency', 'unc_efficiency', 'decays', 'unc_decays']
-    for ext, rtol in (('csv', 1E-12), ('json', 1E-5)):
+    for ext, rtol in (('csv', 1E-11), ('json', 1E-4)):
         fn = str(tmp_path / ('peaks.'+ext))
         sp.saveas(fn)
         back = pd.read_csv(fn) if ext == 'csv' else pd.read_json(fn, orient='records')
