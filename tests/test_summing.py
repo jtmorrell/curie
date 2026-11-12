@@ -143,7 +143,7 @@ E_CURVE = np.array([121.7817, 344.2785, 778.9045, 1408.013])
 # The comparisons against these values carry rtol 1E-3 for the curve and 1E-2
 # for its uncertainty. Across OpenBLAS kernel types (SkylakeX, Haswell, Nehalem,
 # Prescott, Zen, ...) and numpy 1.26 and 2.2 the largest relative difference
-# measured on 2026-11-11 is 2.8E-5 in the curve and 7.6E-4 in its uncertainty,
+# measured on 2026-11-11 is 2.5E-5 in the curve and 7.6E-4 in its uncertainty,
 # both from the fit's stopping point; the correction moves the curve by 4 to 6%
 PARENT_EFF = [0.03389452960116718, 0.015288308693332031, 0.007129342928757225, 0.003908902030484131]
 PARENT_UNC_EFF = [0.0009457745016816501, 0.00017719110217568457, 0.00017782177587114128, 0.00012232305549005895]
@@ -989,7 +989,7 @@ def test_peaks_with_entry_in_decay_chain(eu_fitted, eu_corrected, pairs_usable, 
     # absolute error of 5E-11, which is 1.1E-6 of the smallest uncertainty of the
     # efficiency (4.5E-5), so rtol 1E-4.  Across OpenBLAS kernel types and numpy
     # 1.26 and 2.2 the largest differences measured on 2026-11-11 are 9.7E-13 and
-    # 9.8E-7
+    # 1.0E-6
     sp, _ = _refit(eu_corrected, sp0=eu_fitted)
     eob = '01/01/2009 12:00:00'
     dc = ci.DecayChain('152EU', A0=3.7E4, units='h')
